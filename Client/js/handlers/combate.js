@@ -1,0 +1,1 @@
+/* Para manejar la lógica de combate.*/

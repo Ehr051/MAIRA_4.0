@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA 4.0 - Juego de Guerra Militar</title>
+    
+    <!-- CSS Optimizado -->
+    <link rel="stylesheet" href="css/maira-core.css">
+    <link rel="stylesheet" href="css/gaming-interface.css">
+    <link rel="stylesheet" href="css/military-theme.css">
+    
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Iconos militares -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 🎮 ESTILOS JUEGO GUERRA ESPECÍFICOS */
+        .gaming-interface {
+            display: flex;
+            height: 100vh;
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        
+        .gaming-sidebar {
+            width: 350px;
+            background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+            border-right: 2px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .gaming-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .gaming-header {
+            height: 60px;
+            background: linear-gradient(90deg, #003300, #004400);
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        
+        .gaming-header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ff00;
+            color: #00ff00;
+        }
+        
+        .gaming-status {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .status-value {
+            font-weight: bold;
+            color: #00ffff;
+        }
+        
+        .gaming-map-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+        }
+        
+        #gaming-map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* PANEL CONTROL GAMING */
+        .gaming-control-panel {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .control-section {
+            margin-bottom: 20px;
+        }
+        
+        .control-section h3 {
+            margin: 0 0 10px 0;
+            color: #00ff00;
+            font-size: 16px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .gaming-button {
+            background: linear-gradient(135deg, #004400, #006600);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 16px;
+            margin: 2px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .gaming-button:hover {
+            background: linear-gradient(135deg, #006600, #008800);
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .gaming-button.active {
+            background: linear-gradient(135deg, #00aa00, #00cc00);
+            color: #000;
+        }
+        
+        .gaming-button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        /* INFORMACIÓN UNIDADES */
+        .units-panel {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .unit-item {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #004400;
+            margin: 5px 0;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .unit-item:hover {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+        }
+        
+        .unit-name {
+            font-weight: bold;
+            color: #00ff00;
+        }
+        
+        .unit-status {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+        
+        .unit-health {
+            width: 100%;
+            height: 3px;
+            background: #333;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .unit-health-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+            transition: width 0.3s;
+        }
+        
+        /* PANEL INTEL */
+        .intel-panel {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .intel-item {
+            padding: 8px;
+            margin: 3px 0;
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 3px solid #00ffff;
+            font-size: 11px;
+        }
+        
+        .intel-timestamp {
+            color: #666;
+            font-size: 10px;
+        }
+        
+        /* CONTROLES TURNOS */
+        .turn-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .turn-timer {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+            padding: 5px 10px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        
+        .phase-indicator {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid #00ffff;
+            padding: 5px 10px;
+            color: #00ffff;
+            font-size: 12px;
+        }
+        
+        /* OVERLAY NIEBLA GUERRA */
+        .fog-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .fog-area {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            transition: opacity 0.5s;
+        }
+        
+        /* MARCADORES UNIDADES MILITARES */
+        .military-marker {
+            width: 30px;
+            height: 30px;
+            border: 2px solid;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .military-marker.blue {
+            background: rgba(0, 100, 255, 0.8);
+            border-color: #0066ff;
+            color: white;
+        }
+        
+        .military-marker.red {
+            background: rgba(255, 50, 50, 0.8);
+            border-color: #ff3333;
+            color: white;
+        }
+        
+        .military-marker.unknown {
+            background: rgba(255, 255, 0, 0.6);
+            border-color: #ffff00;
+            color: black;
+        }
+        
+        .military-marker:hover {
+            transform: scale(1.2);
+            z-index: 1001;
+        }
+        
+        /* NOTIFICACIONES GAMING */
+        .gaming-notifications {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 300px;
+        }
+        
+        .gaming-notification {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 5px;
+        }
+        
+        .notification-content {
+            color: #ccc;
+            font-size: 12px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .gaming-sidebar {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .gaming-sidebar {
+                position: absolute;
+                left: -350px;
+                transition: left 0.3s;
+                z-index: 1000;
+            }
+            
+            .gaming-sidebar.open {
+                left: 0;
+            }
+        }
+        
+        /* ANIMACIONES */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 🎮 INTERFAZ PRINCIPAL JUEGO GUERRA -->
+    <div class="gaming-interface">
+        <!-- SIDEBAR CONTROL -->
+        <div class="gaming-sidebar">
+            <!-- PANEL CONTROL PRINCIPAL -->
+            <div class="gaming-control-panel">
+                <div class="control-section">
+                    <h3><i class="fas fa-play"></i> Control Ejercicio</h3>
+                    <div class="turn-controls">
+                        <button class="gaming-button" id="start-exercise">
+                            <i class="fas fa-play"></i> Iniciar
+                        </button>
+                        <button class="gaming-button" id="pause-exercise" disabled>
+                            <i class="fas fa-pause"></i> Pausar
+                        </button>
+                        <button class="gaming-button" id="stop-exercise" disabled>
+                            <i class="fas fa-stop"></i> Detener
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 10px;">
+                        <div class="phase-indicator" id="current-phase">
+                            Fase: Preparación
+                        </div>
+                        <div class="turn-timer" id="turn-timer">
+                            Tiempo: --:--
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-cogs"></i> Configuración</h3>
+                    <button class="gaming-button" id="scenario-config">
+                        <i class="fas fa-map"></i> Escenario
+                    </button>
+                    <button class="gaming-button" id="forces-config">
+                        <i class="fas fa-users"></i> Fuerzas
+                    </button>
+                    <button class="gaming-button" id="ai-config">
+                        <i class="fas fa-robot"></i> IA Director
+                    </button>
+                </div>
+                
+                <div class="control-section">
+                    <h3><i class="fas fa-eye"></i> Visibilidad</h3>
+                    <button class="gaming-button active" id="fog-toggle">
+                        <i class="fas fa-cloud"></i> Niebla Guerra
+                    </button>
+                    <button class="gaming-button" id="intel-toggle">
+                        <i class="fas fa-search"></i> Intel Compartida
+                    </button>
+                    <button class="gaming-button" id="omniscient-toggle">
+                        <i class="fas fa-eye-slash"></i> Modo Director
+                    </button>
+                </div>
+            </div>
+            
+            <!-- PANEL UNIDADES -->
+            <div class="gaming-control-panel">
+                <div class="control-section">
+                    <h3><i class="fas fa-users-gear"></i> Unidades Propias</h3>
+                    <div class="units-panel" id="friendly-units">
+                        <!-- Unidades dinámicas -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PANEL INTEL -->
+            <div class="gaming-control-panel">
+                <div class="control-section">
+                    <h3><i class="fas fa-satellite-dish"></i> Inteligencia</h3>
+                    <div class="intel-panel" id="intelligence-panel">
+                        <!-- Intel dinámico -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ÁREA PRINCIPAL MAPA -->
+        <div class="gaming-main">
+            <!-- HEADER INFO -->
+            <div class="gaming-header">
+                <h1><i class="fas fa-crosshairs"></i> MAIRA 4.0 - JUEGO GUERRA</h1>
+                
+                <div class="gaming-status">
+                    <div class="status-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="status-value" id="game-time">00:00:00</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-flag"></i>
+                        <span class="status-value" id="turn-number">Turno 0</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-users"></i>
+                        <span class="status-value" id="active-units">0/0</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="status-value" id="performance-score">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CONTENEDOR MAPA -->
+            <div class="gaming-map-container">
+                <div id="gaming-map"></div>
+                
+                <!-- OVERLAY NIEBLA GUERRA -->
+                <div class="fog-overlay" id="fog-overlay"></div>
+                
+                <!-- NOTIFICACIONES -->
+                <div class="gaming-notifications" id="gaming-notifications"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 📚 SCRIPTS CORE -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/core/MAIRACore.js"></script>
+    
+    <!-- 🎮 SCRIPTS GAMING -->
+    <script src="js/gaming/GameEngine.js"></script>
+    <script src="js/gaming/AIDirector.js"></script>
+    <script src="js/gaming/FogOfWar.js"></script>
+    
+    <!-- 🚀 SERVICIOS 3D Y COMBATE -->
+    <script src="js/services/threeDMapService.js"></script>
+    <script src="js/services/combatSystem3DIntegrator.js"></script>
+    
+    <!-- 🌍 HANDLERS MEJORADOS -->
+    <script src="js/handlers/elevationHandler.js"></script>
+    <script src="js/handlers/vegetacionhandler.js"></script>
+    <script src="js/handlers/transitabilidadHandler.js"></script>
+    
+    <!-- ⚡ BOTÓN 3D -->
+    <div id="toggle3d-button" style="position: fixed; top: 70px; right: 20px; z-index: 9999;">
+        <button onclick="window.threeDMapService?.toggle()" 
+                style="background: #004400; color: #00ff00; border: 2px solid #00ff00; padding: 10px; border-radius: 5px; cursor: pointer;">
+            <i class="fas fa-cube"></i> Vista 3D
+        </button>
+    </div>
+    
+    <!-- 🎯 SCRIPT PRINCIPAL JUEGO GUERRA -->
+    <script>
+        /**
+         * 🎮 MAIRA GAMING INTERFACE - CONTROLADOR PRINCIPAL
+         */
+        class MAIRAGamingInterface {
+            constructor() {
+                this.initialized = false;
+                this.gameEngine = null;
+                this.map = null;
+                this.currentUnits = new Map();
+                this.activeMarkers = new Map();
+                this.fogOverlay = null;
+                
+                console.log('🎮 MAIRA Gaming Interface - Inicializando...');
+                this.initialize();
+            }
+            
+            async initialize() {
+                console.log('⚡ Inicializando interfaz gaming...');
+                
+                try {
+                    // Esperar a que MAIRA Core esté listo
+                    await this.waitForMAIRACore();
+                    
+                    // Cambiar a modo gaming
+                    await window.MAIRA.switchMode('gaming');
+                    
+                    // Inicializar mapa
+                    await this.initializeMap();
+                    
+                    // Configurar interfaz
+                    await this.setupInterface();
+                    
+                    // Configurar eventos
+                    await this.setupEventHandlers();
+                    
+                    // Cargar Game Engine
+                    await this.initializeGameEngine();
+                    
+                    this.initialized = true;
+                    console.log('✅ Gaming Interface inicializada correctamente');
+                    
+                } catch (error) {
+                    console.error('❌ Error inicializando Gaming Interface:', error);
+                }
+            }
+            
+            async waitForMAIRACore() {
+                return new Promise((resolve) => {
+                    const checkMAIRA = () => {
+                        if (window.MAIRA && window.MAIRA.isInitialized()) {
+                            resolve();
+                        } else {
+                            setTimeout(checkMAIRA, 100);
+                        }
+                    };
+                    checkMAIRA();
+                });
+            }
+            
+            async initializeMap() {
+                console.log('🗺️ Inicializando mapa gaming...');
+                
+                // Configurar mapa Leaflet
+                this.map = L.map('gaming-map', {
+                    center: [-34.6118, -58.3960], // Buenos Aires
+                    zoom: 10,
+                    zoomControl: true,
+                    attributionControl: false,
+                    preferCanvas: true // Mejor performance
+                });
+                
+                // Capas base
+                const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 18,
+                    attribution: 'MAIRA 4.0'
+                });
+                
+                const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 17,
+                    attribution: 'MAIRA 4.0'
+                });
+                
+                // Agregar capas
+                satelliteLayer.addTo(this.map);
+                
+                // Control capas
+                const baseLayers = {
+                    "Satélite": satelliteLayer,
+                    "Topográfico": topoLayer
+                };
+                
+                L.control.layers(baseLayers).addTo(this.map);
+                
+                // Escala
+                L.control.scale({
+                    metric: true,
+                    imperial: false,
+                    position: 'bottomleft'
+                }).addTo(this.map);
+                
+                console.log('✅ Mapa gaming inicializado');
+            }
+            
+            async setupInterface() {
+                console.log('🎛️ Configurando interfaz...');
+                
+                // Configurar botones principales
+                this.setupControlButtons();
+                
+                // Configurar paneles
+                this.setupPanels();
+                
+                // Configurar timers
+                this.setupTimers();
+                
+                console.log('✅ Interfaz configurada');
+            }
+            
+            setupControlButtons() {
+                // Botón iniciar ejercicio
+                document.getElementById('start-exercise').addEventListener('click', () => {
+                    this.startExercise();
+                });
+                
+                // Botón pausar
+                document.getElementById('pause-exercise').addEventListener('click', () => {
+                    this.pauseExercise();
+                });
+                
+                // Botón detener
+                document.getElementById('stop-exercise').addEventListener('click', () => {
+                    this.stopExercise();
+                });
+                
+                // Toggle niebla guerra
+                document.getElementById('fog-toggle').addEventListener('click', (e) => {
+                    this.toggleFogOfWar();
+                    e.target.classList.toggle('active');
+                });
+                
+                // Configuración escenario
+                document.getElementById('scenario-config').addEventListener('click', () => {
+                    this.openScenarioConfig();
+                });
+            }
+            
+            setupPanels() {
+                // Panel unidades se actualiza dinámicamente
+                // Panel intel se actualiza en tiempo real
+            }
+            
+            setupTimers() {
+                // Timer principal del juego
+                setInterval(() => {
+                    this.updateGameTime();
+                }, 1000);
+                
+                // Timer turnos
+                setInterval(() => {
+                    this.updateTurnTimer();
+                }, 100);
+            }
+            
+            async setupEventHandlers() {
+                console.log('📡 Configurando event handlers...');
+                
+                // Eventos MAIRA Core
+                window.MAIRA.on('gameEngine:exercise:started', (data) => {
+                    this.onExerciseStarted(data);
+                });
+                
+                window.MAIRA.on('gameEngine:exercise:ended', (data) => {
+                    this.onExerciseEnded(data);
+                });
+                
+                window.MAIRA.on('gameEngine:turn:start', (data) => {
+                    this.onTurnStart(data);
+                });
+                
+                window.MAIRA.on('gameEngine:ui:update', (data) => {
+                    this.onUIUpdate(data);
+                });
+                
+                // Eventos Fog of War
+                window.MAIRA.on('fogOfWar:contact:detected', (data) => {
+                    this.onContactDetected(data);
+                });
+                
+                window.MAIRA.on('fogOfWar:contact:lost', (data) => {
+                    this.onContactLost(data);
+                });
+                
+                // Eventos AI Director
+                window.MAIRA.on('ai:event', (data) => {
+                    this.onAIEvent(data);
+                });
+                
+                console.log('✅ Event handlers configurados');
+            }
+            
+            async initializeGameEngine() {
+                console.log('🎮 Inicializando Game Engine...');
+                
+                // Cargar Game Engine
+                this.gameEngine = await window.MAIRA.loadModule('gaming/GameEngine');
+                
+                if (this.gameEngine) {
+                    console.log('✅ Game Engine cargado');
+                } else {
+                    // Crear instancia directa si no está disponible como módulo
+                    this.gameEngine = new GameEngine();
+                }
+            }
+            
+            // CONTROL EJERCICIO
+            async startExercise() {
+                console.log('🚀 Iniciando ejercicio...');
+                
+                try {
+                    // Configuración por defecto
+                    const config = {
+                        name: 'Ejercicio MAIRA 4.0',
+                        scenario: 'basic_defense',
+                        duration: 240, // 4 horas
+                        difficulty: 'medium'
+                    };
+                    
+                    // Iniciar Game Engine
+                    await this.gameEngine.startExercise(config);
+                    
+                    // Actualizar UI
+                    this.setExerciseControls(true);
+                    this.showNotification('Ejercicio Iniciado', 'El ejercicio ha comenzado correctamente');
+                    
+                } catch (error) {
+                    console.error('❌ Error iniciando ejercicio:', error);
+                    this.showNotification('Error', 'No se pudo iniciar el ejercicio', 'error');
+                }
+            }
+            
+            pauseExercise() {
+                console.log('⏸️ Pausando ejercicio...');
+                this.gameEngine?.pauseGame();
+                this.showNotification('Ejercicio Pausado', 'El ejercicio ha sido pausado');
+            }
+            
+            stopExercise() {
+                console.log('⏹️ Deteniendo ejercicio...');
+                
+                if (confirm('¿Está seguro que desea detener el ejercicio?')) {
+                    this.gameEngine?.stopGame();
+                    this.setExerciseControls(false);
+                    this.showNotification('Ejercicio Detenido', 'El ejercicio ha finalizado');
+                }
+            }
+            
+            setExerciseControls(running) {
+                document.getElementById('start-exercise').disabled = running;
+                document.getElementById('pause-exercise').disabled = !running;
+                document.getElementById('stop-exercise').disabled = !running;
+            }
+            
+            // EVENTOS GAME ENGINE
+            onExerciseStarted(data) {
+                console.log('✅ Ejercicio iniciado:', data);
+                this.updatePhaseIndicator('Ejecución');
+            }
+            
+            onExerciseEnded(data) {
+                console.log('🏁 Ejercicio finalizado:', data);
+                this.updatePhaseIndicator('Finalizado');
+                this.setExerciseControls(false);
+            }
+            
+            onTurnStart(data) {
+                console.log(`🎯 Turno ${data.turn} iniciado`);
+                document.getElementById('turn-number').textContent = `Turno ${data.turn}`;
+            }
+            
+            onUIUpdate(data) {
+                // Actualizar interfaz con datos del juego
+                this.updateUnitsPanel(data.gameState);
+                this.updateStatusBar(data.gameState);
+            }
+            
+            // EVENTOS FOG OF WAR
+            onContactDetected(data) {
+                console.log('🔍 Contacto detectado:', data.id);
+                this.addContactMarker(data);
+                this.addIntelReport(`Contacto detectado: ${data.classification}`, data.confidence);
+            }
+            
+            onContactLost(data) {
+                console.log('👻 Contacto perdido:', data.contactId);
+                this.removeContactMarker(data.contactId);
+            }
+            
+            // EVENTOS AI DIRECTOR
+            onAIEvent(data) {
+                console.log('🤖 Evento IA:', data.event.name);
+                this.showNotification('Evento del Director', data.event.description, 'info');
+            }
+            
+            // GESTIÓN MARCADORES MAPA
+            addContactMarker(contact) {
+                const marker = L.marker([contact.position.lat, contact.position.lng], {
+                    icon: this.createMilitaryIcon(contact.classification, contact.confidence)
+                }).addTo(this.map);
+                
+                marker.bindPopup(`
+                    <strong>${contact.classification}</strong><br>
+                    Confianza: ${(contact.confidence * 100).toFixed(1)}%<br>
+                    Detectado: ${new Date(contact.firstDetected).toLocaleTimeString()}
+                `);
+                
+                this.activeMarkers.set(contact.id, marker);
+            }
+            
+            removeContactMarker(contactId) {
+                const marker = this.activeMarkers.get(contactId);
+                if (marker) {
+                    this.map.removeLayer(marker);
+                    this.activeMarkers.delete(contactId);
+                }
+            }
+            
+            createMilitaryIcon(classification, confidence) {
+                const color = confidence > 0.7 ? '#ff3333' : '#ffff00';
+                const symbol = this.getUnitSymbol(classification);
+                
+                return L.divIcon({
+                    className: 'military-marker',
+                    html: `<div class="military-marker ${confidence > 0.7 ? 'red' : 'unknown'}">${symbol}</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+            }
+            
+            getUnitSymbol(classification) {
+                const symbols = {
+                    'infantry': '🚶',
+                    'tank': '🚗',
+                    'artillery': '🎯',
+                    'unknown': '?',
+                    'unidentified_vehicle': '🚐'
+                };
+                
+                return symbols[classification] || '?';
+            }
+            
+            // GESTIÓN NIEBLA GUERRA
+            toggleFogOfWar() {
+                if (this.fogOverlay) {
+                    this.fogOverlay.style.display = this.fogOverlay.style.display === 'none' ? 'block' : 'none';
+                }
+            }
+            
+            // PANELES INTERFAZ
+            updateUnitsPanel(gameState) {
+                const unitsPanel = document.getElementById('friendly-units');
+                if (!unitsPanel || !gameState.forces) return;
+                
+                unitsPanel.innerHTML = '';
+                
+                const friendlyUnits = gameState.forces.blue?.units || new Map();
+                
+                for (const [unitId, unit] of friendlyUnits) {
+                    const unitElement = this.createUnitElement(unit);
+                    unitsPanel.appendChild(unitElement);
+                }
+            }
+            
+            createUnitElement(unit) {
+                const div = document.createElement('div');
+                div.className = 'unit-item';
+                div.innerHTML = `
+                    <div class="unit-name">${unit.name}</div>
+                    <div class="unit-status">${unit.type} - ${unit.status}</div>
+                    <div class="unit-health">
+                        <div class="unit-health-bar" style="width: ${unit.health}%"></div>
+                    </div>
+                `;
+                
+                div.addEventListener('click', () => {
+                    this.selectUnit(unit);
+                });
+                
+                return div;
+            }
+            
+            selectUnit(unit) {
+                console.log('🎯 Unidad seleccionada:', unit.name);
+                // Centrar mapa en unidad
+                if (unit.position) {
+                    this.map.setView([unit.position.lat, unit.position.lng], 15);
+                }
+            }
+            
+            addIntelReport(message, confidence = 1.0) {
+                const intelPanel = document.getElementById('intelligence-panel');
+                if (!intelPanel) return;
+                
+                const intelItem = document.createElement('div');
+                intelItem.className = 'intel-item';
+                intelItem.innerHTML = `
+                    <div>${message}</div>
+                    <div class="intel-timestamp">
+                        ${new Date().toLocaleTimeString()} - Conf: ${(confidence * 100).toFixed(0)}%
+                    </div>
+                `;
+                
+                intelPanel.insertBefore(intelItem, intelPanel.firstChild);
+                
+                // Mantener solo últimos 20 reportes
+                while (intelPanel.children.length > 20) {
+                    intelPanel.removeChild(intelPanel.lastChild);
+                }
+            }
+            
+            updateStatusBar(gameState) {
+                if (!gameState) return;
+                
+                // Actualizar unidades activas
+                const totalUnits = (gameState.forces?.blue?.units?.size || 0) + (gameState.forces?.red?.units?.size || 0);
+                const activeUnits = totalUnits; // Placeholder
+                document.getElementById('active-units').textContent = `${activeUnits}/${totalUnits}`;
+            }
+            
+            updatePhaseIndicator(phase) {
+                document.getElementById('current-phase').textContent = `Fase: ${phase}`;
+            }
+            
+            updateGameTime() {
+                const now = new Date();
+                document.getElementById('game-time').textContent = now.toLocaleTimeString();
+            }
+            
+            updateTurnTimer() {
+                // Actualizar timer turno si hay ejercicio activo
+                if (this.gameEngine && this.gameEngine.running) {
+                    // Placeholder - implementar timer real
+                }
+            }
+            
+            // NOTIFICACIONES
+            showNotification(title, message, type = 'info') {
+                const notificationsContainer = document.getElementById('gaming-notifications');
+                
+                const notification = document.createElement('div');
+                notification.className = `gaming-notification ${type}`;
+                notification.innerHTML = `
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-content">${message}</div>
+                `;
+                
+                notificationsContainer.appendChild(notification);
+                
+                // Auto-remove después de 5 segundos
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+            
+            // CONFIGURACIÓN
+            openScenarioConfig() {
+                alert('Configuración de escenario - Próximamente');
+            }
+        }
+        
+        // 🚀 INICIALIZAR AUTOMÁTICAMENTE
+        document.addEventListener('DOMContentLoaded', () => {
+            window.MAIRAGaming = new MAIRAGamingInterface();
+        });
+        
+        console.log('🎮 MAIRA Gaming Interface - Script cargado');
+    </script>
+</body>
+</html>

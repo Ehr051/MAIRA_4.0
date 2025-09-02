@@ -1,0 +1,2102 @@
+/**
+ * GBatalla.css Mejorado
+ * Estilos específicos para el modo Gestión de Batalla en MAIRA
+ * @version 1.2.0
+ */
+
+/* Estilos generales del panel lateral */
+.panel-lateral {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100vh;
+  background-color: rgba(30, 30, 30, 0.95);
+  box-shadow: -2px 0 15px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left: 1px solid #444;
+  color: #e0e0e0;
+  font-family: inherit;
+}
+
+.panel-lateral.oculto {
+  transform: translateX(350px);
+}
+
+/* Estilos de encabezado */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #121212;
+  color: white;
+  border-bottom: 1px solid #444;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #0281a8;
+}
+
+.panel-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.panel-header button:hover {
+  color: #0281a8;
+}
+
+/* Pestañas del panel */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid #444;
+  background-color: #1e1e1e;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background-color: #333;
+}
+
+.tab-btn.active {
+  border-bottom-color: #0281a8;
+  color: #0281a8;
+}
+
+/* Badge para notificaciones en pestañas */
+.tab-btn .notification-badge {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.tab-btn {
+  position: relative;
+}
+
+/* Contenido del panel */
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #272727;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Información de usuario */
+.info-usuario {
+  padding: 12px;
+  margin-bottom: 15px;
+  background-color: #1e1e1e;
+  border-radius: 4px;
+  border: 1px solid #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.usuario-datos p {
+  margin: 5px 0;
+  color: #ddd;
+}
+
+.usuario-datos strong {
+  color: #0281a8;
+}
+
+.estado-conexion {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.indicator.online {
+  background-color: #28a745;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.indicator.offline {
+  background-color: #dc3545;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+}
+
+/* Lista de elementos */
+.elementos-lista {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #222;
+}
+
+.elemento-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+  transition: background-color 0.2s ease;
+}
+
+.elemento-item:last-child {
+  border-bottom: none;
+}
+
+.elemento-item:hover {
+  background-color: #333;
+}
+
+.elemento-item.usuario-actual {
+  background-color: rgba(2, 129, 168, 0.2);
+}
+
+.elemento-icon {
+  position: relative;
+  margin-right: 12px;
+}
+
+.elemento-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 1px solid #222;
+}
+
+.elemento-status.online {
+  background-color: #28a745;
+}
+
+.elemento-status.offline {
+  background-color: #dc3545;
+}
+
+.elemento-info {
+  flex: 1;
+}
+
+.elemento-nombre {
+  font-weight: 500;
+  margin-bottom: 3px;
+  color: #fff;
+}
+
+.elemento-usuario {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.elemento-tiempo {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 3px;
+}
+
+.elemento-acciones {
+  display: flex;
+}
+
+.elemento-acciones button {
+  background: none;
+  border: none;
+  color: #0281a8;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.elemento-acciones button:hover {
+  color: #00a7d8;
+}
+
+/* Chat */
+.chat-tipo {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.chat-tipo button {
+  flex: 1;
+  padding: 8px;
+  background-color: #333;
+  border: 1px solid #444;
+  color: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chat-tipo button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.chat-tipo button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.chat-tipo button.active {
+  background-color: #0281a8;
+  color: white;
+  border-color: #0281a8;
+}
+
+#chat-destinatario {
+  margin-bottom: 12px;
+}
+
+#chat-destinatario select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #ddd;
+}
+
+.chat-messages {
+  height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding: 12px;
+  background-color: #222;
+  border-radius: 4px;
+  border: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  max-width: 85%;
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.message-usuario {
+  background-color: #026d8f;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+  color: white;
+}
+
+.message-recibido {
+  background-color: #333;
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+  color: white;
+}
+
+.message-sistema {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  align-self: center;
+  max-width: 90%;
+  text-align: center;
+  font-style: italic;
+  border-radius: 4px;
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 12px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+  background-color: #333;
+  color: #ddd;
+}
+
+.chat-input input:focus {
+  border-color: #0281a8;
+  box-shadow: 0 0 0 0.2rem rgba(2, 129, 168, 0.25);
+}
+
+.chat-input button {
+  padding: 10px 15px;
+  background-color: #0281a8;
+  border: none;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover {
+  background-color: #026d8f;
+}
+
+/* Informes */
+.informes-botones {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.informes-botones button {
+  flex: 1;
+  padding: 8px;
+  background-color: #333;
+  border: 1px solid #444;
+  color: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.informes-botones button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.informes-botones button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.informes-botones button.active {
+  background-color: #0281a8;
+  color: white;
+  border-color: #0281a8;
+}
+
+.filtro-informes {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.filtro-informes button {
+  flex: 1;
+  padding: 6px;
+  background-color: #333;
+  border: 1px solid #444;
+  font-size: 0.85rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filtro-informes button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.filtro-informes button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.filtro-informes button.active {
+  background-color: #0281a8;
+  color: white;
+  border-color: #0281a8;
+}
+
+.informes-lista {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+
+.informe {
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #2a2a2a;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.informe:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  background-color: #333;
+}
+
+.informe-urgente {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.orden {
+  background-color: rgba(40, 167, 69, 0.2);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.informe-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.informe-tipo {
+  margin-right: 10px;
+  color: #ccc;
+}
+
+.informe-urgente .informe-tipo {
+  color: #dc3545;
+}
+
+.orden .informe-tipo {
+  color: #28a745;
+}
+
+.informe-titulo {
+  flex: 1;
+  color: #fff;
+}
+
+.informe-titulo small {
+  color: #999;
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+.informe-remitente {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.informe-contenido {
+  white-space: pre-line;
+  margin-top: 8px;
+  color: #ddd;
+  line-height: 1.4;
+}
+
+.informe-acciones {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.btn-ubicacion {
+  background-color: #0281a8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-ubicacion:hover {
+  background-color: #026d8f;
+}
+
+/* Formulario de crear informe */
+#form-informe .form-group {
+  margin-bottom: 12px;
+}
+
+#form-informe label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #ddd;
+}
+
+#form-informe select,
+#form-informe input,
+#form-informe textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #ddd;
+}
+
+#form-informe textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.form-buttons button {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+#enviar-informe {
+  background-color: #0281a8;
+  color: white;
+  border: none;
+}
+
+#enviar-informe:hover {
+  background-color: #026d8f;
+}
+
+#cancelar-informe {
+  background-color: #444;
+  border: 1px solid #555;
+  color: #ddd;
+}
+
+#cancelar-informe:hover {
+  background-color: #555;
+}
+
+/* Botón del panel */
+/* Mejorar la visibilidad del botón del panel en PC */
+.boton-panel {
+  position: fixed;
+  right: 15px;
+  top: 80px;
+  z-index: 1200;
+  background-color: #0281a8;
+  border: none;
+  width: 40px; /* Ligeramente más grande */
+  height: 40px; /* Ligeramente más grande */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Sombra más notoria */
+  transition: all 0.3s ease;
+  color: white;
+  font-size: 18px; /* Texto más grande */
+}
+
+.boton-panel:hover {
+  background-color: #026d8f;
+  transform: scale(1.1);
+}
+
+/* Menú contextual */
+.context-menu {
+  position: absolute;
+  z-index: 1500;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  padding: 5px 0;
+  min-width: 150px;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #ddd;
+}
+
+.context-menu button:hover {
+  background-color: #444;
+  color: #fff;
+}
+
+/* Notificaciones */
+.notificaciones-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+}
+
+.notificacion {
+  position: relative;
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #333;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: slideIn 0.3s forwards;
+  opacity: 0;
+  transform: translateX(50px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ddd;
+}
+
+.notificacion.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notificacion-info {
+  border-left: 4px solid #17a2b8;
+}
+
+.notificacion-exito {
+  border-left: 4px solid #28a745;
+}
+
+.notificacion-error {
+  border-left: 4px solid #dc3545;
+}
+
+.notificacion-contenido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notificacion-icono {
+  font-size: 1.2rem;
+}
+
+.notificacion-info .notificacion-icono {
+  color: #17a2b8;
+}
+
+.notificacion-exito .notificacion-icono {
+  color: #28a745;
+}
+
+.notificacion-error .notificacion-icono {
+  color: #dc3545;
+}
+
+.notificacion-cerrar {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  transition: color 0.2s ease;
+}
+
+.notificacion-cerrar:hover {
+  color: #ddd;
+}
+
+/* Modales */
+.modal-content {
+  background-color: #333;
+  color: #ddd;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.modal-header {
+  background-color: #222;
+  border-bottom: 1px solid #444;
+  color: #fff;
+}
+
+.modal-title {
+  color: #0281a8;
+}
+
+.modal-footer {
+  background-color: #222;
+  border-top: 1px solid #444;
+}
+
+.modal-body {
+  background-color: #333;
+}
+
+.modal .btn-primary {
+  background-color: #0281a8;
+  border-color: #0281a8;
+}
+
+.modal .btn-primary:hover {
+  background-color: #026d8f;
+  border-color: #026d8f;
+}
+
+.modal .btn-secondary {
+  background-color: #555;
+  border-color: #444;
+}
+
+.modal .form-control {
+  background-color: #444;
+  border: 1px solid #555;
+  color: #ddd;
+}
+
+.modal .close {
+  color: #ddd;
+  text-shadow: none;
+}
+
+.modal .list-group-item {
+  background-color: #444;
+  border-color: #555;
+  color: #ddd;
+}
+
+.modal .list-group-item:hover {
+  background-color: #555;
+}
+
+/* Estilos responsivos */
+@media (max-width: 992px) {
+  .panel-lateral {
+    width: 320px;
+  }
+  
+  .panel-lateral.oculto {
+    transform: translateX(320px);
+  }
+
+  .chat-messages {
+    height: calc(100vh - 280px);
+  }
+
+  .elemento-item {
+    padding: 8px;
+  }
+
+  .elemento-nombre {
+    font-size: 0.9rem;
+  }
+
+  .elemento-usuario, .elemento-tiempo {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel-lateral {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .panel-lateral.oculto {
+    transform: translateX(100%);
+  }
+
+  .boton-panel {
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1500;
+  }
+
+  .element-icon {
+    margin-right: 8px;
+  }
+
+  .chat-messages {
+    height: calc(100vh - 320px);
+    padding: 10px;
+  }
+
+  .message {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    max-width: 90%;
+  }
+
+  .informes-lista {
+    max-height: calc(100vh - 260px);
+  }
+
+  .informe {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .informe-header {
+    margin-bottom: 5px;
+  }
+
+  .informe-tipo {
+    margin-right: 8px;
+    font-size: 0.9rem;
+  }
+
+  .informe-titulo {
+    font-size: 0.9rem;
+  }
+
+  .informe-remitente {
+    font-size: 0.8rem;
+  }
+
+  .informe-contenido {
+    font-size: 0.9rem;
+  }
+
+  .panel-tabs {
+    flex-wrap: nowrap;
+  }
+
+  .tab-btn {
+    padding: 8px 5px;
+    font-size: 0.9rem;
+  }
+
+  .info-usuario {
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .elementos-lista {
+    max-height: calc(100vh - 250px);
+  }
+
+  /* Ajuste de formularios para móviles */
+  #form-informe label {
+    margin-bottom: 3px;
+    font-size: 0.9rem;
+  }
+
+  #form-informe select,
+  #form-informe input,
+  #form-informe textarea {
+    padding: 6px;
+    font-size: 0.9rem;
+  }
+
+  #form-informe textarea {
+    min-height: 80px;
+  }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .btn-primary {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+
+  .form-group {
+    margin-bottom: 8px;
+  }
+
+  .panel-content {
+    padding: 10px;
+  }
+
+  .tab-btn {
+    font-size: 0.8rem;
+    padding: 8px 3px;
+  }
+
+  .chat-input input {
+    padding: 8px;
+  }
+
+  .chat-input button {
+    padding: 8px 12px;
+  }
+
+  .notificaciones-container {
+    top: 10px;
+    right: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  .notificacion {
+    padding: 10px;
+  }
+
+  /* Ajustar posiciones para no obstruir controles en dispositivos pequeños */
+  .chat-messages {
+    padding-bottom: 60px; /* Espacio para el área de entrada */
+  }
+
+  /* Optimizar para toques en pantalla táctil */
+  .elemento-acciones button,
+  .chat-input button,
+  .btn-ubicacion {
+    min-height: 36px; /* Altura mínima recomendada para elementos tocables */
+  }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) {
+  .elemento-item:active {
+    background-color: #444;
+  }
+
+  .chat-input button:active,
+  .btn-primary:active,
+  .btn-ubicacion:active {
+    opacity: 0.8;
+  }
+
+  /* Aumentar área de toque para enlaces y botones en dispositivos táctiles */
+  .elemento-acciones button {
+    padding: 8px 10px;
+  }
+
+  /* Asegurar que los formularios sean usables en pantallas táctiles */
+  #form-informe select,
+  #form-informe input {
+    font-size: 16px; /* Prevenir zoom automático en iOS */
+  }
+}
+
+/* Ajustes adicionales para elementos específicos */
+.sidc-preview-container {
+  background-color: #1a1a1a;
+  border: 1px solid #444;
+}
+
+/* Ajustes para elementos SIDC en el panel lateral */
+.sidc-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 30px;
+}
+
+.sidc-preview svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Clases para marcar elementos en el mapa */
+.elemento-marcado {
+  animation: pulsar 1.5s infinite;
+}
+
+@keyframes pulsar {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Estilos para el botón de volver y fullscreen */
+.boton-volver {
+  position: fixed;
+  left: 15px;
+  top: 15px;
+  z-index: 1200;
+  background-color: #444;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.boton-volver:hover {
+  background-color: #555;
+  transform: scale(1.1);
+}
+
+.fullscreen-button {
+  position: fixed;
+  right: 15px;
+  bottom: 15px;
+  z-index: 1200;
+  background-color: #444;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.fullscreen-button:hover {
+  background-color: #555;
+  transform: scale(1.1);
+}
+
+/* Estilos para la pantalla de carga */
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #121212;
+  z-index: 9999;
+  color: white;
+}
+
+.loading-container h1 {
+  margin-top: 1rem;
+  font-size: 2rem;
+  color: #0281a8;
+}
+
+.loading-container .logo {
+  max-width: 200px;
+  margin-bottom: 1rem;
+}
+
+.progress-container {
+  width: 80%;
+  max-width: 400px;
+  margin-top: 2rem;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #0281a8;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  position: relative;
+  text-align: center;
+}
+
+.loading-percentage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #ccc;
+  font-style: italic;
+}
+
+.version {
+  position: absolute;
+  bottom: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Panel de edición */
+.panel-edicion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #272727;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 15px;
+  max-width: 350px;
+  width: 90%;
+  z-index: 1300;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: none;
+}
+
+.panel-edicion.visible {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel-edicion h3 {
+  margin-top: 0;
+  color: #0281a8;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.panel-edicion .form-group {
+  margin-bottom: 15px;
+}
+
+.panel-edicion label {
+  display: block;
+  margin-bottom: 5px;
+  color: #ddd;
+}
+
+.panel-edicion input,
+.panel-edicion select,
+.panel-edicion textarea {
+  width: 100%;
+  padding: 8px;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ddd;
+}
+
+.panel-edicion .panel-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.panel-edicion .panel-buttons button {
+  padding: 8px 15px;
+  margin-left: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Mejoras para manejo de archivos multimedia */
+.media-upload {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.media-upload button {
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #ddd;
+  padding: 6px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.media-upload button:hover {
+  background-color: #444;
+}
+
+.media-upload button.active {
+  background-color: #0281a8;
+  border-color: #0281a8;
+  color: white;
+}
+
+.media-upload button i {
+  margin-right: 5px;
+}
+
+.media-preview {
+  margin-top: 10px;
+  display: none;
+  border: 1px dashed #444;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.media-preview.visible {
+  display: block;
+}
+
+.media-preview img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.media-preview audio {
+  width: 100%;
+}
+
+/* Menú radial para interacción táctil */
+.menu-radial-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1400;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menu-radial-container.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.menu-radial {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background-color: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.menu-radial-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #0281a8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.5rem;
+  z-index: 10;
+}
+
+.menu-radial-item {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: #444;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform-origin: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.menu-radial-item:hover {
+  background-color: #0281a8;
+  transform: scale(1.1);
+}
+
+.menu-radial-item i {
+  font-size: 1.2rem;
+}
+
+/* Grabación de audio */
+.audio-recorder {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.audio-recorder button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.audio-recorder button.recording {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.audio-recorder .timer {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.audio-recorder .cancel {
+  background-color: #6c757d;
+}
+
+.audio-recorder .send {
+  background-color: #28a745;
+}
+
+/* Galería de imágenes y archivos de audio */
+.media-gallery {
+  margin-top: 15px;
+  border-top: 1px solid #444;
+  padding-top: 15px;
+}
+
+.media-gallery h4 {
+  color: #ddd;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.media-gallery h4 button {
+  background: none;
+  border: none;
+  color: #0281a8;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.media-item {
+  position: relative;
+  height: 80px;
+  background-color: #222;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.media-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-item.audio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #333;
+}
+
+.media-item.audio i {
+  font-size: 1.5rem;
+  color: #0281a8;
+}
+
+.media-item .media-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.media-item:hover .media-overlay {
+  opacity: 1;
+}
+
+/* Ventana emergente de vista previa de archivos multimedia */
+.media-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.media-lightbox.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.media-lightbox-content {
+  max-width: 90%;
+  max-height: 80%;
+  position: relative;
+}
+
+.media-lightbox-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 4px;
+}
+
+.media-lightbox-content audio {
+  width: 300px;
+}
+
+.media-lightbox-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.media-lightbox-info {
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* Estilos para mensajes con archivos adjuntos */
+.message-with-attachment {
+  padding-bottom: 5px;
+}
+
+.message-attachment {
+  margin-top: 5px;
+  max-width: 200px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.message-attachment img {
+  width: 100%;
+  display: block;
+}
+
+.message-attachment audio {
+  width: 100%;
+  height: 30px;
+}
+
+.message-attachment-info {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}
+
+/* Estilos para la selección de archivos */
+.file-input-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.file-input-wrapper input[type=file] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Tooltips */
+.tooltip {
+  position: relative;
+}
+
+.tooltip:hover:after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Indicador de escritura */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+  padding: 5px 10px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  max-width: 100px;
+  margin-right: auto;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: inline-block;
+  margin-right: 5px;
+  animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+  margin-right: 0;
+}
+
+@keyframes typing {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Ajustes específicos para el menú Miradial */
+.miradial-container {
+  position: fixed;
+  z-index: 1500;
+  pointer-events: none;
+}
+
+.miradial-container.active {
+  pointer-events: auto;
+}
+
+.miradial-center {
+  position: absolute;
+  border-radius: 50%;
+  background-color: #0281a8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.miradial-item {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(40, 40, 40, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.miradial-item:hover {
+  background-color: #0281a8;
+  transform: scale(1.1);
+}
+
+.miradial-item.disabled {
+  background-color: #555;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.miradial-label {
+  position: absolute;
+  background-color: rgba(30, 30, 30, 0.9);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+.miradial-item:hover + .miradial-label {
+  opacity: 1;
+}
+
+/* Hacer más visible el botón de cierre del panel */
+#cerrar-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem; /* Más grande */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 8px; /* Área táctil más grande */
+}
+
+#cerrar-panel:hover {
+  color: #0281a8;
+}
+
+@media (max-width: 768px) {
+  #cerrar-panel {
+    font-size: 1.8rem; /* Aún más grande en móviles */
+    padding: 10px; /* Área táctil mayor para móviles */
+    color: #ff5252; /* Color diferente para hacerlo más notorio */
+  }
+}
+/* Esto puedes agregarlo al final de tu archivo CSS */
+#cerrar-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+#cerrar-panel:hover {
+  color: #ff5252;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  #cerrar-panel {
+      padding: 10px;
+      color: #ff5252;
+      background-color: rgba(0, 0, 0, 0.2);
+  }
+}
+/* Fix for the panel toggle button - override planeamiento.css */
+.boton-panel {
+  position: fixed !important;
+  right: 15px !important;
+  top: 80px !important;
+  z-index: 1500 !important; /* Increased z-index */
+  background-color: #0281a8 !important;
+  border: none !important;
+  width: 40px !important; /* Fixed width */
+  height: 40px !important; /* Fixed height */
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s ease !important;
+  color: white !important;
+  font-size: 18px !important;
+  padding: 0 !important; /* Override planeamiento.css padding */
+}
+
+.boton-panel:hover {
+  background-color: #026d8f !important;
+  transform: scale(1.1) !important;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .boton-panel {
+    top: 15px !important;
+    right: 15px !important;
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 18px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+.elemento-item.usuario-actual {
+  background-color: #e8f5e9;
+  border-left: 3px solid #4CAF50;
+  font-weight: bold;
+}
+
+.elemento-item {
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.elemento-item:hover {
+  background-color: #f5f5f5;
+}
+
+.elemento-item {
+  transition: opacity 0.3s ease;
+}
+
+.elemento-item.desconectado {
+  opacity: 0.6;
+}
+
+.estado-conexion {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.estado-conexion.conectado {
+  color: #2ecc71;
+}
+
+.estado-conexion.desconectado {
+  color: #e74c3c;
+}
+
+.elemento-militar.desconectado {
+  filter: grayscale(50%);
+  opacity: 0.5;
+}
+
+.elemento-item.seleccionado {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196F3;
+}
+
+#panel-detalles-elemento {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: none;
+}
+
+/* Estilos para las líneas de tracking */
+.tracking-path {
+  animation: dashAnimation 20s linear infinite;
+}
+
+@keyframes dashAnimation {
+  0% {
+      stroke-dashoffset: 20;
+  }
+  100% {
+      stroke-dashoffset: 0;
+  }
+}
+
+
+/* Agregar a /Client/css/GBatalla.css */
+.sidc-preview-container {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+#sidcPreviewGB {
+  display: inline-block;
+}
+
+#modalEdicionGB .modal-dialog {
+  max-width: 500px;
+}
+
+.elemento-item.seleccionado {
+  background-color: #e9ecef;
+  border-left: 3px solid #007bff;
+}
+
+/* ===== BOTÓN FLOTANTE PARA PANEL LATERAL ===== */
+.panel-toggle-btn {
+  position: fixed;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 35px;
+  height: 60px;
+  background: linear-gradient(135deg, #0281a8, #025d75);
+  border: none;
+  border-radius: 15px 0 0 15px;
+  box-shadow: -3px 0 10px rgba(2, 129, 168, 0.4);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  overflow: visible;
+}
+
+.panel-toggle-btn:hover {
+  transform: translateY(-50%) translateX(-5px);
+  box-shadow: -5px 0 15px rgba(2, 129, 168, 0.6);
+  background: linear-gradient(135deg, #025d75, #0281a8);
+}
+
+.panel-toggle-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.panel-toggle-btn .tooltip {
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.panel-toggle-btn .tooltip::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-left-color: rgba(0, 0, 0, 0.8);
+}
+
+.panel-toggle-btn:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ocultar botón cuando panel está visible */
+.panel-lateral:not(.oculto) ~ .panel-toggle-btn {
+  display: none;
+}
+
+/* ===== BOTÓN DE CERRAR EN EL PANEL ===== */
+.btn-cerrar-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cerrar-panel:hover {
+  color: #ff5252;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+/* Responsivo para móviles */
+@media (max-width: 768px) {
+  .panel-toggle-btn {
+    right: 15px;
+    width: 30px;
+    height: 50px;
+    font-size: 14px;
+  }
+  
+  .panel-toggle-btn .tooltip {
+    display: none;
+  }
+  
+  .btn-cerrar-panel {
+    padding: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+/* ===== BOTÓN Y MENÚ DE TEST ===== */
+.boton-test {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  transition: all 0.3s ease;
+  z-index: 998;
+}
+
+.boton-test:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+}
+
+.menu-test-flotante {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  z-index: 997;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.menu-test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #121212;
+  border-bottom: 1px solid #444;
+  border-radius: 8px 8px 0 0;
+}
+
+.menu-test-header h4 {
+  margin: 0;
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+.menu-test-header button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.menu-test-content {
+  padding: 10px;
+}
+
+.btn-test {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #444;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.btn-test:hover {
+  background: #555;
+  border-color: #0281a8;
+  color: white;
+}
+
+.btn-test:last-child {
+  margin-bottom: 0;
+}

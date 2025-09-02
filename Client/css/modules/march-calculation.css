@@ -1,0 +1,1200 @@
+/* =============================================
+   ESTILOS GENERALES
+   ============================================= */
+
+/* Variables Globales */
+:root {
+    --color-primary: #0281a8;
+    --color-bg: rgba(56, 78, 85, 0.95);
+    --color-border: #0281a8;
+    --header-height: 40px;
+    --panel-width: 33.33333%;
+    --panel-height: 33vh;
+}
+
+/* Estructura Base de Paneles */
+.sub-panel {
+    position: fixed;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    height: var(--panel-height);
+    width: var(--panel-width);
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Header Común */
+.display-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: var(--color-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    height: var(--header-height);
+    min-height: var(--header-height);
+}
+
+.display-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Controles Comunes */
+.display-controls {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.display-controls button {
+    background: none;
+    border: none;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 16px;
+    color: #fff;
+    transition: all 0.2s ease;
+}
+
+.display-controls button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Contenido Base */
+.display-content {
+    height: calc(100% - var(--header-height));
+    overflow: auto;
+    padding: 10px;
+}
+
+/* Scroll Personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #026d8f;
+}
+
+
+/* =============================================
+   PANEL DE MARCHA PRINCIPAL (DERECHA)
+   ============================================= */
+
+/* Variables de colores para series - deben coincidir con graficoMarcha */
+:root {
+    --serie-1: #2196F3;
+    --serie-2: #4CAF50;
+    --serie-3: #F44336;
+    --serie-4: #FFC107;
+    --serie-5: #9C27B0;
+    --border-color: #0281a8;
+    --panel-bg: rgba(56, 78, 85, 0.95);
+}
+
+/* Estructura principal */
+#panelMarchaContainer {
+    position: fixed;
+    top: 5%;
+    right: 0;
+    width: 33%;
+    height: 60vh;
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border-color);
+    z-index: 1900;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+}
+
+/* Scroll personalizado del panel principal */
+#panelMarchaContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#panelMarchaContainer::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#panelMarchaContainer::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+#panelMarchaContainer::-webkit-scrollbar-thumb:hover {
+    background: #026d8f;
+}
+
+/* Header y controles principales */
+.panel1 {
+    display: flex;
+    flex-direction: column;
+}
+
+.panel1 .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: var(--border-color);
+    min-height: 40px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.panel1 .header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Contenido principal */
+.content {
+    padding: 15px;
+}
+
+/* Secciones y paneles */
+.panel-control {
+    background: rgba(2, 129, 168, 0.1);
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.panel-header {
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(2, 129, 168, 0.3);
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h3,
+.panel-control h4 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Series */
+.serie-item {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Colores de series */
+.serie-item:nth-of-type(1) {
+    background: rgba(33, 150, 243, 0.1);
+    border: 2px solid var(--serie-1);
+}
+
+.serie-item:nth-of-type(2) {
+    background: rgba(76, 175, 80, 0.1);
+    border: 2px solid var(--serie-2);
+}
+
+.serie-item:nth-of-type(3) {
+    background: rgba(244, 67, 54, 0.1);
+    border: 2px solid var(--serie-3);
+}
+
+.serie-item:nth-of-type(4) {
+    background: rgba(255, 193, 7, 0.1);
+    border: 2px solid var(--serie-4);
+}
+
+.serie-item:nth-of-type(5) {
+    background: rgba(156, 39, 176, 0.1);
+    border: 2px solid var(--serie-5);
+}
+
+/* Headers de series */
+.serie-header {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.serie-item:nth-of-type(1) .serie-header { background: rgba(33, 150, 243, 0.2); }
+.serie-item:nth-of-type(2) .serie-header { background: rgba(76, 175, 80, 0.2); }
+.serie-item:nth-of-type(3) .serie-header { background: rgba(244, 67, 54, 0.2); }
+.serie-item:nth-of-type(4) .serie-header { background: rgba(255, 193, 7, 0.2); }
+.serie-item:nth-of-type(5) .serie-header { background: rgba(156, 39, 176, 0.2); }
+
+.serie-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.serie-nombre {
+    width: 120px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Columnas */
+.columna-item {
+    margin: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Colores de columnas según su serie */
+.serie-item:nth-of-type(1) .columna-item {
+    background: rgba(33, 150, 243, 0.05);
+    border-color: rgba(33, 150, 243, 0.3);
+}
+
+.serie-item:nth-of-type(2) .columna-item {
+    background: rgba(76, 175, 80, 0.05);
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.serie-item:nth-of-type(3) .columna-item {
+    background: rgba(244, 67, 54, 0.05);
+    border-color: rgba(244, 67, 54, 0.3);
+}
+
+.serie-item:nth-of-type(4) .columna-item {
+    background: rgba(255, 193, 7, 0.05);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.serie-item:nth-of-type(5) .columna-item {
+    background: rgba(156, 39, 176, 0.05);
+    border-color: rgba(156, 39, 176, 0.3);
+}
+
+.columna-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botones */
+.btn-agregar-serie,
+.btn-agregar-columna,
+.btn-action {
+    background: var(--border-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-eliminar-serie,
+.btn-eliminar-columna {
+    background: #dc3545;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover,
+.btn-agregar-serie:hover,
+.btn-agregar-columna:hover {
+    background: #026d8f;
+    transform: translateY(-1px);
+}
+
+.btn-eliminar-serie:hover,
+.btn-eliminar-columna:hover {
+    background: #bd2130;
+    transform: translateY(-1px);
+}
+
+/* Campos de configuración */
+.campo-config {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.campo-config label {
+    width: 140px;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.campo-config input {
+    width: 80px;
+    height: 30px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Puntos de Control */
+.puntos-list {
+    background: rgba(2, 129, 168, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.punto-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.punto-control:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.punto-control input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 8px;
+    height: 30px;
+    font-size: 0.9rem;
+}
+
+.pc-numero {
+    width: 60px;
+}
+
+.pc-descripcion {
+    width: 120px;
+}
+
+.coord-info {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    flex: 1;
+    padding: 0 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    height: 30px;
+    line-height: 30px;
+}
+
+/* Marcador en el mapa */
+.pc-circle {
+    width: 24px;
+    height: 24px;
+    background: #007bff;
+    border: 2px solid white;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.pc-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ff4444;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pc-marker:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.serie-item,
+.columna-item,
+.punto-control {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    #panelMarchaContainer {
+        width: 40%;
+    }
+}
+
+@media (max-width: 768px) {
+    #panelMarchaContainer {
+        width: 100%;
+        top: auto;
+        bottom: 0;
+        height: 50vh;
+    }
+
+    .campo-config {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .campo-config label {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+
+    .campo-config input {
+        width: 100%;
+    }
+
+    .serie-header,
+    .columna-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* =============================================
+   PANEL GRÁFICO DE MARCHA (CENTRO)
+   ============================================= */
+
+/* Posicionamiento y estructura base */
+#graficoMarchaPanel {
+    width: var(--panel-width);
+    height: var(--panel-height);
+    right: var(--panel-width); /* Posiciona en el centro */
+    bottom: 0;
+    background: var(--color-bg);
+    z-index: 1900;
+}
+
+/* Contenedor del gráfico */
+#graficoMarchaPanel .display-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenedor SVG */
+.grafico-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Elementos del gráfico */
+.axis-x path,
+.axis-x line,
+.axis-y path,
+.axis-y line {
+    stroke: #ffffff;
+    stroke-opacity: 0.7;
+    stroke-width: 1.5;
+    shape-rendering: crispEdges;
+}
+
+.axis-x text,
+.axis-y text {
+    fill: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Grilla */
+.grid-line {
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+/* Elementos de la marcha */
+.columna-banda {
+    fill: var(--color-primary);
+    fill-opacity: 0.6;
+    stroke: #ffffff;
+    stroke-width: 1;
+    transition: fill-opacity 0.2s ease;
+}
+
+.columna-banda:hover {
+    fill-opacity: 0.8;
+}
+
+.intervalo-columnas {
+    fill: rgba(255, 255, 255, 0.1);
+    stroke: none;
+}
+
+.intervalo-series {
+    fill: rgba(255, 255, 255, 0.2);
+    stroke: none;
+}
+
+/* Leyenda */
+.grafico-leyenda {
+    position: relative;
+    top: 10px;
+    right: 10px;
+    background: rgba(56, 78, 85, 0.95);
+    border: 1px solid var(--color-primary);
+    padding: 10px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    z-index: 100;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+.leyenda-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+/* Tooltip */
+.grafico-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--color-primary);
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.grafico-tooltip .titulo {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.grafico-tooltip .info {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 5px;
+}
+
+
+
+
+
+/* Ajustes responsive */
+@media (max-width: 1200px) {
+    #graficoMarchaPanel {
+        width: 32%;
+    }
+}
+
+@media (max-width: 768px) {
+    #graficoMarchaPanel {
+        width: 100%;
+        height: 50vh;
+        right: 0;
+    }
+}
+
+/* =============================================
+   PANEL PERFIL DE ELEVACIÓN (IZQUIERDA)
+   ============================================= */
+
+/* Posicionamiento y estructura base */
+#perfilElevacionDisplay {
+    width: var(--panel-width);
+    height: var(--panel-height);
+    left: 0;
+    bottom: 0;
+    background: var(--color-bg);
+}
+
+/* Contenedor principal */
+#perfilElevacionDisplay .display-content {
+    position: relative;
+    height: calc(100% - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* Contenedor del perfil de elevación */
+#perfilElevacionDisplay .svg-container {
+    width: 100%;
+    height: calc(100% - 80px);
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Elementos SVG */
+.elevation-area {
+    fill: rgba(2, 129, 168, 0.3);
+    transition: fill-opacity 0.3s ease;
+}
+
+.elevation-line {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2.5;
+    transition: stroke-width 0.3s ease;
+}
+
+/* Guías y marcadores */
+.mouse-guide-horizontal,
+.mouse-guide-vertical {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 1;
+    stroke-dasharray: 4,4;
+    pointer-events: none;
+}
+
+
+/* Área de selección */
+.selection-area {
+    fill: rgba(255, 255, 255, 0.1);
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 1;
+    stroke-dasharray: 4,4;
+    pointer-events: none;
+}
+
+/* Tooltips */
+.elevation-tooltip,
+.selection-info {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 10px;
+    color: white;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.elevation-tooltip {
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+
+.selection-info {
+    top: 20px;
+    right: 20px;
+    max-width: 200px;
+}
+
+/* Panel de estadísticas */
+.elevation-stats {
+    height: 80px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--color-primary);
+}
+
+.stats-group {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    height: 100%;
+}
+
+.stats-group div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    background: rgba(2, 129, 168, 0.2);
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Ajustes para modo fullscreen */
+.fullscreen#perfilElevacionDisplay {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.fullscreen#perfilElevacionDisplay .display-content {
+    height: calc(100vh - var(--header-height)) !important;
+    padding: 20px;
+}
+
+.fullscreen#perfilElevacionDisplay .svg-container {
+    height: calc(100vh - var(--header-height) - 100px) !important;
+}
+
+.fullscreen#perfilElevacionDisplay .stats-group {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.selection-marker {
+    fill: #ff4444;
+    stroke: #ffffff;
+    stroke-width: 2;
+    border-radius: 5;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .stats-group {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .elevation-stats {
+        height: auto;
+        min-height: 120px;
+    }
+
+    .elevation-tooltip,
+    .selection-info {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+}
+
+
+
+/* =============================================
+   PANEL CÁLCULO DE MARCHA (DERECHA)
+   ============================================= */
+
+/* Posicionamiento y estructura base */
+#calculoMarchaPanel {
+    width: var(--panel-width);
+    height: var(--panel-height);
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg);
+    z-index: 1900;
+}
+
+/* Contenedor de cálculos */
+#calculoMarchaContent {
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Resumen general */
+.resumen-general {
+    background: rgba(2, 129, 168, 0.1);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+/* Tablas de resultados */
+.tabla-resumen,
+.tabla-columnas,
+.tabla-pc {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.tabla-resumen th,
+.tabla-resumen td,
+.tabla-columnas th,
+.tabla-columnas td,
+.tabla-pc th,
+.tabla-pc td {
+    padding: 8px;
+    border: 1px solid rgba(2, 129, 168, 0.5);
+    text-align: left;
+}
+
+.tabla-resumen th,
+.tabla-columnas th,
+.tabla-pc th {
+    background: rgba(2, 129, 168, 0.2);
+    font-weight: 500;
+}
+
+/* Tiempos de columna */
+.tabla-tiempos-columna {
+    width: 100%;
+    margin: 0.5em 0;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.tabla-tiempos-columna th {
+    background: rgba(2, 129, 168, 0.3);
+    font-size: 0.9em;
+    padding: 6px 8px;
+}
+
+.tabla-tiempos-columna td {
+    font-size: 0.9em;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    padding: 6px 8px;
+}
+
+/* Series y resultados */
+.serie-resultados {
+    background: rgba(2, 129, 168, 0.1);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.serie-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgba(2, 129, 168, 0.2);
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.serie-info span {
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+/* Botones de detalles */
+.btn-detalles {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-detalles:hover {
+    background: #026d8f;
+}
+
+/* Modal de detalles */
+.modal-detalles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-contenido {
+    background: var(--color-bg);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 20px;
+    max-width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.detalles-scroll {
+    max-height: calc(80vh - 100px);
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.tabla-detalles {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.tabla-detalles th,
+.tabla-detalles td {
+    padding: 8px;
+    border: 1px solid rgba(2, 129, 168, 0.5);
+    text-align: left;
+}
+
+.tabla-detalles th {
+    background: rgba(2, 129, 168, 0.2);
+    font-weight: 500;
+}
+
+/* Puntos de control */
+.puntos-control-resumen {
+    background: rgba(2, 129, 168, 0.1);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.pc-principal {
+    background: rgba(2, 129, 168, 0.3);
+}
+
+
+
+/* Media queries */
+@media (max-width: 768px) {
+    #calculoMarchaPanel {
+        width: 100%;
+        right: 0;
+    }
+
+    .tabla-resumen,
+    .tabla-columnas,
+    .tabla-pc,
+    .tabla-detalles {
+        font-size: 0.8rem;
+    }
+
+    .serie-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .modal-contenido {
+        max-width: 95%;
+    }
+}
+
+
+
+/* Contenedores principales en fullscreen */
+.fullscreen {
+    position: fixed !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    background: var(--color-bg) !important;
+}
+
+
+/* Perfil de elevación en fullscreen - agregar/modificar */
+/* Ajustes para el contenedor SVG */
+.svg-container {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ajustes específicos para modo fullscreen */
+.fullscreen#perfilElevacionDisplay {
+    padding: 0;
+}
+
+.fullscreen#perfilElevacionDisplay .display-content {
+    height: calc(100vh - var(--header-height)) !important;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen#perfilElevacionDisplay .svg-container {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.fullscreen#perfilElevacionDisplay svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Ajustes para mantener claridad en modo fullscreen */
+.fullscreen#perfilElevacionDisplay .axis text {
+    font-size: 14px;
+}
+
+.fullscreen#perfilElevacionDisplay .elevation-line {
+    stroke-width: 3;
+}
+
+/* Panel de estadísticas en modo fullscreen */
+.fullscreen#perfilElevacionDisplay .elevation-stats {
+    position: relative;
+    height: auto;
+    min-height: 80px;
+    margin-top: auto;
+}
+
+
+/* Gráfico de Marcha */
+#graficoMarchaPanel {
+    display: flex;
+    flex-direction: column;
+}
+
+#graficoMarchaPanel .display-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#graficoMarchaPanel .svg-container {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+#graficoMarchaPanel svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Ajustes específicos para fullscreen en gráfico de marcha */
+.fullscreen#graficoMarchaPanel {
+    padding: 0;
+}
+
+.fullscreen#graficoMarchaPanel .display-content {
+    height: calc(100vh - var(--header-height)) !important;
+}
+
+.fullscreen#graficoMarchaPanel .svg-container {
+    height: calc(100vh - var(--header-height)) !important;
+}
+
+.fullscreen#graficoMarchaPanel .axis text {
+    font-size: 14px !important;
+}
+
+/* Cálculo de Marcha */
+#calculoMarchaPanel {
+    display: flex;
+    flex-direction: column;
+}
+
+#calculoMarchaPanel .display-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Ajustes específicos para fullscreen en cálculo de marcha */
+.fullscreen#calculoMarchaPanel .display-content {
+    height: calc(100vh - var(--header-height)) !important;
+    padding: 20px;
+}
+
+.fullscreen#calculoMarchaPanel .tabla-resumen,
+.fullscreen#calculoMarchaPanel .tabla-columnas,
+.fullscreen#calculoMarchaPanel .tabla-pc {
+    font-size: 1.1rem;
+}
+
+/* Controles comunes */
+.display-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.display-controls button {
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.display-controls button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .fullscreen .axis text {
+        font-size: 12px !important;
+    }
+    
+    .fullscreen .elevation-stats {
+        height: 100px;
+    }
+}

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA 4.0 - Sistema de Entrenamiento Militar Argentino">
+    <meta name="author" content="MAIRA Development Team">
+    
+    <title>MAIRA 4.0 - Planeamiento Militar</title>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="Client/assets/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="Client/assets/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="Client/assets/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="Client/assets/favicons/apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <!-- CSS Frameworks -->
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="node_modules/leaflet-draw/dist/leaflet.draw.css">
+    <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
+    
+    <!-- CSS Custom -->
+    <link rel="stylesheet" href="Client/css/planeamiento.css">
+    <link rel="stylesheet" href="Client/css/CYGMarcha.css">
+    
+    <!-- Leaflet Libraries -->
+    <script src="node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+    <script src="node_modules/leaflet-minimap/dist/Control.MiniMap.min.js"></script>
+    <script src="node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+    
+    <!-- Leaflet Pattern (Manual Download) -->
+    <script src="Client/Libs/leaflet-pattern/leaflet-pattern.js"></script>
+    
+    <!-- Additional Libraries -->
+    <script src="node_modules/three/build/three.min.js"></script>
+    <script src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
+    <script src="node_modules/chart.js/dist/chart.min.js"></script>
+    <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+    <script src="node_modules/moment/min/moment.min.js"></script>
+    <script src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Header Principal -->
+    <header class="main-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-2">
+                    <img src="Client/assets/images/logo_maira.png" alt="MAIRA 4.0" class="logo-header">
+                </div>
+                <div class="col-8 text-center">
+                    <h1 class="main-title">MAIRA 4.0 - PLANEAMIENTO MILITAR</h1>
+                    <p class="sub-title">Sistema de Entrenamiento Militar Argentino</p>
+                </div>
+                <div class="col-2 text-end">
+                    <div class="user-info">
+                        <span id="current-user">Director</span>
+                        <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                            <i class="fa fa-sign-out"></i> Salir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Herramientas Militar -->
+    <nav class="military-toolbar">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Grupo: Planeamiento -->
+                <div class="col-md-3">
+                    <div class="tool-group">
+                        <h6 class="group-title">PLANEAMIENTO</h6>
+                        <div class="btn-group-vertical d-grid gap-1">
+                            <button class="btn btn-military" onclick="openMissionPlanning()">
+                                <i class="fa fa-map"></i> Planeamiento Misión
+                            </button>
+                            <button class="btn btn-military" onclick="openTerrainAnalysis()">
+                                <i class="fa fa-area-chart"></i> Análisis Terreno
+                            </button>
+                            <button class="btn btn-military" onclick="openLogistics()">
+                                <i class="fa fa-truck"></i> Logística
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grupo: Combate -->
+                <div class="col-md-3">
+                    <div class="tool-group">
+                        <h6 class="group-title">COMBATE</h6>
+                        <div class="btn-group-vertical d-grid gap-1">
+                            <button class="btn btn-military" onclick="openCombatSimulation()">
+                                <i class="fa fa-crosshairs"></i> Simulación Combate
+                            </button>
+                            <button class="btn btn-military" onclick="openMovementControl()">
+                                <i class="fa fa-arrows"></i> Control Movimiento
+                            </button>
+                            <button class="btn btn-military" onclick="openFireControl()">
+                                <i class="fa fa-fire"></i> Control Fuego
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grupo: Inteligencia -->
+                <div class="col-md-3">
+                    <div class="tool-group">
+                        <h6 class="group-title">INTELIGENCIA</h6>
+                        <div class="btn-group-vertical d-grid gap-1">
+                            <button class="btn btn-military" onclick="openIntelligence()">
+                                <i class="fa fa-eye"></i> Recopilación Intel
+                            </button>
+                            <button class="btn btn-military" onclick="openReconnaissance()">
+                                <i class="fa fa-binoculars"></i> Reconocimiento
+                            </button>
+                            <button class="btn btn-military" onclick="openThreatAnalysis()">
+                                <i class="fa fa-warning"></i> Análisis Amenazas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grupo: Comunicaciones -->
+                <div class="col-md-3">
+                    <div class="tool-group">
+                        <h6 class="group-title">COMUNICACIONES</h6>
+                        <div class="btn-group-vertical d-grid gap-1">
+                            <button class="btn btn-military" onclick="openCommunications()">
+                                <i class="fa fa-radio"></i> Red Comunicaciones
+                            </button>
+                            <button class="btn btn-military" onclick="openReporting()">
+                                <i class="fa fa-file-text"></i> Reportes
+                            </button>
+                            <button class="btn btn-military" onclick="openCoordination()">
+                                <i class="fa fa-users"></i> Coordinación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+        <div class="row h-100">
+            <!-- Panel Lateral Izquierdo -->
+            <div class="col-md-3">
+                <div class="sidebar-panel">
+                    <!-- Pestañas de Control -->
+                    <ul class="nav nav-tabs military-tabs" id="controlTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="units-tab" data-bs-toggle="tab" data-bs-target="#units" type="button" role="tab">
+                                <i class="fa fa-users"></i> Unidades
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="terrain-tab" data-bs-toggle="tab" data-bs-target="#terrain" type="button" role="tab">
+                                <i class="fa fa-mountain"></i> Terreno
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="layers-tab" data-bs-toggle="tab" data-bs-target="#layers" type="button" role="tab">
+                                <i class="fa fa-layers"></i> Capas
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Contenido de Pestañas -->
+                    <div class="tab-content" id="controlTabsContent">
+                        <!-- Panel Unidades -->
+                        <div class="tab-pane fade show active" id="units" role="tabpanel">
+                            <div class="panel-section">
+                                <h6 class="section-title">UNIDADES AZULES</h6>
+                                <div id="blue-units-list" class="units-list"></div>
+                                
+                                <h6 class="section-title">UNIDADES ROJAS</h6>
+                                <div id="red-units-list" class="units-list"></div>
+                                
+                                <div class="unit-controls">
+                                    <button class="btn btn-sm btn-primary" onclick="addUnit()">
+                                        <i class="fa fa-plus"></i> Agregar Unidad
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="deployUnits()">
+                                        <i class="fa fa-play"></i> Desplegar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Panel Terreno -->
+                        <div class="tab-pane fade" id="terrain" role="tabpanel">
+                            <div class="panel-section">
+                                <h6 class="section-title">ANÁLISIS TERRENO</h6>
+                                
+                                <div class="terrain-controls">
+                                    <div class="form-group">
+                                        <label>Elevación</label>
+                                        <div class="btn-group d-grid">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleElevation()">
+                                                <i class="fa fa-area-chart"></i> Mostrar/Ocultar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Vegetación NDVI</label>
+                                        <div class="btn-group d-grid">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleVegetation()">
+                                                <i class="fa fa-leaf"></i> Mostrar/Ocultar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Análisis Pendientes</label>
+                                        <select class="form-select form-select-sm" id="slope-analysis">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="0-5">0-5° (Plano)</option>
+                                            <option value="5-15">5-15° (Moderado)</option>
+                                            <option value="15-30">15-30° (Pronunciado)</option>
+                                            <option value="30+">30°+ (Muy Pronunciado)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Panel Capas -->
+                        <div class="tab-pane fade" id="layers" role="tabpanel">
+                            <div class="panel-section">
+                                <h6 class="section-title">CAPAS DEL MAPA</h6>
+                                
+                                <div class="layer-controls">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="roads-layer" checked>
+                                        <label class="form-check-label" for="roads-layer">
+                                            <i class="fa fa-road"></i> Rutas y Caminos
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="settlements-layer" checked>
+                                        <label class="form-check-label" for="settlements-layer">
+                                            <i class="fa fa-building"></i> Poblaciones
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="water-layer" checked>
+                                        <label class="form-check-label" for="water-layer">
+                                            <i class="fa fa-tint"></i> Cuerpos de Agua
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="grid-layer">
+                                        <label class="form-check-label" for="grid-layer">
+                                            <i class="fa fa-th"></i> Grilla Militar
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mapa Principal -->
+            <div class="col-md-9">
+                <div class="map-container">
+                    <div id="mapid" class="military-map"></div>
+                    
+                    <!-- Controles de Mapa -->
+                    <div class="map-controls">
+                        <div class="control-group">
+                            <button class="btn btn-sm btn-dark" onclick="toggleMeasurement()" title="Medir Distancia">
+                                <i class="fa fa-ruler"></i>
+                            </button>
+                            <button class="btn btn-sm btn-dark" onclick="toggleDrawing()" title="Dibujar">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-dark" onclick="toggle3DView()" title="Vista 3D">
+                                <i class="fa fa-cube"></i>
+                            </button>
+                            <button class="btn btn-sm btn-dark" onclick="exportMap()" title="Exportar">
+                                <i class="fa fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Coordenadas y Escala -->
+                    <div class="map-info">
+                        <div class="coordinates">
+                            <span>Lat: <span id="current-lat">-34.6118</span></span>
+                            <span>Lon: <span id="current-lng">-58.3960</span></span>
+                            <span>Alt: <span id="current-alt">25</span>m</span>
+                        </div>
+                        <div class="scale">
+                            Escala: <span id="current-scale">1:50,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Estado -->
+    <footer class="status-bar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-3">
+                    <div class="status-info">
+                        <span class="status-indicator status-online"></span>
+                        <span>Conectado</span>
+                        <span class="mx-2">|</span>
+                        <span>Ejercicio: <strong id="exercise-name">EJERCICIO_2024</strong></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="progress-container">
+                        <span class="progress-label">Progreso Misión:</span>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 25%" id="mission-progress">25%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3 text-end">
+                    <div class="time-info">
+                        <span>Tiempo Ejercicio: <strong id="exercise-time">00:45:30</strong></span>
+                        <span class="mx-2">|</span>
+                        <span id="current-time"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modales -->
+    <!-- Modal Configuración Unidad -->
+    <div class="modal fade" id="unitConfigModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configuración de Unidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="unitConfigForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Unidad</label>
+                                    <select class="form-select" id="unitType" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="infantry">Infantería</option>
+                                        <option value="armor">Blindados</option>
+                                        <option value="artillery">Artillería</option>
+                                        <option value="aviation">Aviación</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Designación</label>
+                                    <input type="text" class="form-control" id="unitDesignation" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Bando</label>
+                                    <select class="form-select" id="unitSide" required>
+                                        <option value="blue">Azul (Amigo)</option>
+                                        <option value="red">Rojo (Enemigo)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Efectivos</label>
+                                    <input type="number" class="form-control" id="unitStrength" min="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comandante</label>
+                                    <input type="text" class="form-control" id="unitCommander">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-select" id="unitStatus">
+                                        <option value="ready">Listo</option>
+                                        <option value="moving">En Movimiento</option>
+                                        <option value="engaged">En Combate</option>
+                                        <option value="disabled">Fuera de Combate</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUnitConfig()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Bootstrap -->
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core JavaScript Modules -->
+    <script src="Client/js/core/config.js"></script>
+    <script src="Client/js/core/mapController.js"></script>
+    <script src="Client/js/core/planeamientoCore.js"></script>
+    
+    <!-- Handlers -->
+    <script src="Client/js/handlers/elevationHandler.js"></script>
+    <script src="Client/js/handlers/vegetacionhandler.js"></script>
+    <script src="Client/js/handlers/unitHandler.js"></script>
+    <script src="Client/js/handlers/drawingHandler.js"></script>
+    
+    <!-- Services -->
+    <script src="Client/js/services/dataService.js"></script>
+    <script src="Client/js/services/communicationService.js"></script>
+    
+    <!-- Utils -->
+    <script src="Client/js/utils/coordinateUtils.js"></script>
+    <script src="Client/js/utils/militaryUtils.js"></script>
+    <script src="Client/js/utils/exportUtils.js"></script>
+    
+    <!-- Workers -->
+    <script src="Client/js/workers/calculationWorker.js"></script>
+    <script src="Client/js/workers/terrainWorker.js"></script>
+    
+    <!-- Initialization Script -->
+    <script>
+        // Inicialización de la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('�� MAIRA 4.0 - Iniciando aplicación...');
+            
+            try {
+                // Inicializar mapa
+                if (typeof initializeMap === 'function') {
+                    initializeMap();
+                    console.log('✅ Mapa inicializado correctamente');
+                } else {
+                    console.warn('⚠️ Función initializeMap no encontrada');
+                }
+                
+                // Inicializar controladores
+                if (typeof PlaneamientoCore !== 'undefined') {
+                    PlaneamientoCore.init();
+                    console.log('✅ PlaneamientoCore inicializado');
+                } else {
+                    console.warn('⚠️ PlaneamientoCore no encontrado');
+                }
+                
+                // Actualizar reloj
+                updateCurrentTime();
+                setInterval(updateCurrentTime, 1000);
+                
+                // Configurar eventos de interfaz
+                setupInterfaceEvents();
+                
+                console.log('🎯 MAIRA 4.0 - Aplicación lista');
+                
+            } catch (error) {
+                console.error('❌ Error al inicializar MAIRA 4.0:', error);
+                showErrorMessage('Error al inicializar la aplicación: ' + error.message);
+            }
+        });
+        
+        // Funciones auxiliares
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('es-AR');
+        }
+        
+        function setupInterfaceEvents() {
+            // Configurar eventos de los controles de capa
+            document.getElementById('roads-layer').addEventListener('change', function() {
+                toggleLayer('roads', this.checked);
+            });
+            
+            document.getElementById('settlements-layer').addEventListener('change', function() {
+                toggleLayer('settlements', this.checked);
+            });
+            
+            document.getElementById('water-layer').addEventListener('change', function() {
+                toggleLayer('water', this.checked);
+            });
+            
+            document.getElementById('grid-layer').addEventListener('change', function() {
+                toggleLayer('grid', this.checked);
+            });
+            
+            // Configurar análisis de pendientes
+            document.getElementById('slope-analysis').addEventListener('change', function() {
+                analyzeSlopeRange(this.value);
+            });
+        }
+        
+        function showErrorMessage(message) {
+            // Crear y mostrar mensaje de error
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = \`
+                <strong>Error:</strong> \${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            \`;
+            document.body.appendChild(alertDiv);
+            
+            // Auto-remove después de 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+        
+        // Funciones de stub para funcionalidades pendientes
+        function openMissionPlanning() { console.log('Abriendo planeamiento de misión...'); }
+        function openTerrainAnalysis() { console.log('Abriendo análisis de terreno...'); }
+        function openLogistics() { console.log('Abriendo logística...'); }
+        function openCombatSimulation() { console.log('Abriendo simulación de combate...'); }
+        function openMovementControl() { console.log('Abriendo control de movimiento...'); }
+        function openFireControl() { console.log('Abriendo control de fuego...'); }
+        function openIntelligence() { console.log('Abriendo inteligencia...'); }
+        function openReconnaissance() { console.log('Abriendo reconocimiento...'); }
+        function openThreatAnalysis() { console.log('Abriendo análisis de amenazas...'); }
+        function openCommunications() { console.log('Abriendo comunicaciones...'); }
+        function openReporting() { console.log('Abriendo reportes...'); }
+        function openCoordination() { console.log('Abriendo coordinación...'); }
+        function logout() { console.log('Cerrando sesión...'); }
+        function addUnit() { console.log('Abriendo modal unidad...'); }
+        function deployUnits() { console.log('Desplegando unidades...'); }
+        function toggleElevation() { console.log('Alternando elevación...'); }
+        function toggleVegetation() { console.log('Alternando vegetación...'); }
+        function toggleMeasurement() { console.log('Alternando medición...'); }
+        function toggleDrawing() { console.log('Alternando dibujo...'); }
+        function toggle3DView() { console.log('Alternando vista 3D...'); }
+        function exportMap() { console.log('Exportando mapa...'); }
+        function toggleLayer(layer, enabled) { console.log(\`Capa \${layer}: \${enabled ? 'habilitada' : 'deshabilitada'}\`); }
+        function analyzeSlopeRange(range) { console.log(\`Analizando pendientes: \${range}\`); }
+        function saveUnitConfig() { console.log('Guardando configuración de unidad...'); }
+    </script>
+</body>
+</html>

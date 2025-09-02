@@ -1,0 +1,316 @@
+/* perfilElevacion.css */
+
+/* Contenedor del perfil de elevación */
+#perfilElevacionDisplay {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Encabezado del panel */
+#perfilElevacionDisplay .display-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+#perfilElevacionDisplay .display-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+/* Botones de control */
+#perfilElevacionDisplay .display-controls button {
+    border: none;
+    background: none;
+    color: #ffffff;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#perfilElevacionDisplay .display-controls button:hover {
+    transform: scale(1.1);
+}
+
+/* Contenido del perfil de elevación */
+#perfilElevacionDisplay .display-content {
+    height: calc(100% - 60px);
+    background-color: #f9f9f9;
+}
+
+/* Estilo de la cuadrícula */
+.grid line {
+    stroke: #e0e0e0;
+    stroke-width: 0.5;
+}
+
+/* Ejes y etiquetas */
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #333;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-size: 0.9em;
+    fill: #333;
+}
+
+
+
+
+/* graficoMarcha.css */
+
+/* Contenedor principal del gráfico de marcha */
+#graficoMarchaPanel {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Encabezado del gráfico */
+#graficoMarchaPanel .display-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+#graficoMarchaPanel .display-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+/* Botones de control */
+#graficoMarchaPanel .display-controls button {
+    border: none;
+    background: none;
+    color: #ffffff;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#graficoMarchaPanel .display-controls button:hover {
+    transform: scale(1.1);
+}
+
+/* Fondo de hoja milimetrada */
+#graficoMarchaPanel svg {
+    background-color: #fff8e1;
+    border: 1px solid #b8860b;
+}
+
+/* Cuadrícula */
+#graficoMarchaPanel .grid line {
+    stroke: #d2a679;
+    stroke-width: 0.5;
+}
+
+/* Ejes del gráfico */
+#graficoMarchaPanel .x-axis path,
+#graficoMarchaPanel .y-axis path {
+    stroke: #8b4513;
+    stroke-width: 2;
+}
+
+#graficoMarchaPanel .x-axis line,
+#graficoMarchaPanel .y-axis line {
+    stroke: #8b4513;
+    stroke-width: 1.5;
+}
+
+/* Etiquetas de los ejes */
+#graficoMarchaPanel .x-axis text,
+#graficoMarchaPanel .y-axis text {
+    fill: #8b4513;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Series y columnas de marcha */
+#graficoMarchaPanel .serie-marcha {
+    fill-opacity: 0.3;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+}
+
+#graficoMarchaPanel .columna-marcha {
+    fill-opacity: 0.5;
+    stroke-width: 1;
+    stroke-opacity: 0.7;
+}
+
+/* Puntos de control */
+#graficoMarchaPanel .punto-control {
+    fill: red;
+    stroke: black;
+    stroke-width: 1;
+}
+
+#graficoMarchaPanel .etiqueta-pc {
+    fill: #8b4513;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+/* calculoMarcha.css */
+
+/* Contenedor del cálculo de marcha */
+#calculoMarchaPanel {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Encabezado */
+#calculoMarchaPanel .display-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+#calculoMarchaPanel .display-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+/* Botones de control */
+#calculoMarchaPanel .display-controls button {
+    border: none;
+    background: none;
+    color: #ffffff;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#calculoMarchaPanel .display-controls button:hover {
+    transform: scale(1.1);
+}
+
+/* Secciones de configuración */
+#calculoMarchaPanel .panel-control,
+#calculoMarchaPanel .panel-series {
+    background: #3c3c3c;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+    color: #f8f9fa;
+}
+
+/* Columnas y configuraciones */
+.config-row input {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #f8f9fa;
+}
+
+
+
+
+
+
+
+
+
+
+/* panelMarcha.css */
+
+/* Contenedor principal del panel de marcha */
+#panelMarchaContainer {
+    position: fixed;
+    top: 10%;
+    right: 2%;
+    width: 30%;
+    max-height: 80%;
+    overflow-y: auto;
+    background-color: rgba(77, 76, 76, 0.566);
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1000;
+}
+
+/* Título */
+#panelMarchaContainer h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Botones */
+#panelMarchaContainer button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #054700;
+    color: white;
+}
+
+#panelMarchaContainer button:hover {
+    background-color: #0056b3;
+}
+
+/* Inputs */
+#panelMarchaContainer input[type="number"] {
+    width: calc(100% - 20px);
+    padding: 5px;
+    margin: 5px 0;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #f8f9fa;
+}
+
+/* Sección de configuración de tiempos */
+#timeSettingsSection {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}

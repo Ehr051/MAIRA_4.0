@@ -1,0 +1,208 @@
+/* En hexgrid.css - CORREGIDO */
+
+/* Cambiamos el selector para que SOLO afecte a los hexágonos, no a TODAS las líneas */
+.leaflet-pane > svg path.hex-cell {
+    fill: rgba(233, 250, 102, 0);
+    stroke: #040404bd;
+    stroke-width: 0.5px;
+    z-index: 200;
+    opacity: 0.7;
+}
+
+.leaflet-pane > svg path.hex-cell:hover {
+    fill: rgba(79, 77, 77, 0.393);
+    cursor: pointer;
+}
+
+/* Asegurarnos que las otras líneas tengan prioridad sobre los hexágonos */
+.leaflet-overlay-pane path.leaflet-interactive:not(.hex-cell) {
+    z-index: 400 !important;
+    position: relative !important;
+    stroke-width: 3px !important;
+    stroke-opacity: 0.9 !important;
+}
+
+/* Estilos para diferentes tipos de terreno */
+.hex-terrain-normal {
+    fill: rgba(200, 200, 200, 0.3);
+}
+
+.hex-terrain-forest {
+    fill: rgba(34, 139, 34, 0.3);
+}
+
+.hex-terrain-mountain {
+    fill: rgba(139, 69, 19, 0.3);
+}
+
+.hex-terrain-water {
+    fill: rgba(0, 191, 255, 0.3);
+}
+
+/* Estilo para hexágonos seleccionados */
+.hex-selected {
+    stroke: #ffff00 !important;  /* Amarillo para el borde */
+    stroke-width: 2px !important;
+    fill: rgba(255, 255, 0, 0.422) !important;  /* Amarillo con transparencia para el relleno */
+    opacity: 0.5;
+}
+
+/* Estilo para hexágonos en rango de movimiento */
+.hex-movable {
+    fill: rgba(0, 255, 0, 0.3);
+    stroke: #00ff00;
+    stroke-width: 2px;
+}
+
+/* Estilo para hexágonos atacables */
+.hex-attackable {
+    fill: rgba(255, 0, 0, 0.3);
+    stroke: #ff0000;
+    stroke-width: 2px;
+}
+
+/* Estilo para obstáculos */
+.hex-obstacle {
+    fill: rgba(100, 50, 0, 0.5);
+    stroke: #000000;
+    stroke-width: 2px;
+}
+
+/* Estilos para las etiquetas de los hexágonos */
+.hex-label {
+    font-size: 10px;
+    font-family: Arial, sans-serif;
+    fill: #333;
+    pointer-events: none;
+}
+
+/* Estilos para las unidades en hexágonos */
+/* Estilo para hexágonos con elementos seleccionados */
+.hex-with-element {
+    fill: #3498db !important;
+    stroke: #2980b9 !important;
+    stroke-width: 10px !important;
+}
+
+/* Estilos para el panel de información del terreno */
+.terrain-info-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1001;
+}
+
+.info-section {
+    margin: 10px 0;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Estilos para destacar hexágonos interactivos */
+.hex-interactive {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+/* Estilos para hexágonos con línea de visión */
+.hex-los {
+    fill: rgba(255, 255, 0, 0.2);
+    stroke: #ffff00;
+    stroke-width: 1px;
+    stroke-dasharray: 5,5;
+}
+
+.sector foreignObject i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.terrain-popup {
+    min-width: 200px;
+}
+
+.terrain-info h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.terrain-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.hex-marked {
+    stroke: #17f903 !important;  /* Borde verde */
+    stroke-width: 2px !important;
+    fill: rgba(255, 255, 255, 0.631) !important;  /* Relleno blanco  */
+    opacity: 0.9;
+}
+
+/* Estilos para otros elementos en el mapa (líneas, polígonos, etc.) */
+.leaflet-overlay-pane .measurement-line {
+    stroke: #e74c3c !important;  /* Rojo para líneas de medición */
+    stroke-width: 3px !important;
+    stroke-opacity: 0.9 !important;
+    z-index: 500 !important;
+    stroke-dasharray: 5,5;
+}
+
+.leaflet-overlay-pane .route-line {
+    stroke: #3498db !important;  /* Azul para rutas */
+    stroke-width: 4px !important;
+    stroke-opacity: 0.9 !important;
+    z-index: 500 !important;
+}
+
+.leaflet-overlay-pane .control-polygon {
+    stroke: #9b59b6 !important;  /* Púrpura para polígonos */
+    stroke-width: 3px !important;
+    stroke-opacity: 0.9 !important;
+    fill-opacity: 0.3 !important;
+    z-index: 500 !important;
+}
+
+/* Asegurar que los panes de Leaflet tengan el correcto z-index */
+.leaflet-map-pane {
+    z-index: 100;
+}
+
+.leaflet-tile-pane {
+    z-index: 200;
+}
+
+.leaflet-overlay-pane {
+    z-index: 400;
+}
+
+.leaflet-shadow-pane {
+    z-index: 500;
+}
+
+.leaflet-marker-pane {
+    z-index: 600;
+}
+
+.leaflet-tooltip-pane {
+    z-index: 650;
+}
+
+.leaflet-popup-pane {
+    z-index: 700;
+}

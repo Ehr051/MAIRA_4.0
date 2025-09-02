@@ -1,0 +1,1804 @@
+/* Cuadro de Organización Militar - Estilos Completos */
+
+/* Reset y Estilos Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Roboto Mono', monospace, 'Arial', sans-serif;
+    background-color: #222;
+    overflow: hidden;
+    color: #eee;
+}
+
+/* Variables para colores y estilos consistentes (alineadas con planeamiento.css) */
+:root {
+    /* Colores principales - armonizados con los otros modos */
+    --color-primario: #0281a8;
+    --color-secundario: #333;
+    --color-fondo: #222;
+    --color-texto: #eee;
+    --color-texto-secundario: #ccc;
+    
+    /* Colores adicionales del planeamiento.css */
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-info: #17a2b8;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+    --color-gray: #6c757d;
+    --color-gray-light: #dee2e6;
+    --color-gray-dark: #495057;
+    --color-border: #555;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    --color-amigo: rgb(4, 4, 169);
+    --color-enemigo: rgb(106, 2, 2);
+    
+    /* Tamaños de fuente */
+    --font-size-small: 12px;
+    --font-size-medium: 14px;
+    --font-size-large: 16px;
+    
+    /* Bordes redondeados */
+    --border-radius-small: 3px;
+    --border-radius-medium: 5px;
+    --border-radius-large: 8px;
+    
+    /* Espaciado */
+    --spacing-small: 5px;
+    --spacing-medium: 10px;
+    --spacing-large: 15px;
+    --spacing-xlarge: 20px;
+    
+    /* Transiciones */
+    --transition-speed: 0.3s;
+}
+
+/* Barra de Navegación Principal */
+#botones-principales {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-secundario);
+    color: var(--color-texto);
+    display: flex;
+    align-items: center;
+    height: 50px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px var(--color-shadow);
+}
+
+.menu-btn {
+    position: relative;
+    margin-right: 0;
+}
+
+.menu-btn > button {
+    background: none;
+    border: none;
+    color: var(--color-texto);
+    padding: 15px;
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    height: 50px;
+}
+
+.menu-btn > button:hover,
+.menu-btn > button.active {
+    background-color: rgba(2, 129, 168, 0.3);
+}
+
+.menu-btn > button i {
+    margin-right: 8px;
+    font-size: var(--font-size-medium);
+}
+
+/* Menús Desplegables - MEJORADOS */
+.menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--color-secundario);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px var(--color-shadow);
+    min-width: 220px;
+    z-index: 1100;
+    border-radius: var(--border-radius-medium);
+    padding: 5px 0;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.menu.show {
+    display: block;
+}
+
+.menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: var(--color-texto);
+    text-decoration: none;
+    transition: background-color var(--transition-speed) ease;
+}
+
+.menu a:hover {
+    background-color: rgba(2, 129, 168, 0.2);
+}
+
+.menu a i {
+    margin-right: 10px;
+    color: var(--color-primario);
+}
+
+/* Submenus - MEJORADOS */
+.submenu {
+    position: relative;
+}
+
+.submenu button {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    color: var(--color-texto);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color var(--transition-speed) ease;
+}
+
+.submenu button:hover {
+    background-color: rgba(2, 129, 168, 0.2);
+}
+
+.submenu button i {
+    margin-right: 10px;
+    color: var(--color-primario);
+}
+
+.submenu-content {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: var(--color-secundario);
+    min-width: 160px;
+    box-shadow: 0 2px 10px var(--color-shadow);
+    z-index: 1101;
+    border-radius: var(--border-radius-medium);
+    padding: 5px 0;
+}
+
+.submenu:hover .submenu-content {
+    display: block;
+}
+
+/* Grid de símbolos - MEJORADO */
+.simbolo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    padding: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.simbolo-grid a {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-small);
+    background-color: rgba(50, 50, 50, 0.8);
+    color: var(--color-texto);
+    text-decoration: none;
+    font-size: var(--font-size-small);
+    transition: all var(--transition-speed) ease;
+    height: 90px;
+    overflow: hidden;
+}
+
+.simbolo-grid a:hover {
+    border-color: var(--color-primario);
+    background-color: rgba(2, 129, 168, 0.2);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.simbolo-grid a .mil-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    margin-bottom: 5px;
+}
+
+/* Contenedor Principal */
+.main-container {
+    display: flex;
+    height: calc(100vh - 50px);
+    margin-top: 50px;
+    position: relative;
+    background-color: var(--color-fondo);
+    overflow: hidden;
+}
+
+/* Contenedor del Canvas */
+.canvas-container {
+    flex-grow: 1;
+    position: relative;
+    overflow: auto;
+    background-color: #333;
+    width: 100%;
+    height: 100%;
+}
+
+/* Canvas de Organización - MEJORADO */
+#org-canvas {
+    width: 100%;
+    height: 100%;
+    min-width: 3000px;  /* Tamaño mínimo para tener espacio suficiente */
+    min-height: 2000px;
+    position: relative;
+    background-color: #2a2a2a;
+    background-image: 
+        linear-gradient(rgba(80, 80, 80, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(80, 80, 80, 0.2) 1px, transparent 1px);
+    background-size: 50px 50px;
+    box-shadow: 0 0 10px var(--color-shadow);
+    transition: transform var(--transition-speed) ease;
+}
+
+/* Botones Secundarios */
+#botones-secundarios {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    background-color: var(--color-secundario);
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 2px 5px var(--color-shadow);
+    padding: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 600px;
+    width: auto;
+}
+
+#botones-secundarios button {
+    background-color: rgba(50, 50, 50, 0.8);
+    border: 1px solid var(--color-border);
+    color: var(--color-texto);
+    padding: 10px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: var(--border-radius-small);
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-medium);
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+}
+
+#botones-secundarios button i {
+    margin-right: 5px;
+}
+
+#botones-secundarios button:hover {
+    background-color: var(--color-primario);
+}
+
+#botones-secundarios button:disabled {
+    background-color: rgba(50, 50, 50, 0.5);
+    color: #888;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Botón específico de conexión */
+#crearConexionBtn {
+    background-color: var(--color-secundario);
+    color: var(--color-texto);
+    min-width: 100px;
+    font-weight: bold;
+    position: relative;
+}
+
+#crearConexionBtn.active {
+    background-color: var(--color-primario);
+    box-shadow: 0 0 10px var(--color-primario);
+}
+
+/* Sidebar de Propiedades */
+.sidebar {
+    width: 300px;
+    height: 100%;
+    background-color: var(--color-secundario);
+    border-left: 1px solid var(--color-border);
+    padding: 20px;
+    overflow-y: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 900;
+    box-shadow: -2px 0 5px var(--color-shadow);
+    transition: transform var(--transition-speed) ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(calc(100% - 30px));
+}
+
+.sidebar-toggle {
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--color-secundario);
+    border: 1px solid var(--color-border);
+    border-right: none;
+    padding: 10px 5px;
+    cursor: pointer;
+    z-index: 901;
+    border-radius: var(--border-radius-small) 0 0 var(--border-radius-small);
+}
+
+.sidebar h4 {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-texto);
+}
+
+/* Tabs en Sidebar y Paneles */
+.tab {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.tab button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--color-texto);
+    font-size: var(--font-size-medium);
+    transition: all var(--transition-speed) ease;
+    flex: 1;
+    text-align: center;
+}
+
+.tab button.active {
+    color: var(--color-primario);
+    border-bottom: 2px solid var(--color-primario);
+}
+
+.tab button:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tabcontent {
+    display: none;
+    padding: 10px 0;
+}
+
+.tabcontent.active, 
+.tabcontent[style*="display: block"] {
+    display: block;
+}
+
+/* Estilos para paneles laterales emergentes */
+.panel {
+    position: fixed;
+    top: 50px; /* Altura de la barra superior */
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
+    background-color: var(--color-secundario);
+    border-left: 1px solid var(--color-border);
+    box-shadow: -4px 0 10px var(--color-shadow);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.panel.show {
+    display: block;
+    transform: translateX(0);
+}
+
+
+/* Estilos para contenido del panel lateral */
+.panel h3 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-large);
+    color: var(--color-primario);
+}
+
+.panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border);
+}
+
+.panel-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-medium);
+}
+
+.panel-buttons button:first-child {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.panel-buttons button:first-child:hover {
+    background-color: #026d8f;
+}
+
+.panel-buttons button:last-child {
+    background-color: var(--color-gray);
+    color: white;
+}
+
+.panel-buttons button:last-child:hover {
+    background-color: #5a6268;
+}
+
+.panel-buttons button i {
+    margin-right: 5px;
+}
+
+/* Formularios y campos de entrada */
+.property-row {
+    margin-bottom: 15px;
+}
+
+.property-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--color-texto);
+}
+
+.property-row input,
+.property-row select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-small);
+    background-color: #3a3a3a;
+    color: var(--color-texto);
+    font-size: var(--font-size-medium);
+}
+
+.property-row input:focus,
+.property-row select:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 0.2rem rgba(2, 129, 168, 0.25);
+}
+
+.property-row input[type="color"] {
+    height: 40px;
+    cursor: pointer;
+}
+
+.property-row .form-check {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.property-row .form-check input {
+    width: auto;
+    margin-right: 8px;
+}
+
+/* Vista previa de símbolo - MEJORADO */
+#sidcDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(60, 60, 60, 0.5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    min-height: 150px;
+}
+
+#sidcDisplay svg {
+    max-width: 100px;
+    max-height: 100px;
+    margin-bottom: 10px;
+}
+
+.sidc-text {
+    font-family: monospace;
+    font-size: var(--font-size-small);
+    color: var(--color-texto-secundario);
+}
+
+/* Mensaje sin selección */
+#noSelectionMessage {
+    padding: 20px;
+    text-align: center;
+    color: var(--color-gray);
+}
+
+/* Símbolos Militares - MEJORADO */
+.military-symbol {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+    z-index: 10;
+    background-color: rgba(60, 60, 60, 0.8);
+    border-radius: var(--border-radius-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;  /* Aumentado de 10px */
+    box-shadow: 0 3px 7px var(--color-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.military-symbol:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.military-symbol.selected {
+    border: 2px dashed var(--color-primario);
+    box-shadow: 0 0 8px var(--color-primario);
+}
+
+.military-symbol.connection-source {
+    border: 2px dashed var(--color-warning);
+    box-shadow: 0 0 8px var(--color-warning);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { border-color: var(--color-warning); }
+    50% { border-color: var(--color-danger); }
+    100% { border-color: var(--color-warning); }
+}
+
+.military-symbol .symbol-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    transform: scale(1.3);  /* Aumentar el tamaño del símbolo */
+}
+
+/* Corregir la posición de las etiquetas de símbolos */
+/* Posicionamiento correcto de la etiqueta del símbolo militar */
+.military-symbol .symbol-label {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    margin-right: -10px;
+    padding: 3px 7px;
+    background-color: rgba(50, 50, 50, 0.8);
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+
+/* Estilos para el modo de inserción */
+.modo-insercion {
+    cursor: crosshair !important;
+}
+
+/* Botones de edición dentro de símbolos */
+.symbol-edit-btn,
+.symbol-delete-btn {
+    position: absolute;
+    background-color: var(--color-secundario);
+    border: 1px solid var(--color-border);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 11;
+    box-shadow: 0 1px 3px var(--color-shadow);
+    transition: all var(--transition-speed) ease;
+}
+
+.symbol-edit-btn {
+    top: -10px;
+    right: -10px;
+    color: var(--color-primario);
+}
+
+.symbol-delete-btn {
+    top: -10px;
+    left: -10px;
+    color: var(--color-danger);
+}
+
+.symbol-edit-btn:hover,
+.symbol-delete-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Botones de fuerza amiga/enemiga - MEJORADOS */
+.botones-fuerza {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.botones-fuerza button {
+    background-color: #323131;
+    color: var(--color-texto);
+    transition: background-color 0.2s ease;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    border-radius: var(--border-radius-small);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+.botones-fuerza button.active-amigo {
+    background-color: var(--color-amigo);
+    box-shadow: 0 0 10px rgba(4, 4, 169, 0.7);
+}
+
+.botones-fuerza button.active-enemigo {
+    background-color: var(--color-enemigo);
+    box-shadow: 0 0 10px rgba(106, 2, 2, 0.7);
+}
+
+/* Búsqueda de símbolos - MEJORADO */
+#search-container {
+    margin: 15px 0;
+}
+
+.search-input-wrapper {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+#busquedaSimbolo {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-small) 0 0 var(--border-radius-small);
+    background-color: #3a3a3a;
+    color: var(--color-texto);
+}
+
+#btnBuscarSimbolo {
+    background-color: var(--color-primario);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+    cursor: pointer;
+}
+
+#resultadosBusquedaSimbolos {
+    list-style: none;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-small);
+    background-color: var(--color-secundario);
+}
+
+#resultadosBusquedaSimbolos li {
+    padding: 0;
+}
+
+#resultadosBusquedaSimbolos a {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--color-texto);
+    border-bottom: 1px solid var(--color-border);
+}
+
+#resultadosBusquedaSimbolos a:hover {
+    background-color: rgba(2, 129, 168, 0.2);
+}
+
+#resultadosBusquedaSimbolos a img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* Controles de zoom */
+.zoom-controls {
+    position: fixed;
+    bottom: 80px;  /* Posicionado para no superponerse con otros controles */
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-secundario);
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 2px 5px var(--color-shadow);
+    padding: 5px;
+    z-index: 900;
+}
+
+.zoom-controls button {
+    background-color: rgba(50, 50, 50, 0.8);
+    border: 1px solid var(--color-border);
+    color: var(--color-texto);
+    padding: 5px 10px;
+    margin: 3px 0;
+    cursor: pointer;
+    border-radius: var(--border-radius-small);
+    transition: background-color var(--transition-speed) ease;
+    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-controls button:hover {
+    background-color: var(--color-primario);
+}
+
+.zoom-level {
+    text-align: center;
+    color: var(--color-texto);
+    font-size: 12px;
+    margin: 5px 0;
+    min-width: 40px;
+}
+
+/* Mejorar la visibilidad de las líneas de conexión */
+/* Mejorar la visibilidad de las líneas */
+.jtk-connector path {
+    stroke-width: 2.5px !important;
+    stroke: #456 !important;
+}
+
+.jtk-connector:hover path {
+    stroke-width: 3.5px !important;
+    stroke: #0d6efd !important;
+}
+
+/* Mejorar la visibilidad de las flechas */
+.jtk-overlay svg {
+    fill: #456 !important;
+    stroke: #456 !important;
+}
+
+.jtk-overlay:hover svg {
+    fill: #0d6efd !important;
+    stroke: #0d6efd !important;
+}
+
+/* Indicador de carga */
+.loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 20px;
+    border-radius: var(--border-radius-medium);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-indicator i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+/* Estilos para impresión */
+.org-canvas-print {
+    background-color: #2a2a2a;
+    position: relative;
+    width: 100%;
+    height: auto;
+    margin: 20px 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-medium);
+    overflow: hidden;
+}
+
+/* Menú contextual - MEJORADO */
+.menu-contextual {
+    position: absolute;
+    background-color: var(--color-secundario);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-small);
+    box-shadow: 0 2px 5px var(--color-shadow);
+    z-index: 9999;
+    overflow: hidden;
+    min-width: 150px;
+}
+
+.menu-contextual ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-contextual li {
+    padding: 0;
+}
+
+.menu-contextual a {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--color-texto);
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease;
+}
+
+.menu-contextual a:hover {
+    background-color: rgba(2, 129, 168, 0.2);
+}
+
+.menu-contextual a i {
+    margin-right: 8px;
+    color: var(--color-primario);
+}
+
+.menu-contextual .divider {
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 5px 0;
+}
+
+/* Panel de mensaje temporal */
+.mensaje-temporal {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mensaje-info {
+    border-left: 4px solid var(--color-info);
+}
+
+.mensaje-warning {
+    border-left: 4px solid var(--color-warning);
+}
+
+.mensaje-error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.mensaje-success {
+    border-left: 4px solid var(--color-success);
+}
+
+/* Cursor en modo conexión */
+.modo-conexion {
+    cursor: crosshair !important;
+}
+
+/* Clases de utilidad */
+.text-muted {
+    color: var(--color-gray);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(50, 50, 50, 0.8);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* Diálogos de confirmación */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-dialog {
+    background-color: var(--color-secundario);
+    border-radius: var(--border-radius-medium);
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 8px var(--color-shadow);
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: rgba(2, 129, 168, 0.2);
+    padding: 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-header h4 {
+    margin: 0;
+    color: var(--color-texto);
+}
+
+.modal-body {
+    padding: 20px;
+    color: var(--color-texto);
+}
+
+.modal-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--color-border);
+}
+
+.modal-footer button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    transition: background-color var(--transition-speed) ease;
+}
+
+.modal-footer .btn-primary {
+    background-color: var(--color-primario);
+    color: white;
+}
+
+.modal-footer .btn-secondary {
+    background-color: var(--color-gray);
+    color: white;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-speed) ease forwards;
+}
+
+.slide-in {
+    animation: slideIn var(--transition-speed) ease forwards;
+}
+
+/* Efecto de selección para símbolos */
+.military-symbol.selected::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 2px dashed var(--color-primario);
+    border-radius: var(--border-radius-medium);
+    pointer-events: none;
+    animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+/* Cambiar color de fondo del canvas al aumentar el zoom */
+#org-canvas.zoom-high {
+    background-color: #252525;
+}
+
+/* Clases de utilidad adicionales */
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.justify-content-center { justify-content: center; }
+.text-primary { color: var(--color-primario); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-success { color: var(--color-success); }
+.mt-2 { margin-top: 10px; }
+.mb-2 { margin-bottom: 10px; }
+.ml-2 { margin-left: 10px; }
+.mr-2 { margin-right: 10px; }
+.p-2 { padding: 10px; }
+
+/* Menús de tercer nivel */
+.submenu .submenu .collapse.show {
+    margin-left: 15px;
+}
+
+/* Añadir iconos de flecha para indicar submenús */
+.submenu > button::after {
+    content: '▶';
+    position: absolute;
+    right: 10px;
+    transition: transform 0.3s ease;
+    font-size: 10px;
+}
+
+.submenu > button[aria-expanded="true"]::after {
+    transform: rotate(90deg);
+}
+
+/* Mejora de la visibilidad para textos pequeños */
+.simbolo-grid a {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Estilos adicionales para mejorar la visibilidad de los menús */
+#agregar-menu.show {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+/* Estilos para submenús anidados para asegurar la legibilidad */
+.menu .submenu .collapse.show {
+    display: block;
+    position: static;
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin-left: 20px;
+}
+
+/* Asegurar que los submenús sean visibles */
+.submenu .collapse {
+    display: none;
+}
+
+.submenu .collapse.show {
+    display: block;
+}
+
+/* Media queries para responsive */
+@media (max-width: 1200px) {
+    .panel {
+        width: 320px;
+    }
+}
+
+@media (max-width: 992px) {
+    .simbolo-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .panel {
+        width: 300px;
+        right: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    #botones-principales {
+        flex-wrap: wrap;
+        height: auto;
+    }
+    
+    .menu-btn {
+        width: 50%;
+    }
+    
+    .menu-btn > button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .panel {
+        width: 90%;
+        max-width: 350px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    
+    #botones-secundarios {
+        left: 50%;
+        transform: translateX(-50%);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    #botones-secundarios button {
+        margin-bottom: 5px;
+    }
+    
+    .botones-fuerza {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .menu-btn {
+        width: 100%;
+    }
+    
+    .simbolo-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    
+    .panel {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    #sidcDisplay {
+        min-height: 120px;
+    }
+    
+    .tab button {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Estilos específicos para impresión */
+@media print {
+    /* Asegurar que los SVG sean visibles en impresión */
+    svg * {
+        visibility: visible !important;
+    }
+    
+    .symbol-container svg {
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    .jtk-connector path {
+        stroke: black !important;
+        stroke-width: 2px !important;
+        visibility: visible !important;
+    }
+    
+    .jtk-overlay svg {
+        fill: black !important;
+        stroke: black !important;
+        visibility: visible !important;
+    }
+    
+    /* Asegurar que los elementos sean visibles */
+    .military-symbol {
+        background-color: white !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        visibility: visible !important;
+        
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .symbol-label {
+        background-color: white !important;
+        color: black !important;
+        visibility: visible !important;
+    }
+}
+/* Hacer que los símbolos militares sean más grandes al añadirlos */
+.military-symbol {
+    min-width: 80px;
+    min-height: 80px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+/* Mejorar visibilidad de elementos seleccionados */
+.military-symbol.selected {
+    border: 2px solid var(--color-primario);
+    box-shadow: 0 0 12px var(--color-primario);
+    background-color: rgba(2, 129, 168, 0.2);
+    transform: scale(1.05);
+}
+
+/* Mejor destacado para elemento origen de conexión */
+.military-symbol.connection-source {
+    border: 2px solid var(--color-warning);
+    box-shadow: 0 0 15px var(--color-warning);
+    animation: pulse 1.5s infinite;
+    z-index: 100;
+}
+
+/* Estilo para elementos de texto */
+.text-element {
+    min-width: 100px;
+    min-height: 30px;
+    background-color: transparent;
+    border: 1px dashed #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.text-element .text-content {
+    color: white;
+    width: 100%;
+    text-align: center;
+    outline: none;
+}
+
+.text-element:hover {
+    border: 1px dashed var(--color-primario);
+}
+
+.text-element.selected {
+    border: 1px solid var(--color-primario);
+    background-color: rgba(2, 129, 168, 0.1);
+}
+
+/* Botón de conexión destacado cuando activo */
+#crearConexionBtn.active {
+    background-color: var(--color-warning) !important;
+    color: black;
+    box-shadow: 0 0 10px var(--color-warning);
+    position: relative;
+}
+
+#crearConexionBtn.active::after {
+    content: 'Modo conexión';
+    position: absolute;
+    font-size: 10px;
+    bottom: -15px;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+/* Mensaje cuando está en modo conexión */
+.modo-conexion::after {
+    content: 'Haga clic en un elemento para iniciar/finalizar la conexión';
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* Estilos para los paneles de edición */
+#panelEdicionUnidad, #panelEdicionEquipo {
+    position: fixed;
+    top: 50px;
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px);
+    background-color: var(--color-secundario);
+    border-left: 1px solid var(--color-border);
+    box-shadow: -4px 0 10px var(--color-shadow);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: none;
+}
+
+#panelEdicionUnidad.show, #panelEdicionEquipo.show {
+    transform: translateX(0);
+    display: block;
+}
+
+/* Estilos para el panel de edición */
+#panelEdicionUnidad {
+    position: fixed;
+    top: 50px; /* Justo debajo de la barra superior */
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
+    background-color: var(--color-secundario, #333); /* Valor fallback si la variable no está definida */
+    border-left: 1px solid var(--color-border, #555);
+    box-shadow: -4px 0 10px var(--color-shadow, rgba(0, 0, 0, 0.3));
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+#panelEdicionUnidad.show {
+    display: block !important;
+    animation: slideInRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para títulos del panel */
+#panelEdicionUnidad h3 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border, #555);
+    color: var(--color-primario, #0281a8);
+}
+
+/* Estilos para las pestañas */
+#panelEdicionUnidad .tab {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #555);
+    margin-bottom: 15px;
+}
+
+#panelEdicionUnidad .tab button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--color-texto, #eee);
+    flex: 1;
+    text-align: center;
+}
+
+#panelEdicionUnidad .tab button.active {
+    color: var(--color-primario, #0281a8);
+    border-bottom: 2px solid var(--color-primario, #0281a8);
+}
+
+/* Estilos para el contenido de las pestañas */
+#panelEdicionUnidad .tabcontent {
+    display: none;
+    padding: 10px 0;
+}
+
+#panelEdicionUnidad .tabcontent.active {
+    display: block;
+}
+
+/* Estilos para los campos de formulario */
+#panelEdicionUnidad input,
+#panelEdicionUnidad select {
+    width: 100%;
+    padding: 8px;
+    background-color: #3a3a3a;
+    border: 1px solid var(--color-border, #555);
+    color: var(--color-texto, #eee);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#panelEdicionUnidad input:focus,
+#panelEdicionUnidad select:focus {
+    border-color: var(--color-primario, #0281a8);
+    outline: none;
+}
+
+/* Estilos para los botones del panel */
+#panelEdicionUnidad .panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border, #555);
+}
+
+#panelEdicionUnidad .panel-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#panelEdicionUnidad .panel-buttons button:first-child {
+    background-color: var(--color-primario, #0281a8);
+    color: white;
+}
+
+#panelEdicionUnidad .panel-buttons button:last-child {
+    background-color: var(--color-gray, #6c757d);
+    color: white;
+}
+
+/* Estilos para el panel de edición */
+#panelEdicionUnidad {
+    position: fixed;
+    top: 50px; /* Justo debajo de la barra superior */
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
+    background-color: var(--color-secundario, #333); /* Valor fallback si la variable no está definida */
+    border-left: 1px solid var(--color-border, #555);
+    box-shadow: -4px 0 10px var(--color-shadow, rgba(0, 0, 0, 0.3));
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+#panelEdicionUnidad.show {
+    display: block !important;
+    animation: slideInRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para títulos del panel */
+#panelEdicionUnidad h3 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border, #555);
+    color: var(--color-primario, #0281a8);
+}
+
+/* Estilos para las pestañas */
+#panelEdicionUnidad .tab {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #555);
+    margin-bottom: 15px;
+}
+
+#panelEdicionUnidad .tab button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--color-texto, #eee);
+    flex: 1;
+    text-align: center;
+}
+
+#panelEdicionUnidad .tab button.active {
+    color: var(--color-primario, #0281a8);
+    border-bottom: 2px solid var(--color-primario, #0281a8);
+}
+
+/* Estilos para el contenido de las pestañas */
+#panelEdicionUnidad .tabcontent {
+    display: none;
+    padding: 10px 0;
+}
+
+#panelEdicionUnidad .tabcontent.active {
+    display: block;
+}
+
+/* Estilos para los campos de formulario */
+#panelEdicionUnidad input,
+#panelEdicionUnidad select {
+    width: 100%;
+    padding: 8px;
+    background-color: #3a3a3a;
+    border: 1px solid var(--color-border, #555);
+    color: var(--color-texto, #eee);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#panelEdicionUnidad input:focus,
+#panelEdicionUnidad select:focus {
+    border-color: var(--color-primario, #0281a8);
+    outline: none;
+}
+
+/* Estilos para los botones del panel */
+#panelEdicionUnidad .panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border, #555);
+}
+
+#panelEdicionUnidad .panel-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#panelEdicionUnidad .panel-buttons button:first-child {
+    background-color: var(--color-primario, #0281a8);
+    color: white;
+}
+
+#panelEdicionUnidad .panel-buttons button:last-child {
+    background-color: var(--color-gray, #6c757d);
+    color: white;
+}
+
+/* Estilos para el panel de edición */
+#panelEdicionUnidad {
+    position: fixed;
+    top: 50px; /* Justo debajo de la barra superior */
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
+    background-color: var(--color-secundario, #333); /* Valor fallback si la variable no está definida */
+    border-left: 1px solid var(--color-border, #555);
+    box-shadow: -4px 0 10px var(--color-shadow, rgba(0, 0, 0, 0.3));
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+#panelEdicionUnidad.show {
+    display: block !important;
+    animation: slideInRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para títulos del panel */
+#panelEdicionUnidad h3 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border, #555);
+    color: var(--color-primario, #0281a8);
+}
+
+/* Estilos para las pestañas */
+#panelEdicionUnidad .tab {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #555);
+    margin-bottom: 15px;
+}
+
+#panelEdicionUnidad .tab button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--color-texto, #eee);
+    flex: 1;
+    text-align: center;
+}
+
+#panelEdicionUnidad .tab button.active {
+    color: var(--color-primario, #0281a8);
+    border-bottom: 2px solid var(--color-primario, #0281a8);
+}
+
+/* Estilos para el contenido de las pestañas */
+#panelEdicionUnidad .tabcontent {
+    display: none;
+    padding: 10px 0;
+}
+
+#panelEdicionUnidad .tabcontent.active {
+    display: block;
+}
+
+/* Estilos para los campos de formulario */
+#panelEdicionUnidad input,
+#panelEdicionUnidad select {
+    width: 100%;
+    padding: 8px;
+    background-color: #3a3a3a;
+    border: 1px solid var(--color-border, #555);
+    color: var(--color-texto, #eee);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#panelEdicionUnidad input:focus,
+#panelEdicionUnidad select:focus {
+    border-color: var(--color-primario, #0281a8);
+    outline: none;
+}
+
+/* Estilos para los botones del panel */
+#panelEdicionUnidad .panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border, #555);
+}
+
+#panelEdicionUnidad .panel-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#panelEdicionUnidad .panel-buttons button:first-child {
+    background-color: var(--color-primario, #0281a8);
+    color: white;
+}
+
+#panelEdicionUnidad .panel-buttons button:last-child {
+    background-color: var(--color-gray, #6c757d);
+    color: white;
+}
+
+.elemento-organigrama {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.connection-source {
+    box-shadow: 0 0 10px #007bff;
+    border: 2px solid #007bff;
+}
+
+.modo-conexion .elemento-organigrama:not(.connection-source):hover {
+    box-shadow: 0 0 10px #28a745;
+    border: 2px dashed #28a745;
+}
+
+.exportando {
+    background: white !important;
+    background-color: white !important;
+}
+
+.exportando .military-symbol {
+    background-color: white !important;
+}
+
+.exportando .jtk-connector {
+    background-color: transparent !important;
+}
+
+.exportando .jtk-endpoint {
+    background-color: transparent !important;
+}
+
+.loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 9999;
+}
+
+.military-symbol {
+    position: absolute;
+    cursor: move;
+    z-index: 10;
+}
+
+.military-symbol .botones-edicion {
+    display: none;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 5px;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+.military-symbol.selected .botones-edicion {
+    display: flex;
+    gap: 5px;
+}
+
+.botones-edicion button {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 2px 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.botones-edicion button:hover {
+    color: #007bff;
+}
+
+.military-symbol.selected {
+    outline: 2px solid #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
