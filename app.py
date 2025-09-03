@@ -2655,64 +2655,6 @@ def fix_json_configuracion():
 
 
 # ==========================================
-# ENDPOINT DE HEALTH CHECK PARA RENDER
-# ==========================================
-
-@app.route('/health')
-def health_check():
-    """Endpoint de health check para Render y monitoreo"""
-    try:
-        # Verificar conexión a base de datos
-        db_status = "❌ Error"
-        try:
-            conn = get_db_connection()
-            if conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT 1")
-                cursor.fetchone()
-                conn.close()
-                db_status = "✅ Conectado"
-        except Exception as e:
-            db_status = f"❌ Error: {str(e)}"
-        
-        # Verificar archivos estáticos críticos
-        static_files = [
-            'Client/index.html',
-            'Client/CO.html', 
-            'Client/css/common/planeamiento.css',
-            'Client/js/common/networkConfig.js'
-        ]
-        
-        files_status = []
-        for file_path in static_files:
-            if os.path.exists(file_path):
-                files_status.append(f"✅ {file_path}")
-            else:
-                files_status.append(f"❌ {file_path}")
-        
-        health_data = {
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'version': '4.0',
-            'environment': os.getenv('FLASK_ENV', 'development'),
-            'database': db_status,
-            'static_files': files_status,
-            'usuarios_conectados': len(usuarios_conectados),
-            'partidas_activas': len(partidas),
-            'uptime': 'OK'
-        }
-        
-        return jsonify(health_data), 200
-        
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'timestamp': datetime.now().isoformat(),
-            'error': str(e)
-        }), 500
-
-
-# ==========================================
 # CONFIGURACIÓN DE INICIO
 # ==========================================
 
