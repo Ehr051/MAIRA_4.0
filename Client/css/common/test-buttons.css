@@ -1,0 +1,120 @@
+/* ===== BOTONES DE TEST TEMPORALES ===== */
+/* Estos estilos serán removidos en producción final */
+
+.maira-test-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+  transition: all 0.3s ease;
+  z-index: 998;
+  display: none; /* Oculto por defecto, se muestra después de la carga */
+}
+
+.maira-test-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+}
+
+.maira-test-button.show {
+  display: block;
+  animation: testButtonFadeIn 0.5s ease-out;
+}
+
+@keyframes testButtonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tooltip para identificar el modo */
+.maira-test-button::after {
+  content: attr(data-test-name);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.maira-test-button:hover::after {
+  opacity: 1;
+}
+
+/* Mini panel de resultados */
+.maira-test-results-mini {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 11px;
+  max-width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 997;
+  display: none;
+  border: 1px solid #444;
+}
+
+.maira-test-results-mini.show {
+  display: block;
+  animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.test-result-line {
+  margin: 2px 0;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.test-result-line.success {
+  color: #00ff00;
+}
+
+.test-result-line.error {
+  color: #ff4444;
+}
+
+.test-result-line.warning {
+  color: #ffaa00;
+}
+
+.test-result-line.info {
+  color: #00aaff;
+}

@@ -27,6 +27,8 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
   <link rel="stylesheet" href="/Client/css/modules/gestionbatalla/GBatalla.css">
+  <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
+  <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
   <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
   
   <!-- Scripts JavaScript -->
@@ -93,6 +95,8 @@
 
 <!-- Scripts de Test -->
 <script src="/Client/js/Test/MAIRATestSuite.js"></script>
+<!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
+<script src="/Client/js/Test/testButtons.js"></script>
 </head>
 <body>
   
@@ -718,10 +722,12 @@
         <button id="btnRehacer" onclick="rehacer()" disabled><i class="fas fa-redo-alt"></i></button>
         <button id="boton-panel" class="boton-panel"><i class="fas fa-chevron-left"></i></button>
         <button id="btnVolver" class="boton-volver"><i class="fas fa-arrow-left"></i></button>
-        <button id="btnTest" class="boton-test" onclick="mostrarMenuTest()" title="Herramientas de Test"><i class="fas fa-bug"></i></button>
+        <!-- BOTÓN DE TEST ORIGINAL COMENTADO - REEMPLAZADO POR SISTEMA UNIFICADO -->
+        <!-- <button id="btnTest" class="boton-test" onclick="mostrarMenuTest()" title="Herramientas de Test"><i class="fas fa-bug"></i></button> -->
       </div>
       
-      <!-- Menú de herramientas de test -->
+      <!-- MENÚ DE TEST ORIGINAL COMENTADO - REEMPLAZADO POR SISTEMA UNIFICADO -->
+      <!-- 
       <div id="menu-test" class="menu-test-flotante" style="display: none;">
         <div class="menu-test-header">
           <h4>🧪 Herramientas de Test</h4>
@@ -734,6 +740,7 @@
           <button onclick="console.clear()" class="btn-test">🧹 Limpiar Consola</button>
         </div>
       </div>
+      -->
       </div>
       <div id="coordenadas" class="coordenadas-display"></div>
       <div id="medicionDistancia" class="medicion-display">
