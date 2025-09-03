@@ -1,0 +1,55 @@
+# Render Blueprint para MAIRA 4.0
+# ========================================
+
+services:
+  # Servicio Web Principal
+  - type: web
+    name: maira-40
+    env: python
+    plan: starter  # Cambia a 'standard' si necesitas más recursos
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: |
+      gunicorn --config gunicorn.conf.py app:app
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_APP
+        value: app.py
+      - key: PORT
+        value: 10000
+      # Variables de base de datos (configurar en Render Dashboard)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: maira-postgres
+          property: connectionString
+      # Variables de seguridad
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+    
+    # Rutas de archivos estáticos
+    staticPublishPath: ./Client
+    
+    # Configuración de healthcheck
+    healthCheckPath: /health
+    
+    # Configuración de auto-deploy
+    autoDeploy: true
+    
+    # Branch para deploy
+    branch: main
+
+# Base de datos PostgreSQL
+databases:
+  - name: maira-postgres
+    databaseName: maira_db
+    user: maira_user
+    plan: starter  # Cambia a 'standard' si necesitas más recursos
+    
+    # Scripts de inicialización
+    postInitCommand: |
+      python tools/database/migrate_to_postgres.py

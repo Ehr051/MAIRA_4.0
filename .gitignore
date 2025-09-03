@@ -271,4 +271,4 @@ docs/MINI_TILES_SUCCESS.md
 
 # Archivos de configuración temporal
 uvicorn.conf.py
-render-*.yaml
+# render-*.yaml  # Comentado: render.yaml es necesario para deployment
