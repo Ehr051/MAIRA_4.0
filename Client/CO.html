@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/Client/css/CO.css">
+    <link rel="stylesheet" href="/Client/css/modules/CO/CO.css">
     
     <!-- Core JavaScript Libraries (ORDEN CRÍTICO) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -54,10 +54,10 @@
     </script>
     
     <!-- ✅ SCRIPTS CO EN ORDEN CORRECTO -->
-    <script src="/Client/js/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
-    <script src="/Client/js/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
-    <script src="/Client/js/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
-    <script src="/Client/js/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
+    <script src="/Client/js/common/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
+    <script src="/Client/js/ui/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
+    <script src="/Client/js/modules/organizacion/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
+    <script src="/Client/js/modules/organizacion/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
     
     <!-- ✅ Inicialización diferida -->
     <script>

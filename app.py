@@ -219,8 +219,8 @@ def proxy_github_file(file_path):
     import requests
     
     try:
-        # URL base del release v4.0 
-        base_url = 'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/'
+        # URL base del release tiles-v3.0
+        base_url = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
         github_url = base_url + file_path
         
         # Hacer la request al archivo de GitHub
@@ -233,8 +233,6 @@ def proxy_github_file(file_path):
                 content_type = 'application/json'
             elif file_path.endswith('.tar.gz'):
                 content_type = 'application/gzip'
-            elif file_path.endswith('.tif'):
-                content_type = 'image/tiff'
             
             # Agregar headers CORS
             headers = {
@@ -308,7 +306,7 @@ def extraer_tile_vegetacion():
             return jsonify({"success": False, "message": "Parámetros requeridos: archivo_tar, tile_filename"}), 400
         
         # Construir rutas
-        base_path = "https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/"
+        base_path = "https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/"
         tar_url = base_path + archivo_tar
         tiles_dir = os.path.join("tiles", "vegetacion")
         output_path = os.path.join(tiles_dir, tile_filename)

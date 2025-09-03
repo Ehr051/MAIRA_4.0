@@ -25,9 +25,9 @@
   <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/Client/css/planeamiento.css">
-  <link rel="stylesheet" href="/Client/css/GBatalla.css">
-  <link rel="stylesheet" href="/Client/css/CYGMarcha.css">
+  <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
+  <link rel="stylesheet" href="/Client/css/modules/gestionbatalla/GBatalla.css">
+  <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
   
   <!-- Scripts JavaScript -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -60,10 +60,9 @@
   <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
 
   <!-- Scripts personalizados -->
-  <script src="/Client/js/elevation.worker.js"></script>
+  <script src="/Client/js/workers/elevation.worker.js"></script>
   <script src="/Client/js/elevationHandler.js"></script>
   <script src="/Client/js/vegetacionhandler.js"></script>
-  <script src="/Client/js/utils/mini_tiles_loader.js" onerror="console.warn('❌ mini_tiles_loader.js falló - funcionalidad limitada')"></script>
   <script src="/Client/js/mapaP.js"></script>
   <script src="/Client/js/calcosP.js"></script>
   <!--<script src="/Client/js/edicioncompleto.js"></script>-->
@@ -80,7 +79,7 @@
   <!-- Scripts principales -->
   <script src="/Client/js/miradial.js"></script>
 
-<script src="/Client/js/networkConfig.js"></script>
+<script src="/Client/js/common/networkConfig.js"></script>
 <!-- Scripts modularizados para gestión de batalla -->
 <script src="/Client/js/utilsGB.js"></script>
 <script src="/Client/js/MAIRAChat.js"></script>

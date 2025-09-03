@@ -1,0 +1,248 @@
+{
+  "package_name": "vegetation_ndvi_batch_16",
+  "tiles": {
+    "tile_9_5_0_0": {
+      "name": "tile_9_5_0_0",
+      "filename": "tile_9_5_0_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -68.27203233590734,
+        "west": -68.75280212355213
+      },
+      "size": 573335,
+      "original_tile": "tile_9_5"
+    },
+    "tile_9_5_0_1": {
+      "name": "tile_9_5_0_1",
+      "filename": "tile_9_5_0_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -68.27203233590734,
+        "west": -68.75280212355213
+      },
+      "size": 501009,
+      "original_tile": "tile_9_5"
+    },
+    "tile_9_5_1_0": {
+      "name": "tile_9_5_1_0",
+      "filename": "tile_9_5_1_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -67.79126254826255,
+        "west": -68.27203233590734
+      },
+      "size": 537642,
+      "original_tile": "tile_9_5"
+    },
+    "tile_9_5_1_1": {
+      "name": "tile_9_5_1_1",
+      "filename": "tile_9_5_1_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -67.79126254826255,
+        "west": -68.27203233590734
+      },
+      "size": 557308,
+      "original_tile": "tile_9_5"
+    },
+    "tile_9_6_0_0": {
+      "name": "tile_9_6_0_0",
+      "filename": "tile_9_6_0_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -67.31049276061776,
+        "west": -67.79126254826255
+      },
+      "size": 517181,
+      "original_tile": "tile_9_6"
+    },
+    "tile_9_6_0_1": {
+      "name": "tile_9_6_0_1",
+      "filename": "tile_9_6_0_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -67.31049276061776,
+        "west": -67.79126254826255
+      },
+      "size": 576882,
+      "original_tile": "tile_9_6"
+    },
+    "tile_9_6_1_0": {
+      "name": "tile_9_6_1_0",
+      "filename": "tile_9_6_1_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -66.82972297297297,
+        "west": -67.31049276061776
+      },
+      "size": 539925,
+      "original_tile": "tile_9_6"
+    },
+    "tile_9_6_1_1": {
+      "name": "tile_9_6_1_1",
+      "filename": "tile_9_6_1_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -66.82972297297297,
+        "west": -67.31049276061776
+      },
+      "size": 554872,
+      "original_tile": "tile_9_6"
+    },
+    "tile_9_7_0_0": {
+      "name": "tile_9_7_0_0",
+      "filename": "tile_9_7_0_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -66.34895318532818,
+        "west": -66.82972297297297
+      },
+      "size": 540786,
+      "original_tile": "tile_9_7"
+    },
+    "tile_9_7_0_1": {
+      "name": "tile_9_7_0_1",
+      "filename": "tile_9_7_0_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -66.34895318532818,
+        "west": -66.82972297297297
+      },
+      "size": 560062,
+      "original_tile": "tile_9_7"
+    },
+    "tile_9_7_1_0": {
+      "name": "tile_9_7_1_0",
+      "filename": "tile_9_7_1_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -65.8681833976834,
+        "west": -66.34895318532818
+      },
+      "size": 544968,
+      "original_tile": "tile_9_7"
+    },
+    "tile_9_7_1_1": {
+      "name": "tile_9_7_1_1",
+      "filename": "tile_9_7_1_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -65.8681833976834,
+        "west": -66.34895318532818
+      },
+      "size": 591553,
+      "original_tile": "tile_9_7"
+    },
+    "tile_9_8_0_0": {
+      "name": "tile_9_8_0_0",
+      "filename": "tile_9_8_0_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -65.3874136100386,
+        "west": -65.8681833976834
+      },
+      "size": 562592,
+      "original_tile": "tile_9_8"
+    },
+    "tile_9_8_0_1": {
+      "name": "tile_9_8_0_1",
+      "filename": "tile_9_8_0_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -65.3874136100386,
+        "west": -65.8681833976834
+      },
+      "size": 591319,
+      "original_tile": "tile_9_8"
+    },
+    "tile_9_8_1_0": {
+      "name": "tile_9_8_1_0",
+      "filename": "tile_9_8_1_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -64.90664382239382,
+        "west": -65.3874136100386
+      },
+      "size": 562914,
+      "original_tile": "tile_9_8"
+    },
+    "tile_9_8_1_1": {
+      "name": "tile_9_8_1_1",
+      "filename": "tile_9_8_1_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -64.90664382239382,
+        "west": -65.3874136100386
+      },
+      "size": 575895,
+      "original_tile": "tile_9_8"
+    },
+    "tile_9_9_0_0": {
+      "name": "tile_9_9_0_0",
+      "filename": "tile_9_9_0_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -64.42587403474903,
+        "west": -64.90664382239382
+      },
+      "size": 522944,
+      "original_tile": "tile_9_9"
+    },
+    "tile_9_9_0_1": {
+      "name": "tile_9_9_0_1",
+      "filename": "tile_9_9_0_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -64.42587403474903,
+        "west": -64.90664382239382
+      },
+      "size": 545129,
+      "original_tile": "tile_9_9"
+    },
+    "tile_9_9_1_0": {
+      "name": "tile_9_9_1_0",
+      "filename": "tile_9_9_1_0.tif",
+      "bounds": {
+        "north": -31.819157128493867,
+        "south": -32.37684363563241,
+        "east": -63.94510424710424,
+        "west": -64.42587403474903
+      },
+      "size": 506990,
+      "original_tile": "tile_9_9"
+    },
+    "tile_9_9_1_1": {
+      "name": "tile_9_9_1_1",
+      "filename": "tile_9_9_1_1.tif",
+      "bounds": {
+        "north": -32.37684363563241,
+        "south": -32.93453014277096,
+        "east": -63.94510424710424,
+        "west": -64.42587403474903
+      },
+      "size": 541620,
+      "original_tile": "tile_9_9"
+    }
+  },
+  "total_tiles": 20,
+  "package_size": 10190656,
+  "created": "2025-09-02 00:41:54"
+}

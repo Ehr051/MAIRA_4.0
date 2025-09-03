@@ -246,40 +246,29 @@ backup_*.sh
 crear_backup_*.sh
 verificar_*.py
 
+# =====================================
+# ARCHIVOS DE REORGANIZACIÓN Y ANÁLISIS 
+# =====================================
+# Scripts de análisis y reorganización (desarrollo temporal)
+analyze_*.py
+reorganize_*.py
+migration_script*.py
+compare_and_migrate*.py
+fix_*.py
+verify_*.py
+download_release_data.py
+
+# Reportes y análisis generados
+*_analysis_report.json
+*_final_summary.json
+js_reorganization_plan.json
+css_analysis_report.json
+css_final_summary.json
+
+# Documentación de desarrollo temporal
+docs/JS_REORGANIZATION.md
+docs/MINI_TILES_SUCCESS.md
+
 # Archivos de configuración temporal
 uvicorn.conf.py
 render-*.yaml
-
-# =====================================
-# ARCHIVOS LEGACY (NO SUBIR)
-# =====================================
-
-# Repositorio legacy completo (16GB - solo para migración local)
-MAIRA_git/
-
-# Archivos temporales de migración
-migration_*.py
-migration_*.json
-extract_elevation_tiles.py
-fix_*.py
-test_release_*.py
-release_data/
-
-# =====================================
-# DATOS PESADOS (van en GitHub Release)
-# =====================================
-
-# Mini tiles de datos geográficos (van en release, no en repo)
-Client/Libs/datos_argentina/Altimetria_Mini_Tiles/
-Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/
-
-# Datos originales pesados (nunca subir)
-Client/Libs/datos_argentina/Vegetacion/
-Client/Libs/datos_argentina/Altimetria/
-
-# Archivos de tiles generados temporalmente
-*.tif
-*.tiff
-*_tiles_index.json
-*mini_tiles*
-tiles_*.tar.gz

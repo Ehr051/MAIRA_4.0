@@ -10,7 +10,7 @@ export const MAIRA_CONFIG = {
         base_url: 'https://cdn.jsdelivr.net/gh/Mapachana/',
         fallback_github: 'https://raw.githubusercontent.com/Mapachana/',
         tiles: {
-            elevation: 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
+            elevation: 'Client/Libs/datos_argentina/Elevacion_Mini_Tiles/',
             vegetation: 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
             transitability: 'Client/Libs/datos_argentina/Transitabilidad_Mini_Tiles/'
         }

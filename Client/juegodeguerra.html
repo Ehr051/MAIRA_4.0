@@ -24,9 +24,10 @@
   <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/Client/css/planeamiento.css">
-  <link rel="stylesheet" href="/Client/css/hexgrid.css">
-  <link rel="stylesheet" href="/Client/css/CYGMarcha.css">
+  <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
+  <link rel="stylesheet" href="/Client/css/modules/juegodeguerra/hexgrid.css">
+  <link rel="stylesheet" href="/Client/css/modules/juegodeguerra/juegodeguerra.css">
+  <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
   <!-- Scripts JavaScript -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -60,19 +61,10 @@
   <!-- Scripts personalizados -->
   <script src="/Client/js/mobile-optimizer.js"></script>
   <script src="/Client/js/measurement-touch-optimizer.js"></script>
-  <script src="/Client/js/networkConfig.js" onerror="console.warn('❌ networkConfig.js falló - usando emergencia')"></script>
-  <script src="/Client/js/elevation.worker.js" onerror="console.warn('❌ elevation.worker.js falló')"></script>
+  <script src="/Client/js/common/networkConfig.js" onerror="console.warn('❌ networkConfig.js falló - usando emergencia')"></script>
+  <script src="/Client/js/workers/elevation.worker.js" onerror="console.warn('❌ elevation.worker.js falló')"></script>
   <script src="/Client/js/elevationHandler.js" onerror="console.warn('❌ elevationHandler.js falló - usando emergencia')"></script>
   <script src="/Client/js/vegetacionhandler.js" onerror="console.warn('❌ vegetacionhandler.js falló - usando emergencia')"></script>
-  
-  <!-- 🔧 SERVICIOS CORE MAIRA 4.0 -->
-  <script src="/Client/js/utils/mini_tiles_loader.js" onerror="console.warn('❌ mini_tiles_loader.js falló - funcionalidad limitada')"></script>
-  <script src="/Client/js/services/slopeAnalysisService.js" onerror="console.warn('❌ slopeAnalysisService.js falló')"></script>
-  <script src="/Client/js/services/transitabilityService.js" onerror="console.warn('❌ transitabilityService.js falló')"></script>
-  <script src="/Client/js/services/autonomousAgentService.js" onerror="console.warn('❌ autonomousAgentService.js falló')"></script>
-  <script src="/Client/js/services/combatSystem3DIntegrator.js" onerror="console.warn('❌ combatSystem3DIntegrator.js falló')"></script>
-  <script src="/Client/js/services/threeDMapService.js" onerror="console.warn('❌ threeDMapService.js falló')"></script>
-  
   <script src="/Client/js/mapaP.js"></script>
   <script src="/Client/js/calcosP.js"></script>
   <script src="/Client/js/edicioncompleto.js"></script>
@@ -93,7 +85,7 @@
 
  <!-- 3. Scripts principales que no dependen de gestores -->
  <script src="/Client/js/indexP.js"></script>
- <script src="/Client/js/hexgrid.js"></script>
+ <script src="/Client/js/handlers/hexgrid.js"></script>
  <script src="/Client/js/miradial.js"></script>
  
  <!-- 4. Gestores que heredan de GestorBase -->
@@ -687,8 +679,6 @@
   </div>
   </div>
   </div>
-
-
 
   <div class="menu-btn">
     <button id="calcoBtn" data-toggle="collapse" data-target="#calcos-menu">

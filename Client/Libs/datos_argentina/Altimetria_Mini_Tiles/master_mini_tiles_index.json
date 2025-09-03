@@ -1,0 +1,35 @@
+{
+  "version": "3.0",
+  "description": "\u00cdndice maestro de mini-tiles para MAIRA",
+  "tile_size_km": 25,
+  "max_tar_size_mb": 45,
+  "provincias": {
+    "sur": {
+      "index_file": "sur_mini_tiles_index.json",
+      "total_tiles": 1584,
+      "total_tar_files": 16
+    },
+    "patagonia": {
+      "index_file": "patagonia_mini_tiles_index.json",
+      "total_tiles": 1508,
+      "total_tar_files": 16
+    },
+    "centro_norte": {
+      "index_file": "centro_norte_mini_tiles_index.json",
+      "total_tiles": 1653,
+      "total_tar_files": 17
+    },
+    "norte": {
+      "index_file": "norte_mini_tiles_index.json",
+      "total_tiles": 3268,
+      "total_tar_files": 33
+    },
+    "centro": {
+      "index_file": "centro_mini_tiles_index.json",
+      "total_tiles": 1488,
+      "total_tar_files": 15
+    }
+  },
+  "total_provincias": 5,
+  "total_tar_files": 97
+}
