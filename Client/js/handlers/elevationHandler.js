@@ -1,12 +1,12 @@
-// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
+// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles            'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',v3.0
 
 // URL base para GitHub Releases mini-tiles v3.0
 const GITHUB_RELEASES_BASE = '/api/proxy/github';
 
     // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES
         const ELEVATION_GITHUB_RELEASES = [
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+            'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
+            'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/'
         ];
 
         const MINI_TILES_FALLBACK_URLS = [
@@ -22,8 +22,37 @@ const GITHUB_RELEASES_BASE = '/api/proxy/github';
 const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
 
 // Índice de tiles
+// elevationHandler.js - Sistema de elevación MAIRA 4.0
+// Adaptado para usar GitHub Release v4.0 con fallbacks locales
+
+// URL base para GitHub Releases v4.0
+const GITHUB_RELEASES_V4_BASE = 'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0';
+
+// URLs de fallback para mini-tiles
+const MINI_TILES_FALLBACK_URLS = [
+  'Client/Libs/datos_argentina/Altimetria_Mini_Tiles',
+  '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles',
+  '../../Client/Libs/datos_argentina/Altimetria_Mini_Tiles',
+  'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles'
+];
+
+// Configuración del sistema
 let tileIndex;
 let indiceCargado = false;
+let datosLocalesDisponibles = false;
+
+// Verificar si los datos locales están disponibles
+async function verificarDatosLocales() {
+  try {
+    const response = await fetch('Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json');
+    datosLocalesDisponibles = response.ok;
+    console.log(`📁 Datos locales ${datosLocalesDisponibles ? 'disponibles' : 'no disponibles'}`);
+    return datosLocalesDisponibles;
+  } catch (error) {
+    datosLocalesDisponibles = false;
+    console.log('📁 Datos locales no disponibles, usaremos GitHub Release');
+    return false;
+  }
 
 // Cargar el índice de tiles al iniciar
 const cargarIndiceTiles = new Promise((resolve, reject) => {

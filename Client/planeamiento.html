@@ -1,670 +1,911 @@
 <!DOCTYPE html>
-<html lang="es">
+
 <head>
-    <title>M.A.I.R.A. - Planeamiento</title>
-    
-    <!-- FAVICON Y META -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+  <title>Modo Planeamiento</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
     <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- ESTILOS CSS -->
-    <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-draw/dist/leaflet.draw.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <link rel="stylesheet" href="node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-measure/dist/leaflet-measure.css" />
-    <link rel="stylesheet" href="node_modules/leaflet-easybutton/src/easy-button.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="Client/css/planeamiento.css">
-    <link rel="stylesheet" href="Client/css/CYGMarcha.css">
-    <!-- <script src="/test_correcciones_especificas.js"></script> ARCHIVO NO EXISTE -->
-    
-    <!-- BIBLIOTECAS EXTERNAS -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
-    
-    <!-- MAPAS Y VISUALIZACIÓN -->
-    <script src="node_modules/leaflet/dist/leaflet.js"></script>
-    <script src="node_modules/milsymbol/dist/milsymbol.js"></script>
-    <script src="node_modules/d3/dist/d3.min.js"></script>
-    <script src="node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
-    <script src="node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
-    <script src="node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
-    <script src="node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
-    <script src="node_modules/geotiff/dist-browser/geotiff.js"></script>
-    <script src="node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
-    <script src="node_modules/proj4/dist/proj4.js"></script>
-    <script src="node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
-    <script src="node_modules/mgrs/mgrs.js"></script>
-    <script src="node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
-    <script src="node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-    <script src="node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
-    <script src="node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
-    <script src="node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
-    <script src="node_modules/leaflet-easybutton/src/easy-button.js"></script>
-    
-    <!-- 🌍 HANDLERS MAIRA 4.0 OPTIMIZADOS -->
-    <script src="Client/js/handlers/elevationHandler.js"></script>
-    <script src="Client/js/handlers/vegetacionhandler.js"></script>
-    <script src="Client/js/handlers/transitabilidadHandler.js"></script>
-    <script src="Client/js/handlers/pendienteHandler.js"></script>
-    <script src="Client/js/handlers/performanceOptimizer.js"></script>
-    
-    <!-- 🚀 SERVICIOS 3D -->
-    <script src="Client/js/services/threeDMapService.js"></script>
-    <script src="Client/js/services/slopeAnalysisService.js"></script>
-    
-    <!-- ⚡ WORKERS OPTIMIZADOS -->
-    <script src="Client/js/workers/vegetation.worker.js"></script>
-    <script src="Client/js/workers/elevation.worker.js"></script>
-    
-    <!-- 🎯 UTILIDADES -->
-    <script src="Client/js/utils/mini_tiles_loader.js"></script>
-    <script src="Client/js/utils/utilsGB.js"></script>
-    <script src="Client/js/utils/calcosP.js"></script>
-    
-    <!-- 📡 CORE MAIRA -->
-    <script src="Client/js/handlers/EventBus.js"></script>
-    <script src="Client/js/handlers/UserIdentityLoader.js"></script>
-    <script src="/Client/js/handlers/sessionManager.js"></script>
-    
-    <!-- 🎮 PLANEAMIENTO ESPECÍFICO -->
-    <script src="/Client/js/handlers/planeamiento.js"></script>
-    <script src="/Client/js/handlers/graficoMarcha.js"></script>
-    <script src="/Client/js/handlers/panelMarcha.js"></script>
-    <script src="/Client/js/handlers/simbolosP.js"></script>
-    <script src="/Client/js/handlers/mapaP.js"></script>
-    <script src="/Client/js/handlers/herramientasP.js"></script>
-    <script src="/Client/js/handlers/indexP.js"></script>
-    <script src="/Client/js/handlers/atajosP.js"></script>
-    
-    <style>
-        /* 🎨 ESTILOS PLANEAMIENTO INTEGRADO */
-        .maira-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #1a1a1a, #2d3748);
-            color: #e2e8f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .maira-header {
-            height: 60px;
-            background: linear-gradient(90deg, #2b6cb0, #3182ce);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        .maira-title {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .maira-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .maira-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .maira-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
-        }
-        
-        .maira-main {
-            flex: 1;
-            display: flex;
-            position: relative;
-        }
-        
-        .maira-sidebar {
-            width: 350px;
-            background: linear-gradient(180deg, #2d3748, #1a202c);
-            border-right: 1px solid #4a5568;
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-        
-        .maira-sidebar.collapsed {
-            width: 60px;
-        }
-        
-        .maira-map-container {
-            flex: 1;
-            position: relative;
-        }
-        
-        .toggle-3d-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.3s;
-        }
-        
-        .toggle-3d-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-        
-        .status-bar {
-            height: 30px;
-            background: #1a202c;
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            font-size: 12px;
-            border-top: 1px solid #4a5568;
-        }
-        
-        .status-item {
-            margin-right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #48bb78;
-        }
-        
-        .status-indicator.warning {
-            background: #ed8936;
-        }
-        
-        .status-indicator.error {
-            background: #f56565;
-        }
-        
-        /* NOTIFICACIONES MEJORADAS */
-        .maira-notifications {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 350px;
-        }
-        
-        .maira-notification {
-            background: linear-gradient(135deg, #4a5568, #2d3748);
-            border: 1px solid #718096;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            animation: slideInRight 0.3s ease-out;
-        }
-        
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 768px) {
-            .maira-sidebar {
-                position: absolute;
-                left: -350px;
-                z-index: 1000;
-                height: 100%;
-            }
-            
-            .maira-sidebar.open {
-                left: 0;
-            }
-            
-            .toggle-3d-btn {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/Client/css/planeamiento.css">
+  <link rel="stylesheet" href="/Client/css/CYGMarcha.css">
+  
+  <script src="/Client/js/networkConfig.js"></script>
+  <!-- Script de corrección de dependencias -->
+  <script src="/correccion_dependencias.js"></script>
+  <!-- Test específico de correcciones -->
+  <script src="/test_correcciones_especificas.js"></script>
+  <!-- Scripts JavaScript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  
+  <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="/node_modules/d3/dist/d3.min.js"></script>
+  <script src="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="/node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="/node_modules/proj4/dist/proj4.js"></script>
+  <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
+  <script src="/node_modules/mgrs/mgrs.js"></script>
+  <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
+  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+
+  <!-- Scripts personalizados -->
+  <script src="/Client/js/elevation.worker.js"></script>
+  <script src="/Client/js/elevationHandler.js"></script>
+  <script src="/Client/js/vegetacionhandler.js"></script>
+  <script src="/Client/js/utils/mini_tiles_loader.js" onerror="console.warn('❌ mini_tiles_loader.js falló - funcionalidad limitada')"></script>
+  <script src="/Client/js/mapaP.js"></script>
+  <script src="/Client/js/calcosP.js"></script>
+  <script src="/Client/js/edicioncompleto.js"></script>
+  <script src="/Client/js/simbolosP.js"></script>
+  <script src="/Client/js/herramientasP.js"></script>
+  <script src="/Client/js/dibujosMCCP.js"></script>
+  <script src="/Client/js/atajosP.js"></script>
+  
+  <script src="/Client/js/CalculoMarcha.js"></script>
+  <script src="/Client/js/graficoMarcha.js"></script>
+  <script src="/Client/js/panelMarcha.js"></script>
+  <script src="/Client/js/indexP.js"></script>
+  
+  <!-- Script de verificación -->
+  <script src="/Client/js/Test/testPlaneamiento.js"></script>
+  <script src="/Client/js/Test/autoTest.js"></script>
+  <script src="/Client/js/Test/visualizadorTests.js"></script>
+  
+  <!-- Scripts de tiles optimizados movidos a tools/static-debug -->
+
 </head>
 
-<body>
-    <div class="maira-container">
-        <!-- HEADER INTEGRADO -->
-        <div class="maira-header">
-            <h1 class="maira-title">
-                <i class="fas fa-drafting-compass"></i>
-                MAIRA 4.0 - Planeamiento Integrado
-            </h1>
-            
-            <div class="maira-controls">
-                <button class="maira-btn" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <button class="maira-btn" onclick="togglePerformanceMode()">
-                    <i class="fas fa-tachometer-alt"></i> Performance
-                </button>
-                <button class="maira-btn" onclick="exportPlan()">
-                    <i class="fas fa-download"></i> Exportar
-                </button>
-                <button class="maira-btn" onclick="showHelp()">
-                    <i class="fas fa-question-circle"></i>
-                </button>
-            </div>
+<div id="botones-principales">
+  <div class="menu-btn">
+    <button id="verBtn" data-toggle="collapse" data-target="#ver-menu" aria-expanded="false" aria-controls="ver-menu">
+      <i class="fas fa-eye"></i> Ver
+    </button>
+    <div id="ver-menu" class="menu collapse">
+      <div class="menu-btn">
+        <button id="tipoMapaBtn" onclick="toggleMenu('collapse')">Tipo de Mapa</button>
+        <div id="collapse" class="collapse">
+          <a href="#" data-map-type="osm"><i class="fas fa-mountain"></i> Terreno</a>
+          <a href="#" data-map-type="calles"><i class="fas fa-road"></i> Calles</a>
+          <a href="#" data-map-type="satelite"><i class="fas fa-satellite-dish"></i> Satélite</a>
+          <a href="#" data-map-type="Transport"><i class="fas fa-bus"></i> Transport</a>
+          <a href="#" data-map-type="Landscape"><i class="fas fa-mountain"></i> Landscape</a>
+          <a href="#" data-map-type="Outdoors"><i class="fas fa-tree"></i> Outdoors</a>
         </div>
-        
-        <!-- CONTENIDO PRINCIPAL -->
-        <div class="maira-main">
-            <!-- SIDEBAR INTEGRADO -->
-            <div class="maira-sidebar" id="sidebar">
-                <!-- El contenido del sidebar se mantendrá igual que en los originales -->
-                <div id="sidebar" class="leaflet-sidebar collapsed">
-                    <!-- Tabs -->
-                    <div class="leaflet-sidebar-tabs">
-                        <ul role="tablist">
-                            <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
-                            <li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
-                            <li><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>
-                            <li><a href="#configuracion" role="tab"><i class="fa fa-cog"></i></a></li>
-                            <li><a href="#medicion" role="tab"><i class="fa fa-map"></i></a></li>
-                            <li><a href="#dibujos" role="tab"><i class="fa fa-edit"></i></a></li>
-                            <li><a href="#simbolos" role="tab"><i class="fa fa-map-marker"></i></a></li>
-                            <li><a href="#Marcha" role="tab"><i class="fa fa-chart-bar"></i></a></li>
-                            <li><a href="#herramientas" role="tab"><i class="fa fa-wrench"></i></a></li>
-                            <li><a href="#ayuda" role="tab"><i class="fa fa-question"></i></a></li>
-                        </ul>
-                        <ul role="tablist">
-                            <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Panels -->
-                    <div class="leaflet-sidebar-content">
-                        <div class="leaflet-sidebar-pane" id="home">
-                            <h1 class="leaflet-sidebar-header">MAIRA 4.0<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
-                            <div class="welcome-container">
-                                <h2>Bienvenido al Sistema MAIRA</h2>
-                                <p>Sistema Militar Argentino de Inteligencia, Reconocimiento y Apoyo</p>
-                                
-                                <div class="quick-actions">
-                                    <h3>Acciones Rápidas</h3>
-                                    <button class="action-btn" onclick="iniciarNuevoPlaneamiento()">
-                                        <i class="fas fa-plus"></i> Nuevo Planeamiento
-                                    </button>
-                                    <button class="action-btn" onclick="cargarPlaneamiento()">
-                                        <i class="fas fa-folder-open"></i> Cargar Planeamiento
-                                    </button>
-                                    <button class="action-btn" onclick="activarModo3D()">
-                                        <i class="fas fa-cube"></i> Vista 3D
-                                    </button>
-                                </div>
-                                
-                                <div class="system-status">
-                                    <h3>Estado del Sistema</h3>
-                                    <div class="status-grid">
-                                        <div class="status-item">
-                                            <span class="status-indicator"></span>
-                                            <span>Elevación: Activo</span>
-                                        </div>
-                                        <div class="status-item">
-                                            <span class="status-indicator"></span>
-                                            <span>Vegetación: Activo</span>
-                                        </div>
-                                        <div class="status-item">
-                                            <span class="status-indicator"></span>
-                                            <span>3D: Disponible</span>
-                                        </div>
-                                    </div>
-                                </div>
+      </div>
+      <div class="menu-btn">
+        <button onclick="toggleMenu('cuadriculasBtn')">Cuadrículas</button>
+        <div id="cuadriculasBtn" class="collapse">
+          <div class="menu-btn">
+            <button onclick="toggleMenu('tipoCuadriculaBtn')">Tipo de Cuadrícula</button>
+            <div id="tipoCuadriculaBtn" class="collapse">
+              <button id="cuadriculaMGRS" onclick="cambiarCuadricula('MGRS')">MGRS</button>
+              <button id="cuadriculaUTM" onclick="cambiarCuadricula('UTM')">UTM</button>
+              <button id="cuadriculaWGS84" onclick="cambiarCuadricula('WGS84')">WGS84</button>
+              <button id="cuadriculaPlana" onclick="cambiarCuadricula('Planas')">Planas</button>
+              <button id="cuadriculaNinguna" onclick="cambiarCuadricula('Ninguna')">Ninguna</button>
+              </div>
+            </div>
+          <div class="opacity-slider">
+            <label for="opacitySlider">Transparencia</label>
+            <input type="range" min="0" max="100" value="50" id="opacitySlider">
+          </div>
+          <div class="grid-width-slider">
+            <label for="gridWidthSlider">Ancho de Línea</label>
+            <input type="range" min="1" max="10" value="2" id="gridWidthSlider">
+          </div>
+          <div class="color-selector">
+            <label for="colorSelector">Color</label>
+            <input type="color" id="colorSelector" value="#000000">
+          </div>
+        </div>
+        <span>coordenadas del cursor</span>
+        <div id="gridControls"></div>
+        <label class="switch">
+          <input type="checkbox" id="coordenadasCheckbox">
+          <span class="slider round"></span>
+        </label> </label>
+      </div>
+    </div>
+  </div>
+  <div class="menu-btn">
+    <button id="herramientasBtn" data-toggle="collapse" data-target="#herramientas-menu" aria-expanded="false"
+      aria-controls="herramientas-menu">
+      <i class="fas fa-tools"></i> Herramientas
+    </button>
+    <div id="herramientas-menu" class="menu collapse">
+      <div id="search-container">
+        <div class="search-input-wrapper">
+            <input type="text" id="busquedaLugar" placeholder="Buscar lugar...">
+            <button id="btnBuscarLugar" type="buscarlugar"><i class="fas fa-search"></i></button>
+        </div>
+        <ul id="resultadosBusquedaLugar"></ul>
+      </div>
+        <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
+        <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
+        <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
+        <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
+        <div style="border-top: 1px solid #ccc; margin: 5px 0;"></div>
+        <a href="#" id="btnTestPlaneamiento" onclick="ejecutarTestPlaneamiento()"><i class="fas fa-bug"></i> Test Funcionalidades</a>
+        <a href="#" id="btnTestRapido" onclick="ejecutarTestPlaneamiento(true)"><i class="fas fa-bolt"></i> Test Rápido</a>
+      </div>
+  </div>
+  <div class="menu-btn"> 
+    <button onclick="toggleMenu('agregar-menu')"><i class="fas fa-plus"> </i> Agregar Elemento</button>
+    <div id="agregar-menu" class="menu collapse">
+    <div class="botones-fuerza">
+      <button onclick="actualizarSidc('F')">Amigo</button>
+      <button onclick="actualizarSidc('J')">Enemigo</button>
+    </div>
+    <div id="search-container">
+      <div class="search-input-wrapper">
+        <input type="text" id="busquedaSimbolo" placeholder="Buscar Simbolo...">
+        <button id="btnBuscarSimbolo" type="button"><i class="fas fa-search"></i></button>
+      </div>
+      <ul id="resultadosBusquedaSimbolos"></ul>
+    </div>
+    <div class="menu-btn">
+      <button onclick="toggleMenu('simbolosBasicosBtn')">Símbolos Básicos</button>
+      <div id="simbolosBasicosBtn" class="collapse">
+        <div class="sidc-container">
+          <div class="menu-btn">
+            <button onclick="toggleMenu('basicos')">Generales</button>
+            <div id="basicos" class="collapse submenu simbolo-grid"> 
+              <a href="#" data-sidc="SFGPUH----" onclick="agregarMarcador(this.dataset.sidc, 'Puesto Comando')"><span
+                  class="mil-symbol"></span> Puesto Comando </a>
+              <a href="#" data-sidc="SFGPU-----" onclick="agregarMarcador(this.dataset.sidc, 'Elemento Básico')"><span
+              class="mil-symbol"></span> Elemento Básico</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('infanteriaBtn')">Infantería</button>
+      <div id="infanteriaBtn" class="collapse submenu">
+        <div class="sidc-container">
+          <a href="#" data-sidc="SFGPUCI---" onclick="agregarMarcador(this.dataset.sidc, 'infanteria')"><span
+              class="mil-symbol"></span> Infantería</a>
+          <a href="#" data-sidc="SFGPUCAA--" onclick="agregarMarcador(this.dataset.sidc, 'Antitanque')"><span
+              class="mil-symbol"></span> Antitanque</a>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('infanteriaArmamentoBtn')">Armamento</button>
+          <div id="infanteriaArmamentoBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                class="mil-symbol"></span> FAL</a>
+            <a href="#" data-sidc="SFGPEWRR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                class="mil-symbol"></span> FAP</a>
+            <a href="#" data-sidc="SFGPEWRL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+              Ametralladora Pesada</a>
+            <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                class="mil-symbol"></span> Arma Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                class="mil-symbol"></span> Cañón Antitanque</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+            <a href="#" data-sidc="SFGPEWGM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+            <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                class="mil-symbol"></span> Lanzacohetes</a>
+            <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                class="mil-symbol"></span> Mortero Liviano</a>
+            <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                class="mil-symbol"></span> Mortero Mediano</a>
+            <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                class="mil-symbol"></span> Mortero Pesado</a>
+          </div>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('infanteriaVehiculosBtn')">Vehículos</button>
+          <div id="infanteriaVehiculosBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEVAI--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+              Vehículo Blindado a Rueda</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('caballeriaBtn')">Caballería</button>
+      <div id="caballeriaBtn" class="collapse submenu">
+        <div class="sidc-container">
+          <a href="#" data-sidc="SFGPUCR---" onclick="agregarMarcador(this.dataset.sidc, 'Caballería')"><span
+              class="mil-symbol"></span> Caballería</a>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('caballeriaArmamentoBtn')">Armamento</button>
+          <div id="caballeriaArmamentoBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                class="mil-symbol"></span> FAL</a>
+            <a href="#" data-sidc="SFGPEWRR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                class="mil-symbol"></span> FAP</a>
+            <a href="#" data-sidc="SFGPEWRL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+              Ametralladora Pesada</a>
+            <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                class="mil-symbol"></span> Arma Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                class="mil-symbol"></span> Cañón Antitanque</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+            <a href="#" data-sidc="SFGPEWGM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+            <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                class="mil-symbol"></span> Lanzacohetes</a>
+            <a href="#" data-sidc="GFGPDPOR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Observador Adelantado')"><span class="mil-symbol"></span></a>
+            <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                class="mil-symbol"></span> Mortero Liviano</a>
+            <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                class="mil-symbol"></span> Mortero Mediano</a>
+            <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                class="mil-symbol"></span> Mortero Pesado</a>
+          </div>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('caballeriaVehiculosBtn')">Vehículos</button>
+          <div id="caballeriaVehiculosBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEVAI--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo a Blindado Rueda')"><span class="mil-symbol"></span>
+              Vehículo a Rueda</a>
+            <a href="#" data-sidc="SFGPEVAT--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Oruga o Semioruga (básico)')"><span
+                class="mil-symbol"></span> Vehículo Blindado a Oruga o Semioruga (básico)</a>
+            <a href="#" data-sidc="SFGPEVATM-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+              Vehículo Blindado a Rueda</a>
+            <a href="#" data-sidc="SFGPEVATH-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda de Exploración (mediano)')"><span
+                class="mil-symbol"></span> Vehículo Blindado a Rueda de Exploración (mediano)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('apoyoFuegoBtn')">Apoyo de Fuego</button>
+      <div id="apoyoFuegoBtn" class="collapse submenu sidc-container">
+        <a href="#" data-sidc="SFGPUCF---" onclick="agregarMarcador(this.dataset.sidc, 'Artillería')"><span class="mil-symbol"></span> Artillería</a>
+        <a href="#" data-sidc="GFGPDPOF--" onclick="agregarMarcador(this.dataset.sidc, 'Observador adelantado de Artilleria')"><span class="mil-symbol"></span> Observador Adelantado de Artileria</a>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('artilleriaCampanaBtn')">Artillería de Campaña</button>
+          <div id="artilleriaCampanaBtn" class="collapse submenu simbolo-grid sidc-container">
+            <a href="#" data-sidc="SFGPEWH---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Liviano (cal 105mm)')"><span class="mil-symbol"></span>
+              Obús Liviano (cal 105mm)</a>
+            <a href="#" data-sidc="SFGPEWHM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Mediano (cal 155mm)')"><span class="mil-symbol"></span>
+              Obús Mediano (cal 155mm)</a>
+            <a href="#" data-sidc="SFGPEWHH--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Pesado (cal 240mm)')"><span class="mil-symbol"></span>
+              Obús Pesado (cal 240mm)</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano')"><span
+                class="mil-symbol"></span> Cañón Liviano</a>
+            <a href="#" data-sidc="SFGPEWDL--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano')"><span
+                class="mil-symbol"></span> Cañón Mediano</a>
+            <a href="#" data-sidc="SFGPEWDM--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Pesado')"><span
+                class="mil-symbol"></span> Cañón Pesado</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano Antitanque')"><span class="mil-symbol"></span>
+              Cañón Liviano Antitanque</a>
+            <a href="#" data-sidc="SFGPEWDLS-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano Autopropulsado')"><span
+                class="mil-symbol"></span> Cañón Mediano Autopropulsado</a>
+          </div>
+        </div>
+
+        <div class="menu-btn">
+          <button onclick="toggleMenu('artilleriaAntiareaBtn')">Artillería Antiaérea</button>
+          <div id="artilleriaAntiareaBtn" class="collapse submenu simbolo-grid sidc-container">
+            <a href="#" data-sidc="SFGPEWA---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón de Artillería Antiaérea')"><span
+                class="mil-symbol"></span> Cañón de Artillería Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Proyectil Autopropulsado Superficie-Aire')"><span
+                class="mil-symbol"></span> Proyectil Autopropulsado Superficie-Aire</a>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="menu-btn">
+              <button onclick="toggleMenu('apoyoCombateBtn')">Apoyo de Combate</button>
+              <div id="apoyoCombateBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ingenieros')" data-sidc="SFGPUCE---"><span class="mil-symbol"></span>Ingenieros</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comunicaciones')" data-sidc="SFGPUUS---"><span class="mil-symbol"></span>Comunicaciones</a>         
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('ingenierosBtn')">Ingenieros</button>
+                      <div id="ingenierosBtn" class="collapse submenu">
+                        <div class="menu-btn">
+                          <button onclick="toggleMenu('ingenierosVehiculosEquiposBtn')">Vehículos y Equipos</button>
+                          <div id="ingenierosVehiculosEquiposBtn" class="collapse submenu simbolo-grid">
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Combate Lanzapuentes')" data-sidc="SFGPEVEB--"><span class="mil-symbol"></span>Vehículo de Combate Lanzapuentes</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Ingenieros')" data-sidc="SFGPEVE---"><span class="mil-symbol"></span>Vehículo de Ingenieros</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Apertura de Brecha')" data-sidc="SFGPEVC---"><span class="mil-symbol"></span>Vehículo de Apertura de Brecha</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Desminado')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Vehículo de Desminado</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Movilidad')" data-sidc="SFGPEVM---"><span class="mil-symbol"></span>Vehículo de Movilidad</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Utilitario')" data-sidc="SFGPEVU---"><span class="mil-symbol"></span>Vehículo Utilitario</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bulldozer')" data-sidc="SFGPEVUB--"><span class="mil-symbol"></span>Bulldozer</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Rodillo')" data-sidc="SFGPEVUR--"><span class="mil-symbol"></span>Rodillo</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Excavadora')" data-sidc="SFGPEVUE--"><span class="mil-symbol"></span>Excavadora</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cargador')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Cargador</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Grúa')" data-sidc="SFGPEVUX--"><span class="mil-symbol"></span>Grúa</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Volquete')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Volquete</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Camión Cisterna')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Camión Cisterna</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Buscaminas')" data-sidc="SFGPEVUSL-"><span class="mil-symbol"></span>Buscaminas</a>
+                          </div>
+                      </div>
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosMovilidadBtn')">Movilidad</button>
+                              <div id="ingenierosMovilidadBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Bueno')">Camino Bueno</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Malo')">Camino Malo</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Pavimentado')">Camino Pavimentado</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino de Tierra')">Camino de Tierra</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puente')" data-sidc="GFMPBCB---"><span class="mil-symbol"></span>Puente</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLL---', 'Curso de Agua')">Curso de Agua</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vado')" data-sidc="GFMPBCF---"><span class="mil-symbol"></span>Vado</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compuerta')" data-sidc="GFMPBCA---"><span class="mil-symbol"></span>Compuerta</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Túnel')" data-sidc="GFMPBCT---"><span class="mil-symbol"></span>Túnel</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Paso a Nivel')" data-sidc="GFMPBCP---"><span class="mil-symbol"></span>Paso a Nivel</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Embarque')" data-sidc="GFGPGPE---"><span class="mil-symbol"></span>Punto de Embarque</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Desembarque')" data-sidc="GFGPGPD---"><span class="mil-symbol"></span>Punto de Desembarque</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Helipuerto')" data-sidc="GFGPGAH---"><span class="mil-symbol"></span>Helipuerto</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Aeródromo')" data-sidc="GFGPGAA---"><span class="mil-symbol"></span>Aeródromo</a>
                             </div>
-                        </div>
-                        
-                        <!-- Los demás paneles se mantienen igual que en los originales -->
-                        <!-- ... resto del contenido del sidebar ... -->
+                          </div>         
+                          <div class="menu-btn">
+                            <button onclick="toggleMenu('ingenierosContramovilidadBtn')">Contramovilidad</button>
+                              <div id="ingenierosContramovilidadBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="dibujarElemento('poligono', 'GFMPOAD---', 'Zona de Demoliciones')">Zona de Demoliciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Obstáculo')" data-sidc="GFMPOB----"><span class="mil-symbol"></span>Obstáculo</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'GFMPOF----', 'Campo Minado')">Campo Minado</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque')" data-sidc="GFMPOMD---"><span class="mil-symbol"></span>Mina Antitanque</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antipersonal')" data-sidc="GFMPOME---"><span class="mil-symbol"></span>Mina Antipersonal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque de Circunstancia')" data-sidc="GFMPOMW---"><span class="mil-symbol"></span>Mina Antitanque de Circunstancia</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                            <button onclick="toggleMenu('ingenierosProteccionBtn')">Protección</button>
+                            <div id="ingenierosProteccionBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Fortificación')" data-sidc="GFMPSF----"><span class="mil-symbol"></span>Fortificación</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Muro')" data-sidc="GFMPSE----"><span class="mil-symbol"></span>Muro</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>          
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('comunicacionesBtn')">Comunicaciones</button>
+                      <div id="comunicacionesBtn" class="collapse submenu">
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('comunicacionesComandosBtn')">Comandos, Elementos y Centros</button>
+                              <div id="comunicacionesComandosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando de Comunicaciones')" data-sidc="SFGPUCCS--"><span class="mil-symbol"></span>Comando de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Comunicaciones')" data-sidc="SFGPUCCB--"><span class="mil-symbol"></span>Batallón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Telecomunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Batallón de Telecomunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Operaciones Electrónicas')" data-sidc="SFGPUCPF--"><span class="mil-symbol"></span>Batallón de Operaciones Electrónicas</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compañía de Comunicaciones')" data-sidc="SFGPUCCA--"><span class="mil-symbol"></span>Compañía de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Escuadrón de Comunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Escuadrón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Principal)')" data-sidc="SFGPUCPX--"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Principal)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Alternativo)')" data-sidc="SFGPUCPXA-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Alternativo)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando de Retaguardia)')" data-sidc="SFGPUCPXR-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando de Retaguardia)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Comunicaciones')" data-sidc="SFGPUCP---"><span class="mil-symbol"></span>Puesto de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Mensajes')" data-sidc="SFGPUCM---"><span class="mil-symbol"></span>Centro de Mensajes</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('radioelectricosBtn')">Radioeléctricos</button>
+                              <div id="radioelectricosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radio Vehicular')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radio Vehicular</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radiointerceptación')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radiointerceptación</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo o Puesto de Integración Radio a Radio')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo o Puesto de Integración Radio a Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación, Puesto o Equipo de Radio en General')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Estación, Puesto o Equipo de Radio en General</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radio')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Repetidor de Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Integración Radioalámbrica')" data-sidc="SFG-UCRRI-"><span class="mil-symbol"></span>Equipo de Integración Radioalámbrica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo Radiorreceptor')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo Radiorreceptor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación o Puesto Radiogoniómetro')" data-sidc="SFG-UCRRG-"><span class="mil-symbol"></span>Estación o Puesto Radiogoniómetro</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo, Estación o Puesto de Radioteleimpresor')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Equipo, Estación o Puesto de Radioteleimpresor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Radiomulticanal')" data-sidc="SFG-UCRM--"><span class="mil-symbol"></span>Puesto de Radiomulticanal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radiomulticanal')" data-sidc="SFG-UCRMT-"><span class="mil-symbol"></span>Repetidor de Radiomulticanal</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('telefoniaBtn')">Telefonía</button>
+                              <div id="telefoniaBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teléfono de Campaña a Magneto')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Teléfono de Campaña a Magneto</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'alambre-de-campana')">Alambre de Campaña (1 canal telefónico)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central de Teleimpresores')" data-sidc="SFG-UCTCT-"><span class="mil-symbol"></span>Central de Teleimpresores</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica (en un puesto de comando)')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica (en un puesto de comando)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teleimpresor')" data-sidc="SFG-UCTIT-"><span class="mil-symbol"></span>Teleimpresor</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaSanidadBtn')">Logística de Sanidad</button>
+            <div id="logisticaSanidadBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Sanidad')" data-sidc="SFGPUSM---"><span class="mil-symbol"></span>Sanidad</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ambulancia')" data-sidc="EFOPAE----"><span class="mil-symbol"></span>Ambulancia</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital Quirófano Móvil')" data-sidc="SFGPUSMM--"><span class="mil-symbol"></span>Hospital Quirófano Móvil</a>
+            </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaMaterialBtn')">Logística de Material</button>
+            <div id="logisticaMaterialBtn" class="collapse submenu">
+              <div class="menu-btn">
+                <button onclick="toggleMenu('intendenciaBtn')">Intendencia</button>
+                <div id="intendenciaBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Intendencia')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Intendencia</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Intendencia (Clase II y IV)')" data-sidc="SFGPUSS---"><span class="mil-symbol"></span>Depósito de Intendencia (Clase II y IV)</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Efectos Clase I')" data-sidc="GFSPPSA---"><span class="mil-symbol"></span>Lugar de Distribución de Efectos Clase I</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase III')" data-sidc="GFSPPSC---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase III</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión de Efectos Clase II y IV')" data-sidc="GFSPPSB---"><span class="mil-symbol"></span>Lugar de Reunión de Efectos Clase II y IV</a>
+                    </div>
+                  </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('arsenalesBtn')">Arsenales</button>
+                  <div id="arsenalesBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Arsenales')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Arsenales</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Reunión de Arsenales</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Munición')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Distribución de Munición</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase II y IV')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase II y IV</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Recolección de Arsenales (Clase II y IV)')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Recolección de Arsenales (Clase II y IV)</a>
                     </div>
                 </div>
             </div>
-            
-            <!-- CONTENEDOR MAPA -->
-            <div class="maira-map-container">
-                <div id="map" style="height: 100%;"></div>
-                
-                <!-- BOTÓN 3D MEJORADO -->
-                <button class="toggle-3d-btn" onclick="toggle3DView()" id="btn3d">
-                    <i class="fas fa-cube"></i>
-                    <span>Vista 3D</span>
-                </button>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('transporteBtn')">Transporte</button>
+            <div id="transporteBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('linea', 'transito-alternado')">Tránsito Alternado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-abierta')">Ruta Abierta</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-supervisada')">Ruta Supervisada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-despacho')">Ruta de Despacho</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-reservada')">Ruta Reservada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-secciones-carreteras')">Límite entre Secciones de Carreteras</a>
+                <a href="#" onclick="dibujarElemento('linea', 'itinerario-guardado')">Itinerario Guardado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'seccion-carretera-intransitable')">Sección de Carretera Intransitable</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-mano-unica')">Tránsito de Mano Única</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-doble-mano')">Tránsito de Doble Mano</a>
+                <a href="#" onclick="dibujarElemento('linea', 'desvio')">Desvío</a>
+                </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('mccGeneralesBtn')">MCC</button>
+            <div id="mccGeneralesBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('poligono', 'SFFPAO----', 'Objetivo')">Objetivo</a>
+                <a href="#" onclick="dibujarFlecha('flecha', 'Dirección de Ataque')">Dirección de Ataque</a>
+                <a href="#" onclick="dibujarElemento('flechaAncha', 'GFGPOLAA--', 'Eje de Avance')">Eje de Avance</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAA---')">Área de Operaciones</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLK---', 'Línea de Coordinación')">LLA</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'GFMPOGB---')">Bloqueo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLR---')">Retirada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLAA--')">Límite de Área</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAR---')">Zona de Reunión</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-entre-dos-elementos')">Límite entre dos elementos</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-dentro-de-un-objetivo')">Límite dentro de un objetivo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-exploracion-seguridad')">Límite de Exploración y Seguridad</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLC---')">Línea de Contacto (tropas amigas)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCFin')">Línea de Coordinación Final</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LPAtq')">Línea de Partida para el Ataque</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bloqueo')" data-sidc="GFMPOGB---"><span class="mil-symbol"></span>Bloqueo</a>
+                <a href="#" onclick="agregarPuntoControl('PC')"> Punto de Control (PC)</a>
+                <a href="#" onclick="agregarPuntoControl('PI')">Punto Inicial (PI)</a>
+                <a href="#" onclick="agregarPuntoControl('PT')">Punto Terminal (PT)</a>
+                <a href="#" onclick="agregarPuntoControl('PD')">Punto de Desdoblamiento (PD)</a>
+                <a href="#" onclick="agregarPuntoControl('PE')"> Punto de Encolumnamiento (PE)</a>
+                <a href="#" onclick="agregarPuntoControl('PP')"> Punto de Pasaje (PP)</a>
+  
+              </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('fuegosBtn')">MCCF</button>
+            <div id="fuegosBtn" class="collapse submenu simbolo-grid">
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACSR--', 'Área de Fuego Restringido (AFR)', {color: 'red', fillColor: 'red', fillPattern: 'diagonal'})">Área de Fuego Restringido (AFR)</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACNR--', 'Área de NO Fuego (ANF)')">Área de NO Fuego (ANF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*ATB---', 'Barrera')">Barrera</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Acústica')" data-sidc="S*G*USAS--"><span class="mil-symbol"></span>Base Acústica</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Óptica')" data-sidc="S*G*USAO--"><span class="mil-symbol"></span>Base Óptica</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Batería')" data-sidc="S*G*USAT--"><span class="mil-symbol"></span>Centro de Batería</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AT----', 'Concentración de Tiro')">Concentración de Tiro</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación Meteorológica')" data-sidc="S*G*USAM--"><span class="mil-symbol"></span>Estación Meteorológica</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LT----', 'Grupo de Fuegos')">Grupo de Fuegos</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de Apoyo de Fuego (LCAF)')">Línea de Coordinación de Apoyo de Fuego (LCAF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCC---', 'Línea de Coordinación y Seguridad de los Fuegos (LCSF)')">Línea de Coordinación y Seguridad de los Fuegos (LCSF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de los Fuegos (LCF)')">Línea de Coordinación de los Fuegos (LCF)</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Posición de Radar')" data-sidc="S*G*USAP--"><span class="mil-symbol"></span>Posición de Radar</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Observación')" data-sidc="GFGPDPO---"><span class="mil-symbol"></span>Puesto de Observación</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'PRB')" data-sidc="GFFPPTS---"><span class="mil-symbol"></span>Punto Registro Blanco</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LTS---', 'Línea de Apertura de Fuego')">Línea de Apertura de Fuego</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Apoyo de Fuego (ZAF)')">Zona de Apoyo de Fuego (ZAF)</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Fuego')">Zona de Fuego</a>
+             
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZXX--', 'Zona de Responsabilidad de Fuego Naval (ZRFN)')">Zona de Responsabilidad de Fuego Naval (ZRFN)</a>
+
+          
             </div>
         </div>
-        
-        <!-- BARRA ESTADO -->
-        <div class="status-bar">
-            <div class="status-item">
-                <span class="status-indicator" id="connection-status"></span>
-                <span>Conexión</span>
-            </div>
-            <div class="status-item">
-                <span class="status-indicator" id="elevation-status"></span>
-                <span>Elevación</span>
-            </div>
-            <div class="status-item">
-                <span class="status-indicator" id="vegetation-status"></span>
-                <span>Vegetación</span>
-            </div>
-            <div class="status-item">
-                <span class="status-indicator" id="performance-status"></span>
-                <span>Performance</span>
-            </div>
-            <div class="status-item">
-                <span id="coordinates-display">Lat: --, Lng: --</span>
-            </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('toeBtn')">TOE (Tropas de Operaciones Especiales)</button>
+          <div id="toeBtn" class="collapse submenu">
+              <div class="menu-btn">
+                  <button onclick="toggleMenu('comandosTOEBtn')">Comandos</button>
+                  <div id="comandosTOEBtn" class="collapse submenu simbolo-grid">
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando')" data-sidc="NONE"><span class="mil-symbol"></span>Comando</a>
+                  </div>
+              </div>
+              <div class="menu-btn">
+                <button onclick="toggleMenu('cazadoresBtn')">Cazadores</button>
+                <div id="cazadoresBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Monte')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Monte</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Montaña')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Montaña</a>
+                </div>
+              </div>
+          </div>
         </div>
+      </div>
+    </div>
+<div class="menu-btn">
+  <button id="calcoBtn" data-toggle="collapse" data-target="#calcos-menu">
+    <i class="fas fa-layer-group"></i> Calcos
+  </button>
+  <div id="calcos-menu" class="menu collapse">
+    <div>
+      <a href="#" id="nuevoCalcoBtn"><i class="fas fa-plus"></i> Nuevo Calco</a>
+      <a href="#" id="cargarCalcoBtn"><i class="fas fa-upload"></i> Cargar Calco</a>
+      <a href="#" id="guardarCalcoBtn"><i class="fas fa-save"></i> Guardar Calco</a>
+      <a href="#" id="imprimirBtn"><i class="fas fa-print"></i> Imprimir</a>
+    <div id="calcosLista">
+      <!-- Aquí se agregarán los calcos dinámicamente -->
+    </div>
+  </div>
+  </div>
+</div>
+<div class="menu-btn">
+  <button id="ayudaBtn" data-toggle="collapse" data-target="#helpMenu" aria-expanded="false" aria-controls="helpMenu">
+    <i class="fas fa-question"></i> Ayuda
+  </button>
+  <div id="helpMenu" class="menu collapse">
+    <a href="#" id="documentacionBtn">
+      <i class="fas fa-book"></i> Documentación
+    </a>
+    <a href="#" id="atajosBtn">
+      <i class="fas fa-keyboard"></i> Atajos de Teclado
+    </a>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main>
+  <div id="mapContainer"></div>
+  <div id="map" style="height: 100%;"></div>
+  </div>
+  <div>
+    <button id="fullscreenBtn" class="fullscreen-button"><i class="fas fa-expand"></i></button>
+  </div>
+  <div id="botones-secundarios">
+    <button id="btnDeshacer" onclick="deshacer()" disabled><i class="fas fa-undo-alt"></i></button>
+    <button id="btnRehacer" onclick="rehacer()" disabled><i class="fas fa-redo-alt"></i></button>
+    <button id="btnVolver" class="boton-volver"><i class="fas fa-arrow-left"></i></button>
+  </div>
+  <div id="coordenadas" class="coordenadas-display"></div>
+  <div id="medicionDistancia" class="medicion-display">
+    <span id="textoMedicion"></span>
+    <button id="cerrarMedicion">X</button>
+</div>
+  
+  <div id="panelEdicionLinea" class="panel">
+    <h3>Editar Línea</h3>
+    <div>
+        <label for="nombreLinea">Nombre:</label>
+        <input type="text" id="nombreLinea">
+    </div>
+    <div>
+        <label for="colorLinea">Color:</label>
+        <input type="color" id="colorLinea">
+    </div>
+    <div>
+        <label for="anchoLinea">Ancho:</label>
+        <input type="number" id="anchoLinea" min="1" max="10">
+    </div> 
+    <div>
+        <label for="tipoLinea">Tipo:</label>
+        <select id="tipoLinea">
+            <option value="solid">Sólida</option>
+            <option value="dashed">Punteada</option>
+        </select> 
+    </div>
+    <div class="panel-buttons">
+        <button id="guardarCambiosLinea">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionLinea')">Cerrar</button>
     </div>
     
-    <!-- NOTIFICACIONES -->
-    <div class="maira-notifications" id="notifications-container"></div>
+</div>
+
+<div id="panelEdicionUnidad" class="panel">
+    <h3>Editar Unidad</h3>
+    <div class="tab">
+        <button class="tablinks" data-tab="SIDC">SIDC</button>
+        <button class="tablinks" data-tab="Informacion">Información</button>
+        <button class="tablinks" data-tab="Caracteristicas">Características</button>
+    </div>
+
+    <div id="sidcDisplay"></div>
+
+    <div id="SIDC" class="tabcontent">
+        <div>
+            <label for="afiliacion">Afiliación:</label>
+            <select id="afiliacion">
+                <option value="-">Desconocido</option>
+                <option value="F">Amigo</option>
+                <option value="J">Hostil/Enemigo</option>
+            </select>
+        </div>
+        <div>
+            <label for="estado">Estado:</label>
+            <select id="estado">
+                <option value="P">Presente</option>
+                <option value="A">Planeado</option>
+            </select>
+        </div>
+        <div>
+            <label for="arma">Arma:</label>
+            <select id="arma"></select>
+        </div>
+        <div>
+            <label for="tipo">Tipo:</label>
+            <select id="tipo"></select>
+        </div>
+        <div>
+            <label for="caracteristica">Característica:</label>
+            <select id="caracteristica"></select>
+        </div>
+        <div>
+            <label for="magnitud">Magnitud:</label>
+            <select id="magnitud">
+                <option value="-">No especificado</option>
+                <option value="A">Equipo/Tripulación</option>
+                <option value="B">peloton</option>
+                <option value="C">grupo</option>
+                <option value="D">Sección</option>
+                <option value="E">Compañía/Escuadrón/Batería</option>
+                <option value="F">Regimiento/Batallón/Grupo</option>
+                <option value="G">Brigada</option>
+                <option value="H">División</option>
+                <option value="I">Cuerpo/MEF</option>
+                <option value="J">Ejército</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="Informacion" class="tabcontent">
+        <div>
+            <label for="designacion">Designación:</label>
+            <input type="text" id="designacion">
+        </div>
+        <div>
+            <label for="dependencia">Dependencia:</label>
+            <input type="text" id="dependencia">
+        </div>
+    </div>
+
+    <div id="Caracteristicas" class="tabcontent">
+        <div>
+            <input type="checkbox" id="puestoComando">
+            <label for="puestoComando">Puesto de Comando</label>
+        </div>
+        <div>
+            <input type="checkbox" id="fuerzaTarea">
+            <label for="fuerzaTarea">Fuerza de Tarea</label>
+        </div>
+        <div>
+            <input type="checkbox" id="reforzado">
+            <label for="reforzado">Reforzado</label>
+        </div>
+        <div>
+            <input type="checkbox" id="disminuido">
+            <label for="disminuido">Disminuido</label>
+        </div>
+    </div>
+
+    <div class="panel-buttons">
+        <button id="guardarCambiosUnidad">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionUnidad')">Cerrar</button>
+    </div>
+</div>
+
+<div id="panelEdicionEquipo" class="panel">
+    <h3>Editar Equipo</h3>
     
-    <!-- SCRIPT PRINCIPAL INTEGRADO -->
-    <script>
-        /**
-         * 🚀 MAIRA 4.0 - PLANEAMIENTO INTEGRADO
-         * Unifica lo mejor de ambas versiones con optimizaciones CDN
-         */
-        
-        let map;
-        let sidebar;
-        let threeDActive = false;
-        let performanceMode = false;
-        
-        // INICIALIZACIÓN PRINCIPAL
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Inicializando MAIRA 4.0 Planeamiento Integrado...');
-            initializeMAIRA();
-        });
-        
-        async function initializeMAIRA() {
-            try {
-                // 1. Inicializar mapa base
-                await initializeMap();
-                
-                // 2. Configurar sidebar
-                initializeSidebar();
-                
-                // 3. Cargar servicios de datos (CDN GitHub Releases)
-                await loadDataServices();
-                
-                // 4. Configurar eventos y controles
-                setupEventHandlers();
-                
-                // 5. Inicializar herramientas de planeamiento
-                initializePlanningTools();
-                
-                // 6. Mostrar notificación de éxito
-                showNotification('Sistema Iniciado', 'MAIRA 4.0 Planeamiento listo para usar', 'success');
-                
-                updateSystemStatus();
-                
-            } catch (error) {
-                console.error('❌ Error inicializando MAIRA:', error);
-                showNotification('Error del Sistema', 'No se pudo inicializar completamente', 'error');
-            }
-        }
-        
-        async function initializeMap() {
-            // Configurar mapa con Argentina como centro
-            map = L.map('map', {
-                center: [-34.6118, -58.3960],
-                zoom: 6,
-                zoomControl: true,
-                attributionControl: false
-            });
-            
-            // Capas base optimizadas
-            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'MAIRA 4.0',
-                maxZoom: 18
-            });
-            
-            const terrain = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: 'MAIRA 4.0',
-                maxZoom: 17
-            });
-            
-            // Agregar capa por defecto
-            satellite.addTo(map);
-            
-            // Control de capas
-            L.control.layers({
-                "Satélite": satellite,
-                "Terreno": terrain
-            }).addTo(map);
-            
-            // Controles adicionales
-            L.control.scale({ metric: true, imperial: false }).addTo(map);
-            
-            console.log('✅ Mapa inicializado');
-        }
-        
-        function initializeSidebar() {
-            sidebar = L.control.sidebar('sidebar').addTo(map);
-            console.log('✅ Sidebar inicializado');
-        }
-        
-        async function loadDataServices() {
-            console.log('🌍 Cargando servicios de datos desde GitHub Releases...');
-            
-            try {
-                // Cargar handler de elevación (ahora apunta a GitHub Releases)
-                if (window.elevationHandler) {
-                    await window.elevationHandler.initialize();
-                    updateStatusIndicator('elevation-status', true);
-                }
-                
-                // Cargar handler de vegetación (ahora apunta a GitHub Releases)
-                if (window.vegetacionHandler) {
-                    await window.vegetacionHandler.initialize();
-                    updateStatusIndicator('vegetation-status', true);
-                }
-                
-                // Servicio 3D
-                if (window.threeDMapService) {
-                    await window.threeDMapService.initialize();
-                }
-                
-                console.log('✅ Servicios de datos cargados desde CDN');
-                
-            } catch (error) {
-                console.error('⚠️ Error cargando servicios:', error);
-                showNotification('Servicios Limitados', 'Algunos servicios no están disponibles', 'warning');
-            }
-        }
-        
-        function setupEventHandlers() {
-            // Eventos del mapa
-            map.on('mousemove', function(e) {
-                updateCoordinatesDisplay(e.latlng);
-            });
-            
-            map.on('click', function(e) {
-                // Obtener datos de elevación y vegetación en el punto clickeado
-                if (window.elevationHandler) {
-                    const elevation = window.elevationHandler.getElevationAtPosition(e.latlng.lat, e.latlng.lng);
-                    console.log(`Elevación en ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}: ${elevation}m`);
-                }
-            });
-            
-            // Eventos de teclado
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'F3') {
-                    e.preventDefault();
-                    toggle3DView();
-                }
-                if (e.key === 'F2') {
-                    e.preventDefault();
-                    togglePerformanceMode();
-                }
-            });
-        }
-        
-        function initializePlanningTools() {
-            // Cargar herramientas específicas de planeamiento
-            if (typeof initializePlaneamientoTools === 'function') {
-                initializePlaneamientoTools();
-            }
-            
-            console.log('✅ Herramientas de planeamiento inicializadas');
-        }
-        
-        // FUNCIONES DE INTERFAZ
-        function toggleSidebar() {
-            const sidebarElement = document.getElementById('sidebar');
-            sidebarElement.classList.toggle('collapsed');
-        }
-        
-        function toggle3DView() {
-            if (window.threeDMapService) {
-                window.threeDMapService.toggle();
-                threeDActive = !threeDActive;
-                
-                const btn = document.getElementById('btn3d');
-                btn.innerHTML = threeDActive ? 
-                    '<i class="fas fa-map"></i><span>Vista 2D</span>' : 
-                    '<i class="fas fa-cube"></i><span>Vista 3D</span>';
-                
-                showNotification('Vista 3D', threeDActive ? 'Activada' : 'Desactivada', 'info');
-            }
-        }
-        
-        function togglePerformanceMode() {
-            performanceMode = !performanceMode;
-            
-            if (window.performanceOptimizer) {
-                if (performanceMode) {
-                    window.performanceOptimizer.enableHighPerformance();
-                } else {
-                    window.performanceOptimizer.enableHighQuality();
-                }
-            }
-            
-            updateStatusIndicator('performance-status', true);
-            showNotification('Modo Performance', performanceMode ? 'Activado' : 'Desactivado', 'info');
-        }
-        
-        function activarModo3D() {
-            toggle3DView();
-        }
-        
-        function iniciarNuevoPlaneamiento() {
-            showNotification('Nuevo Planeamiento', 'Iniciando nuevo planeamiento...', 'info');
-            // Lógica específica de planeamiento
-        }
-        
-        function cargarPlaneamiento() {
-            showNotification('Cargar Planeamiento', 'Abriendo selector de archivos...', 'info');
-            // Lógica de carga
-        }
-        
-        function exportPlan() {
-            showNotification('Exportar Plan', 'Preparando exportación...', 'info');
-            // Lógica de exportación
-        }
-        
-        function showHelp() {
-            showNotification('Ayuda', 'F3: Vista 3D | F2: Performance Mode', 'info');
-        }
-        
-        // UTILIDADES
-        function updateCoordinatesDisplay(latlng) {
-            const coords = document.getElementById('coordinates-display');
-            if (coords) {
-                coords.textContent = `Lat: ${latlng.lat.toFixed(4)}, Lng: ${latlng.lng.toFixed(4)}`;
-            }
-        }
-        
-        function updateStatusIndicator(id, status) {
-            const indicator = document.getElementById(id);
-            if (indicator) {
-                indicator.className = `status-indicator ${status ? '' : 'error'}`;
-            }
-        }
-        
-        function updateSystemStatus() {
-            updateStatusIndicator('connection-status', true);
-            updateStatusIndicator('elevation-status', !!window.elevationHandler);
-            updateStatusIndicator('vegetation-status', !!window.vegetacionHandler);
-            updateStatusIndicator('performance-status', true);
-        }
-        
-        function showNotification(title, message, type = 'info') {
-            const container = document.getElementById('notifications-container');
-            if (!container) return;
-            
-            const notification = document.createElement('div');
-            notification.className = 'maira-notification';
-            notification.innerHTML = `
-                <h4 style="margin: 0 0 5px 0; color: #63b3ed;">${title}</h4>
-                <p style="margin: 0; font-size: 14px;">${message}</p>
-            `;
-            
-            container.appendChild(notification);
-            
-            // Auto-remove después de 5 segundos
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
-        
-        // EXPORTAR FUNCIONES GLOBALES
-        window.MAIRA_Planeamiento = {
-            map,
-            toggleSidebar,
-            toggle3DView,
-            togglePerformanceMode,
-            showNotification,
-            updateSystemStatus
-        };
-        
-        console.log('🎯 MAIRA 4.0 Planeamiento Integrado - Listo');
-    </script>
+    <div id="sidcDisplayEquipo"></div>
+    
+    <div class="tab">
+        <button class="tablinks" data-tab="SIDCEquipo">SIDC</button>
+        <button class="tablinks" data-tab="InformacionEquipo">Información</button>
+    </div>
+
+    <div id="SIDCEquipo" class="tabcontent">
+        <div>
+            <label for="afiliacionEquipo">Afiliación:</label>
+            <select id="afiliacionEquipo">
+                <option value="-">Desconocido</option>
+                <option value="F">Amigo</option>
+                <option value="J">Hostil/Enemigo</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="InformacionEquipo" class="tabcontent">
+        <div>
+            <label for="designacionEquipo">Designación:</label>
+            <input type="text" id="designacionEquipo">
+        </div>
+        <div>
+            <label for="asignacionEquipo">Asignación:</label>
+            <input type="text" id="asignacionEquipo">
+        </div>
+    </div>
+
+    <div class="panel-buttons">
+        <button id="guardarCambiosEquipo">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionEquipo')">Cerrar</button>
+    </div>
+</div>
+
+<div id="panelEdicionMCC" class="panel">
+    <h3>Editar Elemento MCC</h3>
+    <div>
+        <label for="textoMCC">Texto:</label>
+        <input type="text" id="textoMCC">
+    </div>
+    <div>
+        <label for="colorMCC">Color:</label>
+        <input type="color" id="colorMCC">
+    </div>
+    <div>
+        <label for="anchoMCC">Ancho:</label>
+        <input type="number" id="anchoMCC" min="1" max="10">
+    </div>
+    <div>
+        <label for="colorRellenoMCC">Color de relleno:</label>
+        <input type="color" id="colorRellenoMCC">
+    </div>
+    <div>
+        <label for="tipoLineaMCC">Tipo de línea:</label>
+        <select id="tipoLineaMCC">
+            <option value="solid">Sólida</option>
+            <option value="dashed">Punteada</option>
+        </select>
+    </div>
+    <div id="rellenoMCC" style="display: none;">
+        <label for="tipoRellenoMCC">Tipo de relleno:</label>
+        <select id="tipoRellenoMCC">
+          <option value="none">Sin relleno</option>
+          <option value="solid">Sólido</option>
+          <option value="diagonal">Diagonal</option>
+          <option value="rombos">Rombos</option>
+          <option value="cuadros">Cuadros</option>
+          <option value="puntos">Puntos</option>
+      </select>
+    </div>
+    <div class="panel-buttons">
+        <button id="guardarCambiosMCC">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionMCC')">Cerrar</button>
+    </div>
+  </div>
+
+
+<!-- Panel principal de cálculo de marcha -->
+
+<div id="panelMarchaContainer" style="display: none;"></div>
+
+<!-- Panel Perfil de Elevación -->
+<div id="perfilElevacionDisplay" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Perfil de Elevación</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenElevation" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveElevation" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintElevation" class="btn-print" title="Imprimir">⎙</button>
+          <button id="elevation-close-button" class="btn-cerrar" onclick="cerrarPanel('perfilElevacionDisplay')">×</button>
+      </div>
+  </div>
+  <div class="display-content" style="display: none;">
+      <!-- Contenido del perfil de elevación se cargará aquí -->
+  </div>
+</div>
+
+<!-- Panel Gráfico de Marcha -->
+
+<div id="graficoMarchaPanel" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Gráfico de Marcha</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenGrafico" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveGrafico" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintGrafico" class="btn-print" title="Imprimir">⎙</button>
+          <button id="cerrarPanelGrafico" class="btn-cerrar">×</button>
+      </div>
+  </div>
+  <div class="display-content">
+      <!-- El gráfico D3 se insertará aquí -->
+  </div>
+</div>
+
+
+<!-- Panel Cálculo de Marcha -->
+<div id="calculoMarchaPanel" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Cálculo de Marcha</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenCalculo" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveCalculo" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintCalculo" class="btn-print" title="Imprimir">⎙</button>
+          <button id="cerrarPanelCalculo" class="btn-cerrar" onclick="cerrarPanel('calculoMarchaPanel')">×</button>
+      </div>
+  </div>
+  <div class="display-content" id="calculoMarchaContent">
+      <!-- Contenido de cálculo de marcha se cargará aquí -->
+  </div>
+  <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
+</div>
+
+
+<!-- Contenedor para los detalles de la marcha -->
+
+</main>
 </body>
+
 </html>

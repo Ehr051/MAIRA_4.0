@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
+    <title>MAIRA - Mesa de Arena Interactiva</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
+    <link rel="shortcut icon" href="/Client/image/favicon_logoai/favicon.ico">
+    <link rel="stylesheet" href="Client/css/style.css">
+    <link rel="stylesheet" href="Client/css/carrusel.css">
+    <script src="https://kit.fontawesome.com/707f71e5d4.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/Client/js/networkConfig.js"></script>
+    <script src="/Client/js/config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación -->
+        <div class="navbar">
+            <div class="menu">
+                <h3 class="logo">MAI<span>RA</span></h3>
+                <div class="hamburger-menu">
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="main-container">
+            <div class="main">
+                <header>
+                    <div class="overlay">
+                        <h1 class="title">Mesa de Arena Interactiva de Realidad Aumentada</h1>
+                        <p class="description">
+                            MAIRA es una plataforma moderna para la planificación táctica y el entrenamiento militar,
+                            que combina visualización avanzada con herramientas de análisis de terreno.
+                        </p>
+                        <div class="button-container">
+                            <a href="#" class="btn" id="btnComenzar">Comenzar ahora</a>
+                            <a href="#sobre-maira" class="btn btn-secondary">Conocer más</a>
+                        </div>
+                    </div>
+                </header>
+                
+                <!-- Secciones informativas -->
+                <section id="sobre-maira" class="section">
+                    <div class="section-content">
+                        <h2>¿Qué es MAIRA?</h2>
+                        <p>MAIRA (Mesa de Arena Interactiva de Realidad Aumentada) es una plataforma de simulación táctica que utiliza realidad aumentada para proyectar mapas interactivos y elementos militares sobre una superficie física. Este sistema permite a los usuarios interactuar con el entorno mediante un puntero láser, facilitando la planificación de operaciones, la realización de ejercicios y la toma de decisiones en un ambiente digital e intuitivo.</p>
+                        
+                        <p>En un entorno donde la innovación tecnológica avanza aceleradamente, las Fuerzas Armadas deben mantenerse a la vanguardia en sus métodos de entrenamiento y planificación. Desde el Regimiento de Caballería de Tanques 11 en Puerto Santa Cruz, se ha desarrollado este sistema que moderniza la tradicional mesa de arena mediante tecnologías digitales, proporcionando herramientas avanzadas para la instrucción táctica y la planificación de operaciones.</p>
+                        
+                        <div class="info-cards">
+                            <div class="info-card">
+                                <i class="fas fa-user-shield"></i>
+                                <h3>Diseñado para militares</h3>
+                                <p>El sistema está diseñado para servir como herramienta de entrenamiento y planificación para personal de diferentes niveles, desde secciones hasta regimientos, adaptándose a las necesidades específicas de cada usuario.</p>
+                            </div>
+                            <div class="info-card">
+                                <i class="fas fa-flag"></i>
+                                <h3>Soberanía tecnológica</h3>
+                                <p>Desarrollo propio que garantiza la soberanía sobre los datos operativos, evitando la dependencia de sistemas extranjeros y posibles filtraciones de información sensible.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="image-container">
+                            
+                            <div class="image-caption">Sistema MAIRA en funcionamiento</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="origen" class="section">
+                    <div class="section-content">
+                        <h2>Orígenes y Evolución</h2>
+                        <p>MAIRA surgió como una iniciativa para digitalizar la mesa de arena tradicional, integrando inicialmente un sistema compuesto por un puntero láser, un control WiiMote de Nintendo, software de interconexión, PC con puerto Bluetooth, proyector estándar o de gran angular, y una mesa de arena con arena de cuarzo o una pizarra blanca o superficie que la suplante.</p>
+                        
+                        <p>En sus comienzos, el sistema utilizaba Map.Army como plataforma base para la representación cartográfica. Sin embargo, al ser un software desarrollado en Suiza, surgió la preocupación por la posible filtración de los calcos, ya que estos se almacenan temporalmente en servidores externos. Esta inquietud impulsó el desarrollo de un software propio denominado MAIRA, que no solo replicaba las funcionalidades de Map.Army, sino que las expandía considerablemente, garantizando además la soberanía sobre los datos.</p>
+                        
+                        <p>Con el tiempo, MAIRA evolucionó de ser una herramienta neta de planeamiento a convertirse en un simulador táctico completo, con una amplia cantidad de funciones y un sistema modular escalable.</p>
+                        
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h3>Concepto Inicial</h3>
+                                    <p>Digitalización de la mesa de arena tradicional con tecnología básica</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h3>Desarrollo Propio</h3>
+                                    <p>Creación de software propio para garantizar soberanía de datos</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h3>Evolución Actual</h3>
+                                    <p>Transformación en un simulador táctico completo con múltiples funcionalidades</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="caracteristicas" class="section">
+                    <div class="section-content">
+                        <h2>Características</h2>
+                        <p>La evolución de MAIRA se ha caracterizado por un constante desarrollo de nuevas funcionalidades que la convierten en una herramienta completa para la planificación y entrenamiento militar.</p>
+                        
+                        <div class="features-grid">
+                            <div class="feature">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <h3>Mapas 3D</h3>
+                                <p>Diversificación de mapas con integración de múltiples fuentes cartográficas y tipos de mapas, proporcionando visualización avanzada del terreno con datos de elevación precisos.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-location-arrow"></i>
+                                <h3>Sistemas de Coordenadas</h3>
+                                <p>Compatibilidad con diferentes sistemas de coordenadas (geográficas, UTM, planas, etc.) para máxima precisión en las operaciones.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-mountain"></i>
+                                <h3>Análisis Terrestre</h3>
+                                <p>Herramientas avanzadas que incluyen medición precisa de distancias, perfiles de elevación, cálculo y gráfico de marcha, y búsqueda de lugares específicos.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-draw-polygon"></i>
+                                <h3>Dibujo Militar</h3>
+                                <p>Implementación completa de la simbología militar estándar, facilitando la representación clara y familiar de las diferentes unidades y elementos.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-layer-group"></i>
+                                <h3>Gestión de Calcos</h3>
+                                <p>Funcionalidades para guardar y cargar calcos militares, y superponerlos según las necesidades de la planificación.</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-users"></i>
+                                <h3>Colaboración</h3>
+                                <p>Trabajo en equipo en tiempo real para planificación táctica, permitiendo que diferentes miembros trabajen en sus calcos específicos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="modos" class="section">
+                    <div class="section-content">
+                        <h2>Modos de uso</h2>
+                        <p>MAIRA ofrece diferentes modos de operación adaptados a las necesidades específicas de entrenamiento y planificación militar.</p>
+                        
+                        <div class="modes-container">
+                            <div class="mode">
+                                <h3>Modo Planeamiento</h3>
+                                <div class="mode-icon">
+                                    <i class="fas fa-pencil-ruler"></i>
+                                </div>
+                                <p>El Modo Planeamiento, origen del desarrollo de MAIRA, ofrece un entorno ideal para la planificación de operaciones militares.</p>
+                                <ul class="mode-features">
+                                    <li>Mapas de alta precisión con información detallada del terreno</li>
+                                    <li>Interacción intuitiva mediante puntero láser</li>
+                                    <li>Trabajo colaborativo entre miembros de la Plana Mayor</li>
+                                    <li>Simbología militar estándar de las Fuerzas Armadas</li>
+                                    <li>Herramientas de análisis para medir distancias y calcular tiempos</li>
+                                </ul>
+                            </div>
+                            <div class="mode">
+                                <h3>Modo Simulador Táctico</h3>
+                                <div class="mode-icon">
+                                    <i class="fas fa-chess"></i>
+                                </div>
+                                <p>MAIRA incorpora un avanzado modo de simulación táctica que transforma el sistema en una plataforma completa para poner a prueba procedimientos y planes.</p>
+                                <ul class="mode-features">
+                                    <li>Simulación realista de combates tácticos</li>
+                                    <li>Sistema dinámico de órdenes en tiempo real</li>
+                                    <li>Base de datos completa de unidades militares</li>
+                                    <li>Gestión logística con cálculos de bajas y consumos</li>
+                                    <li>Niebla de guerra y factor sorpresa realistas</li>
+                                    <li>Sistema de comunicación entre equipos</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="extra-info">
+                            <h3>Opciones de uso</h3>
+                            <div class="options-container">
+                                <div class="option">
+                                    <i class="fas fa-desktop"></i>
+                                    <h4>Modo Local</h4>
+                                    <p>Todos los participantes utilizan un solo equipo, alternando turnos. Las acciones se ejecutan según el tiempo real que implicaría realizarlas en el campo de batalla.</p>
+                                </div>
+                                <div class="option">
+                                    <i class="fas fa-network-wired"></i>
+                                    <h4>Modo LAN</h4>
+                                    <p>Permite que cada jugador opere desde su propio equipo conectado en red, garantizando el aislamiento físico y de información entre los participantes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="aplicaciones" class="section">
+                    <div class="section-content">
+                        <h2>Aplicaciones Doctrinarias y Educativas</h2>
+                        <p>MAIRA ha sido desarrollado en plena consonancia con la doctrina militar argentina, particularmente con los lineamientos establecidos en el Manual de Ejercicios (REF-00-06) y el Reglamento de Conducción para las Fuerzas Terrestres (ROD-71-01-I).</p>
+                        
+                        <div class="quote">
+                            <p>«En el combate, la preparación vale más que el heroísmo»</p>
+                            <cite>— Mariscal Ferdinand Foch</cite>
+                        </div>
+                        
+                        <div class="applications-grid">
+                            <div class="application">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <h3>Ejercicios de Explicación</h3>
+                                <p>Facilita la comprensión de principios doctrinarios y procedimientos del nivel inmediato superior, apoyando visualmente las explicaciones del instructor.</p>
+                            </div>
+                            <div class="application">
+                                <i class="fas fa-chess-board"></i>
+                                <h3>Juegos de Guerra</h3>
+                                <p>Potencia la capacitación del personal de cuadros en la correcta aplicación de técnicas de conducción, permitiendo evaluar diferentes modos de acción en un entorno controlado.</p>
+                            </div>
+                            <div class="application">
+                                <i class="fas fa-sitemap"></i>
+                                <h3>Ejercicios de Planeamiento</h3>
+                                <p>Apoya el desarrollo completo del Proceso de Planificación de Comando (PPC), desde la recepción de la misión hasta la elaboración de órdenes, con especial énfasis en el paso de confrontación.</p>
+                            </div>
+                            <div class="application">
+                                <i class="fas fa-user-tie"></i>
+                                <h3>Ejercicios de Comando</h3>
+                                <p>Contribuye a fijar conceptos, aclarar atribuciones y coordinar tareas entre los integrantes de un comando o estado mayor, simulando las condiciones de un puesto de comando.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefits">
+                            <h3>Beneficios para el Entrenamiento Militar</h3>
+                            <ul class="benefits-list">
+                                <li><i class="fas fa-hands-helping"></i> <span>Aprendizaje activo y participativo</span></li>
+                                <li><i class="fas fa-sync-alt"></i> <span>Retroalimentación inmediata sobre resultados</span></li>
+                                <li><i class="fas fa-chart-pie"></i> <span>Costo-efectividad en comparación con métodos tradicionales</span></li>
+                                <li><i class="fas fa-expand-arrows-alt"></i> <span>Versatilidad para diferentes niveles de mando</span></li>
+                                <li><i class="fas fa-users"></i> <span>Fomento del trabajo en equipo y comunicación</span></li>
+                                <li><i class="fas fa-rocket"></i> <span>Mayor motivación en los educandos</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="estado-actual" class="section">
+                    <div class="section-content">
+                        <h2>Estado Actual y Perspectivas Futuras</h2>
+                        <p>MAIRA se encuentra operativa en el Regimiento de Caballería de Tanques 11 como sistema piloto, habiendo despertado el interés de otras unidades que han solicitado el componente de hardware para su implementación. El software continúa en desarrollo y fase de prueba, incorporando las lecciones aprendidas y el valioso feedback obtenido durante las pruebas iniciales.</p>
+                        
+                        <div class="development-container">
+                            <h3>Desarrollos en Curso</h3>
+                            <div class="development-grid">
+                                <div class="development-item">
+                                    <i class="fas fa-mountain"></i>
+                                    <h4>Representación Avanzada del Terreno</h4>
+                                    <ul>
+                                        <li>Incorporación de espejos de agua</li>
+                                        <li>Representación de rutas</li>
+                                        <li>Infraestructura urbana</li>
+                                    </ul>
+                                </div>
+                                <div class="development-item">
+                                    <i class="fas fa-hand-pointer"></i>
+                                    <h4>Interacción Natural</h4>
+                                    <ul>
+                                        <li>Reconocimiento de gestos con las manos</li>
+                                        <li>Reemplazo del puntero láser </li>
+                                    </ul>
+                                </div>
+                                <div class="development-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <h4>Expansión del Modo Juego de Guerra</h4>
+                                    <ul>
+                                        <li>Factores climáticos simulados</li>
+                                        <li>Ampliación de la base de datos de unidades</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="conclusion">
+                            <h3>Conclusión</h3>
+                            <p>MAIRA representa un significativo avance en la formación técnico-táctica militar, combinando la tradición de la mesa de arena con tecnologías modernas. Este desarrollo local no solo garantiza la soberanía sobre los datos operativos, sino que también proporciona una herramienta adaptada específicamente a las necesidades y doctrina de nuestras Fuerzas Armadas.</p>
+                            <p>El sistema ofrece un entorno de aprendizaje activo, motivador y realista, optimizando la instrucción táctica mediante la visualización inmersiva y la simulación de escenarios complejos. Su continua evolución promete convertir a MAIRA en un recurso cada vez más valioso para la preparación de nuestro personal militar frente a los desafíos del campo de batalla moderno.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="contacto" class="section">
+                    <div class="section-content">
+                        <h2>Contacto</h2>
+                        <p>Para más información sobre MAIRA, no dude en contactarnos:</p>
+                        <div class="contact-info">
+                            <p><i class="fas fa-envelope"></i> info@maira.mil.ar</p>
+                            <p><i class="fas fa-phone"></i> +54 11 4555-6789</p>
+                            <p><i class="fas fa-map-marker-alt"></i> Av. Luis María Campos 480, CABA, Argentina</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <footer>
+                    <div class="footer-content">
+                        <div class="footer-logo">
+                            <h3 class="logo">MAI<span>RA</span></h3>
+                            <p>Mesa de Arena Interactiva de Realidad Aumentada</p>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Enlaces Rápidos</h4>
+                            <ul>
+                                <li><a href="#sobre-maira">¿Qué es MAIRA?</a></li>
+                                <li><a href="#caracteristicas">Características</a></li>
+                                <li><a href="#modos">Modos de uso</a></li>
+                                <li><a href="#contacto">Contacto</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-quote">
+                            <blockquote>
+                                «La victoria en el combate no depende enteramente de números o poder; sino, a un grado mayor, de moral y entrenamiento.»
+                                <cite>— Maurice de Saxe</cite>
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p>&copy; 2025 MAIRA - Todos los derechos reservados</p>
+                    </div>
+                </footer>
+            </div>
+            <div class="shadow one"></div>
+            <div class="shadow two"></div>
+        </div>
+
+        <!-- Panel lateral (menú desplegable) -->
+        <div class="login-panel">
+            <div class="side-menu">
+                <ul>
+                    <li><a href="#sobre-maira">¿Qué es MAIRA?</a></li>
+                    <li><a href="#origen">Orígenes</a></li>
+                    <li><a href="#caracteristicas">Características</a></li>
+                    <li><a href="#modos">Modos de uso</a></li>
+                    <li><a href="#aplicaciones">Aplicaciones</a></li>
+                    <li><a href="#estado-actual">Estado Actual</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                    <li class="menu-divider"></li>
+                    <li><a href="#" id="menuBtnLogin">Iniciar Sesión</a></li>
+                    <li><a href="#" id="menuBtnCrearUsuario">Crear Usuario</a></li>
+                </ul>
+            </div>
+            
+            <!-- Formulario de inicio de sesión -->
+            <div id="loginForm" class="formulario" style="display: none;">
+                <h2>Iniciar Sesión</h2>
+                <form id="formLogin">
+                    <label for="usuario">Usuario:</label>
+                    <input type="text" id="usuario" name="usuario" required>
+                    <label for="contrasena">Contraseña:</label>
+                    <input type="password" id="contrasena" name="contrasena" required>
+                    <button type="submit" id="btnInicio">Iniciar Sesión</button>
+                    <p>¿No tienes cuenta? <a href="#" id="switchToCreateBtn">Crear usuario</a></p>
+                </form>
+                <button id="btnRecuperarContrasena">Recuperar Contraseña</button>
+                <div id="errorLogin" class="error" aria-live="polite"></div>
+            </div>
+
+            <!-- Formulario de creación de usuario -->
+            <div id="crearUsuarioForm" class="formulario" style="display: none;">
+                <h2>Crear Usuario</h2>
+                <form id="formCrearUsuario">
+                    <label for="nuevoUsuario">Usuario:</label>
+                    <input type="text" id="nuevoUsuario" name="nuevoUsuario" required>
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" required>
+                    <label for="confirmarCorreo">Confirmar Correo:</label>
+                    <input type="email" id="confirmarCorreo" name="confirmarCorreo" required>
+                    <label for="nuevaContrasena">Contraseña:</label>
+                    <input type="password" id="nuevaContrasena" name="nuevaContrasena" required>
+                    <label for="unidad">Unidad:</label>
+                    <input type="text" id="unidad" name="unidad" required>
+                    <button type="submit" id="btnCrear">Crear Usuario</button>
+                    <p>¿Ya tienes cuenta? <a href="#" id="switchToLoginBtn">Iniciar sesión</a></p>
+                </form>
+                <div id="errorCrearUsuario" class="error" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selección de modo (fuera del contenedor 3D) -->
+    <div id="seleccionModo" class="formulario" style="display: none;">
+    </div>
+    <div id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+    <script src="/Client/js/landing3d.js"></script>
+    <script src="/Client/js/carrusel.js"></script>
+    <script src="/Client/js/validacion.js"></script>
+    
+</body>
+</html>

@@ -20,7 +20,8 @@ const VEGETATION_CONFIG = {
 // URLs de fallback para mini-tiles
 const VEGETATION_URLS = [
     'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
-    'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
+    'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
+    'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
 ];
 
 /**

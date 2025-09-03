@@ -1,0 +1,285 @@
+# MAIRA Project - Gitignore organizado
+# =====================================
+
+# Archivos legacy/obsoletos
+legacy_files/
+*.backup
+*.old
+*_backup.*
+*_old.*
+backup_maira_20250826_211318/
+
+# Archivos de debug y desarrollo (no subir a producción)
+tools/static-debug/
+tools/static-demo/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Dependencias de Node.js
+node_modules/
+# EXCEPCIÓN: Incluir librerías críticas para producción offline
+!node_modules/milsymbol/
+!node_modules/leaflet/
+!node_modules/leaflet-control-geocoder/
+!node_modules/leaflet-draw/
+!node_modules/leaflet-fullscreen/
+!node_modules/leaflet-measure/
+!node_modules/leaflet-easybutton/
+!node_modules/leaflet-sidebar-v2/
+!node_modules/leaflet-search/
+!node_modules/leaflet-polylinedecorator/
+!node_modules/leaflet-bing-layer/
+!node_modules/leaflet-geometryutil/
+!node_modules/leaflet.markercluster/
+!node_modules/@raruto/
+!node_modules/d3/
+!node_modules/d3-*/
+!node_modules/file-saver/
+!node_modules/socket.io-client/
+!node_modules/@socket.io/
+!node_modules/proj4/
+!node_modules/geotiff/
+!node_modules/turf/
+!node_modules/mgrs/
+!node_modules/leaflet-geosearch/
+!node_modules/leaflet-utfgrid/
+!node_modules/leaflet.gridlayer.googlemutant/
+!node_modules/jspdf/
+!node_modules/html2canvas/
+!node_modules/topojson-client/
+!node_modules/leaflet-draw/
+!node_modules/leaflet-fullscreen/
+!node_modules/leaflet-sidebar-v2/
+!node_modules/leaflet-measure/
+!node_modules/leaflet-easybutton/
+!node_modules/leaflet-geometryutil/
+!node_modules/leaflet-geosearch/
+!node_modules/leaflet.markercluster/
+!node_modules/d3/
+!node_modules/geotiff/
+!node_modules/html2canvas/
+!node_modules/file-saver/
+!node_modules/proj4/
+!node_modules/mgrs/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# package-lock.json se incluye para garantizar versiones exactas
+
+# Archivos temporales del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Certificados SSL
+ssl/
+*.pem
+*.key
+*.crt
+
+# ====================================
+# ARCHIVOS GRANDES (evitar GitHub limits)
+# ====================================
+free_storage_prep/
+**/altimetria_tiles.tar.gz
+**/vegetacion_part_*.tar.gz
+*.tar.gz.tmp
+temp_tif_extract/
+mini_tiles_temp/
+**/*.tif
+**/extracted_tiles/
+tiles_extraidos/
+
+# ====================================
+# ARCHIVOS DE DESARROLLO NO RELACIONADOS CON MAIRA
+# ====================================
+
+# Agentes de IA (herramientas de desarrollo, no parte del proyecto)
+*-engineer.md
+*-developer.md
+*-specialist.md
+*-architect.md
+*-admin.md
+*-analyst.md
+*-auditor.md
+*-automator.md
+*-detective.md
+*-manager.md
+*-optimizer.md
+*-pro.md
+*-reviewer.md
+*-troubleshooter.md
+agents-helper.sh
+AGENTS.md
+
+# Archivos de análisis y documentación temporal
+ANALISIS_*.md
+PLAN_*.md
+AWS_S3_SETUP_GUIDE.md
+GITHUB_RELEASES_SETUP.md
+ALMACENAMIENTO_GRATUITO.md
+
+# Scripts de testing temporal
+test_*.py
+test_*.js
+test_*.html
+test-*.html
+debug_*.html
+diagnostico_*.html
+verificacion_*.js
+verificacion_*.html
+demo_*.html
+
+# Scripts de deploy y migración temporal  
+prepare_*.py
+prepare_*.sh
+setup_*.sh
+*_adapter.js
+*_config.js
+convert_*.py
+clean_*.py
+auditoria_*.js
+correcciones_*.js
+dividir_*.py
+crear_provincias_*.py
+
+# Archivos de deployment temporal
+render*.yaml
+DEPLOYMENT*.md
+MIGRATION*.md
+ELEVATION_*.md
+
+# Archivos de documentación temporal
+documentacion.html
+estado_sistema_*.html
+
+# Uploads y archivos temporales
+uploads/
+temporary_*/
+external_storage/
+indices/
+
+# Archivos de backup y versiones antiguas
+*_backup.*
+*_old.*
+*_complete.*
+app_backup.py
+app_old.py
+app_complete.py
+
+# Archivos HTML temporales de testing (NOTA: Los HTML principales están en static/ y son esenciales)
+# gestionbatalla.html - ESENCIAL: NO EXCLUIR
+# iniciarpartida.html - ESENCIAL: NO EXCLUIR  
+# inicioGB.html - ESENCIAL: NO EXCLUIR
+# juegodeguerra.html - ESENCIAL: NO EXCLUIR
+# planeamiento.html - ESENCIAL: NO EXCLUIR
+static-index.html
+# =====================================
+# WORKSPACE DE DESARROLLO LOCAL
+# =====================================
+development/
+
+# Scripts de desarrollo y testing
+*_debug.js
+*_test.html
+debug_*.js
+test_*.html
+diagnostico_*.html
+verificacion_*.js
+auditoria_*.js
+
+# Informes temporales  
+INFORME_*.md
+ANALISIS_*.md
+PLAN_*.md
+
+# Scripts temporales
+prepare_*.py
+setup_*.sh
+convert_*.py
+clean_*.py
+monitor_*.sh
+backup_*.sh
+crear_backup_*.sh
+verificar_*.py
+
+# Archivos de configuración temporal
+uvicorn.conf.py
+render-*.yaml
+
+# =====================================
+# ARCHIVOS LEGACY (NO SUBIR)
+# =====================================
+
+# Repositorio legacy completo (16GB - solo para migración local)
+MAIRA_git/
+
+# Archivos temporales de migración
+migration_*.py
+migration_*.json
+extract_elevation_tiles.py
+fix_*.py
+test_release_*.py
+release_data/
+
+# =====================================
+# DATOS PESADOS (van en GitHub Release)
+# =====================================
+
+# Mini tiles de datos geográficos (van en release, no en repo)
+Client/Libs/datos_argentina/Altimetria_Mini_Tiles/
+Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/
+
+# Datos originales pesados (nunca subir)
+Client/Libs/datos_argentina/Vegetacion/
+Client/Libs/datos_argentina/Altimetria/
+
+# Archivos de tiles generados temporalmente
+*.tif
+*.tiff
+*_tiles_index.json
+*mini_tiles*
+tiles_*.tar.gz

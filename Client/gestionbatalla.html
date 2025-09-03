@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>M.A.I.R.A. - Modo GESTION DE BATALLA</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
+  <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+  <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/Client/css/planeamiento.css">
+  <link rel="stylesheet" href="/Client/css/GBatalla.css">
+  <link rel="stylesheet" href="/Client/css/CYGMarcha.css">
+  
+  <!-- Scripts JavaScript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="/node_modules/proj4/dist/proj4.js"></script>
+  <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
+  <script src="/node_modules/mgrs/mgrs.js"></script>
+  <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
+  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+
+  <!-- Scripts personalizados -->
+  <script src="/Client/js/elevation.worker.js"></script>
+  <script src="/Client/js/elevationHandler.js"></script>
+  <script src="/Client/js/vegetacionhandler.js"></script>
+  <script src="/Client/js/utils/mini_tiles_loader.js" onerror="console.warn('❌ mini_tiles_loader.js falló - funcionalidad limitada')"></script>
+  <script src="/Client/js/mapaP.js"></script>
+  <script src="/Client/js/calcosP.js"></script>
+  <!--<script src="/Client/js/edicioncompleto.js"></script>-->
+  <script src="/Client/js/simbolosP.js"></script>
+  <script src="/Client/js/herramientasP.js"></script>
+  <script src="/Client/js/dibujosMCCP.js"></script>
+  <script src="/Client/js/atajosP.js"></script>
+  
+  <script src="/Client/js/CalculoMarcha.js"></script>
+  <script src="/Client/js/graficoMarcha.js"></script>
+  <script src="/Client/js/panelMarcha.js"></script>
+  <script src="/Client/js/indexP.js"></script>
+  
+  <!-- Scripts principales -->
+  <script src="/Client/js/miradial.js"></script>
+
+<script src="/Client/js/networkConfig.js"></script>
+<!-- Scripts modularizados para gestión de batalla -->
+<script src="/Client/js/utilsGB.js"></script>
+<script src="/Client/js/MAIRAChat.js"></script>
+<script src="/Client/js/edicionGB.js"></script>
+<script src="/Client/js/informesGB.js"></script>
+<script src="/Client/js/elementosGB.js"></script>
+<!-- ✅ gestionBatalla.js DEBE IR ANTES que GB.js -->
+<script src="/Client/js/gestionBatalla.js"></script>
+<!-- ✅ GB.js es ahora solo un wrapper -->
+<script src="/Client/js/GB.js"></script>
+</head>
+<body>
+  
+
+  <!-- Loading container al principio del body -->
+  <div class="loading-container">
+    <img src="/Client/image/M.A.I.R.A..gif" alt="M.A.I.R.A. Logo" class="logo">
+    <h1>GESTIÓN DE BATALLA</h1>
+    <div class="progress-container">
+      <div class="progress-bar" id="progreso" style="width: 0%;">
+        <span class="loading-percentage" id="porcentajeCarga">0%</span>
+      </div>
+      <div class="loading-text" id="loadingText">Cargando recursos...</div>
+    </div>
+    <div class="version">Versión 1.4.1</div>
+  </div>
+
+  <div id="main-content" style="display: none;">
+    <div id="botones-principales">
+      <div class="menu-btn">
+        <button id="verBtn" data-toggle="collapse" data-target="#ver-menu" aria-expanded="false" aria-controls="ver-menu">
+          <i class="fas fa-eye"></i> Ver
+        </button>
+        <div id="ver-menu" class="menu collapse">
+          <div class="menu-btn">
+            <button id="tipoMapaBtn" onclick="toggleMenu('collapse')">Tipo de Mapa</button>
+            <div id="collapse" class="collapse">
+              <a href="#" data-map-type="osm"><i class="fas fa-mountain"></i> Terreno</a>
+              <a href="#" data-map-type="calles"><i class="fas fa-road"></i> Calles</a>
+              <a href="#" data-map-type="satelite"><i class="fas fa-satellite-dish"></i> Satélite</a>
+              <a href="#" data-map-type="Transport"><i class="fas fa-bus"></i> Transport</a>
+              <a href="#" data-map-type="Landscape"><i class="fas fa-mountain"></i> Landscape</a>
+              <a href="#" data-map-type="Outdoors"><i class="fas fa-tree"></i> Outdoors</a>
+            </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('cuadriculasBtn')">Cuadrículas</button>
+            <div id="cuadriculasBtn" class="collapse">
+              <div class="menu-btn">
+                <button onclick="toggleMenu('tipoCuadriculaBtn')">Tipo de Cuadrícula</button>
+                <div id="tipoCuadriculaBtn" class="collapse">
+                  <button id="cuadriculaMGRS" onclick="cambiarCuadricula('MGRS')">MGRS</button>
+                  <button id="cuadriculaUTM" onclick="cambiarCuadricula('UTM')">UTM</button>
+                  <button id="cuadriculaWGS84" onclick="cambiarCuadricula('WGS84')">WGS84</button>
+                  <button id="cuadriculaPlana" onclick="cambiarCuadricula('Planas')">Planas</button>
+                  <button id="cuadriculaNinguna" onclick="cambiarCuadricula('Ninguna')">Ninguna</button>
+                </div>
+              </div>
+              <div class="opacity-slider">
+                <label for="opacitySlider">Transparencia</label>
+                <input type="range" min="0" max="100" value="50" id="opacitySlider">
+              </div>
+              <div class="grid-width-slider">
+                <label for="gridWidthSlider">Ancho de Línea</label>
+                <input type="range" min="1" max="10" value="2" id="gridWidthSlider">
+              </div>
+              <div class="color-selector">
+                <label for="colorSelector">Color</label>
+                <input type="color" id="colorSelector" value="#000000">
+              </div>
+            </div>
+            <span>coordenadas del cursor</span>
+            <div id="gridControls"></div>
+            <label class="switch">
+              <input type="checkbox" id="coordenadasCheckbox">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="menu-btn">
+        <button id="herramientasBtn" data-toggle="collapse" data-target="#herramientas-menu" aria-expanded="false"
+          aria-controls="herramientas-menu">
+          <i class="fas fa-tools"></i> Herramientas
+        </button>
+        <div id="herramientas-menu" class="menu collapse">
+          <div id="search-container">
+            <div class="search-input-wrapper">
+                <input type="text" id="busquedaLugar" placeholder="Buscar lugar...">
+                <button id="btnBuscarLugar" type="buscarlugar"><i class="fas fa-search"></i></button>
+            </div>
+            <ul id="resultadosBusquedaLugar"></ul>
+          </div>
+          <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
+          <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
+          <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
+          <a href="#" id="btnBuscarElemento"><i class="fas fa-search"></i> Buscar Elementos</a>
+          <a href="#" id="btn-seguimiento"><i class="fas fa-location-arrow"></i> Seguimiento</a>
+          <a href="#" id="btn-centrar"><i class="fas fa-crosshairs"></i> Centrar en Mi Posición</a>
+          <a href="#" id="btn-ver-todos"><i class="fas fa-users"></i> Ver Todos los Elementos</a>
+        </div>
+      </div>
+          <div class="menu-btn">
+            <button id="btnAgregarElemento" onclick="toggleMenu('agregar-menu')"><i class="fas fa-plus"> </i> Agregar Elemento</button>
+            <div id="agregar-menu" class="menu collapse">
+              <div class="botones-fuerza">
+                <button id="boton-amigo" onclick="actualizarSidc('F')">Amigo</button>
+                <button id="boton-enemigo" onclick="actualizarSidc('J')">Enemigo</button>
+              </div>
+            <div id="search-container">
+              <div class="search-input-wrapper">
+                <input type="text" id="busquedaSimbolo" placeholder="Buscar Simbolo...">
+                <button id="btnBuscarSimbolo" type="button"><i class="fas fa-search"></i></button>
+              </div>
+              <ul id="resultadosBusquedaSimbolos"></ul>
+            </div>
+            <div class="menu-btn">
+              <button onclick="toggleMenu('simbolosBasicosBtn')">Símbolos Básicos</button>
+              <div id="simbolosBasicosBtn" class="collapse">
+                <div class="sidc-container">
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('basicos')">Generales</button>
+                    <div id="basicos" class="collapse submenu simbolo-grid">
+                      <a href="#" data-sidc="S*G-UH----" onclick="agregarMarcador(this.dataset.sidc, 'Puesto Comando')"><span
+                          class="mil-symbol"></span> Puesto Comando</a>
+                      <a href="#" data-sidc="S*G-U-----" onclick="agregarMarcador(this.dataset.sidc, 'Elemento Básico')"><span
+                          class="mil-symbol"></span> Elemento Básico</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <div class="menu-btn">
+              <button onclick="toggleMenu('infanteriaBtn')">Infantería</button>
+              <div id="infanteriaBtn" class="collapse submenu">
+                <div class="sidc-container">
+                  <a href="#" data-sidc="S-GPUCI---" onclick="agregarMarcador(this.dataset.sidc, 'infanteria')"><span
+                      class="mil-symbol"></span> Infantería</a>
+                  <a href="#" data-sidc="S-GPUCAA--" onclick="agregarMarcador(this.dataset.sidc, 'Antitanque')"><span
+                      class="mil-symbol"></span> Antitanque</a>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('infanteriaArmamentoBtn')">Armamento</button>
+                  <div id="infanteriaArmamentoBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="S*G*EWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                        class="mil-symbol"></span> FAL</a>
+                    <a href="#" data-sidc="S*G*EWRR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                        class="mil-symbol"></span> FAP</a>
+                    <a href="#" data-sidc="S*G*EWRL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+                      Ametralladora Pesada</a>
+                    <a href="#" data-sidc="S*G*EWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                        class="mil-symbol"></span> Arma Antiaérea</a>
+                    <a href="#" data-sidc="S*G*EWAM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                        class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+                    <a href="#" data-sidc="S*G*EWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                        class="mil-symbol"></span> Cañón Antitanque</a>
+                    <a href="#" data-sidc="S*G*EWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+                    <a href="#" data-sidc="S*G*EWGM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+                    <a href="#" data-sidc="S*G*EWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                        class="mil-symbol"></span> Lanzacohetes</a>
+                    <a href="#" data-sidc="S*G*EWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                        class="mil-symbol"></span> Mortero Liviano</a>
+                    <a href="#" data-sidc="S*G*EWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                        class="mil-symbol"></span> Mortero Mediano</a>
+                    <a href="#" data-sidc="S*G*EWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                        class="mil-symbol"></span> Mortero Pesado</a>
+                  </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('infanteriaVehiculosBtn')">Vehículos</button>
+                  <div id="infanteriaVehiculosBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="S*G-EVAI--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+                      Vehículo Blindado a Rueda</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <div class="menu-btn">
+              <button onclick="toggleMenu('caballeriaBtn')">Caballería</button>
+              <div id="caballeriaBtn" class="collapse submenu">
+                <div class="sidc-container">
+                  <a href="#" data-sidc="S-G-UCR---" onclick="agregarMarcador(this.dataset.sidc, 'Caballería')"><span
+                      class="mil-symbol"></span> Caballería</a>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('caballeriaArmamentoBtn')">Armamento</button>
+                  <div id="caballeriaArmamentoBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="S*G*EWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                        class="mil-symbol"></span> FAL</a>
+                    <a href="#" data-sidc="S*G*EWRR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                        class="mil-symbol"></span> FAP</a>
+                    <a href="#" data-sidc="S*G*EWRL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+                      Ametralladora Pesada</a>
+                    <a href="#" data-sidc="S*G*EWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                        class="mil-symbol"></span> Arma Antiaérea</a>
+                    <a href="#" data-sidc="S*G*EWAM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                        class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+                    <a href="#" data-sidc="S*G*EWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                        class="mil-symbol"></span> Cañón Antitanque</a>
+                    <a href="#" data-sidc="S*G*EWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+                    <a href="#" data-sidc="S*G*EWGM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+                    <a href="#" data-sidc="S*G*EWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                        class="mil-symbol"></span> Lanzacohetes</a>
+                    <a href="#" data-sidc="G*G*DPOR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Observador Adelantado')"><span class="mil-symbol"></span></a>
+                    <a href="#" data-sidc="S*G*EWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                        class="mil-symbol"></span> Mortero Liviano</a>
+                    <a href="#" data-sidc="S*G*EWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                        class="mil-symbol"></span> Mortero Mediano</a>
+                    <a href="#" data-sidc="S*G*EWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                        class="mil-symbol"></span> Mortero Pesado</a>
+                  </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('caballeriaVehiculosBtn')">Vehículos</button>
+                  <div id="caballeriaVehiculosBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="S*G-EVAI--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo a Blindado Rueda')"><span class="mil-symbol"></span>
+                      Vehículo a Rueda</a>
+                    <a href="#" data-sidc="S*G-EVAT--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Oruga o Semioruga (básico)')"><span
+                        class="mil-symbol"></span> Vehículo Blindado a Oruga o Semioruga (básico)</a>
+                    <a href="#" data-sidc="S*G-EVATM-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+                      Vehículo Blindado a Rueda</a>
+                    <a href="#" data-sidc="S*G-EVATH-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda de Exploración (mediano)')"><span
+                        class="mil-symbol"></span> Vehículo Blindado a Rueda de Exploración (mediano)</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <div class="menu-btn">
+              <button onclick="toggleMenu('apoyoFuegoBtn')">Apoyo de Fuego</button>
+              <div id="apoyoFuegoBtn" class="collapse submenu sidc-container">
+                <a href="#" data-sidc="S*G-UCF---" onclick="agregarMarcador(this.dataset.sidc, 'Artillería')"><span
+                    class="mil-symbol"></span> Artillería</a>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('artilleriaCampanaBtn')">Artillería de Campaña</button>
+                  <div id="artilleriaCampanaBtn" class="collapse submenu simbolo-grid sidc-container">
+                    <a href="#" data-sidc="S*G*EWH---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Liviano (cal 105mm)')"><span class="mil-symbol"></span>
+                      Obús Liviano (cal 105mm)</a>
+                    <a href="#" data-sidc="S*G*EWHM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Mediano (cal 155mm)')"><span class="mil-symbol"></span>
+                      Obús Mediano (cal 155mm)</a>
+                    <a href="#" data-sidc="S*G*EWHH--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Pesado (cal 240mm)')"><span class="mil-symbol"></span>
+                      Obús Pesado (cal 240mm)</a>
+                    <a href="#" data-sidc="S*G*EWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano')"><span
+                        class="mil-symbol"></span> Cañón Liviano</a>
+                    <a href="#" data-sidc="S*G*EWDL--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano')"><span
+                        class="mil-symbol"></span> Cañón Mediano</a>
+                    <a href="#" data-sidc="S*G*EWDM--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Pesado')"><span
+                        class="mil-symbol"></span> Cañón Pesado</a>
+                    <a href="#" data-sidc="S*G*EWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano Antitanque')"><span class="mil-symbol"></span>
+                      Cañón Liviano Antitanque</a>
+                    <a href="#" data-sidc="S*G*EWDLS-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano Autopropulsado')"><span
+                        class="mil-symbol"></span> Cañón Mediano Autopropulsado</a>
+                  </div>
+                </div>
+      
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('artilleriaAntiareaBtn')">Artillería Antiaérea</button>
+                  <div id="artilleriaAntiareaBtn" class="collapse submenu simbolo-grid sidc-container">
+                    <a href="#" data-sidc="S*G*EWA---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón de Artillería Antiaérea')"><span
+                        class="mil-symbol"></span> Cañón de Artillería Antiaérea</a>
+                    <a href="#" data-sidc="S*G-EWAL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Proyectil Autopropulsado Superficie-Aire')"><span
+                        class="mil-symbol"></span> Proyectil Autopropulsado Superficie-Aire</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="menu-btn">
+              <button onclick="toggleMenu('apoyoCombateBtn')">Apoyo de Combate</button>
+              <div id="apoyoCombateBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ingenieros')" data-sidc="S*G-UCE---"><span class="mil-symbol"></span>Ingenieros</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comunicaciones')" data-sidc="S*G-UUS---"><span class="mil-symbol"></span>Comunicaciones</a>
+          
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('ingenierosBtn')">Ingenieros</button>
+                      <div id="ingenierosBtn" class="collapse submenu">
+                        <div class="menu-btn">
+                          <button onclick="toggleMenu('ingenierosVehiculosEquiposBtn')">Vehículos y Equipos</button>
+                          <div id="ingenierosVehiculosEquiposBtn" class="collapse submenu simbolo-grid">
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Combate Lanzapuentes')" data-sidc="S-G-EVEB-------"><span class="mil-symbol"></span>Vehículo de Combate Lanzapuentes</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Ingenieros')" data-sidc="S-G-EVE--------"><span class="mil-symbol"></span>Vehículo de Ingenieros</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Apertura de Brecha')" data-sidc="S*G*EVC---****X"><span class="mil-symbol"></span>Vehículo de Apertura de Brecha</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Desminado')" data-sidc="S-G-EVUL-------"><span class="mil-symbol"></span>Vehículo de Desminado</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Movilidad')" data-sidc="S*G*EVM---****X"><span class="mil-symbol"></span>Vehículo de Movilidad</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Utilitario')" data-sidc="S*G*EVU---****X"><span class="mil-symbol"></span>Vehículo Utilitario</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bulldozer')" data-sidc="S*G*EVUB--****X"><span class="mil-symbol"></span>Bulldozer</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Rodillo')" data-sidc="S*G*EVUR--****X"><span class="mil-symbol"></span>Rodillo</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Excavadora')" data-sidc="S*G*EVUE--****X"><span class="mil-symbol"></span>Excavadora</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cargador')" data-sidc="S*G*EVUL--****X"><span class="mil-symbol"></span>Cargador</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Grúa')" data-sidc="S*G*EVUX--****X"><span class="mil-symbol"></span>Grúa</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Volquete')" data-sidc="S*G*EVUT--****X"><span class="mil-symbol"></span>Volquete</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Camión Cisterna')" data-sidc="S-G-EVUT-------"><span class="mil-symbol"></span>Camión Cisterna</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Buscaminas')" data-sidc="S*G*EVUSL-****X"><span class="mil-symbol"></span>Buscaminas</a>
+                          </div>
+                      </div>
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosMovilidadBtn')">Movilidad</button>
+                              <div id="ingenierosMovilidadBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="dibujarElemento('linea', 'camino-bueno')">Camino Bueno</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'camino-malo')">Camino Malo</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'camino-pavimentado')">Camino Pavimentado</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'camino-tierra')">Camino de Tierra</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puente')" data-sidc="G*M*BCB---****X"><span class="mil-symbol"></span>Puente</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'curso-de-agua')">Curso de Agua</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vado')" data-sidc="G*M*BCF---**X"><span class="mil-symbol"></span>Vado</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compuerta')" data-sidc="G*M*BCA---**X"><span class="mil-symbol"></span>Compuerta</a>
+                              </div>
+                          </div>
+          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosContramovilidadBtn')">Contramovilidad</button>
+                              <div id="ingenierosContramovilidadBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="dibujarElemento('poligono', 'demoliciones')">Zona de Demoliciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Obstáculo')" data-sidc="G-M-OB---------"><span class="mil-symbol"></span>Obstáculo</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'G-M-OMA--------')">Campo Minado</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque')" data-sidc="G*M*OMD---****X"><span class="mil-symbol"></span>Mina Antitanque</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antipersonal')" data-sidc="G*M*OME---****X"><span class="mil-symbol"></span>Mina Antipersonal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque de Circunstancia')" data-sidc="G*M*OMW---****X"><span class="mil-symbol"></span>Mina Antitanque de Circunstancia</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Química')" data-sidc="G*M*OMN---****X"><span class="mil-symbol"></span>Mina Química</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Alambre de Púas')" data-sidc="GG-M-OWL--------"><span class="mil-symbol"></span>Alambre de Púas</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Canalización')" data-sidc="G*M*OTC---****X"><span class="mil-symbol"></span>Canalización</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Desarticulación')" data-sidc="G*M*OTD---****X"><span class="mil-symbol"></span>Desarticulación</a>
+                              </div>
+                          </div>
+          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosProteccionBtn')">Protección</button>
+                              <div id="ingenierosProteccionBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Fortificación')" data-sidc="G-M-SF---------"><span class="mil-symbol"></span>Fortificación</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Muro')" data-sidc="G*M*SW----****X"><span class="mil-symbol"></span>Muro</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Casamata')" data-sidc="G*M*SL----****X"><span class="mil-symbol"></span>Casamata</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Búnker')" data-sidc="G*M*SP----****X"><span class="mil-symbol"></span>Búnker</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('comunicacionesBtn')">Comunicaciones</button>
+                      <div id="comunicacionesBtn" class="collapse submenu">
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('comunicacionesComandosBtn')">Comandos, Elementos y Centros</button>
+                              <div id="comunicacionesComandosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando de Comunicaciones')" data-sidc="S*G-UCCS--"><span class="mil-symbol"></span>Comando de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Comunicaciones')" data-sidc="S*G-UCCB--"><span class="mil-symbol"></span>Batallón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Telecomunicaciones')" data-sidc="S*G-UCCE--"><span class="mil-symbol"></span>Batallón de Telecomunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Operaciones Electrónicas')" data-sidc="S*G-UCPF--"><span class="mil-symbol"></span>Batallón de Operaciones Electrónicas</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compañía de Comunicaciones')" data-sidc="S*G-UCCA--"><span class="mil-symbol"></span>Compañía de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Escuadrón de Comunicaciones')" data-sidc="S*G-UCCE--"><span class="mil-symbol"></span>Escuadrón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Principal)')" data-sidc="S*G-UCPX--"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Principal)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Alternativo)')" data-sidc="S*G-UCPXA-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Alternativo)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando de Retaguardia)')" data-sidc="S*G-UCPXR-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando de Retaguardia)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Comunicaciones')" data-sidc="S*G-UCP---"><span class="mil-symbol"></span>Puesto de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Mensajes')" data-sidc="S*G-UCM---"><span class="mil-symbol"></span>Centro de Mensajes</a>
+                              </div>
+                          </div>
+          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('radioelectricosBtn')">Radioeléctricos</button>
+                              <div id="radioelectricosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radio Vehicular')" data-sidc="S*G-UCRR--"><span class="mil-symbol"></span>Equipo de Radio Vehicular</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radiointerceptación')" data-sidc="S*G-UCRR--"><span class="mil-symbol"></span>Equipo de Radiointerceptación</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo o Puesto de Integración Radio a Radio')" data-sidc="S*G-UCRR--"><span class="mil-symbol"></span>Equipo o Puesto de Integración Radio a Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación, Puesto o Equipo de Radio en General')" data-sidc="S*G-UCRR--"><span class="mil-symbol"></span>Estación, Puesto o Equipo de Radio en General</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radio')" data-sidc="S*G-UCRRT-"><span class="mil-symbol"></span>Repetidor de Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Integración Radioalámbrica')" data-sidc="S*G-UCRRI-"><span class="mil-symbol"></span>Equipo de Integración Radioalámbrica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo Radiorreceptor')" data-sidc="S*G-UCRR--"><span class="mil-symbol"></span>Equipo Radiorreceptor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación o Puesto Radiogoniómetro')" data-sidc="S*G-UCRRG-"><span class="mil-symbol"></span>Estación o Puesto Radiogoniómetro</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo, Estación o Puesto de Radioteleimpresor')" data-sidc="S*G-UCRRT-"><span class="mil-symbol"></span>Equipo, Estación o Puesto de Radioteleimpresor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Radiomulticanal')" data-sidc="S*G-UCRM--"><span class="mil-symbol"></span>Puesto de Radiomulticanal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radiomulticanal')" data-sidc="S*G-UCRMT-"><span class="mil-symbol"></span>Repetidor de Radiomulticanal</a>
+                              </div>
+                          </div>
+          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('telefoniaBtn')">Telefonía</button>
+                              <div id="telefoniaBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teléfono de Campaña a Magneto')" data-sidc="S*G-UCTCP-"><span class="mil-symbol"></span>Teléfono de Campaña a Magneto</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'alambre-de-campana')">Alambre de Campaña (1 canal telefónico)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central de Teleimpresores')" data-sidc="S*G-UCTCT-"><span class="mil-symbol"></span>Central de Teleimpresores</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica (en un puesto de comando)')" data-sidc="S*G-UCTCP-"><span class="mil-symbol"></span>Central Telefónica (en un puesto de comando)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica')" data-sidc="S*G-UCTCP-"><span class="mil-symbol"></span>Central Telefónica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teleimpresor')" data-sidc="S*G-UCTIT-"><span class="mil-symbol"></span>Teleimpresor</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+            <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaPersonalBtn')">Logística de Personal</button>
+            <div id="logisticaPersonalBtn" class="collapse submenu simbolo-grid">
+              <a href="#" onclick="dibujarElemento('poligono', 'area-de-descanso')">Área de Descanso</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Policía Militar')" data-sidc="S*G-USP---"><span class="mil-symbol"></span>Batallón de Policía Militar</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'campo-prisioneros-de-guerra')">Campo de Prisioneros de Guerra</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'campo-procesamiento-prisioneros-guerra')">Campo de Procesamiento de Prisioneros de Guerra</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cementerio Militar')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Cementerio Militar</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Puesto de Socorro')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Puesto de Socorro</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Puesto Principal de Socorro')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Puesto Principal de Socorro</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Refugio de Heridos')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Refugio de Heridos</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Lugar de Reunión Necrológico')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Lugar de Reunión Necrológico</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Lugar de Reunión de Extraviados')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Lugar de Reunión de Extraviados</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Lugar de Reunión de Prisioneros de Guerra')" data-sidc="S*G-USP---"><span class="mil-symbol"></span>Lugar de Reunión de Prisioneros de Guerra</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Puesto Control de Tránsito de Policía Militar')" data-sidc="S*G-USP---"><span class="mil-symbol"></span>Puesto Control de Tránsito de Policía Militar</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Puesto de Control de Extraviados')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Puesto de Control de Extraviados</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Oficina Postal')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Oficina Postal</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Instalación Disciplinaria')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Instalación Disciplinaria</a>
+              <a href="#" onclick="agregarMarcadorConTexto(this.dataset.sidc, 'Consejo de Guerra Permanente')" data-sidc="S*G-USX---"><span class="mil-symbol"></span>Consejo de Guerra Permanente</a>
+              </div>
+          </div>
+      
+            <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaSanidadBtn')">Logística de Sanidad</button>
+            <div id="logisticaSanidadBtn" class="collapse submenu simbolo-grid">
+            <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Sanidad')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Sanidad</a>
+            <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Hospital</a>
+            <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital de Campaña')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Hospital de Campaña</a>
+            <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital Quirófano Móvil')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Hospital Quirófano Móvil</a>
+            </div>
+            </div>
+      
+            <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaMaterialBtn')">Logística de Material</button>
+            <div id="logisticaMaterialBtn" class="collapse submenu">
+            <div class="menu-btn">
+            <button onclick="toggleMenu('intendenciaBtn')">Intendencia</button>
+            <div id="intendenciaBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Intendencia')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Instalación de Intendencia</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Agua')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Instalación de Agua</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Intendencia (Clase II y IV)')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Depósito de Intendencia (Clase II y IV)</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Efectos Clase I')" data-sidc="S-G-USSPA----"><span class="mil-symbol"></span>Lugar de Distribución de Efectos Clase I</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase III')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase III</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión de Efectos Clase II y IV')" data-sidc="S*G-USS---"><span class="mil-symbol"></span>Lugar de Reunión de Efectos Clase II y IV</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Armazón para Pozo de Petróleo')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Armazón para Pozo de Petróleo</a>
+                    <a href="#" onclick="dibujarElemento('linea', 'tuberia')">Tubería</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito Tanque (contenido conocido - petróleo)')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Depósito Tanque (contenido conocido - petróleo)</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito Tanque Enterrado')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Depósito Tanque Enterrado</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito Tanque de Gas')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Depósito Tanque de Gas</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito Tanque (capacidad conocida)')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Depósito Tanque (capacidad conocida)</a>
+                    <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Parque de Depósitos Tanque')" data-sidc="S*G-USSW--"><span class="mil-symbol"></span>Parque de Depósitos Tanque</a>
+                </div>
+              </div>
+            <div class="menu-btn">
+            <button onclick="toggleMenu('arsenalesBtn')">Arsenales</button>
+            <div id="arsenalesBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Arsenales')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Instalación de Arsenales</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Abastecimiento de Arsenales (Clase II y IV)')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Depósito de Abastecimiento de Arsenales (Clase II y IV)</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Abastecimiento de Munición')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Depósito de Abastecimiento de Munición</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión de Arsenales')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Lugar de Reunión de Arsenales</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Munición')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Lugar de Distribución de Munición</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase II y IV')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase II y IV</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Recolección de Arsenales (Clase II y IV)')" data-sidc="S*G-USA---"><span class="mil-symbol"></span>Lugar de Recolección de Arsenales (Clase II y IV)</a>
+                      </div>
+                  </div>
+              </div>
+            </div>
+            <button onclick="toggleMenu('transporteBtn')">Transporte</button>
+            <div id="transporteBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('linea', 'transito-alternado')">Tránsito Alternado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-abierta')">Ruta Abierta</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-supervisada')">Ruta Supervisada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-despacho')">Ruta de Despacho</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-reservada')">Ruta Reservada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-secciones-carreteras')">Límite entre Secciones de Carreteras</a>
+                <a href="#" onclick="dibujarElemento('linea', 'itinerario-guardado')">Itinerario Guardado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'seccion-carretera-intransitable')">Sección de Carretera Intransitable</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-mano-unica')">Tránsito de Mano Única</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-doble-mano')">Tránsito de Doble Mano</a>
+                <a href="#" onclick="dibujarElemento('linea', 'desvio')">Desvío</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Aeropuerto')" data-sidc="G*I*BA----****X"><span class="mil-symbol"></span>Aeropuerto (Embarque)</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Oficina de Sección de Transporte')" data-sidc="S*G*USS---****X"><span class="mil-symbol"></span>Oficina de Sección de Transporte</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puerto (de Carga)')" data-sidc="G*I*PN----****X"><span class="mil-symbol"></span>Puerto (de Carga)</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Oficina de Distrito')" data-sidc="S*G*USS---****X"><span class="mil-symbol"></span>Oficina de Distrito</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Oficina de Transporte Ferroviario')" data-sidc="S*G*USS---****X"><span class="mil-symbol"></span>Oficina de Transporte Ferroviario</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Oficina de la Zona de Transporte')" data-sidc="S*G*USS---****X"><span class="mil-symbol"></span>Oficina de la Zona de Transporte</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Terminal en general')" data-sidc="G*I*BC----****X"><span class="mil-symbol"></span>Terminal en general</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Terminal para carga')" data-sidc="G*I*BC----****X"><span class="mil-symbol"></span>Terminal para carga</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Terminal para personal')" data-sidc="G*I*BC----****X"><span class="mil-symbol"></span>Terminal para personal</a>
+            </div>
+          
+        
+          <div class="menu-btn">
+            <button onclick="toggleMenu('mccGeneralesBtn')">MCC</button>
+            <div id="mccGeneralesBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('poligono', 'SFFPAO----', 'Objetivo')">Objetivo</a>
+                <a href="#" onclick="dibujarFlecha('flecha', 'Dirección de Ataque')">Dirección de Ataque</a>
+                <a href="#" onclick="dibujarElemento('flechaAncha', 'G*G*OLAA--****X', 'Eje de Avance')">Eje de Avance</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*G*OAA---****X')">Área de Operaciones</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLK---****X', 'Línea de Coordinación')">LLA</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*M*OGB---****X')">Bloqueo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLR---****X')">Retirada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLAA--****X')">Límite de Área</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*G*OAR---****X')">Zona de Reunión</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-entre-dos-elementos')">Límite entre dos elementos</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-dentro-de-un-objetivo')">Límite dentro de un objetivo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-exploracion-seguridad')">Límite de Exploración y Seguridad</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLC---****X')">Línea de Contacto (tropas amigas)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLC---****X')">Línea de Contacto (tropas enemigas)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLC---****X')">Línea de Contacto (tropas amigas y enemigas)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLC---****X')">Línea de Contacto (tropas enemigas se defienden)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*G*OLC---****X')">Línea de Contacto (tropas amigas atacan)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCFin')">Línea de Coordinación Final</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LPAtq')">Línea de Partida para el Ataque</a><a href="#" onclick="agregarPuntoControl('PC')"><i class="fas fa-flag-checkered"></i> Punto de Control (PC)</a>
+                <a href="#" onclick="agregarPuntoControl('PI')"> Punto Inicial (PI)</a>
+                <a href="#" onclick="agregarPuntoControl('PT')"> Punto Terminal (PT)</a>
+                <a href="#" onclick="agregarPuntoControl('PD')"> Punto de Desdoblamiento (PD)</a>
+                <a href="#" onclick="agregarPuntoControl('PE')"> Punto de Encolumnamiento (PE)</a>
+                <a href="#" onclick="agregarPuntoControl('PP')"> Punto de Pasaje (PP)</a>
+        
+
+            </div>
+          </div>
+        
+          <div class="menu-btn">
+            <button onclick="toggleMenu('fuegosBtn')">MCCF</button>
+            <div id="fuegosBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACSR--****X')">Área de Fuego Restringido (AFR)</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACNR--****X')">Área de NO Fuego (ANF)</a>
+                <a href="#" onclick="dibujarElemento('Linea', 'Barrera')">Barrera</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Acústica')" data-sidc="S*G*USAS--****X"><span class="mil-symbol"></span>Base Acústica</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Óptica')" data-sidc="S*G*USAO--****X"><span class="mil-symbol"></span>Base Óptica</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Batería')" data-sidc="S*G*USAT--****X"><span class="mil-symbol"></span>Centro de Batería</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*AT----****X')">Concentración de Tiro</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación Meteorológica')" data-sidc="S*G*USAM--****X"><span class="mil-symbol"></span>Estación Meteorológica</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*F*LT----****X')">Grupo de Fuegos</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCAF')">Línea de Coordinación de Apoyo de Fuego (LCAF)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCSF')">Línea de Coordinación y Seguridad de los Fuegos (LCSF)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCF')">Línea de Coordinación de los Fuegos (LCF)</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Posición de Observador Adelantado')" data-sidc="G*G*OPO---****X"><span class="mil-symbol"></span>Posición de Observador Adelantado</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Posición de Radar')" data-sidc="S*G*USAP--****X"><span class="mil-symbol"></span>Posición de Radar</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Observación')" data-sidc="G*G*GPO---****X"><span class="mil-symbol"></span>Puesto de Observación</a>
+                <a href="#" onclick="dibujarElemento('linea', 'punto-registro-blanco')">Punto Registro Blanco</a>
+                <a href="#" onclick="dibujarElemento('linea', 'G*F*LTS---****X')">Línea de Apertura de Fuego</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--****X')">Zona de Apoyo de Fuego (ZAF)</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--****X')">Zona de Fuego</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZXX--****X')">Zona de Responsabilidad de Fuego Naval (ZRFN)</a>
+            </div>
+          </div>
+        
+          <div class="menu-btn">
+            <button onclick="toggleMenu('toeBtn')">TOE (Tropas de Operaciones Especiales)</button>
+            <div id="toeBtn" class="collapse submenu">
+                <div class="menu-btn">
+                    <button onclick="toggleMenu('comandosTOEBtn')">Comandos</button>
+                    <div id="comandosTOEBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando')" data-sidc="S*G*UCIZ--****X"><span class="mil-symbol"></span>Comando</a>
+                    </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('cazadoresBtn')">Cazadores</button>
+                  <div id="cazadoresBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Monte')" data-sidc="S*G*UCIZ--****X"><span class="mil-symbol"></span>Cazador de Monte</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Montaña')" data-sidc="S*G*UCIZ--****X"><span class="mil-symbol"></span>Cazador de Montaña</a>
+                    </div>
+                </div>
+            </div>
+          </div>
+          </div>
+          </div>
+      
+      <div class="menu-btn">
+        <button id="calcoBtn" data-toggle="collapse" data-target="#calcos-menu">
+          <i class="fas fa-layer-group"></i> Calcos
+        </button>
+        <div id="calcos-menu" class="menu collapse">
+          <div>
+            <a href="#" id="nuevoCalcoBtn"><i class="fas fa-plus"></i> Nuevo Calco</a>
+            <a href="#" id="cargarCalcoBtn"><i class="fas fa-upload"></i> Cargar Calco</a>
+            <a href="#" id="guardarCalcoBtn"><i class="fas fa-save"></i> Guardar Calco</a>
+            <a href="#" id="imprimirBtn"><i class="fas fa-print"></i> Imprimir</a>
+            <div id="calcosLista">
+              <!-- Aquí se agregarán los calcos dinámicamente -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-btn">
+        <button id="ayudaBtn" data-toggle="collapse" data-target="#helpMenu" aria-expanded="false" aria-controls="helpMenu">
+          <i class="fas fa-question"></i> Ayuda
+        </button>
+        <div id="helpMenu" class="menu collapse">
+          <a href="#" id="documentacionBtn">
+            <i class="fas fa-book"></i> Documentación
+          </a>
+          <a href="#" id="atajosBtn">
+            <i class="fas fa-keyboard"></i> Atajos de Teclado
+          </a>
+          <a>
+            <label for="switchTutorial">Activar tutorial</label>
+            <input type="checkbox" id="switchTutorial" onchange="toggleTutorial()">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+    <main>
+      <div id="mapContainer"></div>
+      <div id="map" style="height: 100%;"></div>
+      
+      <div>
+        <button id="fullscreenBtn" class="fullscreen-button"><i class="fas fa-expand"></i></button>
+      </div>
+      <div id="botones-secundarios">
+        <button id="btnDeshacer" onclick="deshacer()" disabled><i class="fas fa-undo-alt"></i></button>
+        <button id="btnRehacer" onclick="rehacer()" disabled><i class="fas fa-redo-alt"></i></button>
+        <button id="boton-panel" class="boton-panel"><i class="fas fa-chevron-left"></i></button>
+        <button id="btnVolver" class="boton-volver"><i class="fas fa-arrow-left"></i></button>
+        <button id="btnTest" class="boton-test" onclick="mostrarMenuTest()" title="Herramientas de Test"><i class="fas fa-bug"></i></button>
+      </div>
+      
+      <!-- Menú de herramientas de test -->
+      <div id="menu-test" class="menu-test-flotante" style="display: none;">
+        <div class="menu-test-header">
+          <h4>🧪 Herramientas de Test</h4>
+          <button onclick="cerrarMenuTest()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="menu-test-content">
+          <button onclick="ejecutarTestGestionBatalla()" class="btn-test">📋 Test Completo</button>
+          <button onclick="ejecutarTestGestionBatalla(true)" class="btn-test">🚀 Test Rápido</button>
+          <button onclick="demoGestionBatalla()" class="btn-test">🎮 Demo Interactiva</button>
+          <button onclick="console.clear()" class="btn-test">🧹 Limpiar Consola</button>
+        </div>
+      </div>
+      </div>
+      <div id="coordenadas" class="coordenadas-display"></div>
+      <div id="medicionDistancia" class="medicion-display">
+        <span id="textoMedicion"></span>
+        <button id="cerrarMedicion">X</button>
+      </div>
+
+
+
+
+      <div id="perfilElevacionDisplay" class="sub-panel" style="display: none;">
+        <div class="display-header">
+            <h3>Perfil de Elevación</h3>
+            <div class="display-controls">
+                <button id="btnFullscreenElevation" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+                <button id="btnSaveElevation" class="btn-save" title="Guardar">↓</button>
+                <button id="btnPrintElevation" class="btn-print" title="Imprimir">⎙</button>
+                <button id="elevation-close-button" class="btn-cerrar" onclick="cerrarPanel('perfilElevacionDisplay')">×</button>
+            </div>
+        </div>
+        <div class="display-content" style="display: none;">
+            <!-- Contenido del perfil de elevación se cargará aquí -->
+        </div>
+      </div>
+  
+
+      <div id="panelEdicionLinea" class="panel">
+        <h3>Editar Línea</h3>
+        <div>
+            <label for="nombreLinea">Nombre:</label>
+            <input type="text" id="nombreLinea">
+        </div>
+        <div>
+            <label for="colorLinea">Color:</label>
+            <input type="color" id="colorLinea">
+        </div>
+        <div>
+            <label for="anchoLinea">Ancho:</label>
+            <input type="number" id="anchoLinea" min="1" max="10">
+        </div> 
+        <div>
+            <label for="tipoLinea">Tipo:</label>
+            <select id="tipoLinea">
+                <option value="solid">Sólida</option>
+                <option value="dashed">Punteada</option>
+            </select> 
+        </div>
+        <div class="panel-buttons">
+            <button id="guardarCambiosLinea">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionLinea')">Cerrar</button>
+        </div>
+      </div>
+
+
+
+      <!-- Paneles de edición reutilizados del original, solo mostramos el primero como ejemplo -->
+      <div id="panelEdicionUnidad" class="panel">
+        <h3>Editar Unidad</h3>
+        <div class="tab">
+            <button class="tablinks" data-tab="SIDC">SIDC</button>
+            <button class="tablinks" data-tab="Informacion">Información</button>
+            <button class="tablinks" data-tab="Caracteristicas">Características</button>
+        </div>
+  
+        <div id="sidcDisplay"></div>
+  
+        <div id="SIDC" class="tabcontent">
+            <div>
+                <label for="afiliacion">Afiliación:</label>
+                <select id="afiliacion">
+                    <option value="-">Desconocido</option>
+                    <option value="F">Amigo</option>
+                    <option value="J">Hostil/Enemigo</option>
+                </select>
+            </div>
+            <div>
+                <label for="estado">Estado:</label>
+                <select id="estado">
+                    <option value="P">Presente</option>
+                    <option value="A">Planeado</option>
+                </select>
+            </div>
+            <div>
+                <label for="arma">Arma:</label>
+                <select id="arma"></select>
+            </div>
+            <div>
+                <label for="tipo">Tipo:</label>
+                <select id="tipo"></select>
+            </div>
+            <div>
+                <label for="caracteristica">Característica:</label>
+                <select id="caracteristica"></select>
+            </div>
+            <div>
+                <label for="magnitud">Magnitud:</label>
+                <select id="magnitud">
+                    <option value="-">No especificado</option>
+                    <option value="A">Equipo/Tripulación</option>
+                    <option value="B">peloton</option>
+                    <option value="C">grupo</option>
+                    <option value="D">Sección</option>
+                    <option value="E">Compañía/Escuadrón/Batería</option>
+                    <option value="F">Regimiento/Batallón/Grupo</option>
+                    <option value="G">Brigada</option>
+                    <option value="H">División</option>
+                    <option value="I">Cuerpo/MEF</option>
+                    <option value="J">Ejército</option>
+                </select>
+            </div>
+        </div>
+  
+        <div id="Informacion" class="tabcontent">
+            <div>
+                <label for="designacion">Designación:</label>
+                <input type="text" id="designacion">
+            </div>
+            <div>
+                <label for="dependencia">Dependencia:</label>
+                <input type="text" id="dependencia">
+            </div>
+        </div>
+  
+        <div id="Caracteristicas" class="tabcontent">
+            <div>
+                <input type="checkbox" id="puestoComando">
+                <label for="puestoComando">Puesto de Comando</label>
+            </div>
+            <div>
+                <input type="checkbox" id="fuerzaTarea">
+                <label for="fuerzaTarea">Fuerza de Tarea</label>
+            </div>
+            <div>
+                <input type="checkbox" id="reforzado">
+                <label for="reforzado">Reforzado</label>
+            </div>
+            <div>
+                <input type="checkbox" id="disminuido">
+                <label for="disminuido">Disminuido</label>
+            </div>
+        </div>
+  
+        <div class="panel-buttons">
+            <button id="guardarCambiosUnidad">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionUnidad')">Cerrar</button>
+        </div>
+      </div>
+  
+      <div id="panelEdicionEquipo" class="panel">
+        <h3>Editar Equipo</h3>
+        
+        <div id="sidcDisplayEquipo"></div>
+        
+        <div class="tab">
+            <button class="tablinks" data-tab="SIDCEquipo">SIDC</button>
+            <button class="tablinks" data-tab="InformacionEquipo">Información</button>
+        </div>
+  
+        <div id="SIDCEquipo" class="tabcontent">
+            <div>
+                <label for="afiliacionEquipo">Afiliación:</label>
+                <select id="afiliacionEquipo">
+                    <option value="-">Desconocido</option>
+                    <option value="F">Amigo</option>
+                    <option value="J">Hostil/Enemigo</option>
+                </select>
+            </div>
+        </div>
+  
+        <div id="InformacionEquipo" class="tabcontent">
+            <div>
+                <label for="designacionEquipo">Designación:</label>
+                <input type="text" id="designacionEquipo">
+            </div>
+            <div>
+                <label for="asignacionEquipo">Asignación:</label>
+                <input type="text" id="asignacionEquipo">
+            </div>
+        </div>
+  
+        <div class="panel-buttons">
+            <button id="guardarCambiosEquipo">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionEquipo')">Cerrar</button>
+        </div>
+      </div>
+  
+      <div id="panelEdicionMCC" class="panel">
+        <h3>Editar Elemento MCC</h3>
+        <div>
+            <label for="textoMCC">Texto:</label>
+            <input type="text" id="textoMCC">
+        </div>
+        <div>
+            <label for="colorMCC">Color:</label>
+            <input type="color" id="colorMCC">
+        </div>
+        <div>
+            <label for="anchoMCC">Ancho:</label>
+            <input type="number" id="anchoMCC" min="1" max="10">
+        </div>
+        <div>
+            <label for="colorRellenoMCC">Color de relleno:</label>
+            <input type="color" id="colorRellenoMCC">
+        </div>
+        <div>
+            <label for="tipoLineaMCC">Tipo de línea:</label>
+            <select id="tipoLineaMCC">
+                <option value="solid">Sólida</option>
+                <option value="dashed">Punteada</option>
+            </select>
+        </div>
+        <div id="rellenoMCC" style="display: none;">
+            <label for="tipoRellenoMCC">Tipo de relleno:</label>
+            <select id="tipoRellenoMCC">
+              <option value="none">Sin relleno</option>
+              <option value="solid">Sólido</option>
+              <option value="diagonal">Diagonal</option>
+              <option value="rombos">Rombos</option>
+              <option value="cuadros">Cuadros</option>
+              <option value="puntos">Puntos</option>
+          </select>
+        </div>
+        <div class="panel-buttons">
+            <button id="guardarCambiosMCC">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionMCC')">Cerrar</button>
+        </div>
+      </div>
+      
+      <!-- Botón flotante para mostrar panel lateral (cuando está oculto) -->
+      <button id="toggle-panel-btn" class="panel-toggle-btn" onclick="window.MAIRA.GestionBatalla.togglePanel()">
+        <i class="fas fa-chevron-left"></i>
+        <span class="tooltip">Abrir Panel</span>
+      </button>
+      
+      <!-- Panel Lateral de Gestión de Batalla -->
+      <div id="panel-lateral" class="panel-lateral oculto">
+        <div class="panel-header">
+          <h3>Gestión de Batalla</h3>
+          <button id="cerrar-panel" class="btn-cerrar-panel" onclick="window.MAIRA.GestionBatalla.togglePanel()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="tab-elementos">Elementos</button>
+          <button class="tab-btn" data-tab="tab-chat">Chat</button>
+          <button class="tab-btn" data-tab="tab-informes">Informes</button>
+        </div>
+        
+        <div class="panel-content">
+          <!-- Pestaña Elementos -->
+          <div class="tab-content active" id="tab-elementos">
+            <div class="info-usuario">
+              <div class="usuario-datos">
+                <p><strong>Usuario:</strong> <span id="nombre-usuario">-</span></p>
+                <p><strong>Operación:</strong> <span id="nombre-operacion">-</span></p>
+                <p><strong>Elemento:</strong> <span id="nombre-elemento">-</span></p>
+              </div>
+              <div class="estado-conexion">
+                <span class="indicator offline"></span>
+                <span id="status-text">Desconectado</span>
+              </div>
+            </div>
+            <h4>Elementos conectados</h4>
+            <div id="lista-elementos" class="elementos-lista">
+              <!-- Los elementos se cargan dinámicamente -->
+            </div>
+          </div>
+          
+          <!-- Pestaña Chat -->
+          <div class="tab-content" id="tab-chat">
+            <div class="chat-tipo">
+              <button id="btn-chat-general" class="active">General</button>
+              <button id="btn-chat-privado">Privado</button>
+            </div>
+            <div id="chat-destinatario" class="d-none">
+              <select id="select-destinatario">
+                <option value="">Seleccionar destinatario...</option>
+              </select>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+              <!-- Los mensajes se cargan dinámicamente -->
+            </div>
+            <div class="chat-input">
+              <input type="text" id="mensaje-chat" placeholder="Escribe un mensaje...">
+              <button id="enviar-mensaje"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+          
+          <!-- Pestaña Informes -->
+          <div class="tab-content" id="tab-informes">
+            <div class="informes-botones">
+              <button id="btn-crear-informe" class="active">Crear</button>
+              <button id="btn-ver-informes">Ver</button>
+            </div>
+            
+            <!-- Contenido: Crear informe -->
+            <div id="contenido-crear-informe">
+              <form id="form-informe">
+                <div class="form-group">
+                  <label for="tipo-informe">Tipo de informe:</label>
+                  <select id="tipo-informe" required>
+                    <option value="">Seleccionar tipo...</option>
+                    <option value="situacion">Situación</option>
+                    <option value="movimiento">Movimiento</option>
+                    <option value="contacto">Contacto</option>
+                    <option value="logistico">Logístico</option>
+                    <option value="orden">Orden</option>
+                    <option value="urgente">Urgente</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="destinatario-informe">Destinatario:</label>
+                  <select id="destinatario-informe" required>
+                    <option value="">Seleccionar destinatario...</option>
+                    <option value="todos">Todos</option>
+                    <option value="superior">Superior</option>
+                    <option value="lateral">Unidades laterales</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="titulo-informe">Título:</label>
+                  <input type="text" id="titulo-informe" placeholder="Título del informe" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="contenido-informe">Contenido:</label>
+                  <textarea id="contenido-informe" placeholder="Describe la situación..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="incluir-ubicacion"> Incluir mi ubicación actual
+                  </label>
+                </div>
+                
+                <div class="form-buttons">
+                  <button type="button" id="cancelar-informe">Cancelar</button>
+                  <button type="submit" id="enviar-informe">Enviar Informe</button>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Contenido: Ver informes -->
+            <div id="contenido-ver-informes" style="display: none;">
+              <div class="filtro-informes">
+                <button class="active" data-filtro="todos">Todos</button>
+                <button data-filtro="recibidos">Recibidos</button>
+                <button data-filtro="enviados">Enviados</button>
+              </div>
+              
+              <div id="lista-informes" class="informes-lista">
+                <!-- Los informes se cargan dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      <!-- Contenedores de cálculo de marcha y otros módulos -->
+      <div id="calculoMarchaContainer" style="display: none;"></div>
+      <div id="errorContainer" class="error-container" style="display: none;"></div>
+      <div id="panelMarchaContainer" style="display: none;"></div>
+      <div id="perfilElevacionDisplay" class="sub-panel" style="display: none;">
+        <!-- Contenido del perfil de elevación -->
+      </div>
+      <div id="graficoMarchaPanel" class="sub-panel" style="display: none;">
+        <!-- Contenido del gráfico de marcha -->
+      </div>
+      <div id="calculoMarchaPanel" class="sub-panel" style="display: none;">
+        <!-- Contenido de cálculo de marcha -->
+      </div>
+    </main>
+
+    <!-- Menú contextual para elementos -->
+    <div id="context-menu" style="display: none;" class="context-menu">
+      <button onclick="editarElementoSeleccionadoGB()"><i class="fas fa-edit"></i> Editar</button>
+      <button id="btn-eliminar-elemento"><i class="fas fa-trash"></i> Eliminar</button>
+      <button id="btn-compartir-elemento"><i class="fas fa-share-alt"></i> Compartir</button>
+    </div>
+
+    <!-- Modal para detalles de elemento -->
+    <div class="modal fade" id="modalDetallesElemento" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detalles del Elemento</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="detalles-elemento-contenido">
+            <!-- Contenido dinámico -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btn-centrar-elemento">Centrar en mapa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para buscar elementos -->
+    <div class="modal fade" id="modalBuscarElemento" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Buscar Elementos</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="text" id="busqueda-elemento" class="form-control" placeholder="Buscar por nombre, designación...">
+            </div>
+            <div id="resultados-busqueda-elementos" class="list-group">
+              <!-- Resultados dinámicos -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Contenedor para notificaciones -->
+    <div id="notificaciones-container" class="notificaciones-container"></div>
+  </div>
+
+
+</body>
+</html>

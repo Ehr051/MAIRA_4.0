@@ -5,9 +5,9 @@ const GITHUB_RELEASES_BASE = '/api/proxy/github';
 
     // URLs de fallback para GitHub Releases
     const MINI_TILES_FALLBACK_URLS = [
-        'https://github.com/lucianoiam/maira-tiles/releases/download/v1.0/mini_tiles_',
-        'https://raw.githubusercontent.com/lucianoiam/maira-tiles/main/Client/Libs/datos_argentina/Elevacion_Mini_Tiles/',
-        'https://cdn.jsdelivr.net/gh/lucianoiam/maira-tiles@main/Client/Libs/datos_argentina/Elevacion_Mini_Tiles/'
+        'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
+        'https://raw.githubusercontent.com/Ehr051/MAIRA-4.0/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
+        'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/'
     ];
 
 // Ruta para tiles clásicos (legacy)

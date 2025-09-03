@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<!-- ✅ HEAD CORREGIDO PARA CO.html -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Cuadro de Organización</title>
+    
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/Client/css/CO.css">
+    
+    <!-- Core JavaScript Libraries (ORDEN CRÍTICO) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    
+    <!-- Export Libraries -->
+    <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+    <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
+    
+    <!-- Military Symbol Libraries -->
+    <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
+    
+    <!-- ✅ ORDEN CORRECTO DE SCRIPTS CO -->
+    <script>
+        // ✅ Verificación de dependencias críticas
+        window.addEventListener('DOMContentLoaded', function() {
+            const dependenciasRequeridas = [
+                { nombre: 'jQuery', objeto: 'jQuery' },
+                { nombre: 'Leaflet', objeto: 'L' },
+                { nombre: 'milsymbol', objeto: 'ms' },
+                { nombre: 'jsPlumb', objeto: 'jsPlumb' }
+            ];
+            
+            const dependenciasFaltantes = dependenciasRequeridas.filter(dep => 
+                typeof window[dep.objeto] === 'undefined'
+            );
+            
+            if (dependenciasFaltantes.length > 0) {
+                console.error('❌ Dependencias faltantes:', dependenciasFaltantes.map(d => d.nombre));
+                alert('Error: Faltan dependencias críticas. Revise la consola.');
+                return;
+            }
+            
+            console.log('✅ Todas las dependencias cargadas correctamente');
+        });
+    </script>
+    
+    <!-- ✅ SCRIPTS CO EN ORDEN CORRECTO -->
+    <script src="/Client/js/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
+    <script src="/Client/js/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
+    <script src="/Client/js/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
+    <script src="/Client/js/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
+    
+    <!-- ✅ Inicialización diferida -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar que todos los scripts se carguen
+            setTimeout(function() {
+                if (typeof inicializarCuadroOrganizacion === 'function') {
+                    inicializarCuadroOrganizacion();
+                    console.log('✅ Cuadro de Organización inicializado');
+                } else {
+                    console.error('❌ Función inicializarCuadroOrganizacion no encontrada');
+                }
+                
+                // Verificar integración MAIRA
+                if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
+                    console.log('✅ MAIRA.CuadroOrganizacion disponible');
+                } else {
+                    console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
+                }
+            }, 100);
+        });
+    </script>
+</head>
+<body>
+  
+    <!-- Main Navigation -->
+    <div id="botones-principales">
+        <!-- File Menu -->
+        <div class="menu-btn">
+            <button id="archivoBtn" onclick="toggleMenu('archivo-menu')">
+                <i class="fas fa-file"></i> Archivo
+            </button>
+            <div id="archivo-menu" class="menu collapse">
+                <a href="#" id="nuevoOrgBtn"><i class="fas fa-plus"></i> Nuevo Cuadro</a>
+                <a href="#" id="cargarOrgBtn"><i class="fas fa-upload"></i> Cargar Cuadro</a>
+                <a href="#" id="guardarOrgBtn"><i class="fas fa-save"></i> Guardar Cuadro</a>
+                <a href="#" id="exportarOrgBtn"><i class="fas fa-file-export"></i> Exportar como Imagen</a>
+                <a href="#" id="imprimirOrgBtn"><i class="fas fa-print"></i> Imprimir</a>
+                <a href="./home/index.html" id="volverBtn"><i class="fas fa-arrow-left"></i> Salir</a>
+            </div>
+        </div>
+        
+        <!-- View Menu -->
+        <div class="menu-btn">
+            <button id="verBtn" onclick="toggleMenu('ver-menu')">
+                <i class="fas fa-eye"></i> Herramientas
+            </button>
+            <div id="ver-menu" class="menu collapse">
+                <div class="menu-btn">
+                    <button onclick="toggleMenu('textosBtn')">Textos</button>
+                    <div id="textosBtn" class="collapse submenu">
+                        <a href="#" id="agregarTextoBtn"><i class="fas fa-font"></i> Agregar Texto</a>
+                        <a href="#" id="agregarTituloBtn"><i class="fas fa-heading"></i> Agregar Título</a>
+                        <a href="#" id="agregarLeyendaBtn"><i class="fas fa-info-circle"></i> Agregar Leyenda</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="menu-btn"> 
+            <button onclick="toggleMenu('agregar-menu')"><i class="fas fa-plus"> </i> Agregar Elemento</button>
+            <div id="agregar-menu" class="menu collapse">
+            <div class="botones-fuerza">
+              <button onclick="actualizarSidc('F')">Amigo</button>
+              <button onclick="actualizarSidc('J')">Enemigo</button>
+            </div>
+            <div id="search-container">
+              <div class="search-input-wrapper">
+                <input type="text" id="busquedaSimbolo" placeholder="Buscar Simbolo...">
+                <button id="btnBuscarSimbolo" type="button"><i class="fas fa-search"></i></button>
+              </div>
+              <ul id="resultadosBusquedaSimbolos"></ul>
+            </div>
+            <div class="menu-btn">
+              <button onclick="toggleMenu('simbolosBasicosBtn')">Símbolos Básicos</button>
+              <div id="simbolosBasicosBtn" class="collapse">
+                <div class="sidc-container">
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('basicos')">Generales</button>
+                    <div id="basicos" class="collapse submenu simbolo-grid"> 
+                      <a href="#" data-sidc="SFGPUH----" onclick="agregarMarcador(this.dataset.sidc, 'Puesto Comando')"><span
+                          class="mil-symbol"></span> Puesto Comando </a>
+                      <a href="#" data-sidc="SFGPU-----" onclick="agregarMarcador(this.dataset.sidc, 'Elemento Básico')"><span
+                      class="mil-symbol"></span> Elemento Básico</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+            <div class="menu-btn">
+              <button onclick="toggleMenu('infanteriaBtn')">Infantería</button>
+              <div id="infanteriaBtn" class="collapse submenu">
+                <div class="sidc-container">
+                  <a href="#" data-sidc="SFGPUCI---" onclick="agregarMarcador(this.dataset.sidc, 'infanteria')"><span
+                      class="mil-symbol"></span> Infantería</a>
+                  <a href="#" data-sidc="SFGPUCAA--" onclick="agregarMarcador(this.dataset.sidc, 'Antitanque')"><span
+                      class="mil-symbol"></span> Antitanque</a>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('infanteriaArmamentoBtn')">Armamento</button>
+                  <div id="infanteriaArmamentoBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                        class="mil-symbol"></span> FAL</a>
+                    <a href="#" data-sidc="SFGPEWRR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                        class="mil-symbol"></span> FAP</a>
+                    <a href="#" data-sidc="SFGPEWRL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+                      Ametralladora Pesada</a>
+                    <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                        class="mil-symbol"></span> Arma Antiaérea</a>
+                    <a href="#" data-sidc="SFGPEWAM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                        class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+                    <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                        class="mil-symbol"></span> Cañón Antitanque</a>
+                    <a href="#" data-sidc="SFGPEWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+                    <a href="#" data-sidc="SFGPEWGM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+                    <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                        class="mil-symbol"></span> Lanzacohetes</a>
+                    <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                        class="mil-symbol"></span> Mortero Liviano</a>
+                    <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                        class="mil-symbol"></span> Mortero Mediano</a>
+                    <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                        class="mil-symbol"></span> Mortero Pesado</a>
+                  </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('infanteriaVehiculosBtn')">Vehículos</button>
+                  <div id="infanteriaVehiculosBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="SFGPEVAI--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+                      Vehículo Blindado a Rueda</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+            <div class="menu-btn">
+              <button onclick="toggleMenu('caballeriaBtn')">Caballería</button>
+              <div id="caballeriaBtn" class="collapse submenu">
+                <div class="sidc-container">
+                  <a href="#" data-sidc="SFGPUCR---" onclick="agregarMarcador(this.dataset.sidc, 'Caballería')"><span
+                      class="mil-symbol"></span> Caballería</a>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('caballeriaArmamentoBtn')">Armamento</button>
+                  <div id="caballeriaArmamentoBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                        class="mil-symbol"></span> FAL</a>
+                    <a href="#" data-sidc="SFGPEWRR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                        class="mil-symbol"></span> FAP</a>
+                    <a href="#" data-sidc="SFGPEWRL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+                      Ametralladora Pesada</a>
+                    <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                        class="mil-symbol"></span> Arma Antiaérea</a>
+                    <a href="#" data-sidc="SFGPEWAM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                        class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+                    <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                        class="mil-symbol"></span> Cañón Antitanque</a>
+                    <a href="#" data-sidc="SFGPEWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+                    <a href="#" data-sidc="SFGPEWGM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                        class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+                    <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                        class="mil-symbol"></span> Lanzacohetes</a>
+                    <a href="#" data-sidc="GFGPDPOR--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Observador Adelantado')"><span class="mil-symbol"></span></a>
+                    <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                        class="mil-symbol"></span> Mortero Liviano</a>
+                    <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                        class="mil-symbol"></span> Mortero Mediano</a>
+                    <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                        class="mil-symbol"></span> Mortero Pesado</a>
+                  </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('caballeriaVehiculosBtn')">Vehículos</button>
+                  <div id="caballeriaVehiculosBtn" class="collapse submenu simbolo-grid">
+                    <a href="#" data-sidc="SFGPEVAI--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo a Blindado Rueda')"><span class="mil-symbol"></span>
+                      Vehículo a Rueda</a>
+                    <a href="#" data-sidc="SFGPEVAT--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Oruga o Semioruga (básico)')"><span
+                        class="mil-symbol"></span> Vehículo Blindado a Oruga o Semioruga (básico)</a>
+                    <a href="#" data-sidc="SFGPEVATM-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+                      Vehículo Blindado a Rueda</a>
+                    <a href="#" data-sidc="SFGPEVATH-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda de Exploración (mediano)')"><span
+                        class="mil-symbol"></span> Vehículo Blindado a Rueda de Exploración (mediano)</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+            <div class="menu-btn">
+              <button onclick="toggleMenu('apoyoFuegoBtn')">Apoyo de Fuego</button>
+              <div id="apoyoFuegoBtn" class="collapse submenu sidc-container">
+                <a href="#" data-sidc="SFGPUCF---" onclick="agregarMarcador(this.dataset.sidc, 'Artillería')"><span class="mil-symbol"></span> Artillería</a>
+                <a href="#" data-sidc="GFGPDPOF--" onclick="agregarMarcador(this.dataset.sidc, 'Observador adelantado de Artilleria')"><span class="mil-symbol"></span> Observador Adelantado de Artileria</a>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('artilleriaCampanaBtn')">Artillería de Campaña</button>
+                  <div id="artilleriaCampanaBtn" class="collapse submenu simbolo-grid sidc-container">
+                    <a href="#" data-sidc="SFGPEWH---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Liviano (cal 105mm)')"><span class="mil-symbol"></span>
+                      Obús Liviano (cal 105mm)</a>
+                    <a href="#" data-sidc="SFGPEWHM--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Mediano (cal 155mm)')"><span class="mil-symbol"></span>
+                      Obús Mediano (cal 155mm)</a>
+                    <a href="#" data-sidc="SFGPEWHH--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Obús Pesado (cal 240mm)')"><span class="mil-symbol"></span>
+                      Obús Pesado (cal 240mm)</a>
+                    <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano')"><span
+                        class="mil-symbol"></span> Cañón Liviano</a>
+                    <a href="#" data-sidc="SFGPEWDL--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano')"><span
+                        class="mil-symbol"></span> Cañón Mediano</a>
+                    <a href="#" data-sidc="SFGPEWDM--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Pesado')"><span
+                        class="mil-symbol"></span> Cañón Pesado</a>
+                    <a href="#" data-sidc="SFGPEWG---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano Antitanque')"><span class="mil-symbol"></span>
+                      Cañón Liviano Antitanque</a>
+                    <a href="#" data-sidc="SFGPEWDLS-"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano Autopropulsado')"><span
+                        class="mil-symbol"></span> Cañón Mediano Autopropulsado</a>
+                  </div>
+                </div>
+        
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('artilleriaAntiareaBtn')">Artillería Antiaérea</button>
+                  <div id="artilleriaAntiareaBtn" class="collapse submenu simbolo-grid sidc-container">
+                    <a href="#" data-sidc="SFGPEWA---"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Cañón de Artillería Antiaérea')"><span
+                        class="mil-symbol"></span> Cañón de Artillería Antiaérea</a>
+                    <a href="#" data-sidc="SFGPEWAL--"
+                      onclick="agregarMarcador(this.dataset.sidc, 'Proyectil Autopropulsado Superficie-Aire')"><span
+                        class="mil-symbol"></span> Proyectil Autopropulsado Superficie-Aire</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('apoyoCombateBtn')">Apoyo de Combate</button>
+                      <div id="apoyoCombateBtn" class="collapse submenu simbolo-grid">
+                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ingenieros')" data-sidc="SFGPUCE---"><span class="mil-symbol"></span>Ingenieros</a>
+                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comunicaciones')" data-sidc="SFGPUUS---"><span class="mil-symbol"></span>Comunicaciones</a>         
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosBtn')">Ingenieros</button>
+                              <div id="ingenierosBtn" class="collapse submenu">
+                                <div class="menu-btn">
+                                  <button onclick="toggleMenu('ingenierosVehiculosEquiposBtn')">Vehículos y Equipos</button>
+                                  <div id="ingenierosVehiculosEquiposBtn" class="collapse submenu simbolo-grid">
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Combate Lanzapuentes')" data-sidc="SFGPEVEB--"><span class="mil-symbol"></span>Vehículo de Combate Lanzapuentes</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Ingenieros')" data-sidc="SFGPEVE---"><span class="mil-symbol"></span>Vehículo de Ingenieros</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Apertura de Brecha')" data-sidc="SFGPEVC---"><span class="mil-symbol"></span>Vehículo de Apertura de Brecha</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Desminado')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Vehículo de Desminado</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Movilidad')" data-sidc="SFGPEVM---"><span class="mil-symbol"></span>Vehículo de Movilidad</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Utilitario')" data-sidc="SFGPEVU---"><span class="mil-symbol"></span>Vehículo Utilitario</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bulldozer')" data-sidc="SFGPEVUB--"><span class="mil-symbol"></span>Bulldozer</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Rodillo')" data-sidc="SFGPEVUR--"><span class="mil-symbol"></span>Rodillo</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Excavadora')" data-sidc="SFGPEVUE--"><span class="mil-symbol"></span>Excavadora</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cargador')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Cargador</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Grúa')" data-sidc="SFGPEVUX--"><span class="mil-symbol"></span>Grúa</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Volquete')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Volquete</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Camión Cisterna')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Camión Cisterna</a>
+                                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Buscaminas')" data-sidc="SFGPEVUSL-"><span class="mil-symbol"></span>Buscaminas</a>
+                                  </div>
+                              </div>
+                                  <div class="menu-btn">
+                                      <button onclick="toggleMenu('ingenierosMovilidadBtn')">Movilidad</button>
+                                      <div id="ingenierosMovilidadBtn" class="collapse submenu simbolo-grid">
+                                        <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Bueno')">Camino Bueno</a>
+                                        <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Malo')">Camino Malo</a>
+                                        <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Pavimentado')">Camino Pavimentado</a>
+                                        <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino de Tierra')">Camino de Tierra</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puente')" data-sidc="GFMPBCB---"><span class="mil-symbol"></span>Puente</a>
+                                        <a href="#" onclick="dibujarElemento('linea', 'GFGPGLL---', 'Curso de Agua')">Curso de Agua</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vado')" data-sidc="GFMPBCF---"><span class="mil-symbol"></span>Vado</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compuerta')" data-sidc="GFMPBCA---"><span class="mil-symbol"></span>Compuerta</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Túnel')" data-sidc="GFMPBCT---"><span class="mil-symbol"></span>Túnel</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Paso a Nivel')" data-sidc="GFMPBCP---"><span class="mil-symbol"></span>Paso a Nivel</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Embarque')" data-sidc="GFGPGPE---"><span class="mil-symbol"></span>Punto de Embarque</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Desembarque')" data-sidc="GFGPGPD---"><span class="mil-symbol"></span>Punto de Desembarque</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Helipuerto')" data-sidc="GFGPGAH---"><span class="mil-symbol"></span>Helipuerto</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Aeródromo')" data-sidc="GFGPGAA---"><span class="mil-symbol"></span>Aeródromo</a>
+                                    </div>
+                                  </div>         
+                                  <div class="menu-btn">
+                                    <button onclick="toggleMenu('ingenierosContramovilidadBtn')">Contramovilidad</button>
+                                      <div id="ingenierosContramovilidadBtn" class="collapse submenu simbolo-grid">
+                                          <a href="#" onclick="dibujarElemento('poligono', 'GFMPOAD---', 'Zona de Demoliciones')">Zona de Demoliciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Obstáculo')" data-sidc="GFMPOB----"><span class="mil-symbol"></span>Obstáculo</a>
+                                          <a href="#" onclick="dibujarElemento('linea', 'GFMPOF----', 'Campo Minado')">Campo Minado</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque')" data-sidc="GFMPOMD---"><span class="mil-symbol"></span>Mina Antitanque</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antipersonal')" data-sidc="GFMPOME---"><span class="mil-symbol"></span>Mina Antipersonal</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque de Circunstancia')" data-sidc="GFMPOMW---"><span class="mil-symbol"></span>Mina Antitanque de Circunstancia</a>
+                                      </div>
+                                  </div>          
+                                  <div class="menu-btn">
+                                    <button onclick="toggleMenu('ingenierosProteccionBtn')">Protección</button>
+                                    <div id="ingenierosProteccionBtn" class="collapse submenu simbolo-grid">
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Fortificación')" data-sidc="GFMPSF----"><span class="mil-symbol"></span>Fortificación</a>
+                                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Muro')" data-sidc="GFMPSE----"><span class="mil-symbol"></span>Muro</a>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('comunicacionesBtn')">Comunicaciones</button>
+                              <div id="comunicacionesBtn" class="collapse submenu">
+                                  <div class="menu-btn">
+                                      <button onclick="toggleMenu('comunicacionesComandosBtn')">Comandos, Elementos y Centros</button>
+                                      <div id="comunicacionesComandosBtn" class="collapse submenu simbolo-grid">
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando de Comunicaciones')" data-sidc="SFGPUCCS--"><span class="mil-symbol"></span>Comando de Comunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Comunicaciones')" data-sidc="SFGPUCCB--"><span class="mil-symbol"></span>Batallón de Comunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Telecomunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Batallón de Telecomunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Operaciones Electrónicas')" data-sidc="SFGPUCPF--"><span class="mil-symbol"></span>Batallón de Operaciones Electrónicas</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compañía de Comunicaciones')" data-sidc="SFGPUCCA--"><span class="mil-symbol"></span>Compañía de Comunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Escuadrón de Comunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Escuadrón de Comunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Principal)')" data-sidc="SFGPUCPX--"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Principal)</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Alternativo)')" data-sidc="SFGPUCPXA-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Alternativo)</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando de Retaguardia)')" data-sidc="SFGPUCPXR-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando de Retaguardia)</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Comunicaciones')" data-sidc="SFGPUCP---"><span class="mil-symbol"></span>Puesto de Comunicaciones</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Mensajes')" data-sidc="SFGPUCM---"><span class="mil-symbol"></span>Centro de Mensajes</a>
+                                      </div>
+                                  </div>          
+                                  <div class="menu-btn">
+                                      <button onclick="toggleMenu('radioelectricosBtn')">Radioeléctricos</button>
+                                      <div id="radioelectricosBtn" class="collapse submenu simbolo-grid">
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radio Vehicular')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radio Vehicular</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radiointerceptación')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radiointerceptación</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo o Puesto de Integración Radio a Radio')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo o Puesto de Integración Radio a Radio</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación, Puesto o Equipo de Radio en General')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Estación, Puesto o Equipo de Radio en General</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radio')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Repetidor de Radio</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Integración Radioalámbrica')" data-sidc="SFG-UCRRI-"><span class="mil-symbol"></span>Equipo de Integración Radioalámbrica</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo Radiorreceptor')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo Radiorreceptor</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación o Puesto Radiogoniómetro')" data-sidc="SFG-UCRRG-"><span class="mil-symbol"></span>Estación o Puesto Radiogoniómetro</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo, Estación o Puesto de Radioteleimpresor')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Equipo, Estación o Puesto de Radioteleimpresor</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Radiomulticanal')" data-sidc="SFG-UCRM--"><span class="mil-symbol"></span>Puesto de Radiomulticanal</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radiomulticanal')" data-sidc="SFG-UCRMT-"><span class="mil-symbol"></span>Repetidor de Radiomulticanal</a>
+                                      </div>
+                                  </div>          
+                                  <div class="menu-btn">
+                                      <button onclick="toggleMenu('telefoniaBtn')">Telefonía</button>
+                                      <div id="telefoniaBtn" class="collapse submenu simbolo-grid">
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teléfono de Campaña a Magneto')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Teléfono de Campaña a Magneto</a>
+                                          <a href="#" onclick="dibujarElemento('linea', 'alambre-de-campana')">Alambre de Campaña (1 canal telefónico)</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central de Teleimpresores')" data-sidc="SFG-UCTCT-"><span class="mil-symbol"></span>Central de Teleimpresores</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica (en un puesto de comando)')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica (en un puesto de comando)</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica</a>
+                                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teleimpresor')" data-sidc="SFG-UCTIT-"><span class="mil-symbol"></span>Teleimpresor</a>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('logisticaSanidadBtn')">Logística de Sanidad</button>
+                    <div id="logisticaSanidadBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Sanidad')" data-sidc="SFGPUSM---"><span class="mil-symbol"></span>Sanidad</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ambulancia')" data-sidc="EFOPAE----"><span class="mil-symbol"></span>Ambulancia</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital Quirófano Móvil')" data-sidc="SFGPUSMM--"><span class="mil-symbol"></span>Hospital Quirófano Móvil</a>
+                    </div>
+                  </div>
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('logisticaMaterialBtn')">Logística de Material</button>
+                    <div id="logisticaMaterialBtn" class="collapse submenu">
+                      <div class="menu-btn">
+                        <button onclick="toggleMenu('intendenciaBtn')">Intendencia</button>
+                        <div id="intendenciaBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Intendencia')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Intendencia</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Intendencia (Clase II y IV)')" data-sidc="SFGPUSS---"><span class="mil-symbol"></span>Depósito de Intendencia (Clase II y IV)</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Efectos Clase I')" data-sidc="GFSPPSA---"><span class="mil-symbol"></span>Lugar de Distribución de Efectos Clase I</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase III')" data-sidc="GFSPPSC---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase III</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión de Efectos Clase II y IV')" data-sidc="GFSPPSB---"><span class="mil-symbol"></span>Lugar de Reunión de Efectos Clase II y IV</a>
+                            </div>
+                          </div>
+                        <div class="menu-btn">
+                          <button onclick="toggleMenu('arsenalesBtn')">Arsenales</button>
+                          <div id="arsenalesBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Arsenales')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Arsenales</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Reunión de Arsenales</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Munición')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Distribución de Munición</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase II y IV')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase II y IV</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Recolección de Arsenales (Clase II y IV)')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Recolección de Arsenales (Clase II y IV)</a>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('transporteBtn')">Transporte</button>
+                    <div id="transporteBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="dibujarElemento('linea', 'transito-alternado')">Tránsito Alternado</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'ruta-abierta')">Ruta Abierta</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'ruta-supervisada')">Ruta Supervisada</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'ruta-despacho')">Ruta de Despacho</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'ruta-reservada')">Ruta Reservada</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'limite-secciones-carreteras')">Límite entre Secciones de Carreteras</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'itinerario-guardado')">Itinerario Guardado</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'seccion-carretera-intransitable')">Sección de Carretera Intransitable</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'transito-mano-unica')">Tránsito de Mano Única</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'transito-doble-mano')">Tránsito de Doble Mano</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'desvio')">Desvío</a>
+                        </div>
+                  </div>
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('mccGeneralesBtn')">MCC</button>
+                    <div id="mccGeneralesBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="dibujarElemento('poligono', 'SFFPAO----', 'Objetivo')">Objetivo</a>
+                        <a href="#" onclick="dibujarFlecha('flecha', 'Dirección de Ataque')">Dirección de Ataque</a>
+                        <a href="#" onclick="dibujarElemento('flechaAncha', 'GFGPOLAA--', 'Eje de Avance')">Eje de Avance</a>
+                        <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAA---')">Área de Operaciones</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'GFGPOLK---', 'Línea de Coordinación')">LLA</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'GFMPOGB---')">Bloqueo</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'GFGPOLR---')">Retirada</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'GFGPOLAA--')">Límite de Área</a>
+                        <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAR---')">Zona de Reunión</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'limite-entre-dos-elementos')">Límite entre dos elementos</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'limite-dentro-de-un-objetivo')">Límite dentro de un objetivo</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'limite-exploracion-seguridad')">Límite de Exploración y Seguridad</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'GFGPOLC---')">Línea de Contacto (tropas amigas)</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'LCFin')">Línea de Coordinación Final</a>
+                        <a href="#" onclick="dibujarElemento('linea', 'LPAtq')">Línea de Partida para el Ataque</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bloqueo')" data-sidc="GFMPOGB---"><span class="mil-symbol"></span>Bloqueo</a>
+                        <a href="#" onclick="agregarPuntoControl('PC')"> Punto de Control (PC)</a>
+                        <a href="#" onclick="agregarPuntoControl('PI')"> Punto Inicial (PI)</a>
+                        <a href="#" onclick="agregarPuntoControl('PT')"> Punto Terminal (PT)</a>
+                        <a href="#" onclick="agregarPuntoControl('PD')"> Punto de Desdoblamiento (PD)</a>
+                        <a href="#" onclick="agregarPuntoControl('PE')"> Punto de Encolumnamiento (PE)</a>
+                        <a href="#" onclick="agregarPuntoControl('PP')"> Punto de Pasaje (PP)</a>
+
+
+                      </div>
+                  </div>
+                  <div class="menu-btn">
+                    <button onclick="toggleMenu('fuegosBtn')">MCCF</button>
+                    <div id="fuegosBtn" class="collapse submenu simbolo-grid">
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACSR--', 'Área de Fuego Restringido (AFR)', {color: 'red', fillColor: 'red', fillPattern: 'diagonal'})">Área de Fuego Restringido (AFR)</a>
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACNR--', 'Área de NO Fuego (ANF)')">Área de NO Fuego (ANF)</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*ATB---', 'Barrera')">Barrera</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Acústica')" data-sidc="S*G*USAS--"><span class="mil-symbol"></span>Base Acústica</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Óptica')" data-sidc="S*G*USAO--"><span class="mil-symbol"></span>Base Óptica</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Batería')" data-sidc="S*G*USAT--"><span class="mil-symbol"></span>Centro de Batería</a>
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*AT----', 'Concentración de Tiro')">Concentración de Tiro</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación Meteorológica')" data-sidc="S*G*USAM--"><span class="mil-symbol"></span>Estación Meteorológica</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*LT----', 'Grupo de Fuegos')">Grupo de Fuegos</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de Apoyo de Fuego (LCAF)')">Línea de Coordinación de Apoyo de Fuego (LCAF)</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*LCC---', 'Línea de Coordinación y Seguridad de los Fuegos (LCSF)')">Línea de Coordinación y Seguridad de los Fuegos (LCSF)</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de los Fuegos (LCF)')">Línea de Coordinación de los Fuegos (LCF)</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Posición de Radar')" data-sidc="S*G*USAP--"><span class="mil-symbol"></span>Posición de Radar</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Observación')" data-sidc="GFGPDPO---"><span class="mil-symbol"></span>Puesto de Observación</a>
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'PRB')" data-sidc="GFFPPTS---"><span class="mil-symbol"></span>Punto Registro Blanco</a>
+                      <a href="#" onclick="dibujarElemento('linea', 'G*F*LTS---', 'Línea de Apertura de Fuego')">Línea de Apertura de Fuego</a>
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Apoyo de Fuego (ZAF)')">Zona de Apoyo de Fuego (ZAF)</a>
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Fuego')">Zona de Fuego</a>
+                      <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZXX--', 'Zona de Responsabilidad de Fuego Naval (ZRFN)')">Zona de Responsabilidad de Fuego Naval (ZRFN)</a>
+                  </div>
+                </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('toeBtn')">TOE (Tropas de Operaciones Especiales)</button>
+                  <div id="toeBtn" class="collapse submenu">
+                      <div class="menu-btn">
+                          <button onclick="toggleMenu('comandosTOEBtn')">Comandos</button>
+                          <div id="comandosTOEBtn" class="collapse submenu simbolo-grid">
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando')" data-sidc="NONE"><span class="mil-symbol"></span>Comando</a>
+                          </div>
+                      </div>
+                      <div class="menu-btn">
+                        <button onclick="toggleMenu('cazadoresBtn')">Cazadores</button>
+                        <div id="cazadoresBtn" class="collapse submenu simbolo-grid">
+                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Monte')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Monte</a>
+                          <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Montaña')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Montaña</a>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+        
+        <!-- Help Menu -->
+        <div class="menu-btn">
+            <button id="ayudaBtn" onclick="toggleMenu('ayuda-menu')">
+                <i class="fas fa-question-circle"></i> Ayuda
+            </button>
+            <div id="ayuda-menu" class="menu collapse">
+                <a href="#" id="manualBtn"><i class="fas fa-book"></i> Manual de uso</a>
+                <a href="#" id="acercaDeBtn"><i class="fas fa-info-circle"></i> Acerca de</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Buttons -->
+    <div id="botones-secundarios">
+        <button id="btnDeshacer" onclick="deshacerOrg()" disabled><i class="fas fa-undo-alt"></i></button>
+        <button id="btnRehacer" onclick="rehacerOrg()" disabled><i class="fas fa-redo-alt"></i></button>
+        <button id="btnEliminar" onclick="eliminarElementoSeleccionado()" disabled><i class="fas fa-trash"></i></button>
+        <button id="btnAlinear" class="btn btn-secondary" title="Alinear elementos">
+            <i class="fas fa-align-center"></i>
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+            <div id="org-canvas">
+                <!-- Organization elements will be created here -->
+            </div>
+        </div>
+        
+    </div>
+    <div id="panelEdicionEquipo" class="panel">
+        <h3>Editar Equipo</h3>
+        
+        <div id="sidcDisplayEquipo"></div>
+        
+        <div class="tab">
+            <button class="tablinks" data-tab="SIDCEquipo">SIDC</button>
+            <button class="tablinks" data-tab="InformacionEquipo">Información</button>
+        </div>
+    
+        <div id="SIDCEquipo" class="tabcontent">
+            <div>
+                <label for="afiliacionEquipo">Afiliación:</label>
+                <select id="afiliacionEquipo">
+                    <option value="-">Desconocido</option>
+                    <option value="F">Amigo</option>
+                    <option value="J">Hostil/Enemigo</option>
+                </select>
+            </div>
+        </div>
+    
+        <div id="InformacionEquipo" class="tabcontent">
+            <div>
+                <label for="designacionEquipo">Designación:</label>
+                <input type="text" id="designacionEquipo">
+            </div>
+            <div>
+                <label for="asignacionEquipo">Asignación:</label>
+                <input type="text" id="asignacionEquipo">
+            </div>
+        </div>
+    
+        <div class="panel-buttons">
+            <button id="guardarCambiosEquipo">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionEquipo')">Cerrar</button>
+        </div>
+    </div>
+    <!-- Editing Panels -->
+    <div id="panelEdicionUnidad" class="panel">
+        <h3>Editar Unidad</h3>
+        <div class="tab">
+            <button class="tablinks" data-tab="SIDC">SIDC</button>
+            <button class="tablinks" data-tab="Informacion">Información</button>
+            <button class="tablinks" data-tab="Caracteristicas">Características</button>
+        </div>
+
+        <div id="sidcDisplay"></div>
+
+        <div id="SIDC" class="tabcontent">
+            <div>
+                <label for="afiliacion">Afiliación:</label>
+                <select id="afiliacion">
+                    <option value="-">Desconocido</option>
+                    <option value="F">Amigo</option>
+                    <option value="J">Hostil/Enemigo</option>
+                </select>
+            </div>
+            <div>
+                <label for="estado">Estado:</label>
+                <select id="estado">
+                    <option value="P">Presente</option>
+                    <option value="A">Planeado</option>
+                </select>
+            </div>
+            <div>
+                <label for="arma">Arma:</label>
+                <select id="arma"></select>
+            </div>
+            <div>
+                <label for="tipo">Tipo:</label>
+                <select id="tipo"></select>
+            </div>
+            <div>
+                <label for="caracteristica">Característica:</label>
+                <select id="caracteristica"></select>
+            </div>
+            <div>
+                <label for="magnitud">Magnitud:</label>
+                <select id="magnitud">
+                    <option value="-">No especificado</option>
+                    <option value="A">Equipo/Tripulación</option>
+                    <option value="B">Pelotón</option>
+                    <option value="C">Grupo</option>
+                    <option value="D">Sección</option>
+                    <option value="E">Compañía/Escuadrón/Batería</option>
+                    <option value="F">Regimiento/Batallón/Grupo</option>
+                    <option value="G">Brigada</option>
+                    <option value="H">División</option>
+                    <option value="I">Cuerpo/MEF</option>
+                    <option value="J">Ejército</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="Informacion" class="tabcontent">
+            <div>
+                <label for="designacion">Designación:</label>
+                <input type="text" id="designacion">
+            </div>
+            <div>
+                <label for="dependencia">Dependencia:</label>
+                <input type="text" id="dependencia">
+            </div>
+        </div>
+
+        <div id="Caracteristicas" class="tabcontent">
+            <div>
+                <input type="checkbox" id="puestoComando">
+                <label for="puestoComando">Puesto de Comando</label>
+            </div>
+            <div>
+                <input type="checkbox" id="fuerzaTarea">
+                <label for="fuerzaTarea">Fuerza de Tarea</label>
+            </div>
+            <div>
+                <input type="checkbox" id="reforzado">
+                <label for="reforzado">Reforzado</label>
+            </div>
+            <div>
+                <input type="checkbox" id="disminuido">
+                <label for="disminuido">Disminuido</label>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <div class="zoom-controls">
+        <button id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
+        <div id="zoomLevel" class="zoom-level">100%</div>
+        <button id="zoomOutBtn" title="Alejar"><i class="fas fa-minus"></i></button>
+        <button id="zoomResetBtn" title="Restablecer zoom"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+</body>
+</html>
