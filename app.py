@@ -120,19 +120,19 @@ def get_db_connection():
 # Rutas básicas
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    return send_from_directory('Client', 'index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
     try:
-        # Intentar servir desde static/ primero para archivos HTML
+        # Intentar servir desde Client/ primero para archivos HTML
         if path.endswith('.html'):
-            return send_from_directory('static', path)
+            return send_from_directory('Client', path)
         # Para otros archivos, intentar desde la raíz
         return send_from_directory('.', path)
     except:
-        # Si falla, servir index.html desde static/
-        return send_from_directory('static', 'index.html')
+        # Si falla, servir index.html desde Client/
+        return send_from_directory('Client', 'index.html')
 
 # ✅ NUEVAS: Rutas de archivos faltantes
 @app.route('/Client/uploads/<path:filename>')
