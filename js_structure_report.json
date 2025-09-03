@@ -1,0 +1,288 @@
+{
+  "timestamp": "2025-09-03",
+  "js_structure": {
+    "panelManager.js": [
+      "js/handlers/panelManager.js"
+    ],
+    "carrusel.js": [
+      "js/handlers/carrusel.js"
+    ],
+    "landing3d.js": [
+      "js/handlers/landing3d.js"
+    ],
+    "mobile-optimizer.js": [
+      "js/ui/mobile-optimizer.js"
+    ],
+    "emergency-patch.js": [
+      "js/handlers/emergency-patch.js"
+    ],
+    "paneledicionCO.js": [
+      "js/ui/paneledicionCO.js"
+    ],
+    "FogOfWar.js": [
+      "js/gaming/FogOfWar.js"
+    ],
+    "GameEngine.js": [
+      "js/gaming/GameEngine.js"
+    ],
+    "AIDirector.js": [
+      "js/gaming/AIDirector.js"
+    ],
+    "UserIdentity.js": [
+      "js/common/UserIdentity.js"
+    ],
+    "index.js": [
+      "js/core/index.js"
+    ],
+    "UserIdentity_v2.js": [
+      "js/core/UserIdentity_v2.js"
+    ],
+    "moduleLoader.js": [
+      "js/core/moduleLoader.js"
+    ],
+    "MAIRACore.js": [
+      "js/core/MAIRACore.js"
+    ],
+    "UserIdentity_legacy.js": [
+      "js/core/UserIdentity_legacy.js"
+    ],
+    "acciones.js": [
+      "js/handlers/acciones.js"
+    ],
+    "moduleIndex.js": [
+      "js/legacy/moduleIndex.js"
+    ],
+    "bootstrap.js": [
+      "js/legacy/bootstrap.js"
+    ],
+    "maira-loader.js": [
+      "js/legacy/maira-loader.js"
+    ],
+    "chat.js": [
+      "js/handlers/chat.js"
+    ],
+    "UserIdentityLoader.js": [
+      "js/handlers/UserIdentityLoader.js"
+    ],
+    "mini_tiles_loader.js": [
+      "js/utils/mini_tiles_loader.js"
+    ],
+    "calcosP.js": [
+      "js/utils/calcosP.js"
+    ],
+    "utilsGB.js": [
+      "js/utils/utilsGB.js"
+    ],
+    "mini_tiles_loader_legacy.js": [
+      "js/utils/mini_tiles_loader_legacy.js"
+    ],
+    "validacion.js": [
+      "js/utils/validacion.js"
+    ],
+    "dependency-manager.js": [
+      "js/utils/dependency-manager.js"
+    ],
+    "config.js": [
+      "js/utils/config.js"
+    ],
+    "sessionManager.js": [
+      "js/utils/sessionManager.js"
+    ],
+    "eventemitter.js": [
+      "js/utils/eventemitter.js"
+    ],
+    "CalculoMarcha.js": [
+      "js/common/CalculoMarcha.js"
+    ],
+    "graficoMarcha.js": [
+      "js/common/graficoMarcha.js"
+    ],
+    "unidades.js": [
+      "js/common/unidades.js"
+    ],
+    "elevationHandler.js": [
+      "js/common/elevationHandler.js"
+    ],
+    "mapaP.js": [
+      "js/common/mapaP.js"
+    ],
+    "partidas.js": [
+      "js/common/partidas.js"
+    ],
+    "MAIRAChat.js": [
+      "js/common/MAIRAChat.js"
+    ],
+    "elevation.worker.js": [
+      "js/common/elevation.worker.js"
+    ],
+    "simbolosP.js": [
+      "js/common/simbolosP.js"
+    ],
+    "panelMarcha.js": [
+      "js/common/panelMarcha.js"
+    ],
+    "networkConfig.js": [
+      "js/common/networkConfig.js"
+    ],
+    "miradial.js": [
+      "js/common/miradial.js"
+    ],
+    "vegetacionhandler.js": [
+      "js/common/vegetacionhandler.js"
+    ],
+    "atajosP.js": [
+      "js/common/atajosP.js"
+    ],
+    "leaflet.pattern.js": [
+      "js/common/leaflet.pattern.js"
+    ],
+    "indexP.js": [
+      "js/common/indexP.js"
+    ],
+    "herramientasP.js": [
+      "js/common/herramientasP.js"
+    ],
+    "edicioncompleto.js": [
+      "js/common/edicioncompleto.js"
+    ],
+    "dibujosMCCP.js": [
+      "js/common/dibujosMCCP.js"
+    ],
+    "vegetation.worker.js": [
+      "js/workers/vegetation.worker.js"
+    ],
+    "terrainAdapter.js": [
+      "js/infrastructure/terrainAdapter.js"
+    ],
+    "iniciarpartida.js": [
+      "js/modules/partidas/iniciarpartida.js"
+    ],
+    "conexionesCO.js": [
+      "js/modules/organizacion/conexionesCO.js"
+    ],
+    "CO.js": [
+      "js/modules/organizacion/CO.js"
+    ],
+    "planeamiento.js": [
+      "js/modules/planeamiento/planeamiento.js"
+    ],
+    "gestionBatalla.js": [
+      "js/modules/gestion/gestionBatalla.js"
+    ],
+    "GB.js": [
+      "js/modules/gestion/GB.js"
+    ],
+    "elementosGB.js": [
+      "js/modules/gestion/elementosGB.js"
+    ],
+    "inicioGBhandler.js": [
+      "js/modules/gestion/inicioGBhandler.js"
+    ],
+    "informesGB.js": [
+      "js/modules/gestion/informesGB.js"
+    ],
+    "edicionGB.js": [
+      "js/modules/gestion/edicionGB.js"
+    ],
+    "combate.js": [
+      "js/modules/juego/combate.js"
+    ],
+    "gestorBase.js": [
+      "js/modules/juego/gestorBase.js"
+    ],
+    "hexgrid.js": [
+      "js/modules/juego/hexgrid.js"
+    ],
+    "gestorAcciones.js": [
+      "js/modules/juego/gestorAcciones.js"
+    ],
+    "gestorComunicacion.js": [
+      "js/modules/juego/gestorComunicacion.js"
+    ],
+    "gestorEventos.js": [
+      "js/modules/juego/gestorEventos.js"
+    ],
+    "gestorTurnos.js": [
+      "js/modules/juego/gestorTurnos.js"
+    ],
+    "gestorCarga.js": [
+      "js/modules/juego/gestorCarga.js"
+    ],
+    "gestorUnidades.js": [
+      "js/modules/juego/gestorUnidades.js"
+    ],
+    "gestorMapa.js": [
+      "js/modules/juego/gestorMapa.js"
+    ],
+    "gestorJuego.js": [
+      "js/modules/juego/gestorJuego.js"
+    ],
+    "gestorEstado.js": [
+      "js/modules/juego/gestorEstado.js"
+    ],
+    "gestorFases.js": [
+      "js/modules/juego/gestorFases.js"
+    ],
+    "gestorInterfaz.js": [
+      "js/modules/juego/gestorInterfaz.js"
+    ],
+    "vegetacionhandler_backup_old.js": [
+      "js/handlers/vegetacionhandler_backup_old.js"
+    ],
+    "vegetacionHandler_v4.js": [
+      "js/handlers/vegetacionHandler_v4.js"
+    ],
+    "transitabilidadHandler.js": [
+      "js/handlers/transitabilidadHandler.js"
+    ],
+    "vegetacionhandler_old.js": [
+      "js/handlers/vegetacionhandler_old.js"
+    ],
+    "elevationHandler_v4.js": [
+      "js/handlers/elevationHandler_v4.js"
+    ],
+    "vegetacionhandler_backup.js": [
+      "js/handlers/vegetacionhandler_backup.js"
+    ],
+    "elevationHandler_old.js": [
+      "js/handlers/elevationHandler_old.js"
+    ],
+    "pendienteHandler.js": [
+      "js/handlers/pendienteHandler.js"
+    ],
+    "EventBus.js": [
+      "js/handlers/EventBus.js"
+    ],
+    "performanceOptimizer.js": [
+      "js/handlers/performanceOptimizer.js"
+    ],
+    "vegetacionhandler_new.js": [
+      "js/handlers/vegetacionhandler_new.js"
+    ],
+    "DirectorManager.js": [
+      "js/handlers/DirectorManager.js"
+    ],
+    "measurement-touch-optimizer.js": [
+      "js/handlers/measurement-touch-optimizer.js"
+    ],
+    "combatSystem3DIntegrator.js": [
+      "js/services/combatSystem3DIntegrator.js"
+    ],
+    "transitabilityService.js": [
+      "js/services/transitabilityService.js"
+    ],
+    "threeDMapService.js": [
+      "js/services/threeDMapService.js"
+    ],
+    "slopeAnalysisService.js": [
+      "js/services/slopeAnalysisService.js"
+    ],
+    "autonomousAgentService.js": [
+      "js/services/autonomousAgentService.js"
+    ]
+  },
+  "summary": {
+    "total_js_files": 93,
+    "duplicates_resolved": 0
+  }
+}

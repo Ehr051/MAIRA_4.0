@@ -61,35 +61,35 @@
 
   <!-- Scripts personalizados -->
   <script src="/Client/js/workers/elevation.worker.js"></script>
-  <script src="/Client/js/elevationHandler.js"></script>
-  <script src="/Client/js/vegetacionhandler.js"></script>
-  <script src="/Client/js/mapaP.js"></script>
-  <script src="/Client/js/calcosP.js"></script>
-  <!--<script src="/Client/js/edicioncompleto.js"></script>-->
-  <script src="/Client/js/simbolosP.js"></script>
-  <script src="/Client/js/herramientasP.js"></script>
-  <script src="/Client/js/dibujosMCCP.js"></script>
-  <script src="/Client/js/atajosP.js"></script>
+  <script src="/Client/js/common/elevationHandler.js"></script>
+  <script src="/Client/js/common/vegetacionhandler.js"></script>
+  <script src="/Client/js/common/mapaP.js"></script>
+  <script src="/Client/js/utils/calcosP.js"></script>
+  <!--<script src="/Client/js/common/edicioncompleto.js"></script>-->
+  <script src="/Client/js/common/simbolosP.js"></script>
+  <script src="/Client/js/common/herramientasP.js"></script>
+  <script src="/Client/js/common/dibujosMCCP.js"></script>
+  <script src="/Client/js/common/atajosP.js"></script>
   
-  <script src="/Client/js/CalculoMarcha.js"></script>
-  <script src="/Client/js/graficoMarcha.js"></script>
-  <script src="/Client/js/panelMarcha.js"></script>
-  <script src="/Client/js/indexP.js"></script>
+  <script src="/Client/js/common/CalculoMarcha.js"></script>
+  <script src="/Client/js/common/graficoMarcha.js"></script>
+  <script src="/Client/js/common/panelMarcha.js"></script>
+  <script src="/Client/js/common/indexP.js"></script>
   
   <!-- Scripts principales -->
-  <script src="/Client/js/miradial.js"></script>
+  <script src="/Client/js/common/miradial.js"></script>
 
 <script src="/Client/js/common/networkConfig.js"></script>
 <!-- Scripts modularizados para gestión de batalla -->
-<script src="/Client/js/utilsGB.js"></script>
-<script src="/Client/js/MAIRAChat.js"></script>
-<script src="/Client/js/edicionGB.js"></script>
-<script src="/Client/js/informesGB.js"></script>
-<script src="/Client/js/elementosGB.js"></script>
+<script src="/Client/js/utils/utilsGB.js"></script>
+<script src="/Client/js/common/MAIRAChat.js"></script>
+<script src="/Client/js/modules/gestion/edicionGB.js"></script>
+<script src="/Client/js/modules/gestion/informesGB.js"></script>
+<script src="/Client/js/modules/gestion/elementosGB.js"></script>
 <!-- ✅ gestionBatalla.js DEBE IR ANTES que GB.js -->
-<script src="/Client/js/gestionBatalla.js"></script>
+<script src="/Client/js/modules/gestion/gestionBatalla.js"></script>
 <!-- ✅ GB.js es ahora solo un wrapper -->
-<script src="/Client/js/GB.js"></script>
+<script src="/Client/js/modules/gestion/GB.js"></script>
 </head>
 <body>
   

@@ -59,50 +59,50 @@
   <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
 
   <!-- Scripts personalizados -->
-  <script src="/Client/js/mobile-optimizer.js"></script>
-  <script src="/Client/js/measurement-touch-optimizer.js"></script>
+  <script src="/Client/js/ui/mobile-optimizer.js"></script>
+  <script src="/Client/js/handlers/measurement-touch-optimizer.js"></script>
   <script src="/Client/js/common/networkConfig.js" onerror="console.warn('❌ networkConfig.js falló - usando emergencia')"></script>
   <script src="/Client/js/workers/elevation.worker.js" onerror="console.warn('❌ elevation.worker.js falló')"></script>
-  <script src="/Client/js/elevationHandler.js" onerror="console.warn('❌ elevationHandler.js falló - usando emergencia')"></script>
-  <script src="/Client/js/vegetacionhandler.js" onerror="console.warn('❌ vegetacionhandler.js falló - usando emergencia')"></script>
-  <script src="/Client/js/mapaP.js"></script>
-  <script src="/Client/js/calcosP.js"></script>
-  <script src="/Client/js/edicioncompleto.js"></script>
-  <script src="/Client/js/simbolosP.js"></script>
-  <script src="/Client/js/herramientasP.js"></script>
-  <script src="/Client/js/dibujosMCCP.js"></script>
-  <script src="/Client/js/atajosP.js"></script>
+  <script src="/Client/js/common/elevationHandler.js" onerror="console.warn('❌ elevationHandler.js falló - usando emergencia')"></script>
+  <script src="/Client/js/common/vegetacionhandler.js" onerror="console.warn('❌ vegetacionhandler.js falló - usando emergencia')"></script>
+  <script src="/Client/js/common/mapaP.js"></script>
+  <script src="/Client/js/utils/calcosP.js"></script>
+  <script src="/Client/js/common/edicioncompleto.js"></script>
+  <script src="/Client/js/common/simbolosP.js"></script>
+  <script src="/Client/js/common/herramientasP.js"></script>
+  <script src="/Client/js/common/dibujosMCCP.js"></script>
+  <script src="/Client/js/common/atajosP.js"></script>
   
-  <script src="/Client/js/CalculoMarcha.js"></script>
-  <script src="/Client/js/graficoMarcha.js"></script>
-  <script src="/Client/js/panelMarcha.js"></script>
+  <script src="/Client/js/common/CalculoMarcha.js"></script>
+  <script src="/Client/js/common/graficoMarcha.js"></script>
+  <script src="/Client/js/common/panelMarcha.js"></script>
   
  <!-- 1. Primero EventEmitter -->
- <script src="/Client/js/eventemitter.js"></script>
+ <script src="/Client/js/utils/eventemitter.js"></script>
   
  <!-- 2. GestorBase que depende de EventEmitter -->
- <script src="/Client/js/gestorBase.js"></script>
+ <script src="/Client/js/modules/juego/gestorBase.js"></script>
 
  <!-- 3. Scripts principales que no dependen de gestores -->
- <script src="/Client/js/indexP.js"></script>
- <script src="/Client/js/handlers/hexgrid.js"></script>
- <script src="/Client/js/miradial.js"></script>
+ <script src="/Client/js/common/indexP.js"></script>
+ <script src="/Client/js/modules/juego/hexgrid.js"></script>
+ <script src="/Client/js/common/miradial.js"></script>
  
  <!-- 4. Gestores que heredan de GestorBase -->
- <script src="/Client/js/gestorComunicacion.js"></script>
- <script src="/Client/js/gestorEventos.js"></script>
- <script src="/Client/js/gestorCarga.js"></script>
- <script src="/Client/js/gestorEstado.js"></script>
- <script src="/Client/js/gestorMapa.js"></script>
- <script src="/Client/js/gestorAcciones.js"></script>
- <script src="/Client/js/gestorFases.js"></script>
- <script src="/Client/js/gestorTurnos.js"></script>
- <script src="/Client/js/gestorInterfaz.js"></script>
- <script src="/Client/js/gestorUnidades.js"></script>
- <script src="/Client/js/MAIRAChat.js"></script>
+ <script src="/Client/js/modules/juego/gestorComunicacion.js"></script>
+ <script src="/Client/js/modules/juego/gestorEventos.js"></script>
+ <script src="/Client/js/modules/juego/gestorCarga.js"></script>
+ <script src="/Client/js/modules/juego/gestorEstado.js"></script>
+ <script src="/Client/js/modules/juego/gestorMapa.js"></script>
+ <script src="/Client/js/modules/juego/gestorAcciones.js"></script>
+ <script src="/Client/js/modules/juego/gestorFases.js"></script>
+ <script src="/Client/js/modules/juego/gestorTurnos.js"></script>
+ <script src="/Client/js/modules/juego/gestorInterfaz.js"></script>
+ <script src="/Client/js/modules/juego/gestorUnidades.js"></script>
+ <script src="/Client/js/common/MAIRAChat.js"></script>
 
  <!-- 5. GestorJuego al final ya que coordina todos los demás -->
- <script src="/Client/js/gestorJuego.js"></script>
+ <script src="/Client/js/modules/juego/gestorJuego.js"></script>
  
  <!-- Scripts de tiles externos y GitHub Releases -->
  <!-- Archivos movidos a tools/static-debug ya no necesarios en producción -->
