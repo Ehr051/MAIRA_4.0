@@ -417,9 +417,15 @@ class CombatSystem3DIntegrator {
     /**
      * Configurar efectos visuales
      */
-    setupVisualEffects() {
-        // Configurar partículas ambientales si se requiere
-        // Implementar según necesidades específicas
+    setupBackwardCompatibility() {
+        // Mantener compatibilidad con código existente
+        // Temporalmente comentado para evitar errores de bind
+        /*
+        if (typeof window !== 'undefined') {
+            window.MAIRA = window.MAIRA || {};
+            window.MAIRA.Combat3D = this.getLegacyInterface();
+        }
+        */
     }
 
     /**

@@ -59,10 +59,13 @@ class TransitabilityService {
 
     setupBackwardCompatibility() {
         // Mantener compatibilidad con código existente
+        // Temporalmente comentado para evitar errores de bind
+        /*
         if (typeof window !== 'undefined') {
             window.MAIRA = window.MAIRA || {};
             window.MAIRA.Transitabilidad = this.getLegacyInterface();
         }
+        */
     }
 
     getLegacyInterface() {

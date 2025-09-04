@@ -361,4 +361,4 @@ if (typeof window !== 'undefined') {
     console.log('✅ ThreeDMapService registrado en MAIRA.Services.ThreeDMap');
 }
 
-export default ThreeDMapService;
+// export default ThreeDMapService; // Comentado para evitar error de export

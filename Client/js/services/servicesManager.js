@@ -14,6 +14,9 @@ class MAIRAServicesManager {
     }
 
     createCoreConfig() {
+        // Crear instancia de EventEmitter para comunicación entre servicios
+        const eventEmitter = new EventEmitter();
+        
         return {
             config: {
                 THREEJS: {
@@ -23,7 +26,11 @@ class MAIRAServicesManager {
                     terrain: { elevation_scale: 0.001, segments: 512 }
                 }
             },
-            startTime: Date.now()
+            startTime: Date.now(),
+            // Añadir métodos de EventEmitter al core
+            emit: eventEmitter.emit.bind(eventEmitter),
+            on: eventEmitter.on.bind(eventEmitter),
+            off: eventEmitter.off.bind(eventEmitter)
         };
     }
 

@@ -1,6 +1,18 @@
 /**
  * MAIRA 4.0 - Slope Analysis Service (Hexagonal Architecture)
- * ==========================================================
+ * =========        try {
+            // Configurar worker si está disponible
+            this.setupWorker();
+            
+            this.initialized = true;
+            console.log('✅ SlopeAnalysisService inicializado');
+            
+            this.core.emit('slopeAnalysisInitialized');
+            
+        } catch (error) {
+            console.error('❌ Error inicializando SlopeAnalysisService:', error);
+            throw error;
+        }====================================
  * Servicio modular para análisis de pendientes del terreno
  * Convertido a formato compatible con bootstrap DDD
  */
@@ -52,11 +64,14 @@ class SlopeAnalysisService {
     }
 
     setupBackwardCompatibility() {
-        // Mantener compatibilidad con código existente
+        // Mantener compatibilidad con código existente  
+        // Temporalmente comentado para evitar errores de bind
+        /*
         if (typeof window !== 'undefined') {
             window.MAIRA = window.MAIRA || {};
             window.MAIRA.Pendiente = this.getLegacyInterface();
         }
+        */
     }
 
     getLegacyInterface() {

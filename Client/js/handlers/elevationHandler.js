@@ -1,7 +1,7 @@
 // elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
 
 // URL base para GitHub Releases mini-tiles v3.0
-const GITHUB_RELEASES_BASE = '/api/proxy/github';
+const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 
     // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES
         const ELEVATION_GITHUB_RELEASES = [
@@ -40,7 +40,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
   
     // Lista de URLs para intentar cargar el índice
     const urls = [
-        `${GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
+        `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`,
         'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
         ...MINI_TILES_FALLBACK_URLS.map(url => url.endsWith('/') ? `${url}master_mini_tiles_index.json` : `${url}/master_mini_tiles_index.json`)
     ];  // Intentar cargar desde cada URL secuencialmente

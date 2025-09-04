@@ -1,7 +1,7 @@
-// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
+// terrainAdapter.js - Adaptado para manejar el nuevo sistema de tiles v3.0
 
 // URL base para GitHub Releases mini-tiles v3.0
-const GITHUB_RELEASES_BASE = '/api/proxy/github';
+const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
 
     // URLs de fallback para GitHub Releases
     const MINI_TILES_FALLBACK_URLS = [
@@ -32,7 +32,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
   
   // Lista de URLs para intentar
   const urls = [
-    `${GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
+    `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
     ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
   ];
   
