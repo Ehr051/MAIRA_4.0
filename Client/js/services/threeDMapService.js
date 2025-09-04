@@ -2,12 +2,14 @@
  * MAIRA 4.0 - Sistema de Mapas 3D
  * ================================
  * Integración de Three.js para visualización 3D del terreno
+ * Convertido a formato compatible con bootstrap DDD
  */
 
-import * as THREE from 'https://cdn.skypack.dev/three@0.144.0';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.144.0/examples/jsm/controls/OrbitControls.js';
+// NOTA: Para usar Three.js, debe estar cargado previamente
+// <script src="https://cdn.skypack.dev/three@0.144.0"></script>
+// <script src="https://cdn.skypack.dev/three@0.144.0/examples/jsm/controls/OrbitControls.js"></script>
 
-export class ThreeDMapService {
+class ThreeDMapService {
     constructor(core) {
         this.core = core;
         this.scene = null;
@@ -20,7 +22,7 @@ export class ThreeDMapService {
         this.animationId = null;
         
         // Configuración desde core
-        this.config = core.config?.THREEJS || {
+        this.config = core?.config?.THREEJS || {
             enabled: true,
             renderer: { antialias: true, alpha: true },
             camera: { fov: 60, near: 0.1, far: 10000 },
@@ -35,6 +37,12 @@ export class ThreeDMapService {
         }
 
         try {
+            // Verificar dependencias
+            if (typeof THREE === 'undefined') {
+                console.warn('⚠️ Three.js no está disponible. Cargue la librería primero.');
+                return false;
+            }
+
             this.container = document.getElementById(containerId);
             if (!this.container) {
                 throw new Error(`Container ${containerId} no encontrado`);
@@ -339,6 +347,18 @@ export class ThreeDMapService {
             memory: this.renderer ? this.renderer.info.memory : {}
         };
     }
+}
+
+// Exportar para sistema MAIRA
+if (typeof window !== 'undefined') {
+    window.ThreeDMapService = ThreeDMapService;
+    
+    // Integración con namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.Services) window.MAIRA.Services = {};
+    window.MAIRA.Services.ThreeDMap = ThreeDMapService;
+    
+    console.log('✅ ThreeDMapService registrado en MAIRA.Services.ThreeDMap');
 }
 
 export default ThreeDMapService;

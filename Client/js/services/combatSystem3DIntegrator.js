@@ -467,10 +467,24 @@ class CombatSystem3DIntegrator {
 window.combatSystem3DIntegrator = new CombatSystem3DIntegrator();
 
 // Auto-inicializar
-if (typeof window !== 'undefined' && document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            window.combatSystem3DIntegrator.initialize();
-        }, 2000); // Esperar a que otros sistemas se inicialicen
-    });
+// Exportar para sistema MAIRA
+if (typeof window !== 'undefined') {
+    window.CombatSystem3DIntegrator = CombatSystem3DIntegrator;
+    
+    // Integración con namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.Services) window.MAIRA.Services = {};
+    window.MAIRA.Services.CombatSystem3D = CombatSystem3DIntegrator;
+    
+    console.log('✅ CombatSystem3DIntegrator registrado en MAIRA.Services.CombatSystem3D');
+    
+    // Auto-inicialización opcional (comentada para control manual)
+    // if (document.readyState === 'loading') {
+    //     document.addEventListener('DOMContentLoaded', () => {
+    //         setTimeout(() => {
+    //             const integrator = new CombatSystem3DIntegrator();
+    //             integrator.initialize();
+    //         }, 2000);
+    //     });
+    // }
 }

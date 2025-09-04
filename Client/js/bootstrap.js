@@ -20,66 +20,98 @@
             '/Client/js/utils/eventemitter.js'
         ],
         
-        // 3. MÓDULOS COMUNES
+        // 3. INFRAESTRUCTURA DDD
+        infrastructure: [
+            '/Client/js/infrastructure/terrainAdapter.js'
+        ],
+        
+        // 4. SERVICIOS DDD (Hexagonal Architecture)
+        services: [
+            '/Client/js/services/servicesManager.js',
+            '/Client/js/services/transitabilityService.js',
+            '/Client/js/services/slopeAnalysisService.js',
+            '/Client/js/services/threeDMapService.js',
+            '/Client/js/services/combatSystem3DIntegrator.js',
+            '/Client/js/services/autonomousAgentService.js'
+        ],
+        
+        // 5. MÓDULOS COMUNES
         common: [
             '/Client/js/common/MAIRAChat.js',
             '/Client/js/common/indexP.js',
             '/Client/js/common/miradial.js',
-            '/Client/js/common/panelMarcha.js'
+            '/Client/js/common/panelMarcha.js',
+            '/Client/js/common/mapaP.js',
+            '/Client/js/common/simbolosP.js',
+            '/Client/js/common/herramientasP.js',
+            '/Client/js/common/dibujosMCCP.js',
+            '/Client/js/common/atajosP.js',
+            '/Client/js/common/CalculoMarcha.js',
+            '/Client/js/common/graficoMarcha.js',
+            '/Client/js/common/edicioncompleto.js',
+            '/Client/js/utils/calcosP.js'
         ],
         
-        // 4. HANDLERS
+        // 6. HANDLERS
         handlers: [
-            '/Client/js/handlers/elevationHandler.js',
             '/Client/js/common/elevationHandler.js',
-            '/Client/js/handlers/vegetacionhandler.js'
+            '/Client/js/common/vegetacionhandler.js',
+            '/Client/js/handlers/measurement-touch-optimizer.js',
+            '/Client/js/ui/mobile-optimizer.js'
         ],
         
-        // 5. GESTORES (para juego)
+        // 7. GESTORES BASE (para juego) - ⚠️ CONSOLIDADO SIN DUPLICADOS
         gestores: [
             '/Client/js/modules/juego/gestorBase.js',
             '/Client/js/modules/juego/gestorComunicacion.js',
             '/Client/js/modules/juego/gestorEventos.js',
             '/Client/js/modules/juego/gestorCarga.js',
             '/Client/js/modules/juego/gestorEstado.js',
+            '/Client/js/modules/juego/gestorMapa.js',
+            '/Client/js/modules/juego/gestorAcciones.js',
             '/Client/js/modules/juego/gestorInterfaz.js',
+            '/Client/js/modules/juego/gestorUnidades.js',
             '/Client/js/modules/juego/gestorFases.js',
+            '/Client/js/modules/juego/gestorTurnos.js', // ✅ SOLO EL DE MODULES - NO HANDLERS
             '/Client/js/modules/juego/gestorJuego.js'
         ],
         
-        // 6. MÓDULOS ESPECÍFICOS
+        // 8. MÓDULOS ESPECÍFICOS
         modules: {
             juego: [
                 '/Client/js/modules/juego/hexgrid.js',
-                '/Client/js/modules/juego/combate.js',
-                '/Client/js/modules/juego/gestionBatalla.js'
+                '/Client/js/modules/juego/combate.js'
             ],
             organizacion: [
-                '/Client/js/modules/organizacion/CO.js',
-                '/Client/js/modules/organizacion/conexionesCO.js'
+                '/Client/js/ui/paneledicionCO.js',
+                '/Client/js/modules/organizacion/conexionesCO.js',
+                '/Client/js/modules/organizacion/CO.js'
             ],
             planeamiento: [
-                '/Client/js/modules/planeamiento/calcosP.js',
-                '/Client/js/modules/planeamiento/simbolosP.js',
-                '/Client/js/modules/planeamiento/herramientasP.js',
-                '/Client/js/modules/planeamiento/atajosP.js',
-                '/Client/js/modules/planeamiento/mapaP.js',
-                '/Client/js/modules/planeamiento/graficoMarcha.js'
+                // Los archivos comunes ya están cargados en 'common'
             ],
             partidas: [
-                '/Client/js/modules/partidas/iniciarpartida.js'
+                '/Client/js/common/partidas.js',
+                '/Client/js/modules/partidas/iniciarpartida.js',
+                '/Client/js/utils/utilsGB.js',
+                '/Client/js/modules/gestion/edicionGB.js',
+                '/Client/js/modules/gestion/informesGB.js',
+                '/Client/js/modules/gestion/elementosGB.js',
+                '/Client/js/modules/gestion/gestionBatalla.js',
+                '/Client/js/modules/gestion/GB.js'
             ]
         },
         
-        // 7. GAMING ENGINE (opcional)
+        // 9. GAMING ENGINE (opcional)
         gaming: [
             '/Client/js/gaming/GameEngine.js',
             '/Client/js/gaming/AIDirector.js'
         ],
         
-        // 8. TESTING (si está habilitado)
+        // 10. TESTING (si está habilitado)
         testing: [
             '/Client/js/Test/MAIRATestSuite.js',
+            '/Client/js/Test/testButtons.js',
             '/Client/js/Test/testPlaneamiento.js',
             '/Client/js/Test/autoTest.js',
             '/Client/js/Test/visualizadorTests.js'
@@ -98,19 +130,28 @@
          * 🎯 CARGA MÓDULOS SEGÚN EL CONTEXTO
          */
         async loadForModule(moduleName, additionalModules = []) {
-            console.log(`🚀 MAIRA Bootstrap - Cargando para módulo: ${moduleName}`);
-            this.currentModule = moduleName;
-
+            console.log(`🚀 MAIRA Bootstrap - Iniciando carga para módulo: ${moduleName}`);
+            
             try {
-                // 1. Cargar core siempre
+                this.currentModule = moduleName;
+
+                // 1. Cargar dependencias base en orden
                 await this.loadSequential(LOAD_ORDER.core);
                 await this.loadSequential(LOAD_ORDER.utils);
+                
+                // 2. Cargar infraestructura DDD
+                await this.loadSequential(LOAD_ORDER.infrastructure);
+                
+                // 3. Cargar servicios DDD (Hexagonal Architecture)
+                await this.loadSequential(LOAD_ORDER.services);
+                
+                // 4. Cargar módulos comunes
                 await this.loadSequential(LOAD_ORDER.common);
-
-                // 2. Cargar handlers básicos
+                
+                // 5. Cargar handlers
                 await this.loadSequential(LOAD_ORDER.handlers);
 
-                // 3. Cargar según módulo específico
+                // 6. Cargar según módulo específico
                 switch (moduleName) {
                     case 'juego':
                         await this.loadForJuego();
@@ -126,17 +167,20 @@
                         break;
                 }
 
-                // 4. Cargar módulos adicionales si se especifican
+                // 7. Cargar módulos adicionales si se especifican
                 for (const additionalModule of additionalModules) {
                     if (LOAD_ORDER.modules[additionalModule]) {
                         await this.loadSequential(LOAD_ORDER.modules[additionalModule]);
                     }
                 }
 
-                // 5. Cargar testing si está habilitado
+                // 8. Cargar testing si está habilitado
                 if (this.enableTesting) {
                     await this.loadSequential(LOAD_ORDER.testing);
                 }
+
+                // 9. Inicializar servicios DDD
+                await this.initializeServices();
 
                 console.log(`✅ MAIRA Bootstrap - ${moduleName} cargado completamente`);
                 this.notifyLoadComplete(moduleName);
@@ -144,6 +188,37 @@
             } catch (error) {
                 console.error(`❌ Error en bootstrap para ${moduleName}:`, error);
                 throw error;
+            }
+        }
+
+        /**
+         * 🔧 INICIALIZAR SERVICIOS DDD
+         */
+        async initializeServices() {
+            try {
+                console.log('🔧 Inicializando servicios DDD...');
+                
+                if (typeof MAIRAServicesManager !== 'undefined') {
+                    const servicesManager = await MAIRAServicesManager.autoInitialize();
+                    
+                    // Esperar a que todos los servicios estén listos
+                    return new Promise((resolve) => {
+                        const checkServices = () => {
+                            if (servicesManager.initialized) {
+                                console.log('✅ Servicios DDD inicializados correctamente');
+                                resolve(servicesManager);
+                            } else {
+                                setTimeout(checkServices, 100);
+                            }
+                        };
+                        checkServices();
+                    });
+                } else {
+                    console.warn('⚠️ MAIRAServicesManager no disponible');
+                }
+            } catch (error) {
+                console.error('❌ Error inicializando servicios DDD:', error);
+                // No bloquear la carga si fallan los servicios opcionales
             }
         }
 

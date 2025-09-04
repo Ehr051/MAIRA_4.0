@@ -2,9 +2,10 @@
  * MAIRA 4.0 - Transitability Service (Hexagonal Architecture)
  * ==========================================================
  * Servicio modular para cálculo de transitabilidad militar
+ * Convertido a formato compatible con bootstrap DDD
  */
 
-export class TransitabilityService {
+class TransitabilityService {
     constructor(core) {
         this.core = core;
         this.cache = new Map();
@@ -324,4 +325,14 @@ export class TransitabilityService {
     }
 }
 
-export default TransitabilityService;
+// Exportar para sistema MAIRA
+if (typeof window !== 'undefined') {
+    window.TransitabilityService = TransitabilityService;
+    
+    // Integración con namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.Services) window.MAIRA.Services = {};
+    window.MAIRA.Services.Transitability = TransitabilityService;
+    
+    console.log('✅ TransitabilityService registrado en MAIRA.Services.Transitability');
+}

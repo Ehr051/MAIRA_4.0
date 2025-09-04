@@ -2,9 +2,10 @@
  * MAIRA 4.0 - Sistema de Orquestación de Agentes Autónomos
  * ========================================================
  * Gestión inteligente de tareas distribuidas sin supervisión humana
+ * Convertido a formato compatible con bootstrap DDD
  */
 
-export class AutonomousAgentService {
+class AutonomousAgentService {
     constructor(core) {
         this.core = core;
         this.agents = new Map();
@@ -420,10 +421,20 @@ class SystemMonitorAgent extends BaseAgent {
         return {
             status: 'healthy',
             services: 5,
-            memory: this.parent.getMemoryUsage(),
-            uptime: Date.now() - this.core.startTime
+            memory: this.parent?.getMemoryUsage?.() || 'N/A',
+            uptime: Date.now() - (this.core?.startTime || Date.now())
         };
     }
 }
 
-export default AutonomousAgentService;
+// Exportar para sistema MAIRA
+if (typeof window !== 'undefined') {
+    window.AutonomousAgentService = AutonomousAgentService;
+    
+    // Integración con namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.Services) window.MAIRA.Services = {};
+    window.MAIRA.Services.AutonomousAgent = AutonomousAgentService;
+    
+    console.log('✅ AutonomousAgentService registrado en MAIRA.Services.AutonomousAgent');
+}

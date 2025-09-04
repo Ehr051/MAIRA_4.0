@@ -2,9 +2,10 @@
  * MAIRA 4.0 - Slope Analysis Service (Hexagonal Architecture)
  * ==========================================================
  * Servicio modular para análisis de pendientes del terreno
+ * Convertido a formato compatible con bootstrap DDD
  */
 
-export class SlopeAnalysisService {
+class SlopeAnalysisService {
     constructor(core) {
         this.core = core;
         this.cache = new Map();
@@ -464,4 +465,14 @@ export class SlopeAnalysisService {
     }
 }
 
-export default SlopeAnalysisService;
+// Exportar para sistema MAIRA
+if (typeof window !== 'undefined') {
+    window.SlopeAnalysisService = SlopeAnalysisService;
+    
+    // Integración con namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.Services) window.MAIRA.Services = {};
+    window.MAIRA.Services.SlopeAnalysis = SlopeAnalysisService;
+    
+    console.log('✅ SlopeAnalysisService registrado en MAIRA.Services.SlopeAnalysis');
+}
