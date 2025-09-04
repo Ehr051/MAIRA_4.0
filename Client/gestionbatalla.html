@@ -27,6 +27,8 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
   <link rel="stylesheet" href="/Client/css/modules/gestionbatalla/GBatalla.css">
+  <!-- 🎨 FIX: Corrección z-index para superposición de paneles -->
+  <link rel="stylesheet" href="/Client/css/fixes/z-index-fix.css">
   <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
   <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
   <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
@@ -97,6 +99,10 @@
 <script src="/Client/js/Test/MAIRATestSuite.js"></script>
 <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
 <script src="/Client/js/Test/testButtons.js"></script>
+
+<!-- 🔧 PARCHES CRÍTICOS GB - Cargar ANTES del body -->
+<script src="/Client/js/fixes/gb-patches.js"></script>
+<script src="/Client/js/fixes/performance-emergency.js"></script>
 </head>
 <body>
   

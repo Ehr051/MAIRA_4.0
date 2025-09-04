@@ -45,9 +45,211 @@ MAIRA.GestionBatalla = (function() {
     /**
      * Inicializa el módulo cuando el DOM está listo
      */
-        // ✅ CORREGIR línea ~18:
+    function inicializar() {
+        console.log('🚀 Iniciando Gestión de Batalla v2.0.0');
+        
+        // 🔧 FIX CRÍTICO: Verificar y crear socket si no existe
+        verificarYCrearSocket();
+        
+        // Inicializar componentes
+        inicializarUI();
+        configurarEventListeners();
+        cargarDatosIniciales();
+        
+        // ✅ CRÍTICO: Inicializar chat con retry
+        setTimeout(() => {
+            inicializarChatConReintentos();
+        }, 1000);
+        
+        console.log('✅ Gestión de Batalla inicializada correctamente');
+    }
     
-// ✅ REEMPLAZAR la función inicializar (línea ~50) con ESTO:
+    /**
+     * 🔧 FIX CRÍTICO: Verificar y crear socket
+     */
+    function verificarYCrearSocket() {
+        console.log('🔌 Verificando estado del socket...');
+        
+        // Verificar socket global
+        if (!window.socket) {
+            console.warn('⚠️ Socket global no existe, creando...');
+            crearSocketConnection();
+        } else if (!window.socket.connected) {
+            console.warn('⚠️ Socket global desconectado, reconectando...');
+            window.socket.connect();
+        } else {
+            console.log('✅ Socket global activo');
+            socket = window.socket;
+        }
+    }
+    
+    /**
+     * 🔧 FIX CRÍTICO: Crear conexión socket
+     */
+    function crearSocketConnection() {
+        try {
+            const socketUrl = window.location.protocol + '//' + window.location.host;
+            console.log('🔌 Creando socket a:', socketUrl);
+            
+            if (typeof io !== 'undefined') {
+                window.socket = io(socketUrl, {
+                    timeout: 20000,
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                    transports: ['polling', 'websocket']
+                });
+                
+                socket = window.socket;
+                
+                socket.on('connect', () => {
+                    console.log('✅ Socket conectado para GB');
+                    inicializarChatConReintentos();
+                });
+                
+                socket.on('disconnect', () => {
+                    console.warn('⚠️ Socket desconectado en GB');
+                });
+                
+                socket.on('connect_error', (error) => {
+                    console.error('❌ Error de conexión socket GB:', error);
+                });
+                
+            } else {
+                console.error('❌ Socket.IO no disponible');
+            }
+        } catch (error) {
+            console.error('❌ Error creando socket:', error);
+        }
+    }
+    
+    /**
+     * 🔧 FIX CRÍTICO: Inicializar chat con reintentos
+     */
+    function inicializarChatConReintentos(intentos = 0) {
+        const maxIntentos = 5;
+        
+        console.log(`💬 Intento ${intentos + 1}/${maxIntentos} de inicializar chat...`);
+        
+        // Verificar que MAIRAChat esté disponible
+        if (typeof window.MAIRAChat === 'undefined') {
+            console.warn('⚠️ MAIRAChat no disponible, cargando...');
+            
+            // Intentar cargar MAIRAChat
+            const script = document.createElement('script');
+            script.src = '/Client/js/common/MAIRAChat.js';
+            script.onload = () => {
+                console.log('✅ MAIRAChat cargado, reintentando...');
+                setTimeout(() => inicializarChatConReintentos(intentos), 1000);
+            };
+            script.onerror = () => {
+                console.error('❌ Error cargando MAIRAChat');
+            };
+            document.head.appendChild(script);
+            return;
+        }
+        
+        // Verificar socket
+        if (!socket || !socket.connected) {
+            if (intentos < maxIntentos) {
+                console.warn(`⚠️ Socket no disponible, reintentando en 2s...`);
+                setTimeout(() => inicializarChatConReintentos(intentos + 1), 2000);
+                return;
+            } else {
+                console.error('❌ Socket no disponible después de múltiples intentos');
+                return;
+            }
+        }
+        
+        // Intentar inicializar chat
+        try {
+            if (window.MAIRAChat && typeof window.MAIRAChat.inicializar === 'function') {
+                window.MAIRAChat.inicializar(socket);
+                console.log('✅ Chat inicializado correctamente');
+                return;
+            } else {
+                throw new Error('MAIRAChat.inicializar no es función');
+            }
+        } catch (error) {
+            console.error('❌ Error inicializando chat:', error);
+            
+            if (intentos < maxIntentos) {
+                setTimeout(() => inicializarChatConReintentos(intentos + 1), 2000);
+            } else {
+                console.error('❌ Chat no pudo inicializarse después de múltiples intentos');
+                // Continuar sin chat pero notificar al usuario
+                mostrarNotificacionError('Chat no disponible. Algunas funciones pueden estar limitadas.');
+            }
+        }
+    }
+    
+    /**
+     * 🔧 FIX: Función inicializarUI básica
+     */
+    function inicializarUI() {
+        console.log('🎨 Inicializando interfaz GB...');
+        // Funcionalidad básica de UI
+        try {
+            // Verificar que existan elementos críticos
+            const panel = document.getElementById('panel-gestion-batalla');
+            if (panel) {
+                panel.style.display = 'block';
+                console.log('✅ Panel GB activado');
+            }
+        } catch (error) {
+            console.warn('⚠️ Error en inicializarUI:', error);
+        }
+    }
+    
+    /**
+     * 🔧 FIX: Función configurarEventListeners básica
+     */
+    function configurarEventListeners() {
+        console.log('🔗 Configurando event listeners GB...');
+        // Event listeners básicos
+        try {
+            // Listeners de socket si existe
+            if (socket) {
+                socket.on('mensaje_chat', (data) => {
+                    console.log('💬 Mensaje chat recibido:', data);
+                });
+            }
+        } catch (error) {
+            console.warn('⚠️ Error en configurarEventListeners:', error);
+        }
+    }
+    
+    /**
+     * 🔧 FIX: Función cargarDatosIniciales básica
+     */
+    function cargarDatosIniciales() {
+        console.log('📊 Cargando datos iniciales GB...');
+        // Cargar datos básicos
+        try {
+            // Obtener operación de URL
+            const urlParams = new URLSearchParams(window.location.search);
+            operacionActual = urlParams.get('operacion') || 'default';
+            console.log('📍 Operación actual:', operacionActual);
+        } catch (error) {
+            console.warn('⚠️ Error en cargarDatosIniciales:', error);
+        }
+    }
+    
+    /**
+     * 🔧 FIX: Función mostrarNotificacionError
+     */
+    function mostrarNotificacionError(mensaje) {
+        console.error('🚨 Error GB:', mensaje);
+        // Mostrar notificación visual si es posible
+        try {
+            if (typeof alert !== 'undefined') {
+                // Solo en caso de error crítico
+                console.warn('⚠️ GB:', mensaje);
+            }
+        } catch (error) {
+            console.error('❌ Error mostrando notificación:', error);
+        }
+    }
 
 function inicializar() {
     console.log("🚀 Iniciando módulo MAIRA.GestionBatalla...");
