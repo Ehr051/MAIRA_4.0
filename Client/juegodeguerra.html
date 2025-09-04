@@ -29,17 +29,15 @@
   <link rel="stylesheet" href="/Client/css/modules/juegodeguerra/juegodeguerra.css">
   <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
   <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
-  <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
-  <!-- FIX temporal para z-index conflictos - REMOVER EN PRODUCCIÓN -->
-  <link rel="stylesheet" href="/Client/css/fixes/z-index-fix.css">
-  
-  <!-- 🔧 FIXES CRÍTICOS DE EMERGENCIA - 60 MIN -->
-  <script src="/Client/js/fixes/performance-emergency.js"></script>
+  <link rel="stylesheet" href="/Client/css/common/test-buttons.css"></script>
   <!-- Scripts JavaScript -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  
+  <!-- Core MAIRA -->
+  <script src="/Client/js/common/UserIdentity.js"></script>
   
   <script src="/node_modules/leaflet/dist/leaflet.js"></script>
   <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
@@ -51,8 +49,8 @@
   <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
   <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
-  <script src="/node_modules/mgrs/mgrs.js"></script>
+  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  <!-- <script src="/node_modules/mgrs/mgrs.js"></script> -->
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
@@ -63,60 +61,32 @@
   <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
   <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
   <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
-  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
 
-  <!-- Scripts personalizados -->
-  <script src="/Client/js/ui/mobile-optimizer.js"></script>
-  <script src="/Client/js/handlers/measurement-touch-optimizer.js"></script>
-  <script src="/Client/js/common/networkConfig.js" onerror="console.warn('❌ networkConfig.js falló - usando emergencia')"></script>
-  <script src="/Client/js/workers/elevation.worker.js" onerror="console.warn('❌ elevation.worker.js falló')"></script>
-  <script src="/Client/js/common/elevationHandler.js" onerror="console.warn('❌ elevationHandler.js falló - usando emergencia')"></script>
-  <script src="/Client/js/common/vegetacionhandler.js" onerror="console.warn('❌ vegetacionhandler.js falló - usando emergencia')"></script>
-  <script src="/Client/js/common/mapaP.js"></script>
-  <script src="/Client/js/utils/calcosP.js"></script>
-  <script src="/Client/js/common/edicioncompleto.js"></script>
-  <script src="/Client/js/common/simbolosP.js"></script>
-  <script src="/Client/js/common/herramientasP.js"></script>
-  <script src="/Client/js/common/dibujosMCCP.js"></script>
-  <script src="/Client/js/common/atajosP.js"></script>
-  
-  <script src="/Client/js/common/CalculoMarcha.js"></script>
-  <script src="/Client/js/common/graficoMarcha.js"></script>
-  <script src="/Client/js/common/panelMarcha.js"></script>
-  
- <!-- 1. Primero EventEmitter -->
- <script src="/Client/js/utils/eventemitter.js"></script>
-  
- <!-- 2. GestorBase que depende de EventEmitter -->
- <script src="/Client/js/modules/juego/gestorBase.js"></script>
-
- <!-- 3. Scripts principales que no dependen de gestores -->
- <script src="/Client/js/common/indexP.js"></script>
- <script src="/Client/js/modules/juego/hexgrid.js"></script>
- <script src="/Client/js/common/miradial.js"></script>
- 
- <!-- 4. Gestores que heredan de GestorBase -->
- <script src="/Client/js/modules/juego/gestorComunicacion.js"></script>
- <script src="/Client/js/modules/juego/gestorEventos.js"></script>
- <script src="/Client/js/modules/juego/gestorCarga.js"></script>
- <script src="/Client/js/modules/juego/gestorEstado.js"></script>
- <script src="/Client/js/modules/juego/gestorMapa.js"></script>
- <script src="/Client/js/modules/juego/gestorAcciones.js"></script>
- <script src="/Client/js/modules/juego/gestorFases.js"></script>
- <script src="/Client/js/modules/juego/gestorTurnos.js"></script>
- <script src="/Client/js/modules/juego/gestorInterfaz.js"></script>
- <script src="/Client/js/modules/juego/gestorUnidades.js"></script>
- <script src="/Client/js/handlers/combate.js"></script>
- <script src="/Client/js/modules/juego/combate.js"></script>
- <script src="/Client/js/common/MAIRAChat.js"></script>
-
- <!-- 5. GestorJuego al final ya que coordina todos los demás -->
- <script src="/Client/js/modules/juego/gestorJuego.js"></script>
- 
- <!-- Scripts de Test -->
- <script src="/Client/js/Test/MAIRATestSuite.js"></script>
- <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
- <script src="/Client/js/Test/testButtons.js"></script>
+  <!-- =============================================
+       NUEVA ARQUITECTURA DDD/HEXAGONAL
+       Bootstrap unificado que maneja todas las dependencias
+       ============================================= -->
+  <script src="/Client/js/bootstrap.js"></script>
+  <script>
+    // Inicialización DDD para módulo Juego de Guerra
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        console.log('🚀 Iniciando MAIRA 4.0 - Módulo Juego de Guerra');
+        
+        // Usar el bootstrap unificado siguiendo principios DDD
+        if (typeof MAIRABootstrap !== 'undefined') {
+          await MAIRABootstrap.loadForModule('juego');
+          console.log('✅ Bootstrap DDD completado para módulo Juego');
+        } else {
+          console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+          // Fallback de emergencia si falla el bootstrap
+        }
+      } catch (error) {
+        console.error('❌ Error en bootstrap DDD:', error);
+      }
+    });
+  </script>
  
  <!-- Scripts de tiles externos y GitHub Releases -->
  <!-- Archivos movidos a tools/static-debug ya no necesarios en producción -->

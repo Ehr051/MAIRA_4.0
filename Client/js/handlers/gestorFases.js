@@ -1133,6 +1133,9 @@ validarFaseActual() {
             panelFases = document.createElement('div');
             panelFases.id = 'panel-fases';
             panelFases.className = 'panel-control';
+            // 🔧 FIX: Asegurar z-index para panel de fases
+            panelFases.style.zIndex = '1050';
+            panelFases.style.position = 'fixed';
             document.body.appendChild(panelFases);
         }
 
@@ -1147,7 +1150,7 @@ validarFaseActual() {
                 padding: 10px;
                 border-radius: 5px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                z-index: 1000;
+                z-index: 1050; /* 🔧 FIX: Aumentado de 1000 a 1050 */
             }
             .panel-control button {
                 margin: 5px;

@@ -13,18 +13,30 @@
     <link rel="stylesheet" href="/Client/css/modules/iniciarpartida/iniciarpartida.css">
     <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
     <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
-    <script src="/Client/js/common/networkConfig.js"></script>
-    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/Client/js/common/MAIRAChat.js"></script>
-    <script src="/Client/js/common/partidas.js"></script>
-    <script src="/Client/js/modules/partidas/iniciarpartida.js"></script>
-    
-    <!-- Scripts de Test -->
-    <script src="/Client/js/Test/MAIRATestSuite.js"></script>
-    <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
-    <script src="/Client/js/Test/testButtons.js"></script>
+    <!-- =============================================
+         NUEVA ARQUITECTURA DDD/HEXAGONAL
+         Bootstrap unificado que maneja todas las dependencias
+         ============================================= -->
+    <script src="/Client/js/bootstrap.js"></script>
+    <script>
+        // Inicialización DDD para módulo Partidas
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                console.log('🚀 Iniciando MAIRA 4.0 - Módulo Iniciar Partida');
+                
+                // Usar el bootstrap unificado siguiendo principios DDD
+                if (typeof MAIRABootstrap !== 'undefined') {
+                    await MAIRABootstrap.loadForModule('partidas');
+                    console.log('✅ Bootstrap DDD completado para módulo Partidas');
+                } else {
+                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+                    // Fallback de emergencia si falla el bootstrap
+                }
+            } catch (error) {
+                console.error('❌ Error en bootstrap DDD:', error);
+            }
+        });
+    </script>
 </head>
 
 <body>

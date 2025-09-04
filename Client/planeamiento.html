@@ -43,8 +43,8 @@
   <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
   <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
-  <script src="/node_modules/mgrs/mgrs.js"></script>
+  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  <!-- <script src="/node_modules/mgrs/mgrs.js"></script> -->
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
@@ -55,29 +55,32 @@
   <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
   <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
   <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
-  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
 
-  <!-- Scripts personalizados -->
-  <script src="/Client/js/workers/elevation.worker.js"></script>
-  <script src="/Client/js/common/elevationHandler.js"></script>
-  <script src="/Client/js/common/vegetacionhandler.js"></script>
-  <script src="/Client/js/common/mapaP.js"></script>
-  <script src="/Client/js/utils/calcosP.js"></script>
-  <script src="/Client/js/common/edicioncompleto.js"></script>
-  <script src="/Client/js/common/simbolosP.js"></script>
-  <script src="/Client/js/common/herramientasP.js"></script>
-  <script src="/Client/js/common/dibujosMCCP.js"></script>
-  <script src="/Client/js/common/atajosP.js"></script>
-  
-  <script src="/Client/js/common/CalculoMarcha.js"></script>
-  <script src="/Client/js/common/graficoMarcha.js"></script>
-  <script src="/Client/js/common/panelMarcha.js"></script>
-  <script src="/Client/js/common/indexP.js"></script>
-  
-  <!-- Script de verificación -->
-  <script src="/Client/js/Test/testPlaneamiento.js"></script>
-  <script src="/Client/js/Test/autoTest.js"></script>
-  <script src="/Client/js/Test/visualizadorTests.js"></script>
+  <!-- =============================================
+       NUEVA ARQUITECTURA DDD/HEXAGONAL
+       Bootstrap unificado que maneja todas las dependencias
+       ============================================= -->
+  <script src="/Client/js/bootstrap.js"></script>
+  <script>
+    // Inicialización DDD para módulo Planeamiento
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        console.log('🚀 Iniciando MAIRA 4.0 - Módulo Planeamiento');
+        
+        // Usar el bootstrap unificado siguiendo principios DDD
+        if (typeof MAIRABootstrap !== 'undefined') {
+          await MAIRABootstrap.loadForModule('planeamiento');
+          console.log('✅ Bootstrap DDD completado para módulo Planeamiento');
+        } else {
+          console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+          // Fallback de emergencia si falla el bootstrap
+        }
+      } catch (error) {
+        console.error('❌ Error en bootstrap DDD:', error);
+      }
+    });
+  </script>
   <script src="/Client/js/Test/MAIRATestSuite.js"></script>
   <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
   <script src="/Client/js/Test/testButtons.js"></script>

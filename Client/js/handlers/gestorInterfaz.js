@@ -32,16 +32,25 @@ class GestorInterfaz extends GestorBase {
         const interfaz = document.createElement('div');
         interfaz.id = 'interfaz-juego';
         interfaz.className = 'interfaz-contenedor';
+        // 🔧 FIX: Asegurar z-index para interfaz principal
+        interfaz.style.zIndex = '1050';
+        interfaz.style.position = 'relative';
         
         // Panel de mensajes
         const mensajes = document.createElement('div');
         mensajes.id = 'mensajes-container';
         mensajes.className = 'mensajes-container';
+        // 🔧 FIX: Z-index para mensajes
+        mensajes.style.zIndex = '1040';
+        mensajes.style.position = 'relative';
         
         // Panel de estado del juego
         const panelEstado = document.createElement('div');
         panelEstado.id = 'estado-juego';
         panelEstado.className = 'panel-estado';
+        // 🔧 FIX: Z-index para panel de estado
+        panelEstado.style.zIndex = '1030';
+        panelEstado.style.position = 'relative';
         
         interfaz.appendChild(mensajes);
         interfaz.appendChild(panelEstado);

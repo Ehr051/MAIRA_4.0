@@ -27,7 +27,7 @@
     
     <!-- Military Symbol Libraries -->
     <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
-    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
     
     <!-- ✅ ORDEN CORRECTO DE SCRIPTS CO -->
@@ -57,36 +57,47 @@
     
     <!-- ✅ SCRIPTS CO EN ORDEN CORRECTO -->
     <script src="/Client/js/common/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
-    <script src="/Client/js/ui/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
-    <script src="/Client/js/modules/organizacion/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
-    <script src="/Client/js/modules/organizacion/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
-    
-    <!-- ✅ Inicialización diferida -->
+    <!-- =============================================
+         NUEVA ARQUITECTURA DDD/HEXAGONAL
+         Bootstrap unificado que maneja todas las dependencias
+         ============================================= -->
+    <script src="/Client/js/bootstrap.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Esperar que todos los scripts se carguen
-            setTimeout(function() {
-                if (typeof inicializarCuadroOrganizacion === 'function') {
-                    inicializarCuadroOrganizacion();
-                    console.log('✅ Cuadro de Organización inicializado');
-                } else {
-                    console.error('❌ Función inicializarCuadroOrganizacion no encontrada');
-                }
+        // Inicialización DDD para módulo Organización
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                console.log('🚀 Iniciando MAIRA 4.0 - Módulo Organización');
                 
-                // Verificar integración MAIRA
-                if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
-                    console.log('✅ MAIRA.CuadroOrganizacion disponible');
+                // Usar el bootstrap unificado siguiendo principios DDD
+                if (typeof MAIRABootstrap !== 'undefined') {
+                    await MAIRABootstrap.loadForModule('organizacion');
+                    console.log('✅ Bootstrap DDD completado para módulo Organización');
+                    
+                    // Inicialización específica del módulo CO
+                    setTimeout(function() {
+                        if (typeof inicializarCuadroOrganizacion === 'function') {
+                            inicializarCuadroOrganizacion();
+                            console.log('✅ Cuadro de Organización inicializado');
+                        } else {
+                            console.error('❌ Función inicializarCuadroOrganizacion no encontrada');
+                        }
+                        
+                        // Verificar integración MAIRA
+                        if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
+                            console.log('✅ MAIRA.CuadroOrganizacion disponible');
+                        } else {
+                            console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
+                        }
+                    }, 100);
                 } else {
-                    console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
+                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+                    // Fallback de emergencia si falla el bootstrap
                 }
-            }, 100);
+            } catch (error) {
+                console.error('❌ Error en bootstrap DDD:', error);
+            }
         });
     </script>
-    
-    <!-- Scripts de Test -->
-    <script src="/Client/js/Test/MAIRATestSuite.js"></script>
-    <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
-    <script src="/Client/js/Test/testButtons.js"></script>
 </head>
 <body>
   

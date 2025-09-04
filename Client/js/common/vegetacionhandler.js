@@ -76,7 +76,29 @@ const vegetacionHandler = (function() {
 
     function encontrarTileParaPunto(lat, lng) {
         for (const [tileKey, tileInfo] of Object.entries(tileIndex.tiles)) {
-            const bounds = tileInfo[0].bounds; // Asumimos que todos los tipos de tile tienen los mismos límites
+            // 🔧 FIX CRÍTICO: Validar que tileInfo y bounds existen
+            if (!tileInfo || !Array.isArray(tileInfo) || tileInfo.length === 0) {
+                console.warn(`⚠️ tileInfo inválido para ${tileKey}`);
+                continue;
+            }
+            
+            const firstTile = tileInfo[0];
+            if (!firstTile || !firstTile.bounds) {
+                console.warn(`⚠️ bounds no encontrado para tile ${tileKey}`);
+                continue;
+            }
+            
+            const bounds = firstTile.bounds;
+            
+            // Validar que bounds tiene propiedades requeridas
+            if (typeof bounds.north === 'undefined' || 
+                typeof bounds.south === 'undefined' || 
+                typeof bounds.west === 'undefined' || 
+                typeof bounds.east === 'undefined') {
+                console.warn(`⚠️ bounds incompleto para tile ${tileKey}:`, bounds);
+                continue;
+            }
+            
             if (lat <= bounds.north && lat >= bounds.south && lng >= bounds.west && lng <= bounds.east) {
                 return tileKey;
             }
@@ -287,11 +309,25 @@ const vegetacionHandler = (function() {
                     console.warn(`No se pudo obtener información para el punto (${punto.lat}, ${punto.lng})`);
                     continue;
                 }
-    
+                
+                // 🔧 FIX CRÍTICO: Validar bounds del tile
+                if (!tile.bounds || 
+                    typeof tile.bounds.west === 'undefined' ||
+                    typeof tile.bounds.east === 'undefined' ||
+                    typeof tile.bounds.north === 'undefined' ||
+                    typeof tile.bounds.south === 'undefined') {
+                    console.warn(`Tile ${tileKey} tiene bounds inválidos:`, tile.bounds);
+                    continue;
+                }
+                
+                // 🔧 FIX CRÍTICO: Validar dimensiones del tile
+                if (!tile.width || !tile.height || tile.width <= 0 || tile.height <= 0) {
+                    console.warn(`Tile ${tileKey} tiene dimensiones inválidas: ${tile.width}x${tile.height}`);
+                    continue;
+                }
+
                 const pixelX = Math.floor((punto.lng - tile.bounds.west) / (tile.bounds.east - tile.bounds.west) * tile.width);
-                const pixelY = Math.floor((tile.bounds.north - punto.lat) / (tile.bounds.north - tile.bounds.south) * tile.height);
-    
-                if (pixelX < 0 || pixelX >= tile.width || pixelY < 0 || pixelY >= tile.height) {
+                const pixelY = Math.floor((tile.bounds.north - punto.lat) / (tile.bounds.north - tile.bounds.south) * tile.height);                if (pixelX < 0 || pixelX >= tile.width || pixelY < 0 || pixelY >= tile.height) {
                     console.error(`Índices de píxel fuera de rango: X = ${pixelX}, Y = ${pixelY}`);
                     continue;
                 }

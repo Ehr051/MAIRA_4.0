@@ -27,8 +27,6 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
   <link rel="stylesheet" href="/Client/css/modules/gestionbatalla/GBatalla.css">
-  <!-- 🎨 FIX: Corrección z-index para superposición de paneles -->
-  <link rel="stylesheet" href="/Client/css/fixes/z-index-fix.css">
   <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
   <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
   <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
@@ -49,8 +47,8 @@
   <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
   <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script>
-  <script src="/node_modules/mgrs/mgrs.js"></script>
+  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  <!-- <script src="/node_modules/mgrs/mgrs.js"></script> -->
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
@@ -61,7 +59,7 @@
   <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
   <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
   <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
-  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
 
   <!-- Scripts personalizados -->
   <script src="/Client/js/workers/elevation.worker.js"></script>
@@ -80,29 +78,31 @@
   <script src="/Client/js/common/panelMarcha.js"></script>
   <script src="/Client/js/common/indexP.js"></script>
   
-  <!-- Scripts principales -->
-  <script src="/Client/js/common/miradial.js"></script>
+  <!-- =============================================
+       NUEVA ARQUITECTURA DDD/HEXAGONAL
+       Bootstrap unificado que maneja todas las dependencias
+       ============================================= -->
+  <script src="/Client/js/bootstrap.js"></script>
+  <script>
+    // Inicialización DDD para módulo Gestión de Batalla
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        console.log('🚀 Iniciando MAIRA 4.0 - Módulo Gestión de Batalla');
+        
+        // Usar el bootstrap unificado siguiendo principios DDD
+        if (typeof MAIRABootstrap !== 'undefined') {
+          await MAIRABootstrap.loadForModule('partidas');
+          console.log('✅ Bootstrap DDD completado para módulo Gestión de Batalla');
+        } else {
+          console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+          // Fallback de emergencia si falla el bootstrap
+        }
+      } catch (error) {
+        console.error('❌ Error en bootstrap DDD:', error);
+      }
+    });
+  </script>
 
-<script src="/Client/js/common/networkConfig.js"></script>
-<!-- Scripts modularizados para gestión de batalla -->
-<script src="/Client/js/utils/utilsGB.js"></script>
-<script src="/Client/js/common/MAIRAChat.js"></script>
-<script src="/Client/js/modules/gestion/edicionGB.js"></script>
-<script src="/Client/js/modules/gestion/informesGB.js"></script>
-<script src="/Client/js/modules/gestion/elementosGB.js"></script>
-<!-- ✅ gestionBatalla.js DEBE IR ANTES que GB.js -->
-<script src="/Client/js/modules/gestion/gestionBatalla.js"></script>
-<!-- ✅ GB.js es ahora solo un wrapper -->
-<script src="/Client/js/modules/gestion/GB.js"></script>
-
-<!-- Scripts de Test -->
-<script src="/Client/js/Test/MAIRATestSuite.js"></script>
-<!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
-<script src="/Client/js/Test/testButtons.js"></script>
-
-<!-- 🔧 PARCHES CRÍTICOS GB - Cargar ANTES del body -->
-<script src="/Client/js/fixes/gb-patches.js"></script>
-<script src="/Client/js/fixes/performance-emergency.js"></script>
 </head>
 <body>
   

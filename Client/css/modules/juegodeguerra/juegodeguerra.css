@@ -187,6 +187,9 @@ h1 {
     padding: 10px;
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    /* 🔧 FIX: Asegurar z-index para evitar superposición */
+    z-index: 1050;
+    position: relative;
 }
 
 .info-jugador {
@@ -198,6 +201,9 @@ h1 {
     padding: 10px;
     background: #ffffff;
     border-bottom: 1px solid #dee2e6;
+    /* 🔧 FIX: Asegurar z-index para paneles de turno */
+    z-index: 1040;
+    position: relative;
 }
 
 .contenedor-botones {

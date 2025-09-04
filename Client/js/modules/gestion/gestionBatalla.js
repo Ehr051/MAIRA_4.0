@@ -133,19 +133,16 @@ MAIRA.GestionBatalla = (function() {
         
         // Verificar que MAIRAChat esté disponible
         if (typeof window.MAIRAChat === 'undefined') {
-            console.warn('⚠️ MAIRAChat no disponible, cargando...');
+            console.warn('⚠️ MAIRAChat no disponible');
             
-            // Intentar cargar MAIRAChat
-            const script = document.createElement('script');
-            script.src = '/Client/js/common/MAIRAChat.js';
-            script.onload = () => {
-                console.log('✅ MAIRAChat cargado, reintentando...');
-                setTimeout(() => inicializarChatConReintentos(intentos), 1000);
-            };
-            script.onerror = () => {
-                console.error('❌ Error cargando MAIRAChat');
-            };
-            document.head.appendChild(script);
+            if (intentos < maxIntentos) {
+                console.log('🔄 Reintentando en 2s...');
+                setTimeout(() => inicializarChatConReintentos(intentos + 1), 2000);
+            } else {
+                console.error('❌ Chat no disponible después de múltiples intentos');
+                // 🔧 FIX: Crear fallback básico
+                crearChatFallback();
+            }
             return;
         }
         
@@ -181,6 +178,28 @@ MAIRA.GestionBatalla = (function() {
                 mostrarNotificacionError('Chat no disponible. Algunas funciones pueden estar limitadas.');
             }
         }
+    }
+    
+    /**
+     * 🔧 FIX: Crear chat básico de fallback
+     */
+    function crearChatFallback() {
+        console.log('🔧 Creando chat fallback básico...');
+        
+        // Crear contenedor de chat básico si no existe
+        const chatContainer = document.getElementById('chat-messages');
+        if (chatContainer) {
+            chatContainer.innerHTML = '<div style="padding: 10px; color: #888;">Chat temporalmente no disponible</div>';
+        }
+        
+        // Deshabilitar input de chat si existe
+        const chatInput = document.getElementById('mensaje-chat');
+        if (chatInput) {
+            chatInput.disabled = true;
+            chatInput.placeholder = 'Chat no disponible';
+        }
+        
+        console.log('✅ Chat fallback creado');
     }
     
     /**

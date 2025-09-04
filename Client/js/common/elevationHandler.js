@@ -280,9 +280,9 @@ async function buscarTileEnProvincias(bounds) {
         console.log(`✅ Índice provincial ${provinciaTarget} cargado: ${Object.keys(provincialData.tiles).length} tiles`);
         
       } catch (localError) {
-        // Si falla local, intentar GitHub
-        console.log(`⚠️ Error con URL local, intentando GitHub...`);
-        provincialUrl = `https://github.com/carlosmarin88/MAIRA_git/releases/download/mini-tiles-v3.0/${provinciaTarget}_mini_tiles_index.json`;
+        // Si falla local, intentar proxy del servidor
+        console.log(`⚠️ Error con URL local, intentando proxy...`);
+        provincialUrl = `/api/proxy/github/${provinciaTarget}_mini_tiles_index.json`;
         
         const response = await fetch(provincialUrl);
         if (!response.ok) {

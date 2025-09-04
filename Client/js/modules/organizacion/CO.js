@@ -936,9 +936,12 @@ function seleccionarElemento(elemento) {
             return false;
         }
         
-        // ✅ VERIFICAR QUE EL ELEMENTO TENGA LAS PROPIEDADES NECESARIAS:
-        if (!elemento.setStyle || typeof elemento.setStyle !== 'function') {
-            console.warn('⚠️ Elemento no tiene método setStyle');
+        // ✅ MANEJAR ELEMENTOS DIV (SÍMBOLOS MILITARES) Y ELEMENTOS LEAFLET:
+        const esElementoDOM = elemento.nodeType === 1 || elemento.classList;
+        const esElementoLeaflet = elemento.setStyle && typeof elemento.setStyle === 'function';
+        
+        if (!esElementoDOM && !esElementoLeaflet) {
+            console.warn('⚠️ Elemento no es ni DIV ni objeto Leaflet válido');
             return false;
         }
         
@@ -950,7 +953,21 @@ function seleccionarElemento(elemento) {
         elementoSeleccionado = elemento;
         window.elementoSeleccionado = elemento; // ✅ TAMBIÉN GLOBAL
         
-        // Resto del código de selección...
+        // ✅ APLICAR ESTILOS DE SELECCIÓN SEGÚN EL TIPO:
+        if (esElementoDOM) {
+            // Para DIVs de símbolos militares
+            elemento.classList.add('selected');
+            elemento.style.border = '3px solid #ff6b35';
+            elemento.style.boxShadow = '0 0 15px rgba(255, 107, 53, 0.7)';
+        } else if (esElementoLeaflet) {
+            // Para elementos Leaflet
+            elemento.setStyle({
+                color: '#ff6b35',
+                weight: 5,
+                dashArray: '10, 5'
+            });
+        }
+        
         console.log('✅ Elemento seleccionado exitosamente');
         return true;
         
