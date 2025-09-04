@@ -339,6 +339,14 @@
         return await bootstrap.loadForModule(moduleName, additionalModules);
     };
 
+    // ✅ EXPORTAR EL BOOTSTRAP GLOBALMENTE
+    window.MAIRABootstrap = new MAIRABootstrap();
+    
+    // También en namespace MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    window.MAIRA.Bootstrap = window.MAIRABootstrap;
+
     console.log('🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
+    console.log('✅ MAIRABootstrap disponible globalmente');
 
 })();
