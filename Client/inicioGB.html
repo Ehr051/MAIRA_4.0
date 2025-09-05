@@ -12,13 +12,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/Client/css/modules/inicioGB/inicioGB.css">
     <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
-    <script src="/Client/js/common/networkConfig.js"></script>
+    
+    <!-- Librerías externas necesarias -->
     <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
     <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/Client/js/common/MAIRAChat.js"></script>
-    <script src="/Client/js/modules/gestion/inicioGBhandler.js"></script>
+    
+    <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
+    <script src="/Client/js/bootstrap.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                if (typeof MAIRABootstrap !== 'undefined') {
+                    console.log('🚀 Cargando módulo INICIO GB con DDD Bootstrap...');
+                    await MAIRABootstrap.loadForModule('inicioGB');
+                    console.log('✅ Módulo INICIO GB cargado completamente');
+                } else {
+                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
+                    // Fallback: cargar scripts manualmente si bootstrap falla
+                    const scripts = [
+                        '/Client/js/common/networkConfig.js',
+                        '/Client/js/common/MAIRAChat.js',
+                        '/Client/js/modules/gestion/inicioGBhandler.js'
+                    ];
+                    
+                    for (const src of scripts) {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        document.head.appendChild(script);
+                    }
+                }
+            } catch (error) {
+                console.error('💥 Error cargando módulo INICIO GB:', error);
+            }
+        });
+    </script>
 </head>
 
 <body>
@@ -199,9 +228,7 @@
         <button id="btnVolver" class="btn btn-secondary btn-block">Volver al Menú Principal</button>
     </div>
 
-    <!-- Scripts de test -->
-    <script src="/Client/js/Test/MAIRATestSuite.js"></script>
-    <script src="/Client/js/Test/testButtons.js"></script>
+    <!-- Scripts cargados via DDD Bootstrap -->
 
 
 </body>

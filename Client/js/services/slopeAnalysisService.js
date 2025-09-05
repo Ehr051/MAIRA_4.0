@@ -78,8 +78,6 @@ class SlopeAnalysisService {
         return {
             initialize: this.initialize.bind(this),
             calcularPendiente: this.calculateSlope.bind(this),
-            // ✅ NUEVA: Procesar perfiles de elevación con pendientes
-            calcularPendientesPerfil: this.calculateElevationProfileSlopes.bind(this),
             analizarArea: this.analyzeArea.bind(this),
             obtenerDireccion: this.getSlopeDirection.bind(this),
             clasificarPendiente: this.classifySlope.bind(this),
@@ -470,57 +468,6 @@ class SlopeAnalysisService {
     clearCache() {
         this.cache.clear();
         console.log('🧹 Cache de pendientes limpiado');
-    }
-
-    /**
-     * 🎯 NUEVA FUNCIÓN: Calcular pendientes para perfil de elevación
-     * Función específica para procesar datos que vienen del elevationHandler
-     * @param {Array} elevationProfile - Array con datos: {distancia, elevation, lat, lng}
-     * @returns {Array} - Mismo array pero con pendientes calculadas
-     */
-    calculateElevationProfileSlopes(elevationProfile) {
-        console.log('📊 SlopeAnalysisService: Calculando pendientes de perfil...');
-        
-        if (!Array.isArray(elevationProfile) || elevationProfile.length < 2) {
-            console.warn('⚠️ Perfil de elevación insuficiente para calcular pendientes');
-            return elevationProfile;
-        }
-
-        // Clonar para no modificar original
-        const resultado = elevationProfile.map(punto => ({ ...punto }));
-
-        // Calcular pendientes entre puntos consecutivos
-        for (let i = 1; i < resultado.length; i++) {
-            const actual = resultado[i];
-            const anterior = resultado[i - 1];
-            
-            const distanciaParcial = actual.distancia - anterior.distancia;
-            const elevacionParcial = actual.elevation - anterior.elevation;
-            
-            if (distanciaParcial > 0) {
-                // Calcular pendiente como porcentaje
-                actual.pendiente = (elevacionParcial / distanciaParcial) * 100;
-                
-                // Limitar pendientes extremas
-                if (Math.abs(actual.pendiente) > 100) {
-                    actual.pendiente = Math.sign(actual.pendiente) * 100;
-                }
-                
-                // Clasificar la pendiente
-                actual.clasificacionPendiente = this.classifySlope(Math.abs(actual.pendiente));
-                
-            } else {
-                actual.pendiente = 0;
-                actual.clasificacionPendiente = 'plano';
-            }
-        }
-
-        // El primer punto no tiene pendiente
-        resultado[0].pendiente = 0;
-        resultado[0].clasificacionPendiente = 'plano';
-
-        console.log(`✅ Pendientes calculadas para ${resultado.length} puntos`);
-        return resultado;
     }
 
     getStats() {

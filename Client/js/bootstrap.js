@@ -37,6 +37,7 @@
         
         // 5. MÓDULOS COMUNES (INCLUYE LAS FUNCIONES GLOBALES)
         common: [
+            '/Client/js/common/networkConfig.js',  // ✅ MOVIDO AQUÍ - es común a todos
             '/Client/js/common/MAIRAChat.js',
             '/Client/js/common/indexP.js',        // ✅ toggleMenu se carga aquí
             '/Client/js/common/miradial.js',
@@ -52,44 +53,69 @@
             '/Client/js/utils/calcosP.js'
         ],
         
-        // 6. HANDLERS
+        // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN)
         handlers: [
-            '/Client/js/common/elevationHandler.js',
-            '/Client/js/common/vegetacionhandler.js',
+            '/Client/js/handlers/elevationHandler.js',      // ✅ CORREGIDO: está en handlers/
+            '/Client/js/handlers/vegetacionhandler.js',     // ✅ CORREGIDO: está en handlers/
+            '/Client/js/handlers/elevation.worker.js',      // ✅ NUEVO: worker de elevación
             '/Client/js/handlers/measurement-touch-optimizer.js',
             '/Client/js/ui/mobile-optimizer.js'
         ],
         
-        // 7. GESTORES BASE (para juego) - ⚠️ CONSOLIDADO SIN DUPLICADOS
+        // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
         gestores: [
-            '/Client/js/modules/juego/gestorBase.js',
-            '/Client/js/modules/juego/gestorComunicacion.js',
-            '/Client/js/modules/juego/gestorEventos.js',
-            '/Client/js/modules/juego/gestorCarga.js',
-            '/Client/js/modules/juego/gestorEstado.js',
-            '/Client/js/modules/juego/gestorMapa.js',
-            '/Client/js/modules/juego/gestorAcciones.js',
-            '/Client/js/modules/juego/gestorInterfaz.js',
-            '/Client/js/modules/juego/gestorUnidades.js',
-            '/Client/js/modules/juego/gestorFases.js',
-            '/Client/js/modules/juego/gestorTurnos.js', // ✅ SOLO EL DE MODULES - NO HANDLERS
-            '/Client/js/modules/juego/gestorJuego.js'
+            '/Client/js/utils/eventemitter.js',             // ✅ PRIMERO - Base de eventos
+            '/Client/js/handlers/gestorBase.js',            // ✅ SEGUNDO - Hereda de EventEmitter
+            '/Client/js/handlers/gestorComunicacion.js',
+            '/Client/js/handlers/gestorEventos.js',
+            '/Client/js/handlers/gestorCarga.js',
+            '/Client/js/handlers/gestorEstado.js',
+            '/Client/js/handlers/gestorMapa.js',
+            '/Client/js/handlers/gestorAcciones.js',
+            '/Client/js/handlers/gestorInterfaz.js',
+            '/Client/js/handlers/gestorUnidades.js',
+            '/Client/js/handlers/gestorFases.js',
+            '/Client/js/handlers/gestorTurnos.js',
+            '/Client/js/handlers/gestorJuego.js'            // ✅ ÚLTIMO - Coordina todos
         ],
         
         // 8. MÓDULOS ESPECÍFICOS
         modules: {
-            juego: [
-                '/Client/js/modules/juego/hexgrid.js',
-                '/Client/js/modules/juego/combate.js'
+            // HOME/LANDING PAGE
+            home: [
+                '/Client/js/utils/config.js',
+                '/Client/js/ui/landing3d.js',
+                '/Client/js/ui/carrusel.js',
+                '/Client/js/utils/validacion.js'
             ],
+            
+            // PLANEAMIENTO TÁCTICO (CON TODOS LOS JS)
+            planeamiento: [
+                '/Client/js/Test/testPlaneamiento.js',
+                '/Client/js/Test/autoTest.js',
+                '/Client/js/Test/visualizadorTests.js'
+            ],
+            
+            // COMANDOS Y ORGANIZACIÓN
             organizacion: [
                 '/Client/js/ui/paneledicionCO.js',
                 '/Client/js/modules/organizacion/conexionesCO.js',
                 '/Client/js/modules/organizacion/CO.js'
             ],
-            planeamiento: [
-                // Los archivos comunes ya están cargados en 'common'
+            
+            // JUEGO DE GUERRA (CON GESTORES Y HEXGRID)
+            juego: [
+                '/Client/js/modules/juego/hexgrid.js',
+                '/Client/js/modules/juego/combate.js'
+                // ✅ Los gestores se cargan en la sección 'gestores'
             ],
+            
+            // INICIO GESTIÓN DE BATALLA
+            inicioGB: [
+                '/Client/js/modules/gestion/inicioGBhandler.js'
+            ],
+            
+            // PARTIDAS Y GESTIÓN DE BATALLA (COMPLETO)
             partidas: [
                 '/Client/js/common/partidas.js',
                 '/Client/js/modules/partidas/iniciarpartida.js',
@@ -97,8 +123,8 @@
                 '/Client/js/modules/gestion/edicionGB.js',
                 '/Client/js/modules/gestion/informesGB.js',
                 '/Client/js/modules/gestion/elementosGB.js',
-                '/Client/js/modules/gestion/gestionBatalla.js',
-                '/Client/js/modules/gestion/GB.js'
+                '/Client/js/modules/gestion/gestionBatalla.js',  // ✅ ANTES que GB.js
+                '/Client/js/modules/gestion/GB.js'               // ✅ Solo wrapper
             ]
         },
         
@@ -228,8 +254,8 @@
                 // 6. HANDLERS
                 await this.loadCategory('handlers', LOAD_ORDER.handlers);
                 
-                // 7. GESTORES (para juegos)
-                if (['juego', 'partidas', 'gestionBatalla'].includes(moduleName)) {
+                // 7. GESTORES (para módulos complejos con mapas)
+                if (['juego', 'partidas', 'gestionBatalla', 'planeamiento'].includes(moduleName)) {
                     await this.loadCategory('gestores', LOAD_ORDER.gestores);
                 }
                 
