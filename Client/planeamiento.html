@@ -906,6 +906,29 @@
 <!-- Contenedor para los detalles de la marcha -->
 
 </main>
+
+<!-- 🚀 MAIRA 4.0 DDD BOOTSTRAP SYSTEM -->
+<script src="/Client/js/bootstrap.js"></script>
+
+<!-- ⚡ INICIALIZACIÓN ESPECÍFICA DEL MÓDULO -->
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🎯 Iniciando carga DDD para módulo PLANEAMIENTO...');
+    
+    try {
+        // Cargar módulo PLANEAMIENTO usando bootstrap DDD
+        if (window.MAIRABootstrap) {
+            await window.MAIRABootstrap.loadForModule('planeamiento');
+            console.log('✅ PLANEAMIENTO - Sistema DDD cargado exitosamente');
+        } else {
+            console.error('❌ PLANEAMIENTO - MAIRABootstrap no disponible');
+        }
+    } catch (error) {
+        console.error('🔥 PLANEAMIENTO - Error en carga DDD:', error);
+    }
+});
+</script>
+
 </body>
 
 </html>

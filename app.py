@@ -8,7 +8,7 @@ import string
 import time
 import traceback
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -117,24 +117,31 @@ def get_db_connection():
         print(f"❌ Error general conectando a PostgreSQL: {e}")
         return None
 
-# Rutas básicas
-@app.route('/')
-def index():
-    return send_from_directory('Client', 'index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
+# 🛠️ RUTAS ESPECÍFICAS PRIMERO (orden crítico)
+@app.route('/Client/js/<path:filename>')
+def serve_js_files(filename):
+    """Servir archivos JavaScript específicamente con content-type correcto"""
+    js_dir = os.path.join('.', 'Client', 'js')
     try:
-        # Intentar servir desde Client/ primero para archivos HTML
-        if path.endswith('.html'):
-            return send_from_directory('Client', path)
-        # Para otros archivos, intentar desde la raíz
-        return send_from_directory('.', path)
-    except:
-        # Si falla, servir index.html desde Client/
-        return send_from_directory('Client', 'index.html')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        return response
+    except Exception as e:
+        print(f"Error sirviendo JS {filename}: {e}")
+        abort(404)
 
-# ✅ NUEVAS: Rutas de archivos faltantes
+@app.route('/Client/css/<path:filename>')
+def serve_css_files(filename):
+    """Servir archivos CSS específicamente con content-type correcto"""
+    css_dir = os.path.join('.', 'Client', 'css')
+    try:
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        return response
+    except Exception as e:
+        print(f"Error sirviendo CSS {filename}: {e}")
+        abort(404)
+
 @app.route('/Client/uploads/<path:filename>')
 def serve_uploads(filename):
     """Servir archivos de uploads"""
@@ -147,11 +154,34 @@ def serve_audio(filename):
     audio_dir = os.path.join('.', 'Client', 'audio')
     return send_from_directory(audio_dir, filename)
 
+@app.route('/Client/assets/<path:filename>')
+def serve_assets(filename):
+    """Servir archivos assets"""
+    assets_dir = os.path.join('.', 'Client', 'assets')
+    return send_from_directory(assets_dir, filename)
+
 @app.route('/Client/<path:path>')
 def serve_client_files(path):
     """Servir archivos estáticos del cliente"""
     client_dir = os.path.join('.', 'Client')
     return send_from_directory(client_dir, path)
+
+# 🏠 RUTAS BÁSICAS (después de las específicas)
+@app.route('/')
+def index():
+    return send_from_directory('Client', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    try:
+        # Primero intentar HTML desde Client/
+        if path.endswith('.html'):
+            return send_from_directory('Client', path)
+        # Luego intentar desde raíz para otros archivos
+        return send_from_directory('.', path)
+    except:
+        # Fallback a index.html
+        return send_from_directory('Client', 'index.html')
 
 @app.route('/health')
 def health_check():
@@ -2265,7 +2295,7 @@ def debug_partidas_system():
                     CREATE TABLE IF NOT EXISTS partidas (
                         id SERIAL PRIMARY KEY,
                         codigo VARCHAR(20) UNIQUE NOT NULL,
-                        estado VARCHAR(20) DEFAULT 'esperando',
+                        estado VARCHAR(20) DEFAULT 'esperando' CHECK (estado IN ('esperando', 'iniciada', 'pausada', 'finalizada', 'cancelada')),
                         max_jugadores INTEGER DEFAULT 8,
                         jugadores_unidos INTEGER DEFAULT 0,
                         fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

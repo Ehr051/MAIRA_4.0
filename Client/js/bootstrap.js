@@ -89,6 +89,7 @@
             ],
             planeamiento: [
                 // Los archivos comunes ya están cargados en 'common'
+                '/Client/js/modules/planeamiento/testPlaneamiento.js'
             ],
             partidas: [
                 '/Client/js/common/partidas.js',
@@ -346,7 +347,31 @@
     if (!window.MAIRA) window.MAIRA = {};
     window.MAIRA.Bootstrap = window.MAIRABootstrap;
 
-    console.log('🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
+    // 🛠️ FUNCIÓN GLOBAL TOGGLEMENU PARA COMPATIBILIDAD
+    if (!window.toggleMenu) {
+        window.toggleMenu = function(menuId) {
+            console.log('� toggleMenu global ejecutado para:', menuId);
+            
+            // Buscar el elemento
+            const elemento = document.getElementById(menuId);
+            if (!elemento) {
+                console.warn('⚠️ Elemento no encontrado:', menuId);
+                return;
+            }
+            
+            // Toggle de la clase collapse/show
+            if (elemento.classList.contains('show')) {
+                elemento.classList.remove('show');
+                elemento.classList.add('collapse');
+            } else {
+                elemento.classList.remove('collapse');
+                elemento.classList.add('show');
+            }
+        };
+    }
+
+    console.log('�🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
     console.log('✅ MAIRABootstrap disponible globalmente');
+    console.log('🔧 toggleMenu global configurado');
 
 })();

@@ -408,9 +408,33 @@
     <div id="backToTop">
         <i class="fas fa-chevron-up"></i>
     </div>
+    
+    <!-- Scripts específicos del landing -->
     <script src="/Client/js/ui/landing3d.js"></script>
     <script src="/Client/js/ui/carrusel.js"></script>
     <script src="/Client/js/utils/validacion.js"></script>
+    
+    <!-- 🚀 MAIRA 4.0 DDD BOOTSTRAP SYSTEM -->
+    <script src="/Client/js/bootstrap.js"></script>
+
+    <!-- ⚡ INICIALIZACIÓN ESPECÍFICA DEL MÓDULO INDEX -->
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('🎯 Iniciando carga DDD para módulo INDEX...');
+        
+        try {
+            // Index no necesita cargar módulos pesados, solo core
+            if (window.MAIRABootstrap) {
+                await window.MAIRABootstrap.loadOrder.core;
+                console.log('✅ INDEX - Sistema DDD core cargado exitosamente');
+            } else {
+                console.error('❌ INDEX - MAIRABootstrap no disponible');
+            }
+        } catch (error) {
+            console.error('🔥 INDEX - Error en carga DDD:', error);
+        }
+    });
+    </script>
     
 </body>
 </html>
