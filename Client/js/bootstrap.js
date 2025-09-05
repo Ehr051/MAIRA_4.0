@@ -1,5 +1,5 @@
 /**
- * 🚀 MAIRA 4.0 - BOOTSTRAP LOADER
+ * 🚀 MAIRA 4.0 - BOOTSTRAP LOADER (LIMPIO)
  * Sistema de carga unificado siguiendo arquitectura DDD/Hexagonal
  * Un único punto de entrada para todos los módulos
  */
@@ -35,14 +35,14 @@
             '/Client/js/services/autonomousAgentService.js'
         ],
         
-        // 5. MÓDULOS COMUNES
+        // 5. MÓDULOS COMUNES (INCLUYE LAS FUNCIONES GLOBALES)
         common: [
             '/Client/js/common/MAIRAChat.js',
-            '/Client/js/common/indexP.js',
+            '/Client/js/common/indexP.js',        // ✅ toggleMenu se carga aquí
             '/Client/js/common/miradial.js',
             '/Client/js/common/panelMarcha.js',
             '/Client/js/common/mapaP.js',
-            '/Client/js/common/simbolosP.js',
+            '/Client/js/common/simbolosP.js',     // ✅ actualizarSidc y agregarMarcador se cargan aquí
             '/Client/js/common/herramientasP.js',
             '/Client/js/common/dibujosMCCP.js',
             '/Client/js/common/atajosP.js',
@@ -118,226 +118,157 @@
         ]
     };
 
+    /**
+     * 🏗️ CLASE BOOTSTRAP PRINCIPAL
+     */
     class MAIRABootstrap {
         constructor() {
-            this.loadedScripts = new Set();
-            this.moduleConfig = null;
-            this.currentModule = null;
-            this.enableTesting = window.location.search.includes('test=true');
+            this.loadedFiles = new Set();
+            this.loadingPromises = new Map();
+            this.errorFiles = new Set();
+            
+            console.log('🏗️ MAIRABootstrap inicializado');
         }
 
         /**
-         * 🎯 CARGA MÓDULOS SEGÚN EL CONTEXTO
+         * Cargar un archivo JavaScript individual
          */
-        async loadForModule(moduleName, additionalModules = []) {
-            console.log(`🚀 MAIRA Bootstrap - Iniciando carga para módulo: ${moduleName}`);
+        async loadFile(filePath) {
+            if (this.loadedFiles.has(filePath)) {
+                return Promise.resolve();
+            }
+
+            if (this.loadingPromises.has(filePath)) {
+                return this.loadingPromises.get(filePath);
+            }
+
+            const promise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = filePath;
+                script.type = 'text/javascript';
+                
+                script.onload = () => {
+                    this.loadedFiles.add(filePath);
+                    console.log(`✅ Cargado: ${filePath}`);
+                    resolve();
+                };
+                
+                script.onerror = (error) => {
+                    this.errorFiles.add(filePath);
+                    console.error(`❌ Error cargando: ${filePath}`, error);
+                    reject(new Error(`Failed to load ${filePath}`));
+                };
+                
+                document.head.appendChild(script);
+            });
+
+            this.loadingPromises.set(filePath, promise);
+            return promise;
+        }
+
+        /**
+         * Cargar múltiples archivos en paralelo
+         */
+        async loadFiles(filePaths) {
+            if (!Array.isArray(filePaths)) {
+                throw new Error('filePaths debe ser un array');
+            }
+
+            const promises = filePaths.map(path => 
+                this.loadFile(path).catch(error => {
+                    console.warn(`⚠️ Error opcional en ${path}:`, error);
+                    return null; // Continuar con otros archivos
+                })
+            );
+
+            await Promise.allSettled(promises);
+        }
+
+        /**
+         * Cargar en secuencia por categorías
+         */
+        async loadCategory(categoryName, files) {
+            console.log(`📂 Cargando categoría: ${categoryName}`);
+            
+            if (Array.isArray(files)) {
+                await this.loadFiles(files);
+            } else if (typeof files === 'object') {
+                // Es un objeto con subcategorías
+                for (const [subCat, subFiles] of Object.entries(files)) {
+                    console.log(`📂 Subcategoría: ${categoryName}.${subCat}`);
+                    await this.loadFiles(subFiles);
+                }
+            }
+            
+            console.log(`✅ Categoría completada: ${categoryName}`);
+        }
+
+        /**
+         * 🎯 CARGA ESPECÍFICA POR MÓDULO
+         */
+        async loadForModule(moduleName) {
+            console.log(`🎯 Cargando para módulo: ${moduleName}`);
             
             try {
-                this.currentModule = moduleName;
-
-                // 1. Cargar dependencias base en orden
-                await this.loadSequential(LOAD_ORDER.core);
-                await this.loadSequential(LOAD_ORDER.utils);
+                // 1. CORE (siempre necesario)
+                await this.loadCategory('core', LOAD_ORDER.core);
                 
-                // 2. Cargar infraestructura DDD
-                await this.loadSequential(LOAD_ORDER.infrastructure);
+                // 2. UTILS (siempre necesario)
+                await this.loadCategory('utils', LOAD_ORDER.utils);
                 
-                // 3. Cargar servicios DDD (Hexagonal Architecture)
-                await this.loadSequential(LOAD_ORDER.services);
+                // 3. INFRAESTRUCTURA
+                await this.loadCategory('infrastructure', LOAD_ORDER.infrastructure);
                 
-                // 4. Cargar módulos comunes
-                await this.loadSequential(LOAD_ORDER.common);
+                // 4. SERVICIOS
+                await this.loadCategory('services', LOAD_ORDER.services);
                 
-                // 5. Cargar handlers
-                await this.loadSequential(LOAD_ORDER.handlers);
-
-                // 6. Cargar según módulo específico
-                switch (moduleName) {
-                    case 'juego':
-                        await this.loadForJuego();
-                        break;
-                    case 'planeamiento':
-                        await this.loadForPlaneamiento();
-                        break;
-                    case 'organizacion':
-                        await this.loadForOrganizacion();
-                        break;
-                    case 'partidas':
-                        await this.loadForPartidas();
-                        break;
+                // 5. COMÚN (contiene las funciones globales)
+                await this.loadCategory('common', LOAD_ORDER.common);
+                
+                // 6. HANDLERS
+                await this.loadCategory('handlers', LOAD_ORDER.handlers);
+                
+                // 7. GESTORES (para juegos)
+                if (['juego', 'partidas', 'gestionBatalla'].includes(moduleName)) {
+                    await this.loadCategory('gestores', LOAD_ORDER.gestores);
                 }
-
-                // 7. Cargar módulos adicionales si se especifican
-                for (const additionalModule of additionalModules) {
-                    if (LOAD_ORDER.modules[additionalModule]) {
-                        await this.loadSequential(LOAD_ORDER.modules[additionalModule]);
-                    }
+                
+                // 8. MÓDULOS ESPECÍFICOS
+                if (LOAD_ORDER.modules[moduleName]) {
+                    await this.loadCategory(`modules.${moduleName}`, LOAD_ORDER.modules[moduleName]);
                 }
-
-                // 8. Cargar testing si está habilitado
-                if (this.enableTesting) {
-                    await this.loadSequential(LOAD_ORDER.testing);
+                
+                // 9. GAMING (si es necesario)
+                if (['juego', 'partidas'].includes(moduleName)) {
+                    await this.loadCategory('gaming', LOAD_ORDER.gaming);
                 }
-
-                // 9. Inicializar servicios DDD
-                await this.initializeServices();
-
-                console.log(`✅ MAIRA Bootstrap - ${moduleName} cargado completamente`);
-                this.notifyLoadComplete(moduleName);
-
+                
+                // 10. TESTING (solo en desarrollo)
+                if (window.location.hostname === 'localhost' || window.location.href.includes('test')) {
+                    await this.loadCategory('testing', LOAD_ORDER.testing);
+                }
+                
+                console.log(`🎉 MÓDULO ${moduleName.toUpperCase()} CARGADO COMPLETAMENTE`);
+                console.log(`📊 Archivos cargados: ${this.loadedFiles.size}`);
+                console.log(`❌ Archivos con error: ${this.errorFiles.size}`);
+                
             } catch (error) {
-                console.error(`❌ Error en bootstrap para ${moduleName}:`, error);
+                console.error(`💥 Error crítico cargando módulo ${moduleName}:`, error);
                 throw error;
             }
         }
 
         /**
-         * 🔧 INICIALIZAR SERVICIOS DDD
+         * 📊 INFORMACIÓN DE ESTADO
          */
-        async initializeServices() {
-            try {
-                console.log('🔧 Inicializando servicios DDD...');
-                
-                if (typeof MAIRAServicesManager !== 'undefined') {
-                    const servicesManager = await MAIRAServicesManager.autoInitialize();
-                    
-                    // Esperar a que todos los servicios estén listos
-                    return new Promise((resolve) => {
-                        const checkServices = () => {
-                            if (servicesManager.initialized) {
-                                console.log('✅ Servicios DDD inicializados correctamente');
-                                resolve(servicesManager);
-                            } else {
-                                setTimeout(checkServices, 100);
-                            }
-                        };
-                        checkServices();
-                    });
-                } else {
-                    console.warn('⚠️ MAIRAServicesManager no disponible');
-                }
-            } catch (error) {
-                console.error('❌ Error inicializando servicios DDD:', error);
-                // No bloquear la carga si fallan los servicios opcionales
-            }
-        }
-
-        /**
-         * 🎮 CARGA ESPECÍFICA PARA JUEGO
-         */
-        async loadForJuego() {
-            await this.loadSequential(LOAD_ORDER.gestores);
-            await this.loadSequential(LOAD_ORDER.modules.juego);
-            
-            // Gaming engine opcional
-            if (window.ENABLE_GAMING_ENGINE) {
-                await this.loadSequential(LOAD_ORDER.gaming);
-            }
-        }
-
-        /**
-         * 📋 CARGA ESPECÍFICA PARA PLANEAMIENTO
-         */
-        async loadForPlaneamiento() {
-            await this.loadSequential(LOAD_ORDER.modules.planeamiento);
-        }
-
-        /**
-         * 👥 CARGA ESPECÍFICA PARA ORGANIZACIÓN
-         */
-        async loadForOrganizacion() {
-            await this.loadSequential(LOAD_ORDER.modules.organizacion);
-        }
-
-        /**
-         * 🎯 CARGA ESPECÍFICA PARA PARTIDAS
-         */
-        async loadForPartidas() {
-            await this.loadSequential(LOAD_ORDER.modules.partidas);
-        }
-
-        /**
-         * 📥 CARGA SECUENCIAL DE SCRIPTS
-         */
-        async loadSequential(scripts) {
-            for (const script of scripts) {
-                await this.loadScript(script);
-            }
-        }
-
-        /**
-         * 📥 CARGA INDIVIDUAL DE SCRIPT
-         */
-        loadScript(src) {
-            return new Promise((resolve, reject) => {
-                // Evitar cargas duplicadas
-                if (this.loadedScripts.has(src)) {
-                    resolve();
-                    return;
-                }
-
-                const script = document.createElement('script');
-                script.src = src;
-                script.async = false; // Mantener orden
-                
-                script.onload = () => {
-                    this.loadedScripts.add(src);
-                    console.log(`✅ Cargado: ${src}`);
-                    resolve();
-                };
-                
-                script.onerror = () => {
-                    console.warn(`⚠️ Error cargando: ${src}`);
-                    reject(new Error(`Failed to load script: ${src}`));
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
-
-        /**
-         * 📢 NOTIFICAR CARGA COMPLETA
-         */
-        notifyLoadComplete(moduleName) {
-            // Disparar evento personalizado
-            const event = new CustomEvent('mairaBootstrapComplete', {
-                detail: {
-                    module: moduleName,
-                    loadedScripts: Array.from(this.loadedScripts),
-                    timestamp: new Date().toISOString()
-                }
-            });
-            
-            document.dispatchEvent(event);
-            
-            // También en namespace global
-            if (window.MAIRA) {
-                window.MAIRA.bootstrapComplete = true;
-                window.MAIRA.currentModule = moduleName;
-            }
-        }
-
-        /**
-         * 🔍 OBTENER ESTADO DE CARGA
-         */
-        getLoadStatus() {
+        getStatus() {
             return {
-                currentModule: this.currentModule,
-                loadedScripts: Array.from(this.loadedScripts),
-                totalScripts: this.loadedScripts.size,
-                testingEnabled: this.enableTesting
+                loaded: Array.from(this.loadedFiles),
+                errors: Array.from(this.errorFiles),
+                total: this.loadedFiles.size + this.errorFiles.size
             };
         }
     }
-
-    // 🌍 EXPORTAR GLOBALMENTE
-    window.MAIRABootstrap = MAIRABootstrap;
-
-    // 🚀 FUNCIÓN DE CARGA CONVENIENTE
-    window.loadMAIRAModule = async function(moduleName, additionalModules = []) {
-        const bootstrap = new MAIRABootstrap();
-        return await bootstrap.loadForModule(moduleName, additionalModules);
-    };
 
     // ✅ EXPORTAR EL BOOTSTRAP GLOBALMENTE
     window.MAIRABootstrap = new MAIRABootstrap();
@@ -346,52 +277,13 @@
     if (!window.MAIRA) window.MAIRA = {};
     window.MAIRA.Bootstrap = window.MAIRABootstrap;
 
-    // 🌍 FUNCIONES GLOBALES CRÍTICAS PARA COMPATIBILIDAD
-    
-    // toggleMenu - Función crítica para navegación
-    window.toggleMenu = function() {
-        const menu = document.querySelector('.menu-container, .navigation, .sidebar, .menu');
-        if (menu) {
-            if (menu.style.display === 'none' || !menu.style.display) {
-                menu.style.display = 'block';
-            } else {
-                menu.style.display = 'none';
-            }
-        } else {
-            console.warn('🔍 toggleMenu: No se encontró elemento de menú');
-        }
-    };
+    // 🔍 FUNCIONES GLOBALES SE CARGAN DESDE SUS MÓDULOS RESPECTIVOS
+    // - toggleMenu: se carga desde /Client/js/common/indexP.js
+    // - actualizarSidc: se carga desde /Client/js/common/simbolosP.js  
+    // - agregarMarcador: se carga desde /Client/js/common/simbolosP.js
 
-    // actualizarSidc - Función crítica para símbolos militares
-    window.actualizarSidc = function(nuevoCaracter) {
-        console.log('� actualizarSidc:', nuevoCaracter);
-        // Buscar función específica en simbolosP.js
-        if (window.simbolosP && typeof window.simbolosP.actualizarSidc === 'function') {
-            return window.simbolosP.actualizarSidc(nuevoCaracter);
-        }
-        // Fallback: buscar globalmente
-        if (typeof actualizarSidc === 'function') {
-            return actualizarSidc(nuevoCaracter);
-        }
-        console.warn('⚠️ actualizarSidc no está disponible');
-    };
-
-    // agregarMarcador - Función crítica para marcadores
-    window.agregarMarcador = function(sidc, nombre) {
-        console.log('📍 agregarMarcador:', sidc, nombre);
-        // Buscar función específica en simbolosP.js
-        if (window.simbolosP && typeof window.simbolosP.agregarMarcador === 'function') {
-            return window.simbolosP.agregarMarcador(sidc, nombre);
-        }
-        // Fallback: buscar globalmente
-        if (typeof agregarMarcador === 'function') {
-            return agregarMarcador(sidc, nombre);
-        }
-        console.warn('⚠️ agregarMarcador no está disponible');
-    };
-
-    console.log('�🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
+    console.log('🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
     console.log('✅ MAIRABootstrap disponible globalmente');
-    console.log('🌍 Funciones globales críticas definidas: toggleMenu, actualizarSidc, agregarMarcador');
+    console.log('🔍 Funciones globales (toggleMenu, actualizarSidc, agregarMarcador) se cargan desde sus módulos respectivos');
 
 })();

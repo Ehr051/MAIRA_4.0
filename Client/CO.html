@@ -733,27 +733,5 @@
         <button id="zoomResetBtn" title="Restablecer zoom"><i class="fas fa-sync-alt"></i></button>
     </div>
 
-<!-- 🚀 MAIRA 4.0 DDD BOOTSTRAP SYSTEM -->
-<script src="/Client/js/bootstrap.js"></script>
-
-<!-- ⚡ INICIALIZACIÓN ESPECÍFICA DEL MÓDULO CO -->
-<script>
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🎯 Iniciando carga DDD para módulo ORGANIZACIÓN...');
-    
-    try {
-        // Cargar módulo ORGANIZACIÓN usando bootstrap DDD
-        if (window.MAIRABootstrap) {
-            await window.MAIRABootstrap.loadForModule('organizacion');
-            console.log('✅ ORGANIZACIÓN - Sistema DDD cargado exitosamente');
-        } else {
-            console.error('❌ ORGANIZACIÓN - MAIRABootstrap no disponible');
-        }
-    } catch (error) {
-        console.error('🔥 ORGANIZACIÓN - Error en carga DDD:', error);
-    }
-});
-</script>
-
 </body>
 </html>
