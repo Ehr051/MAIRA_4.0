@@ -263,4 +263,8 @@ if (typeof maiCore !== 'undefined') {
     maiCore.registerService('userIdentity', new UserIdentityService(maiCore));
 }
 
-export default UserIdentityService;
+// ✅ CORREGIDO: No usar export en script regular
+// export default UserIdentityService;
+
+// En su lugar, hacer disponible globalmente
+window.UserIdentityService = UserIdentityService;

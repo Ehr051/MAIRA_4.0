@@ -19,8 +19,8 @@ const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
             'https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/'
         ];
 
-// Ruta para tiles clásicos (legacy)
-const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
+// Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
+const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
 
 // Índice de tiles
 let tileIndex;
@@ -158,7 +158,7 @@ async function cargarDatosElevacion(bounds) {
       return null;
     } else {
       // Formato clásico
-      tilePath = `${TILE_FOLDER_PATH}/${tile.filename}`;
+      tilePath = `${ELEVATION_TILE_FOLDER_PATH}/${tile.filename}`;
       
       // Cargar los datos de elevación del tile encontrado
       const tileData = await loadTileData(tilePath);

@@ -13,11 +13,17 @@
     <link rel="stylesheet" href="/Client/css/modules/iniciarpartida/iniciarpartida.css">
     <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
     <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
+    
+    <!-- Librerías externas necesarias ANTES del bootstrap -->
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/node_modules/proj4/dist/proj4.js"></script>
+    
     <!-- =============================================
          NUEVA ARQUITECTURA DDD/HEXAGONAL
          Bootstrap unificado que maneja todas las dependencias
          ============================================= -->
-    <script src="js/bootstrap.js"></script>
+    <script src="/Client/js/bootstrap.js"></script>
     <script>
         // Inicialización DDD para módulo Partidas
         document.addEventListener('DOMContentLoaded', async function() {
