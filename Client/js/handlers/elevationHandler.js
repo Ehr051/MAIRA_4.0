@@ -393,28 +393,15 @@ async function procesarElevacionDirecto(puntosInterpolados) {
             distancia: Math.round(distanciaAcumulada),
             elevation: elevation,
             lat: punto.lat,
-            lng: punto.lng,
-            pendiente: 0
+            lng: punto.lng
+            // ⚠️ PENDIENTE REMOVIDA - Ahora la calcula slopeAnalysisService
         });
     }
     
-    // Calcular pendientes
-    for (let i = 1; i < resultados.length; i++) {
-        const actual = resultados[i];
-        const anterior = resultados[i - 1];
-        const distanciaParcial = actual.distancia - anterior.distancia;
-        const elevacionParcial = actual.elevation - anterior.elevation;
-        
-        if (distanciaParcial > 0) {
-            actual.pendiente = (elevacionParcial / distanciaParcial) * 100;
-            // Limitar pendientes extremas
-            if (Math.abs(actual.pendiente) > 100) {
-                actual.pendiente = Math.sign(actual.pendiente) * 100;
-            }
-        }
-    }
+    // ✅ HANDLER SOLO RETORNA DATOS RAW - Sin cálculos de pendiente
+    // Los services especializados harán los análisis
     
-    console.log(`✅ Procesamiento directo completado: ${resultados.length} puntos`);
+    console.log(`✅ Datos de elevación obtenidos: ${resultados.length} puntos`);
     return resultados;
 }
 
