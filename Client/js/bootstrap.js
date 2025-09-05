@@ -12,7 +12,7 @@
         // 1. CORE FUNDAMENTALES
         core: [
             '/Client/js/common/networkConfig.js',
-            '/Client/js/common/UserIdentity.js'
+            '/Client/js/core/UserIdentity.js'  // ✅ CORREGIDO: está en core/, no common/
         ],
         
         // 2. UTILIDADES BASE
@@ -25,13 +25,7 @@
             '/Client/js/infrastructure/terrainAdapter.js'
         ],
         
-        // 4. HANDLERS (Carga y gestión de datos especializados)
-        handlers: [
-            '/Client/js/handlers/elevationHandler.js',
-            '/Client/js/handlers/vegetacionhandler.js'
-        ],
-        
-        // 5. SERVICIOS DDD (Hexagonal Architecture)
+        // 4. SERVICIOS DDD (Hexagonal Architecture)
         services: [
             '/Client/js/services/servicesManager.js',
             '/Client/js/services/transitabilityService.js',
@@ -95,7 +89,6 @@
             ],
             planeamiento: [
                 // Los archivos comunes ya están cargados en 'common'
-                '/Client/js/modules/planeamiento/testPlaneamiento.js'
             ],
             partidas: [
                 '/Client/js/common/partidas.js',
@@ -149,14 +142,14 @@
                 // 2. Cargar infraestructura DDD
                 await this.loadSequential(LOAD_ORDER.infrastructure);
                 
-                // 3. Cargar handlers especializados (datos)
-                await this.loadSequential(LOAD_ORDER.handlers);
-                
-                // 4. Cargar servicios DDD (Hexagonal Architecture)
+                // 3. Cargar servicios DDD (Hexagonal Architecture)
                 await this.loadSequential(LOAD_ORDER.services);
                 
-                // 5. Cargar módulos comunes
+                // 4. Cargar módulos comunes
                 await this.loadSequential(LOAD_ORDER.common);
+                
+                // 5. Cargar handlers
+                await this.loadSequential(LOAD_ORDER.handlers);
 
                 // 6. Cargar según módulo específico
                 switch (moduleName) {
@@ -353,31 +346,52 @@
     if (!window.MAIRA) window.MAIRA = {};
     window.MAIRA.Bootstrap = window.MAIRABootstrap;
 
-    // 🛠️ FUNCIÓN GLOBAL TOGGLEMENU PARA COMPATIBILIDAD
-    if (!window.toggleMenu) {
-        window.toggleMenu = function(menuId) {
-            console.log('� toggleMenu global ejecutado para:', menuId);
-            
-            // Buscar el elemento
-            const elemento = document.getElementById(menuId);
-            if (!elemento) {
-                console.warn('⚠️ Elemento no encontrado:', menuId);
-                return;
-            }
-            
-            // Toggle de la clase collapse/show
-            if (elemento.classList.contains('show')) {
-                elemento.classList.remove('show');
-                elemento.classList.add('collapse');
+    // 🌍 FUNCIONES GLOBALES CRÍTICAS PARA COMPATIBILIDAD
+    
+    // toggleMenu - Función crítica para navegación
+    window.toggleMenu = function() {
+        const menu = document.querySelector('.menu-container, .navigation, .sidebar, .menu');
+        if (menu) {
+            if (menu.style.display === 'none' || !menu.style.display) {
+                menu.style.display = 'block';
             } else {
-                elemento.classList.remove('collapse');
-                elemento.classList.add('show');
+                menu.style.display = 'none';
             }
-        };
-    }
+        } else {
+            console.warn('🔍 toggleMenu: No se encontró elemento de menú');
+        }
+    };
+
+    // actualizarSidc - Función crítica para símbolos militares
+    window.actualizarSidc = function(nuevoCaracter) {
+        console.log('� actualizarSidc:', nuevoCaracter);
+        // Buscar función específica en simbolosP.js
+        if (window.simbolosP && typeof window.simbolosP.actualizarSidc === 'function') {
+            return window.simbolosP.actualizarSidc(nuevoCaracter);
+        }
+        // Fallback: buscar globalmente
+        if (typeof actualizarSidc === 'function') {
+            return actualizarSidc(nuevoCaracter);
+        }
+        console.warn('⚠️ actualizarSidc no está disponible');
+    };
+
+    // agregarMarcador - Función crítica para marcadores
+    window.agregarMarcador = function(sidc, nombre) {
+        console.log('📍 agregarMarcador:', sidc, nombre);
+        // Buscar función específica en simbolosP.js
+        if (window.simbolosP && typeof window.simbolosP.agregarMarcador === 'function') {
+            return window.simbolosP.agregarMarcador(sidc, nombre);
+        }
+        // Fallback: buscar globalmente
+        if (typeof agregarMarcador === 'function') {
+            return agregarMarcador(sidc, nombre);
+        }
+        console.warn('⚠️ agregarMarcador no está disponible');
+    };
 
     console.log('�🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
     console.log('✅ MAIRABootstrap disponible globalmente');
-    console.log('🔧 toggleMenu global configurado');
+    console.log('🌍 Funciones globales críticas definidas: toggleMenu, actualizarSidc, agregarMarcador');
 
 })();

@@ -973,28 +973,5 @@
       <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
     </div>
   </main>
-
-<!-- 🚀 MAIRA 4.0 DDD BOOTSTRAP SYSTEM -->
-<script src="/Client/js/bootstrap.js"></script>
-
-<!-- ⚡ INICIALIZACIÓN ESPECÍFICA DEL MÓDULO JUEGO -->
-<script>
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🎯 Iniciando carga DDD para módulo JUEGO...');
-    
-    try {
-        // Cargar módulo JUEGO usando bootstrap DDD
-        if (window.MAIRABootstrap) {
-            await window.MAIRABootstrap.loadForModule('juego');
-            console.log('✅ JUEGO - Sistema DDD cargado exitosamente');
-        } else {
-            console.error('❌ JUEGO - MAIRABootstrap no disponible');
-        }
-    } catch (error) {
-        console.error('🔥 JUEGO - Error en carga DDD:', error);
-    }
-});
-</script>
-
 </body>
 </html>
