@@ -25,7 +25,13 @@
             '/Client/js/infrastructure/terrainAdapter.js'
         ],
         
-        // 4. SERVICIOS DDD (Hexagonal Architecture)
+        // 4. HANDLERS (Carga y gestión de datos especializados)
+        handlers: [
+            '/Client/js/handlers/elevationHandler.js',
+            '/Client/js/handlers/vegetacionhandler.js'
+        ],
+        
+        // 5. SERVICIOS DDD (Hexagonal Architecture)
         services: [
             '/Client/js/services/servicesManager.js',
             '/Client/js/services/transitabilityService.js',
@@ -143,14 +149,14 @@
                 // 2. Cargar infraestructura DDD
                 await this.loadSequential(LOAD_ORDER.infrastructure);
                 
-                // 3. Cargar servicios DDD (Hexagonal Architecture)
+                // 3. Cargar handlers especializados (datos)
+                await this.loadSequential(LOAD_ORDER.handlers);
+                
+                // 4. Cargar servicios DDD (Hexagonal Architecture)
                 await this.loadSequential(LOAD_ORDER.services);
                 
-                // 4. Cargar módulos comunes
+                // 5. Cargar módulos comunes
                 await this.loadSequential(LOAD_ORDER.common);
-                
-                // 5. Cargar handlers
-                await this.loadSequential(LOAD_ORDER.handlers);
 
                 // 6. Cargar según módulo específico
                 switch (moduleName) {
