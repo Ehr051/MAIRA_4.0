@@ -20,6 +20,7 @@
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="/node_modules/proj4/dist/proj4.js"></script>
     
     <!-- Export Libraries -->
     <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
@@ -38,7 +39,8 @@
                 { nombre: 'jQuery', objeto: 'jQuery' },
                 { nombre: 'Leaflet', objeto: 'L' },
                 { nombre: 'milsymbol', objeto: 'ms' },
-                { nombre: 'jsPlumb', objeto: 'jsPlumb' }
+                { nombre: 'jsPlumb', objeto: 'jsPlumb' },
+                { nombre: 'proj4', objeto: 'proj4' }
             ];
             
             const dependenciasFaltantes = dependenciasRequeridas.filter(dep => 

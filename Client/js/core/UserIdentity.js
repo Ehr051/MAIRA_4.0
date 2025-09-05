@@ -4,12 +4,13 @@
  * @version 2.0.0 - Adaptado para arquitectura hexagonal
  */
 
-import maiCore from './index.js';
+// ✅ CORREGIDO: No usar import en script regular
+// import maiCore from './index.js';
 
 // Módulo de identidad de usuario - Refactorizado para arquitectura hexagonal
 class UserIdentityService {
     constructor(core) {
-        this.core = core;
+        this.core = core || window.MAIRA;
         this.userData = null;
         
         // Backward compatibility

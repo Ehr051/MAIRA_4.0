@@ -3,13 +3,14 @@
 // URL base para GitHub Releases mini-tiles v3.0
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 
-    // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES
-        const ELEVATION_GITHUB_RELEASES = [
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
-        ];
+    // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES - ELEVATION HANDLER
+    const ELEVATION_GITHUB_RELEASES = [
+        'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+        'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+    ];
 
-        const MINI_TILES_FALLBACK_URLS = [
+    // URLs de fallback específicas para ELEVATION HANDLER
+    const ELEVATION_TILES_FALLBACK_URLS = [
             ...ELEVATION_GITHUB_RELEASES,
             'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
             '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
@@ -42,7 +43,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
     const urls = [
         `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`,
         'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-        ...MINI_TILES_FALLBACK_URLS.map(url => url.endsWith('/') ? `${url}master_mini_tiles_index.json` : `${url}/master_mini_tiles_index.json`)
+        ...ELEVATION_TILES_FALLBACK_URLS.map(url => url.endsWith('/') ? `${url}master_mini_tiles_index.json` : `${url}/master_mini_tiles_index.json`)
     ];  // Intentar cargar desde cada URL secuencialmente
   (async () => {
     let lastError = null;
