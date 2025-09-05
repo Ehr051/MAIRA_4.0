@@ -9,8 +9,8 @@ const MINI_TILES_FALLBACK_URLS = [
   'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/mini_tiles_github/'
 ];
 
-// Ruta para tiles clásicos
-const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria';
+// Ruta para tiles clásicos - COMMON ELEVATION HANDLER
+const COMMON_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria';
 
 // Índice de tiles
 let tileIndex;
@@ -151,7 +151,7 @@ async function cargarDatosElevacion(bounds) {
       return null;
     } else {
       // Formato clásico
-      tilePath = `${TILE_FOLDER_PATH}/${tile.filename}`;
+      tilePath = `${COMMON_TILE_FOLDER_PATH}/${tile.filename}`;
       
       // Cargar los datos de elevación del tile encontrado
       const tileData = await loadTileData(tilePath);
