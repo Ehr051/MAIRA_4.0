@@ -377,8 +377,11 @@
         
         async loadHandlersForModule(moduleName) {
             const handlersByModule = {
-                'home': [], // Home no necesita handlers complejos
+                'home': [
+                    '/Client/js/handlers/dependency-manager.js'  // ✅ CRÍTICO: Dependency manager para cargar Leaflet/etc
+                ],
                 'planeamiento': [
+                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
                     '/Client/js/utils/geometryUtils.js',
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
@@ -386,6 +389,7 @@
                     '/Client/js/handlers/elevationHandler.js'
                 ],
                 'gestionBatalla': [
+                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
                     '/Client/js/utils/geometryUtils.js',
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
@@ -393,6 +397,7 @@
                     '/Client/js/handlers/edicionGB.js'
                 ],
                 'organizacion': [
+                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
                     '/Client/js/handlers/CO.js'
                 ],
                 'juego': LOAD_ORDER.handlers // Juego necesita todos
