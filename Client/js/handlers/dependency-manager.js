@@ -42,7 +42,24 @@ class DependencyManager {
             'proj4': '/node_modules/proj4/dist/proj4.js',
             'html2canvas': '/node_modules/html2canvas/dist/html2canvas.min.js',
             'jspdf': '/node_modules/jspdf/dist/jspdf.umd.min.js',
-            'file-saver': '/node_modules/file-saver/dist/FileSaver.min.js'
+            'file-saver': '/node_modules/file-saver/dist/FileSaver.min.js',
+            
+            // ========== DEPENDENCIAS ADICIONALES DEL PACKAGE.JSON ==========
+            'leaflet-bing-layer': '/node_modules/leaflet-bing-layer/leaflet-bing-layer.js',
+            'leaflet-polylinedecorator': '/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js',
+            'leaflet-search': '/node_modules/leaflet-search/dist/leaflet-search.min.js',
+            'leaflet-search-css': '/node_modules/leaflet-search/dist/leaflet-search.min.css',
+            'leaflet-utfgrid': '/node_modules/leaflet-utfgrid/L.UTFGrid.js',
+            'leaflet-googlemutant': '/node_modules/leaflet.gridlayer.googlemutant/Leaflet.GoogleMutant.js',
+            'leaflet-elevation': '/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.js',
+            'leaflet-elevation-css': '/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css',
+            'geotiff': '/node_modules/geotiff/dist-browser/geotiff.js',
+            'mgrs': '/node_modules/mgrs/mgrs.js',
+            'jsplumb': '/node_modules/jsplumb/dist/js/jsplumb.min.js',
+            
+            // ========== FONTAWESOME ==========
+            'fontawesome-css': '/node_modules/@fortawesome/fontawesome-free/css/all.min.css',
+            'fontawesome-js': '/node_modules/@fortawesome/fontawesome-free/js/all.min.js'
         };
         
         // 🌐 FALLBACK: CDN solo si node_modules falla
@@ -63,7 +80,25 @@ class DependencyManager {
             'milsymbol': 'https://unpkg.com/milsymbol@2.2.0/dist/milsymbol.js',
             'd3': 'https://unpkg.com/d3@7.8.4/dist/d3.min.js',
             'socket.io-client': 'https://unpkg.com/socket.io-client@4.8.0/dist/socket.io.min.js',
-            'proj4': 'https://unpkg.com/proj4@2.12.1/dist/proj4.js'
+            'proj4': 'https://unpkg.com/proj4@2.12.1/dist/proj4.js',
+            
+            // ========== FALLBACKS CDN ADICIONALES ==========
+            'html2canvas': 'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js',
+            'jspdf': 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
+            'file-saver': 'https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js',
+            'leaflet-bing-layer': 'https://unpkg.com/leaflet-bing-layer@3.3.1/leaflet-bing-layer.js',
+            'leaflet-polylinedecorator': 'https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js',
+            'leaflet-search': 'https://unpkg.com/leaflet-search@3.0.11/dist/leaflet-search.min.js',
+            'leaflet-search-css': 'https://unpkg.com/leaflet-search@3.0.11/dist/leaflet-search.min.css',
+            'leaflet-utfgrid': 'https://unpkg.com/leaflet-utfgrid@0.3.0/L.UTFGrid.js',
+            'leaflet-googlemutant': 'https://unpkg.com/leaflet.gridlayer.googlemutant@0.13.5/Leaflet.GoogleMutant.js',
+            'leaflet-elevation': 'https://unpkg.com/@raruto/leaflet-elevation@2.5.1/dist/leaflet-elevation.js',
+            'leaflet-elevation-css': 'https://unpkg.com/@raruto/leaflet-elevation@2.5.1/dist/leaflet-elevation.css',
+            'geotiff': 'https://unpkg.com/geotiff@2.1.3/dist-browser/geotiff.js',
+            'mgrs': 'https://unpkg.com/mgrs@1.0.0/mgrs.js',
+            'jsplumb': 'https://unpkg.com/jsplumb@2.15.6/dist/js/jsplumb.min.js',
+            'fontawesome-css': 'https://unpkg.com/@fortawesome/fontawesome-free@7.0.1/css/all.min.css',
+            'fontawesome-js': 'https://unpkg.com/@fortawesome/fontawesome-free@7.0.1/js/all.min.js'
         };
         
         this.loadedDependencies = new Set();
