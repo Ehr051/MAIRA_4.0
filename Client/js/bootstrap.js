@@ -59,6 +59,9 @@
         
         // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN) + MÓDULOS REFACTORIZADOS
         handlers: [
+            // Dependency Manager PRIMERO - necesario para cargar librerías externas
+            '/Client/js/handlers/dependency-manager.js',    // ✅ NUEVO: Gestor de dependencias CDN/node_modules
+            
             // Handlers originales de terreno
             '/Client/js/handlers/elevationHandler.js',      // ✅ CORREGIDO: está en handlers/
             '/Client/js/handlers/vegetacionhandler.js',     // ✅ CORREGIDO: está en handlers/

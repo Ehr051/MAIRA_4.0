@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
     <script src="https://kit.fontawesome.com/707f71e5d4.js" crossorigin="anonymous"></script>
     
-    <!-- ✅ MIGRADO A NODE_MODULES PARA OFFLINE -->
-    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="/node_modules/proj4/dist/proj4.js"></script>
+    <!-- ✅ JQUERY Y PROJ4 DESDE CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
     
     <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
     <script src="/Client/js/bootstrap.js"></script>
@@ -31,7 +31,6 @@
                     console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
                     // Fallback: cargar scripts manualmente si bootstrap falla
                     const scripts = [
-                        '/Client/js/common/networkConfig.js',
                         '/Client/js/utils/config.js',
                         '/Client/js/Test/MAIRATestSuite.js',
                         '/Client/js/Test/testButtons.js',
