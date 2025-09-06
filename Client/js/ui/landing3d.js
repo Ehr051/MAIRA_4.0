@@ -25,12 +25,21 @@ function initLandingPage() {
     
     // Botón de comenzar (acceso directo al login)
     const btnComenzar = document.getElementById("btnComenzar");
+    console.log("🔍 DEBUG btnComenzar:", btnComenzar ? "ENCONTRADO" : "NO ENCONTRADO");
+    
     if (btnComenzar) {
+        console.log("✅ Agregando event listener a btnComenzar");
         btnComenzar.addEventListener("click", (e) => {
+            console.log("🎯 CLICK en btnComenzar detectado!");
             e.preventDefault();
+            console.log("📋 Container antes:", container?.classList.toString());
             container.classList.add("active");
+            console.log("📋 Container después:", container?.classList.toString());
+            console.log("🔄 Llamando showLoginForm()");
             showLoginForm();
         });
+    } else {
+        console.error("❌ btnComenzar no encontrado en el DOM");
     }
     
     // Evento para el menú hamburguesa
@@ -142,9 +151,18 @@ if (hamburgerMenu) {
 
 // Función para mostrar el formulario de login
 function showLoginForm() {
+    console.log("🔄 showLoginForm() ejecutada");
+    console.log("📋 Elementos DOM:", {
+        sideMenu: sideMenu ? "EXISTE" : "NO EXISTE",
+        loginForm: loginForm ? "EXISTE" : "NO EXISTE", 
+        crearUsuarioForm: crearUsuarioForm ? "EXISTE" : "NO EXISTE"
+    });
+    
     if (sideMenu) sideMenu.style.display = "none";
     if (loginForm) loginForm.style.display = "block";
     if (crearUsuarioForm) crearUsuarioForm.style.display = "none";
+    
+    console.log("✅ showLoginForm() completada");
 }
 
 // Función para mostrar el formulario de creación de usuario
