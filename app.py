@@ -134,6 +134,36 @@ def serve_static(path):
         # Si falla, servir index.html desde Client/
         return send_from_directory('Client', 'index.html')
 
+# ✅ CRÍTICO: Rutas específicas para node_modules (CDN local)
+@app.route('/node_modules/<path:filename>')
+def serve_node_modules(filename):
+    """Servir archivos de node_modules con content-type correcto"""
+    from flask import Response
+    try:
+        node_modules_dir = os.path.join('.', 'node_modules')
+        if not os.path.exists(node_modules_dir):
+            # Fallback: si no existe node_modules, devolver error
+            return f"console.error('node_modules not found');", 404, {'Content-Type': 'application/javascript'}
+        
+        response = send_from_directory(node_modules_dir, filename)
+        
+        # Configurar content-type según extensión
+        if filename.endswith('.js'):
+            response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        elif filename.endswith('.css'):
+            response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        elif filename.endswith('.map'):
+            response.headers['Content-Type'] = 'application/json; charset=utf-8'
+        
+        response.headers['Cache-Control'] = 'public, max-age=31536000'  # Cache por 1 año
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo node_modules {filename}: {e}")
+        if filename.endswith('.js'):
+            return f"console.error('Error loading {filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+        else:
+            return f"/* Error loading {filename}: {e} */", 500, {'Content-Type': 'text/css'}
+
 # ✅ CRÍTICO: Rutas específicas para JavaScript
 @app.route('/Client/js/<path:filename>')
 def serve_javascript(filename):

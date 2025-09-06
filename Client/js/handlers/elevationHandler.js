@@ -23,7 +23,8 @@ const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
 
 // Índice de tiles
-let tileIndex;
+// Variables de estado específicas del elevation handler
+let elevationTileIndex;
 let indiceCargado = false;
 
 // Cargar el índice de tiles al iniciar
@@ -59,7 +60,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
         if (data.provincias && typeof data.provincias === 'object') {
           // Es el formato de mini-tiles
           console.log('✅ Formato mini-tiles detectado');
-          tileIndex = data;
+          elevationTileIndex = response;
           indiceCargado = true;
           console.log('Índice de tiles cargado correctamente.');
           resolve();
@@ -73,7 +74,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
               throw new Error(`El tile con clave '${key}' no tiene la estructura correcta.`);
             }
           }
-          tileIndex = data.tiles;
+          elevationTileIndex = data.tiles;
           indiceCargado = true;
           console.log('Índice de tiles cargado correctamente.');
           resolve();
@@ -110,7 +111,7 @@ async function cargarDatosElevacion(bounds) {
     await cargarIndiceTiles;
   }
 
-  if (!tileIndex) {
+  if (!elevationTileIndex) {
     console.warn('El índice de tiles no se ha cargado aún.');
     return null;
   }
@@ -201,14 +202,14 @@ async function loadTileData(tilePath) {
 async function buscarTileCorrespondiente(bounds) {
   
   // Si tenemos índice maestro de mini-tiles, necesitamos cargar la provincia apropiada
-  if (tileIndex && tileIndex.provincias) {
+  if (elevationTileIndex && elevationTileIndex.provincias) {
     const tile = await buscarTileEnProvincias(bounds);
     if (tile) return tile;
   }
   
   // Búsqueda en formato clásico
-  for (const tileKey in tileIndex) {
-    const tile = tileIndex[tileKey];
+  for (const tileKey in elevationTileIndex) {
+    const tile = elevationTileIndex[tileKey];
     if (!tile.bounds) {
       continue;
     }
@@ -231,7 +232,7 @@ async function buscarTileCorrespondiente(bounds) {
 
 // Nueva función para buscar tiles en provincias del formato mini-tiles
 async function buscarTileEnProvincias(bounds) {
-  const masterIndex = tileIndex;
+  const masterIndex = elevationTileIndex;
   
   // Determinar qué provincia puede contener estas coordenadas
   const lat = (bounds.north + bounds.south) / 2;
@@ -531,7 +532,7 @@ async function obtenerElevacion(lat, lon) {
 function obtenerEstadoSistema() {
   return {
     indiceCargado: !!indiceCargado,
-    tileIndex: tileIndex ? 'Cargado' : 'No cargado',
+    tileIndex: elevationTileIndex ? 'Cargado' : 'No cargado',
   };
 }
 

@@ -12,7 +12,8 @@
         // 1. CORE FUNDAMENTALES
         core: [
             '/Client/js/common/networkConfig.js',
-            '/Client/js/core/UserIdentity.js'  // ✅ CORREGIDO: está en core/, no common/
+            '/Client/js/core/UserIdentity.js'       // ✅ CORREGIDO: está en core/, no common/
+            // Nota: core/index.js y config/index.js usan ES6 modules - se cargan por separado
         ],
         
         // 2. UTILIDADES BASE
@@ -44,7 +45,10 @@
             '/Client/js/common/panelMarcha.js',
             '/Client/js/common/mapaP.js',
             '/Client/js/common/simbolosP.js',     // ✅ actualizarSidc y agregarMarcador se cargan aquí
-            '/Client/js/common/herramientasP.js',
+            '/Client/js/common/herramientasP.js',  // ✅ REFACTORIZADO: Ahora es stub de compatibilidad
+            // '/Client/js/common/herramientasP.js',  // ❌ REFACTORIZADO: Reemplazado por módulos especializados
+            '/Client/js/common/migrationMap.js',      // 📋 NUEVO: Documentación de la refactorización
+            '/Client/js/common/toolsInitializer.js',  // ✅ NUEVO: Inicializador de herramientas refactorizadas
             '/Client/js/common/dibujosMCCP.js',
             '/Client/js/common/atajosP.js',
             '/Client/js/common/CalculoMarcha.js',
@@ -53,13 +57,21 @@
             '/Client/js/utils/calcosP.js'
         ],
         
-        // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN)
+        // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN) + MÓDULOS REFACTORIZADOS
         handlers: [
+            // Handlers originales de terreno
             '/Client/js/handlers/elevationHandler.js',      // ✅ CORREGIDO: está en handlers/
             '/Client/js/handlers/vegetacionhandler.js',     // ✅ CORREGIDO: está en handlers/
             '/Client/js/workers/elevation.worker.js',       // ✅ CORREGIDO: worker está en workers/
             '/Client/js/handlers/measurement-touch-optimizer.js',
-            '/Client/js/ui/mobile-optimizer.js'
+            '/Client/js/ui/mobile-optimizer.js',
+            
+            // ✅ NUEVOS MÓDULOS REFACTORIZADOS (reemplazando herramientasP.js)
+            '/Client/js/utils/geometryUtils.js',            // Utilidades geométricas primero
+            '/Client/js/handlers/mobileOptimizationHandler.js',  // Optimización móvil
+            '/Client/js/handlers/mapInteractionHandler.js', // Interacciones del mapa
+            '/Client/js/services/elevationProfileService.js',   // Servicio de perfiles
+            '/Client/js/handlers/measurementHandler.js'     // Medición de distancia (último - depende de otros)
         ],
         
         // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
@@ -245,16 +257,16 @@
                 // 3. INFRAESTRUCTURA
                 await this.loadCategory('infrastructure', LOAD_ORDER.infrastructure);
                 
-                // 4. SERVICIOS
-                await this.loadCategory('services', LOAD_ORDER.services);
+                // 4. SERVICIOS (solo los necesarios por módulo)
+                await this.loadServicesForModule(moduleName);
                 
-                // 5. COMÚN (contiene las funciones globales)
-                await this.loadCategory('common', LOAD_ORDER.common);
+                // 5. COMÚN (contiene las funciones globales básicas)
+                await this.loadCommonForModule(moduleName);
                 
-                // 6. HANDLERS
-                await this.loadCategory('handlers', LOAD_ORDER.handlers);
+                // 6. HANDLERS (solo los necesarios por módulo)
+                await this.loadHandlersForModule(moduleName);
                 
-                // 7. GESTORES (para módulos complejos con mapas)
+                // 7. GESTORES (solo para módulos que los necesitan)
                 if (['juego', 'partidas', 'gestionBatalla', 'planeamiento'].includes(moduleName)) {
                     await this.loadCategory('gestores', LOAD_ORDER.gestores);
                 }
@@ -293,6 +305,101 @@
                 errors: Array.from(this.errorFiles),
                 total: this.loadedFiles.size + this.errorFiles.size
             };
+        }
+
+        // 🎯 MÉTODOS DE CARGA SELECTIVA POR MÓDULO
+        
+        async loadServicesForModule(moduleName) {
+            const servicesByModule = {
+                'home': [], // Home no necesita servicios pesados
+                'planeamiento': [
+                    '/Client/js/services/servicesManager.js',
+                    '/Client/js/services/transitabilityService.js', 
+                    '/Client/js/services/slopeAnalysisService.js',
+                    '/Client/js/services/elevationProfileService.js'
+                ],
+                'gestionBatalla': [
+                    '/Client/js/services/servicesManager.js',
+                    '/Client/js/services/combatSystem3DIntegrator.js',
+                    '/Client/js/services/elevationProfileService.js'
+                ],
+                'juego': LOAD_ORDER.services, // Juego necesita todos
+                'organizacion': [
+                    '/Client/js/services/servicesManager.js'
+                ]
+            };
+            
+            const services = servicesByModule[moduleName] || [];
+            if (services.length > 0) {
+                await this.loadFiles(services);
+                console.log(`✅ Servicios cargados para ${moduleName}:`, services.length);
+            }
+        }
+        
+        async loadCommonForModule(moduleName) {
+            const commonByModule = {
+                'home': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/indexP.js' // Solo para el menú
+                ],
+                'planeamiento': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/indexP.js',
+                    '/Client/js/common/mapaP.js',
+                    '/Client/js/common/simbolosP.js',
+                    '/Client/js/common/herramientasP.js',
+                    '/Client/js/common/migrationMap.js',
+                    '/Client/js/common/toolsInitializer.js',
+                    '/Client/js/common/dibujosMCCP.js'
+                ],
+                'gestionBatalla': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/indexP.js',
+                    '/Client/js/common/mapaP.js',
+                    '/Client/js/common/simbolosP.js',
+                    '/Client/js/common/herramientasP.js',
+                    '/Client/js/common/migrationMap.js',
+                    '/Client/js/common/toolsInitializer.js'
+                ],
+                'organizacion': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/indexP.js'
+                ]
+            };
+            
+            const common = commonByModule[moduleName] || LOAD_ORDER.common;
+            await this.loadFiles(common);
+            console.log(`✅ Common cargado para ${moduleName}:`, common.length);
+        }
+        
+        async loadHandlersForModule(moduleName) {
+            const handlersByModule = {
+                'home': [], // Home no necesita handlers complejos
+                'planeamiento': [
+                    '/Client/js/utils/geometryUtils.js',
+                    '/Client/js/handlers/mobileOptimizationHandler.js',
+                    '/Client/js/handlers/mapInteractionHandler.js',
+                    '/Client/js/handlers/measurementHandler.js',
+                    '/Client/js/handlers/elevationHandler.js'
+                ],
+                'gestionBatalla': [
+                    '/Client/js/utils/geometryUtils.js',
+                    '/Client/js/handlers/mobileOptimizationHandler.js',
+                    '/Client/js/handlers/mapInteractionHandler.js',
+                    '/Client/js/handlers/elevationHandler.js',
+                    '/Client/js/handlers/edicionGB.js'
+                ],
+                'organizacion': [
+                    '/Client/js/handlers/CO.js'
+                ],
+                'juego': LOAD_ORDER.handlers // Juego necesita todos
+            };
+            
+            const handlers = handlersByModule[moduleName] || [];
+            if (handlers.length > 0) {
+                await this.loadFiles(handlers);
+                console.log(`✅ Handlers cargados para ${moduleName}:`, handlers.length);
+            }
         }
     }
 
