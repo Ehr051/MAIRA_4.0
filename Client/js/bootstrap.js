@@ -40,7 +40,7 @@
         common: [
             '/Client/js/common/networkConfig.js',  // ✅ MOVIDO AQUÍ - es común a todos
             '/Client/js/common/MAIRAChat.js',
-            '/Client/js/common/indexP.js',        // ✅ toggleMenu se carga aquí
+            // '/Client/js/common/indexP.js',        // ❌ MOVIDO: Solo para planeamiento, no para landing
             '/Client/js/common/miradial.js',
             '/Client/js/common/panelMarcha.js',
             '/Client/js/common/mapaP.js',
@@ -99,7 +99,7 @@
             // HOME/LANDING PAGE
             home: [
                 '/Client/js/utils/config.js',
-                '/Client/js/ui/landing3d.js',
+                '/Client/js/handlers/landing3d.js',
                 '/Client/js/ui/carrusel.js',
                 '/Client/js/utils/validacion.js'
             ],
@@ -342,8 +342,8 @@
         async loadCommonForModule(moduleName) {
             const commonByModule = {
                 'home': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/indexP.js' // Solo para el menú
+                    '/Client/js/common/networkConfig.js'
+                    // ❌ REMOVIDO: indexP.js no es necesario para landing page
                 ],
                 'planeamiento': [
                     '/Client/js/common/networkConfig.js',
