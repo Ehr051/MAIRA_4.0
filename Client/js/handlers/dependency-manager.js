@@ -5,12 +5,42 @@
 
 class DependencyManager {
     constructor() {
-        this.cdnMap = {
-            // Librerías principales
+        // 🎯 PRIORIDAD 1: NODE_MODULES LOCAL (Render instala automáticamente)
+        this.localPaths = {
+            // Librerías principales desde node_modules
+            'leaflet': '/node_modules/leaflet/dist/leaflet.js',
+            'leaflet-css': '/node_modules/leaflet/dist/leaflet.css',
+            
+            // Plugins de Leaflet desde node_modules
+            'leaflet-draw': '/node_modules/leaflet-draw/dist/leaflet.draw.js',
+            'leaflet-draw-css': '/node_modules/leaflet-draw/dist/leaflet.draw.css',
+            'leaflet-fullscreen': '/node_modules/leaflet-fullscreen/Control.FullScreen.js',
+            'leaflet-fullscreen-css': '/node_modules/leaflet-fullscreen/Control.FullScreen.css',
+            'leaflet-control-geocoder': '/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.js',
+            'leaflet-control-geocoder-css': '/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css',
+            'leaflet-easybutton': '/node_modules/leaflet-easybutton/src/easy-button.js',
+            'leaflet-easybutton-css': '/node_modules/leaflet-easybutton/src/easy-button.css',
+            'leaflet-markercluster': '/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js',
+            'leaflet-markercluster-css': '/node_modules/leaflet.markercluster/dist/MarkerCluster.css',
+            'leaflet-markercluster-default-css': '/node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css',
+            
+            // Milsymbol desde node_modules
+            'milsymbol': '/node_modules/milsymbol/dist/milsymbol.js',
+            
+            // D3 desde node_modules
+            'd3': '/node_modules/d3/dist/d3.min.js',
+            
+            // Socket.IO desde node_modules
+            'socket.io-client': '/node_modules/socket.io-client/dist/socket.io.min.js',
+            
+            // Proj4 desde node_modules
+            'proj4': '/node_modules/proj4/dist/proj4.js'
+        };
+        
+        // 🌐 FALLBACK: CDN solo si node_modules falla
+        this.cdnFallbacks = {
             'leaflet': 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'leaflet-css': 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-            
-            // Plugins de Leaflet
             'leaflet-draw': 'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js',
             'leaflet-draw-css': 'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css',
             'leaflet-fullscreen': 'https://unpkg.com/leaflet-fullscreen@1.0.2/Control.FullScreen.js',
@@ -22,24 +52,10 @@ class DependencyManager {
             'leaflet-markercluster': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
             'leaflet-markercluster-css': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
             'leaflet-markercluster-default-css': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
-            
-            // Milsymbol para símbolos militares
             'milsymbol': 'https://unpkg.com/milsymbol@2.2.0/dist/milsymbol.js',
-            
-            // D3 para visualizaciones
             'd3': 'https://unpkg.com/d3@7.8.4/dist/d3.min.js',
-            
-            // Socket.IO
             'socket.io-client': 'https://unpkg.com/socket.io-client@4.8.0/dist/socket.io.min.js',
-            
-            // Proj4 para proyecciones
             'proj4': 'https://unpkg.com/proj4@2.12.1/dist/proj4.js'
-        };
-        
-        this.localFallbacks = {
-            'leaflet': '../node_modules/leaflet/dist/leaflet.js',
-            'milsymbol': '../node_modules/milsymbol/dist/milsymbol.js',
-            'd3': '../node_modules/d3/dist/d3.min.js'
         };
         
         this.loadedDependencies = new Set();
@@ -74,32 +90,33 @@ class DependencyManager {
      * Carga interna con fallback
      */
     async loadDependencyInternal(name, type) {
-        const cdnUrl = this.cdnMap[name];
-        const localPath = this.localFallbacks[name];
+        const localPath = this.localPaths[name];
+        const cdnUrl = this.cdnFallbacks[name];
 
-        // Intentar CDN primero
-        if (cdnUrl) {
-            try {
-                await this.loadFromUrl(cdnUrl, type);
-                console.log(`✅ ${name} cargado desde CDN`);
-                return true;
-            } catch (error) {
-                console.warn(`⚠️ Fallo CDN para ${name}:`, error.message);
-            }
-        }
-
-        // Fallback a local si existe
+        // 🎯 INTENTAR NODE_MODULES PRIMERO (Render lo instala automáticamente)
         if (localPath) {
             try {
                 await this.loadFromUrl(localPath, type);
-                console.log(`✅ ${name} cargado desde local`);
+                console.log(`✅ ${name} cargado desde node_modules local`);
                 return true;
             } catch (error) {
-                console.warn(`⚠️ Fallo local para ${name}:`, error.message);
+                console.warn(`⚠️ ${name} falló desde node_modules, intentando CDN fallback:`, error.message);
             }
         }
 
-        throw new Error(`No se pudo cargar ${name} desde ninguna fuente`);
+        // 🌐 FALLBACK: CDN solo si node_modules falla
+        if (cdnUrl) {
+            try {
+                await this.loadFromUrl(cdnUrl, type);
+                console.log(`✅ ${name} cargado desde CDN fallback`);
+                return true;
+            } catch (error) {
+                console.error(`❌ ${name} falló desde CDN también:`, error.message);
+                throw error;
+            }
+        }
+
+        throw new Error(`❌ No se encontró ruta para dependencia: ${name}`);
     }
 
     /**

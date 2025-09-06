@@ -27,6 +27,15 @@
                     console.log('🚀 Cargando módulo HOME con DDD Bootstrap...');
                     await MAIRABootstrap.loadForModule('home');
                     console.log('✅ Módulo HOME cargado completamente');
+                    
+                    // 🎯 CARGAR DEPENDENCIAS DESDE NODE_MODULES (Render instala automáticamente)
+                    if (typeof dependencyManager !== 'undefined') {
+                        console.log('🚀 Cargando dependencias MAIRA desde node_modules...');
+                        await dependencyManager.loadMAIRADependencies();
+                        console.log('✅ Dependencias MAIRA cargadas completamente');
+                    } else {
+                        console.warn('⚠️ Dependency Manager no disponible');
+                    }
                 } else {
                     console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
                     // Fallback: cargar scripts manualmente si bootstrap falla
