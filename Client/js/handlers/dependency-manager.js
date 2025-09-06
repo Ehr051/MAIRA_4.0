@@ -8,6 +8,9 @@ class DependencyManager {
         // 🎯 PRIORIDAD 1: NODE_MODULES LOCAL (Render instala automáticamente)
         this.localPaths = {
             // Librerías principales desde node_modules
+            'jquery': '/node_modules/jquery/dist/jquery.min.js',
+            'bootstrap': '/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
+            'bootstrap-css': '/node_modules/bootstrap/dist/css/bootstrap.min.css',
             'leaflet': '/node_modules/leaflet/dist/leaflet.js',
             'leaflet-css': '/node_modules/leaflet/dist/leaflet.css',
             
@@ -23,18 +26,23 @@ class DependencyManager {
             'leaflet-markercluster': '/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js',
             'leaflet-markercluster-css': '/node_modules/leaflet.markercluster/dist/MarkerCluster.css',
             'leaflet-markercluster-default-css': '/node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css',
+            'leaflet-geosearch': '/node_modules/leaflet-geosearch/dist/geosearch.umd.js',
+            'leaflet-geosearch-css': '/node_modules/leaflet-geosearch/dist/geosearch.css',
+            'leaflet-providers': '/node_modules/leaflet-providers/leaflet-providers.js',
+            'leaflet-sidebar-v2': '/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.js',
+            'leaflet-sidebar-v2-css': '/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.css',
+            'leaflet-geometryutil': '/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js',
+            'leaflet-measure': '/node_modules/leaflet-measure/dist/leaflet-measure.min.js',
+            'leaflet-measure-css': '/node_modules/leaflet-measure/dist/leaflet-measure.css',
             
-            // Milsymbol desde node_modules
+            // Otras librerías desde node_modules  
             'milsymbol': '/node_modules/milsymbol/dist/milsymbol.js',
-            
-            // D3 desde node_modules
             'd3': '/node_modules/d3/dist/d3.min.js',
-            
-            // Socket.IO desde node_modules
             'socket.io-client': '/node_modules/socket.io-client/dist/socket.io.min.js',
-            
-            // Proj4 desde node_modules
-            'proj4': '/node_modules/proj4/dist/proj4.js'
+            'proj4': '/node_modules/proj4/dist/proj4.js',
+            'html2canvas': '/node_modules/html2canvas/dist/html2canvas.min.js',
+            'jspdf': '/node_modules/jspdf/dist/jspdf.umd.min.js',
+            'file-saver': '/node_modules/file-saver/dist/FileSaver.min.js'
         };
         
         // 🌐 FALLBACK: CDN solo si node_modules falla
