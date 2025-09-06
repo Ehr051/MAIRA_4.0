@@ -9,6 +9,14 @@ legacy_files/
 *_old.*
 backup_maira_20250826_211318/
 
+# Archivos de base de datos - No subir a GitHub
+database/*.sql
+database/backup_*/
+database/migrations/
+*.sql
+*.dump
+*.db
+
 # Archivos de debug y desarrollo (no subir a producción)
 tools/static-debug/
 tools/static-demo/

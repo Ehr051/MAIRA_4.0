@@ -8,9 +8,22 @@ let crearUsuarioForm;
 
 // Inicializar la landing page cuando el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Inicializando landing page 3D");
+    console.log("🚀 Inicializando landing page 3D");
     initLandingPage();
     initSmoothScroll();
+    
+    // Debug adicional para elementos clickeables
+    setTimeout(() => {
+        debugClickableElements();
+    }, 1000);
+    
+    // Listener global para detectar clicks
+    document.addEventListener('click', function(e) {
+        console.log("🎯 CLICK DETECTADO EN:", e.target);
+        console.log("🎯 ID del elemento:", e.target.id);
+        console.log("🎯 Clases del elemento:", e.target.className);
+        console.log("🎯 Coordenadas:", e.clientX, e.clientY);
+    });
 });
 
 // Función principal para inicializar la landing page 3D
@@ -285,6 +298,73 @@ function mostrarSeleccionModo() {
             seleccionModo.style.display = "flex";
         }
     }, 500);
+}
+
+// Función de debug para elementos clickeables
+function debugClickableElements() {
+    console.log("🔍 === DEBUG DE ELEMENTOS CLICKEABLES ===");
+    
+    // Verificar botón Comenzar
+    const btnComenzar = document.getElementById("btnComenzar");
+    console.log("🔍 btnComenzar:", btnComenzar);
+    if (btnComenzar) {
+        const computedStyle = window.getComputedStyle(btnComenzar);
+        console.log("📊 btnComenzar styles:", {
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            pointerEvents: computedStyle.pointerEvents,
+            zIndex: computedStyle.zIndex,
+            opacity: computedStyle.opacity,
+            position: computedStyle.position
+        });
+        
+        const rect = btnComenzar.getBoundingClientRect();
+        console.log("📊 btnComenzar rect:", rect);
+        
+        // Verificar si hay elementos superpuestos
+        const elementAtPoint = document.elementFromPoint(rect.left + rect.width/2, rect.top + rect.height/2);
+        console.log("🎯 Elemento en el centro del botón:", elementAtPoint);
+        console.log("🔍 ¿Es el mismo botón?", elementAtPoint === btnComenzar);
+    }
+    
+    // Verificar hamburger menu
+    const hamburgerMenu = document.querySelector(".hamburger-menu");
+    console.log("🍔 hamburgerMenu:", hamburgerMenu);
+    if (hamburgerMenu) {
+        const computedStyle = window.getComputedStyle(hamburgerMenu);
+        console.log("📊 hamburgerMenu styles:", {
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            pointerEvents: computedStyle.pointerEvents,
+            zIndex: computedStyle.zIndex,
+            opacity: computedStyle.opacity,
+            position: computedStyle.position
+        });
+        
+        const rect = hamburgerMenu.getBoundingClientRect();
+        console.log("📊 hamburgerMenu rect:", rect);
+        
+        const elementAtPoint = document.elementFromPoint(rect.left + rect.width/2, rect.top + rect.height/2);
+        console.log("🎯 Elemento en el centro del hamburger:", elementAtPoint);
+        console.log("🔍 ¿Es el mismo hamburger?", elementAtPoint === hamburgerMenu);
+    }
+    
+    // Verificar barra (.bar)
+    const bar = document.querySelector(".bar");
+    console.log("📐 bar:", bar);
+    if (bar) {
+        const computedStyle = window.getComputedStyle(bar);
+        console.log("📊 bar styles:", {
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            pointerEvents: computedStyle.pointerEvents,
+            zIndex: computedStyle.zIndex,
+            opacity: computedStyle.opacity,
+            position: computedStyle.position
+        });
+    }
+    
+    console.log("🔍 === FIN DEBUG ===");
 }
 
 
