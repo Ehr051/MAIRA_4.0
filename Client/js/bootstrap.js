@@ -96,13 +96,13 @@
         
         // 8. MÓDULOS ESPECÍFICOS - Basado en análisis HTML real + funcionalidades 4.0
         modules: {
-            // 🏠 INDEX/HOME - Landing page básico
+            // 🏠 INDEX/HOME - Scripts exactos del viejo/static/index.html
             home: [
-                '/Client/js/utils/config.js',
-                '/Client/js/handlers/landing3d.js',        // ✅ 4.0: Landing 3D mejorado
-                '/Client/js/ui/carrusel.js',
-                '/Client/js/utils/validacion.js',
-                '/Client/js/modules/home/index.js'         // ✅ index.js según análisis
+                '/Client/js/utils/config.js',              // ✅ config.js según original
+                '/Client/js/handlers/landing3d.js',        // ✅ landing3d.js según original (4.0: mejorado)
+                '/Client/js/ui/carrusel.js',               // ✅ carrusel.js según original
+                '/Client/js/utils/validacion.js'           // ✅ validacion.js según original
+                // ❌ NO index.js - no existe en original
             ],
             
             // 📋 PLANEAMIENTO - Sin chat + Tests + funcionalidades 4.0
@@ -123,9 +123,10 @@
                 '/Client/js/modules/organizacion/CO.js'    // ✅ ÚLTIMO - Lógica principal
             ],
             
-            // 🎯 INICIAR PARTIDA - Con chat + funcionalidades 4.0
+            // 🎯 INICIAR PARTIDA - Scripts exactos del viejo/static/iniciarpartida.html
             partidas: [
-                '/Client/js/modules/partidas/iniciarpartida.js'
+                '/Client/js/common/partidas.js',           // ✅ partidas.js según original
+                '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
             ],
             
             // 🎮 JUEGO DE GUERRA - Con chat + funcionalidades 4.0 completas
@@ -363,32 +364,32 @@
         
         async loadCommonForModule(moduleName) {
             const commonByModule = {
-                // 🏠 INDEX/HOME - Básicos + Chat (según análisis real)
+                // 🏠 INDEX/HOME - Solo básicos SIN CHAT (confirmado con viejo/static/index.html)
                 'home': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js'        // ✅ index.html SÍ tiene chat
+                    '/Client/js/common/networkConfig.js'
+                    // ❌ NO MAIRAChat.js - index.html original NO tiene chat
                 ],
                 
-                // 🎯 INICIAR PARTIDA - Básicos + Chat
+                // 🎯 INICIAR PARTIDA - Básicos + Chat (confirmado con viejo/static)
                 'partidas': [
                     '/Client/js/common/networkConfig.js',
                     '/Client/js/common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
                 ],
                 
-                // 🎮 JUEGO DE GUERRA - Utilidades específicas + Chat
+                // 🎮 JUEGO DE GUERRA - Utilidades específicas + Chat (confirmado con viejo/static)
                 'juegodeguerra': [
                     '/Client/js/common/networkConfig.js',
                     '/Client/js/utils/utilsJDG.js',         // ✅ Específico de JDG
                     '/Client/js/common/MAIRAChat.js'        // ✅ juegodeguerra.html SÍ tiene chat
                 ],
                 
-                // 🏢 INICIO GB - Básicos + Chat
+                // 🏢 INICIO GB - Básicos + Chat (confirmado con viejo/static)
                 'inicioGB': [
                     '/Client/js/common/networkConfig.js',
                     '/Client/js/common/MAIRAChat.js'        // ✅ inicioGB.html SÍ tiene chat
                 ],
                 
-                // ⚔️ GESTIÓN BATALLA - Suite completa + Chat (SIN edicioncompleto.js)
+                // ⚔️ GESTIÓN BATALLA - Suite completa + Chat (confirmado con viejo/static)
                 'gestionbatalla': [
                     '/Client/js/common/networkConfig.js',
                     '/Client/js/common/MAIRAChat.js',       // ✅ gestionbatalla.html SÍ tiene chat
@@ -406,10 +407,10 @@
                     // ❌ NO incluir edicioncompleto.js (comentado en gestionbatalla.html)
                 ],
                 
-                // 📋 PLANEAMIENTO - Suite completa SIN Chat + CON edicioncompleto.js
+                // 📋 PLANEAMIENTO - Suite completa SIN CHAT + CON edicioncompleto.js (confirmado con viejo/static)
                 'planeamiento': [
                     '/Client/js/common/networkConfig.js',
-                    // ❌ NO incluir MAIRAChat.js (planeamiento.html NO tiene chat)
+                    // ❌ NO incluir MAIRAChat.js - planeamiento.html original NO tiene chat
                     '/Client/js/common/indexP.js',
                     '/Client/js/common/mapaP.js',
                     '/Client/js/common/simbolosP.js',
@@ -425,10 +426,10 @@
                     '/Client/js/common/toolsInitializer.js'
                 ],
                 
-                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Solo básicos SIN Chat
+                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Solo básicos SIN CHAT (confirmado con viejo/static)
                 'organizacion': [
                     '/Client/js/common/networkConfig.js',
-                    // ❌ NO incluir MAIRAChat.js (CO.html NO tiene chat)
+                    // ❌ NO incluir MAIRAChat.js - CO.html original NO tiene chat
                     '/Client/js/common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
                 ]
             };

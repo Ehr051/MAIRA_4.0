@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
+    <title>MAIRA - Inicio de Partida</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
+    <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Client/css/iniciarpartida.css">
+    <script src="/Client/js/networkConfig.js"></script>
+    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/Client/js/MAIRAChat.js"></script>
+    <script src="/Client/js/partidas.js"></script>
+    <script src="/Client/js/iniciarpartida.js"></script>
+</head>
+
+<body>
+    <header class="text-center py-4">
+        <h1>MAIRA - Iniciar Partida</h1>
+    </header>
+
+    <main class="container-fluid">
+        <div class="row">
+            <!-- Panel izquierdo: Selección de Modo y Creación de Partidas (65%) -->
+            <div class="col-md-8">
+                <div class="card mb-4" id="modoSeleccion">
+                    <div class="card-header">
+                        Seleccionar Modo de Juego
+                    </div>
+                    <div class="card-body">
+                        <select id="modoJuego" class="form-control">
+                            <option value="">Seleccione un modo</option>
+                            <option value="local">Modo Local</option>
+                            <option value="online">Modo Online</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Modo Local -->
+                <div class="card mb-4" id="modoLocal" style="display: none;">
+                    <div class="card-header">
+                        Modo Local
+                    </div>
+                    <div class="card-body">
+                        <!-- Paso 1: Configuración general -->
+                        <div id="configuracionGeneralLocal">
+                            <div class="form-group">
+                                <label for="nombrePartidaLocal">Nombre de la Partida:</label>
+                                <input type="text" id="nombrePartidaLocal" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="duracionPartidaLocal">Duración de la Partida (minutos):</label>
+                                <input type="number" id="duracionPartidaLocal" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="duracionTurnoLocal">Duración del Turno (minutos):</label>
+                                <input type="number" id="duracionTurnoLocal" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="objetivoPartidaLocal">Objetivo de la Partida:</label>
+                                <input type="text" id="objetivoPartidaLocal" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="cantidadJugadoresLocal">Cantidad de Jugadores:</label>
+                                <select id="cantidadJugadoresLocal" class="form-control">
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+                            </div>
+                            <button id="continuarConfiguracionJugadores" class="btn btn-primary btn-block mt-3">Continuar</button>
+                        </div>
+
+                        <!-- Paso 2: Configuración de jugadores -->
+                        <div id="configuracionJugadoresLocal" style="display: none;">
+                            <table class="table table-bordered" id="jugadoresLocal">
+                                <thead>
+                                    <tr>
+                                        <th>Jugador</th>
+                                        <th>Nombre</th>
+                                        <th>Equipo</th>
+                                        <th>IA</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <button id="iniciarJuegoLocal" class="btn btn-primary btn-block mt-3">Iniciar Juego</button>
+                            <button id="volverConfiguracionGeneral" class="btn btn-secondary btn-block mt-2">Volver</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modo LAN e Internet -->
+                <div class="card mb-4" id="modoOnline" style="display: none;">
+                    <div class="card-header">
+                        Partida Online
+                    </div>
+                    <div class="card-body">
+                        <button id="crearPartida" class="btn btn-primary btn-block mb-2">Crear Partida</button>
+                        <button id="unirseAPartida" class="btn btn-success btn-block">Unirse a Partida</button>
+                    </div>
+                </div>
+
+                <!-- Formulario Crear Partida -->
+                <div class="card mb-4" id="formCrearPartida" style="display: none;">
+                    <div class="card-header">
+                        Crear Nueva Partida
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="nombrePartida">Nombre de la Partida:</label>
+                                <input type="text" id="nombrePartida" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="duracionPartida">Duración de la Partida (minutos):</label>
+                                <input type="number" id="duracionPartida" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="duracionTurno">Duración del Turno (minutos):</label>
+                                <input type="number" id="duracionTurno" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="objetivoPartida">Objetivo de la Partida:</label>
+                                <input type="text" id="objetivoPartida" class="form-control" required>
+                            </div>
+                            <button type="submit" id="btnCrearPartidaConfirmar" class="btn btn-primary btn-block">Crear Partida</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Formulario Unirse a Partida -->
+                <div class="card mb-4" id="formunirseAPartida" style="display: none;">
+                    <div class="card-header">
+                        Unirse a una Partida
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="codigoUnirse">Código de la Partida:</label>
+                            <input type="text" id="codigoUnirse" class="form-control" required>
+                        </div>
+                        <button id="btnunirseAPartidaConfirmar" class="btn btn-primary btn-block">Unirse</button>
+                    </div>
+                </div>
+
+                <!-- Sala de Espera -->
+                <div class="card mb-4" id="salaEspera" style="display: none;">
+                    <div class="card-header">
+                        Sala de Espera
+                    </div>
+                    <div class="card-body">
+                        <h4 id="nombrePartidaSala"></h4>
+                        <p><strong>Código de la Partida:</strong> <span id="codigoPartidaSala"></span></p>
+                        <table class="table table-bordered" id="jugadoresSala">
+                            <thead>
+                                <tr>
+                                    <th>Jugador</th>
+                                    <th>Equipo</th>
+                                    <th>Listo</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <button id="btnIniciarPartida" class="btn btn-success btn-block" style="display: none;">Iniciar Partida</button>
+                        <button id="btnCancelarPartida" class="btn btn-danger btn-block" style="display: none;">Cancelar Partida</button>
+                        <button id="btnSalirSalaEspera" class="btn btn-secondary btn-block">Salir de la Sala de Espera</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel derecho: Chat, Información del Jugador y Lista de Usuarios (35%) -->
+            <div class="col-md-4">
+                <!-- Chat -->
+                <div class="card mb-4" id="chatContainer">
+                    <div class="card-header">
+                        Chat
+                    </div>
+                    <div class="card-body">
+                        <div id="chatMessages" class="chat-messages mb-3"></div>
+                        <div class="chat-input-area d-flex">
+                            <input type="text" id="inputChat" class="form-control mr-2" placeholder="Escribe un mensaje...">
+                            <button id="btnEnviarMensaje" class="btn btn-success">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Jugador -->
+                <div class="card mb-4" id="infoJugador">
+                    <div class="card-header">
+                        Información del Jugador
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Nombre:</strong> <span id="nombreJugadorActual"></span></p>
+                        <p><strong>ID:</strong> <span id="idJugadorActual"></span></p>
+                    </div>
+                </div>
+
+                <!-- Lista de Amigos -->
+                <div class="card mb-4" id="listaAmigosContainer">
+                    <div class="card-header">
+                        Amigos
+                    </div>
+                    <div class="card-body">
+                        <ul id="listaAmigos" class="list-group mb-3"></ul>
+                    </div>
+                </div>
+                
+                <!-- Lista de Usuarios Conectados -->
+                <div class="card mb-4" id="listaUsuariosContainer">
+                    <div class="card-header">
+                        Usuarios Conectados
+                    </div>
+                    <div class="card-body">
+                        <ul id="listaUsuarios" class="list-group">
+                            <!-- Esta estructura se generará dinámicamente desde el JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Lista de Partidas Disponibles -->
+                <div class="card mb-4" id="listaPartidasContainer">
+                    <div class="card-header">
+                        Partidas Disponibles
+                    </div>
+                    <div class="card-body">
+                        <ul id="listaPartidas" class="list-group"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-3">
+        <p>&copy; 2024 MAIRA. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Panel de Invitación a Partida -->
+    <div id="invitacionPanel" class="container mt-4" style="display:none;"></div>
+
+    <!-- Panel de Errores -->
+    <div id="errorContainer" class="container mt-2" style="display: none; color: red;"></div>
+
+    <!-- Botón para Regresar -->
+    <div class="container">
+        <button id="btnRegresarModo" class="btn btn-secondary btn-block mt-3">Ir a Modo Planeamiento</button>
+    </div>
+</body>
+
+</html>

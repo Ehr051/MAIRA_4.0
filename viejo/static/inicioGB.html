@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
+    <title>MAIRA - Sala de Operaciones</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
+    <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/Client/css/inicioGB.css">
+    <script src="/Client/js/networkConfig.js"></script>
+    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+    <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/Client/js/MAIRAChat.js"></script>
+    <script src="/Client/js/inicioGBhandler.js"></script>
+</head>
+
+<body>
+    <header class="text-center py-4">
+        <h1>MAIRA - Sala de Operaciones</h1>
+        <p class="lead text-white">Gestión de Batalla</p>
+    </header>
+
+    <main class="container-fluid">
+        <div class="row">
+            <!-- Panel izquierdo: Creación y unión a operaciones (65%) -->
+            <div class="col-md-8">
+                <!-- Operaciones -->
+                <div class="card mb-4" id="operacionesPanel">
+                    <div class="card-header">
+                        Operaciones
+                    </div>
+                    <div class="card-body">
+                        <button id="crearOperacion" class="btn btn-primary btn-block mb-3">
+                            <i class="fas fa-plus"></i> Crear Nueva Operación
+                        </button>
+
+                        <!-- Lista de operaciones activas -->
+                        <div id="listaOperaciones" class="mb-3">
+                            <h5>Operaciones Activas</h5>
+                            <div class="list-group">
+                                <!-- Las operaciones se cargarán dinámicamente aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario para crear operación -->
+                <div class="card mb-4" id="formCrearOperacion" style="display: none;">
+                    <div class="card-header">
+                        Crear Nueva Operación
+                    </div>
+                    <div class="card-body">
+                        <form id="nuevaOperacionForm">
+                            <div class="form-group">
+                                <label for="nombreOperacion">Nombre de la Operación:</label>
+                                <input type="text" id="nombreOperacion" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descripcionOperacion">Descripción (opcional):</label>
+                                <textarea id="descripcionOperacion" class="form-control" rows="3"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">Crear Operación</button>
+                            <button type="button" id="cancelarCrearOperacion" class="btn btn-secondary btn-block mt-2">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Configuración de elemento antes de unirse -->
+                <div class="card mb-4" id="configuracionElemento" style="display: none;">
+                    <div class="card-header">
+                        Configurar Elemento
+                    </div>
+                    <div class="card-body">
+                        <h5 id="nombreOperacionSeleccionada" class="mb-3">Operación: <span></span></h5>
+                        
+                        <form id="elementoForm">
+                            <div class="form-group">
+                                <label for="nombreUsuario">Nombre de Usuario:</label>
+                                <input type="text" id="nombreUsuario" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h5>Configuración del Elemento</h5>
+                                <div class="alert alert-primary">
+                                    <i class="fas fa-info-circle"></i> Se creará una unidad de infantería básica que podrás personalizar en el mapa.
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="elemento-designacion">Designación:</label>
+                                    <input type="text" id="elemento-designacion" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="elemento-dependencia">Dependencia:</label>
+                                    <input type="text" id="elemento-dependencia" class="form-control">
+                                </div>
+                                
+                                <div class="sidc-preview-container">
+                                    <label>Vista previa:</label>
+                                    <div id="sidc-preview"></div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success btn-block mt-3">Unirse a la Operación</button>
+                            <button type="button" id="cancelarUnirseOperacion" class="btn btn-secondary btn-block mt-2">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Detalles de operación -->
+                <div class="card mb-4" id="detallesOperacion" style="display: none;">
+                    <div class="card-header">
+                        Detalles de la Operación
+                    </div>
+                    <div class="card-body">
+                        <h5 id="tituloDetallesOperacion"></h5>
+                        <p id="descripcionDetallesOperacion"></p>
+                        <p><strong>Área:</strong> <span id="areaDetallesOperacion"></span></p>
+                        <p><strong>Participantes:</strong> <span id="participantesDetallesOperacion"></span></p>
+                        
+                        <h5 class="mt-4">Elementos en la Operación</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Elemento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="elementosOperacion">
+                                <!-- Esta tabla se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                        
+                        <button id="unirseOperacionExistente" class="btn btn-primary btn-block mt-3">Unirse a esta Operación</button>
+                        <button id="cerrarDetallesOperacion" class="btn btn-secondary btn-block mt-2">Volver</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel derecho: Chat y Usuarios (35%) -->
+            <div class="col-md-4">
+                <!-- Chat -->
+                <div class="card mb-4" id="chatContainer">
+                    <div class="card-header">
+                        Chat
+                    </div>
+                    <div class="card-body">
+                        <div id="chatMessages" class="chat-messages mb-3"></div>
+                        <div class="chat-input-area d-flex">
+                            <input type="text" id="inputChat" class="form-control mr-2" placeholder="Escribe un mensaje...">
+                            <button id="btnEnviarMensaje" class="btn btn-success">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Usuario -->
+                <div class="card mb-4" id="infoUsuario">
+                    <div class="card-header">
+                        Mi Información
+                    </div>
+                    <div class="card-body">
+                        <p><strong>ID:</strong> <span id="idUsuarioActual"></span></p>
+                        <p><strong>Estado:</strong> <span id="estadoConexion">Conectado</span></p>
+                    </div>
+                </div>
+
+                <!-- Lista de Usuarios Conectados -->
+                <div class="card mb-4" id="listaUsuariosContainer">
+                    <div class="card-header">
+                        Usuarios Conectados
+                    </div>
+                    <div class="card-body">
+                        <ul id="listaUsuarios" class="list-group">
+                            <!-- Esta estructura se generará dinámicamente desde el JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-3">
+        <p>&copy; 2024 MAIRA. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Panel de Errores -->
+    <div id="errorContainer" class="container mt-2" style="display: none;"></div>
+
+    <!-- Botón para Regresar -->
+    <div class="container mb-4">
+        <button id="btnVolver" class="btn btn-secondary btn-block">Volver al Menú Principal</button>
+    </div>
+
+
+</body>
+</html>
