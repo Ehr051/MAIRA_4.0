@@ -6,9 +6,20 @@ let sideMenu;
 let loginForm;
 let crearUsuarioForm;
 
-// Inicializar la landing page cuando el DOM esté cargado
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("🚀 Inicializando landing page 3D");
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log("🚀 Inicializando landing page 3D (ejecución inmediata)");
+
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeLanding);
+} else {
+    console.log("✅ DOM ya cargado, inicializando inmediatamente");
+    initializeLanding();
+}
+
+function initializeLanding() {
+    console.log("🚀 Ejecutando inicialización de landing page");
     initLandingPage();
     initSmoothScroll();
     
@@ -24,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("🎯 Clases del elemento:", e.target.className);
         console.log("🎯 Coordenadas:", e.clientX, e.clientY);
     });
-});
+}
 
 // Función principal para inicializar la landing page 3D
 function initLandingPage() {
