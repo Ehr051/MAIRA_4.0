@@ -9,10 +9,10 @@
 
     // 📋 ORDEN DE CARGA SEGÚN DEPENDENCIAS
     const LOAD_ORDER = {
-        // 1. CORE FUNDAMENTALES
+        // 1. CORE FUNDAMENTALES - Solo archivos que realmente existen
         core: [
-            '/Client/js/common/networkConfig.js',
-            '/Client/js/core/UserIdentity.js'       // ✅ CORREGIDO: está en core/, no common/
+            '/Client/js/core/UserIdentity.js',         // ✅ EXISTE: gestión de identidad
+            '/Client/js/utils/sessionManager.js'       // ✅ EXISTE: gestión de sesión
             // Nota: core/index.js y config/index.js usan ES6 modules - se cargan por separado
         ],
         
@@ -99,7 +99,7 @@
             // 🏠 INDEX/HOME - Scripts exactos del viejo/static/index.html
             home: [
                 '/Client/js/utils/config.js',              // ✅ config.js según original
-                '/Client/js/handlers/landing3d.js',        // ✅ landing3d.js según original (4.0: mejorado)
+                '/Client/js/ui/landing3d.js',              // ✅ CORREGIDO: movido de handlers/ a ui/ en DDD
                 '/Client/js/ui/carrusel.js',               // ✅ carrusel.js según original
                 '/Client/js/utils/validacion.js'           // ✅ validacion.js según original
                 // ❌ NO index.js - no existe en original
@@ -129,18 +129,18 @@
                 '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
             ],
             
-            // 🎮 JUEGO DE GUERRA - Con chat + funcionalidades 4.0 completas
+            // 🎮 JUEGO DE GUERRA - Rutas corregidas según ubicación real + funcionalidades 4.0
             juegodeguerra: [
-                '/Client/js/utils/utilsJDG.js',           // ✅ Específico JDG según análisis
-                '/Client/js/modules/juego/hexgrid.js',
-                '/Client/js/modules/juego/combate.js',
-                '/Client/js/modules/juego/juegodeguerra.js', // ✅ Script principal según análisis
-                // ✅ Funcionalidades 4.0 agregadas:
-                '/Client/js/gaming/GameEngine.js',         // ✅ 4.0: Motor de juego avanzado
-                '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA
-                '/Client/js/handlers/gestorTurnos.js',     // ✅ 4.0: Sistema de turnos avanzado
-                '/Client/js/handlers/gestorFases.js',      // ✅ 4.0: Gestión de fases
-                '/Client/js/handlers/gestorInterfaz.js'    // ✅ 4.0: Interfaz mejorada
+                // ❌ NO utilsJDG.js - este archivo NO existe en el sistema original
+                '/Client/js/modules/juego/hexgrid.js',     // ✅ EXISTE: en modules/juego/
+                '/Client/js/modules/juego/combate.js',     // ✅ Verificar si existe
+                '/Client/js/modules/juego/juegodeguerra.js', // ✅ Verificar si existe
+                // ✅ Funcionalidades 4.0 - verificar ubicaciones:
+                '/Client/js/gaming/GameEngine.js',         // ✅ EXISTE: Motor de juego avanzado
+                '/Client/js/gaming/AIDirector.js',         // ✅ Verificar si existe
+                '/Client/js/modules/juego/gestorTurnos.js', // ✅ EXISTE: en modules/juego/ (no handlers/)
+                '/Client/js/handlers/gestorFases.js',      // ✅ Verificar ubicación
+                '/Client/js/handlers/gestorInterfaz.js'    // ✅ Verificar ubicación
             ],
             
             // 🏢 INICIO GB - Con chat
@@ -376,10 +376,10 @@
                     '/Client/js/common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
                 ],
                 
-                // 🎮 JUEGO DE GUERRA - Utilidades específicas + Chat (confirmado con viejo/static)
+                // 🎮 JUEGO DE GUERRA - Sin utilsJDG.js que NO existe + Chat (confirmado con viejo/static)
                 'juegodeguerra': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/utils/utilsJDG.js',         // ✅ Específico de JDG
+                    // ❌ NO utilsJDG.js - este archivo NO existe en el sistema
                     '/Client/js/common/MAIRAChat.js'        // ✅ juegodeguerra.html SÍ tiene chat
                 ],
                 
