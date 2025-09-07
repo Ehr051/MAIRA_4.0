@@ -94,64 +94,73 @@
             '/Client/js/handlers/gestorJuego.js'            // ✅ ÚLTIMO - Coordina todos
         ],
         
-        // 8. MÓDULOS ESPECÍFICOS - Basado en análisis de HTML funcionando
+        // 8. MÓDULOS ESPECÍFICOS - Basado en análisis HTML real + funcionalidades 4.0
         modules: {
-            // 🏠 HOME/LANDING PAGE - Solo funcionalidades básicas
+            // 🏠 INDEX/HOME - Landing page básico
             home: [
                 '/Client/js/utils/config.js',
-                '/Client/js/handlers/landing3d.js',
+                '/Client/js/handlers/landing3d.js',        // ✅ 4.0: Landing 3D mejorado
                 '/Client/js/ui/carrusel.js',
-                '/Client/js/utils/validacion.js'
+                '/Client/js/utils/validacion.js',
+                '/Client/js/modules/home/index.js'         // ✅ index.js según análisis
             ],
             
-            // 📋 PLANEAMIENTO TÁCTICO - Con todos los tests
+            // 📋 PLANEAMIENTO - Sin chat + Tests + funcionalidades 4.0
             planeamiento: [
                 '/Client/js/Test/testPlaneamiento.js',
                 '/Client/js/Test/autoTest.js',
-                '/Client/js/Test/visualizadorTests.js'
+                '/Client/js/Test/visualizadorTests.js',
+                // ✅ Funcionalidades 4.0 agregadas:
+                '/Client/js/services/elevationProfileService.js',
+                '/Client/js/handlers/mapInteractionHandler.js',
+                '/Client/js/utils/geometryUtils.js'
             ],
             
-            // 🏗️ COMANDOS Y ORGANIZACIÓN - ⚠️ ORDEN CRÍTICO según CO.html
+            // 🏗️ CO/ORGANIZACIÓN - Sin chat, orden crítico + funcionalidades 4.0
             organizacion: [
-                '/Client/js/ui/paneledicionCO.js',      // ✅ SEGUNDO - Panel edición
-                '/Client/js/modules/organizacion/conexionesCO.js',  // ✅ TERCERO - Conexiones
-                '/Client/js/modules/organizacion/CO.js'              // ✅ ÚLTIMO - Lógica principal
+                '/Client/js/ui/paneledicionCO.js',         // ✅ SEGUNDO - Panel edición
+                '/Client/js/modules/organizacion/conexionesCO.js', // ✅ TERCERO - Conexiones
+                '/Client/js/modules/organizacion/CO.js'    // ✅ ÚLTIMO - Lógica principal
             ],
             
-            // 🎯 INICIAR PARTIDA - Solo el handler específico
+            // 🎯 INICIAR PARTIDA - Con chat + funcionalidades 4.0
             partidas: [
                 '/Client/js/modules/partidas/iniciarpartida.js'
             ],
             
-            // 🎮 JUEGO DE GUERRA - Motor de juego completo
+            // 🎮 JUEGO DE GUERRA - Con chat + funcionalidades 4.0 completas
             juegodeguerra: [
+                '/Client/js/utils/utilsJDG.js',           // ✅ Específico JDG según análisis
                 '/Client/js/modules/juego/hexgrid.js',
                 '/Client/js/modules/juego/combate.js',
-                '/Client/js/modules/juego/juegodeguerra.js'  // ✅ Script principal del juego
-                // ✅ Los gestores se cargan en la sección 'gestores'
+                '/Client/js/modules/juego/juegodeguerra.js', // ✅ Script principal según análisis
+                // ✅ Funcionalidades 4.0 agregadas:
+                '/Client/js/gaming/GameEngine.js',         // ✅ 4.0: Motor de juego avanzado
+                '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA
+                '/Client/js/handlers/gestorTurnos.js',     // ✅ 4.0: Sistema de turnos avanzado
+                '/Client/js/handlers/gestorFases.js',      // ✅ 4.0: Gestión de fases
+                '/Client/js/handlers/gestorInterfaz.js'    // ✅ 4.0: Interfaz mejorada
             ],
             
-            // 🎮 JUEGO (solo motor básico sin interfaz completa)
-            juego: [
-                '/Client/js/modules/juego/hexgrid.js',
-                '/Client/js/modules/juego/combate.js'
-            ],
-            
-            // 🏢 INICIO GESTIÓN DE BATALLA - Solo handler de inicio
+            // 🏢 INICIO GB - Con chat
             inicioGB: [
                 '/Client/js/modules/gestion/inicioGBhandler.js'
             ],
             
-            // ⚔️ GESTIÓN DE BATALLA - Suite completa específica según gestionbatalla.html
+            // ⚔️ GESTIÓN BATALLA - Con chat + funcionalidades 4.0 completas
             gestionbatalla: [
-                '/Client/js/utils/utilsGB.js',                    // ✅ Utilidades específicas GB
-                '/Client/js/modules/gestion/edicionGB.js',        // ✅ Edición GB
-                '/Client/js/modules/gestion/informesGB.js',       // ✅ Informes GB
-                '/Client/js/modules/gestion/elementosGB.js',      // ✅ Elementos GB
-                '/Client/js/handlers/gestorTurnos.js',           // ✅ Gestor turnos
-                '/Client/js/handlers/gestorFases.js',            // ✅ Gestor fases
-                '/Client/js/handlers/gestorInterfaz.js',         // ✅ Gestor interfaz
-                '/Client/js/modules/gestion/gestionBatalla.js'   // ✅ Script principal GB
+                '/Client/js/utils/utilsGB.js',             // ✅ Específico GB según análisis
+                '/Client/js/modules/gestion/edicionGB.js',
+                '/Client/js/modules/gestion/informesGB.js',
+                '/Client/js/modules/gestion/elementosGB.js',
+                '/Client/js/modules/gestion/gestionBatalla.js', // ✅ Script principal según análisis
+                // ✅ Funcionalidades 4.0 agregadas:
+                '/Client/js/handlers/gestorTurnos.js',     // ✅ 4.0: Sistema de turnos avanzado
+                '/Client/js/handlers/gestorFases.js',      // ✅ 4.0: Gestión de fases
+                '/Client/js/handlers/gestorInterfaz.js',   // ✅ 4.0: Interfaz mejorada
+                '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA para GB
+                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ 4.0: Integración 3D
+                '/Client/js/services/autonomousAgentService.js'    // ✅ 4.0: Agentes autónomos
             ]
         },
         
@@ -281,8 +290,8 @@
                 // 6. HANDLERS (solo los necesarios por módulo)
                 await this.loadHandlersForModule(moduleName);
                 
-                // 7. GESTORES (solo para módulos que los necesitan según análisis)
-                if (['juego', 'juegodeguerra', 'gestionbatalla', 'planeamiento'].includes(moduleName)) {
+                // 7. GESTORES (solo para módulos que los necesitan según análisis + 4.0)
+                if (['juegodeguerra', 'gestionbatalla', 'planeamiento'].includes(moduleName)) {
                     await this.loadCategory('gestores', LOAD_ORDER.gestores);
                     console.log(`✅ Gestores cargados para ${moduleName}`);
                 }
@@ -354,35 +363,35 @@
         
         async loadCommonForModule(moduleName) {
             const commonByModule = {
-                // 🏠 HOME/INDEX - Solo lo esencial para landing page
+                // 🏠 INDEX/HOME - Básicos + Chat (según análisis real)
                 'home': [
-                    '/Client/js/common/networkConfig.js'
-                    // ❌ REMOVIDO: indexP.js no es necesario para landing page
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/MAIRAChat.js'        // ✅ index.html SÍ tiene chat
                 ],
                 
-                // 🎯 INICIAR PARTIDA - Scripts básicos + chat
+                // 🎯 INICIAR PARTIDA - Básicos + Chat
                 'partidas': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js'
+                    '/Client/js/common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
                 ],
                 
-                // 🎮 JUEGO DE GUERRA - Necesita utilidades específicas + chat
+                // 🎮 JUEGO DE GUERRA - Utilidades específicas + Chat
                 'juegodeguerra': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/utils/utilsJDG.js',
-                    '/Client/js/common/MAIRAChat.js'
+                    '/Client/js/utils/utilsJDG.js',         // ✅ Específico de JDG
+                    '/Client/js/common/MAIRAChat.js'        // ✅ juegodeguerra.html SÍ tiene chat
                 ],
                 
-                // 🏢 INICIO GB - Solo chat y configuración
+                // 🏢 INICIO GB - Básicos + Chat
                 'inicioGB': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js'
+                    '/Client/js/common/MAIRAChat.js'        // ✅ inicioGB.html SÍ tiene chat
                 ],
                 
-                // ⚔️ GESTIÓN BATALLA - Suite completa como planeamiento PERO sin edicioncompleto.js
+                // ⚔️ GESTIÓN BATALLA - Suite completa + Chat (SIN edicioncompleto.js)
                 'gestionbatalla': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js',
+                    '/Client/js/common/MAIRAChat.js',       // ✅ gestionbatalla.html SÍ tiene chat
                     '/Client/js/common/indexP.js',
                     '/Client/js/common/mapaP.js',
                     '/Client/js/common/simbolosP.js',
@@ -394,12 +403,13 @@
                     '/Client/js/common/panelMarcha.js',
                     '/Client/js/common/miradial.js',
                     '/Client/js/utils/calcosP.js'
-                    // ❌ NO incluir edicioncompleto.js (está comentado en gestionbatalla.html)
+                    // ❌ NO incluir edicioncompleto.js (comentado en gestionbatalla.html)
                 ],
                 
-                // 📋 PLANEAMIENTO - Suite completa CON edicioncompleto.js
+                // 📋 PLANEAMIENTO - Suite completa SIN Chat + CON edicioncompleto.js
                 'planeamiento': [
                     '/Client/js/common/networkConfig.js',
+                    // ❌ NO incluir MAIRAChat.js (planeamiento.html NO tiene chat)
                     '/Client/js/common/indexP.js',
                     '/Client/js/common/mapaP.js',
                     '/Client/js/common/simbolosP.js',
@@ -409,17 +419,17 @@
                     '/Client/js/common/CalculoMarcha.js',
                     '/Client/js/common/graficoMarcha.js',
                     '/Client/js/common/panelMarcha.js',
-                    '/Client/js/common/edicioncompleto.js',  // ✅ Solo en planeamiento
+                    '/Client/js/common/edicioncompleto.js', // ✅ Solo en planeamiento
                     '/Client/js/utils/calcosP.js',
                     '/Client/js/common/migrationMap.js',
                     '/Client/js/common/toolsInitializer.js'
                 ],
                 
-                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Scripts específicos en orden crítico
+                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Solo básicos SIN Chat
                 'organizacion': [
                     '/Client/js/common/networkConfig.js',
+                    // ❌ NO incluir MAIRAChat.js (CO.html NO tiene chat)
                     '/Client/js/common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
-                    // Los demás van en modules.organizacion con orden específico
                 ]
             };
             
@@ -482,13 +492,10 @@
                 // 🏢 INICIO GB - Solo dependency manager 
                 'inicioGB': [
                     '/Client/js/handlers/dependency-manager.js'
-                ],
-                
-                // 🎮 JUEGO (básico) - Todos los handlers
-                'juego': LOAD_ORDER.handlers // Juego necesita todos
+                ]
             };
             
-            const handlers = handlersByModule[moduleName] || [];
+            const handlers = handlersByModule[moduleName] || ['/Client/js/handlers/dependency-manager.js'];
             if (handlers.length > 0) {
                 await this.loadFiles(handlers);
                 console.log(`✅ Handlers cargados para ${moduleName}:`, handlers.length);
