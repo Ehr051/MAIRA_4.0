@@ -74,7 +74,7 @@
         
         // Usar el bootstrap unificado siguiendo principios DDD
         if (typeof MAIRABootstrap !== 'undefined') {
-          await MAIRABootstrap.loadForModule('partidas');
+          await MAIRABootstrap.loadForModule('gestionbatalla');
           console.log('✅ Bootstrap DDD completado para módulo Gestión de Batalla');
         } else {
           console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');

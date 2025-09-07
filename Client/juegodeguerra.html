@@ -67,7 +67,7 @@
        NUEVA ARQUITECTURA DDD/HEXAGONAL
        Bootstrap unificado que maneja todas las dependencias
        ============================================= -->
-  <script src="js/bootstrap.js"></script>
+  <script src="/Client/js/bootstrap.js"></script>
   <script>
     // Inicialización DDD para módulo Juego de Guerra
     document.addEventListener('DOMContentLoaded', async function() {
@@ -76,8 +76,8 @@
         
         // Usar el bootstrap unificado siguiendo principios DDD
         if (typeof MAIRABootstrap !== 'undefined') {
-          await MAIRABootstrap.loadForModule('juego');
-          console.log('✅ Bootstrap DDD completado para módulo Juego');
+          await MAIRABootstrap.loadForModule('juegodeguerra');
+          console.log('✅ Bootstrap DDD completado para módulo Juego de Guerra');
         } else {
           console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
           // Fallback de emergencia si falla el bootstrap

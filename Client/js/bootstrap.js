@@ -94,9 +94,9 @@
             '/Client/js/handlers/gestorJuego.js'            // ✅ ÚLTIMO - Coordina todos
         ],
         
-        // 8. MÓDULOS ESPECÍFICOS
+        // 8. MÓDULOS ESPECÍFICOS - Basado en análisis de HTML funcionando
         modules: {
-            // HOME/LANDING PAGE
+            // 🏠 HOME/LANDING PAGE - Solo funcionalidades básicas
             home: [
                 '/Client/js/utils/config.js',
                 '/Client/js/handlers/landing3d.js',
@@ -104,42 +104,54 @@
                 '/Client/js/utils/validacion.js'
             ],
             
-            // PLANEAMIENTO TÁCTICO (CON TODOS LOS JS)
+            // 📋 PLANEAMIENTO TÁCTICO - Con todos los tests
             planeamiento: [
                 '/Client/js/Test/testPlaneamiento.js',
                 '/Client/js/Test/autoTest.js',
                 '/Client/js/Test/visualizadorTests.js'
             ],
             
-            // COMANDOS Y ORGANIZACIÓN
+            // 🏗️ COMANDOS Y ORGANIZACIÓN - ⚠️ ORDEN CRÍTICO según CO.html
             organizacion: [
-                '/Client/js/ui/paneledicionCO.js',
-                '/Client/js/modules/organizacion/conexionesCO.js',
-                '/Client/js/modules/organizacion/CO.js'
+                '/Client/js/ui/paneledicionCO.js',      // ✅ SEGUNDO - Panel edición
+                '/Client/js/modules/organizacion/conexionesCO.js',  // ✅ TERCERO - Conexiones
+                '/Client/js/modules/organizacion/CO.js'              // ✅ ÚLTIMO - Lógica principal
             ],
             
-            // JUEGO DE GUERRA (CON GESTORES Y HEXGRID)
-            juego: [
+            // 🎯 INICIAR PARTIDA - Solo el handler específico
+            partidas: [
+                '/Client/js/modules/partidas/iniciarpartida.js'
+            ],
+            
+            // 🎮 JUEGO DE GUERRA - Motor de juego completo
+            juegodeguerra: [
                 '/Client/js/modules/juego/hexgrid.js',
-                '/Client/js/modules/juego/combate.js'
+                '/Client/js/modules/juego/combate.js',
+                '/Client/js/modules/juego/juegodeguerra.js'  // ✅ Script principal del juego
                 // ✅ Los gestores se cargan en la sección 'gestores'
             ],
             
-            // INICIO GESTIÓN DE BATALLA
+            // 🎮 JUEGO (solo motor básico sin interfaz completa)
+            juego: [
+                '/Client/js/modules/juego/hexgrid.js',
+                '/Client/js/modules/juego/combate.js'
+            ],
+            
+            // 🏢 INICIO GESTIÓN DE BATALLA - Solo handler de inicio
             inicioGB: [
                 '/Client/js/modules/gestion/inicioGBhandler.js'
             ],
             
-            // PARTIDAS Y GESTIÓN DE BATALLA (COMPLETO)
-            partidas: [
-                '/Client/js/common/partidas.js',
-                '/Client/js/modules/partidas/iniciarpartida.js',
-                '/Client/js/utils/utilsGB.js',
-                '/Client/js/modules/gestion/edicionGB.js',
-                '/Client/js/modules/gestion/informesGB.js',
-                '/Client/js/modules/gestion/elementosGB.js',
-                '/Client/js/modules/gestion/gestionBatalla.js',  // ✅ ANTES que GB.js
-                '/Client/js/modules/gestion/GB.js'               // ✅ Solo wrapper
+            // ⚔️ GESTIÓN DE BATALLA - Suite completa específica según gestionbatalla.html
+            gestionbatalla: [
+                '/Client/js/utils/utilsGB.js',                    // ✅ Utilidades específicas GB
+                '/Client/js/modules/gestion/edicionGB.js',        // ✅ Edición GB
+                '/Client/js/modules/gestion/informesGB.js',       // ✅ Informes GB
+                '/Client/js/modules/gestion/elementosGB.js',      // ✅ Elementos GB
+                '/Client/js/handlers/gestorTurnos.js',           // ✅ Gestor turnos
+                '/Client/js/handlers/gestorFases.js',            // ✅ Gestor fases
+                '/Client/js/handlers/gestorInterfaz.js',         // ✅ Gestor interfaz
+                '/Client/js/modules/gestion/gestionBatalla.js'   // ✅ Script principal GB
             ]
         },
         
@@ -269,9 +281,10 @@
                 // 6. HANDLERS (solo los necesarios por módulo)
                 await this.loadHandlersForModule(moduleName);
                 
-                // 7. GESTORES (solo para módulos que los necesitan)
-                if (['juego', 'partidas', 'gestionBatalla', 'planeamiento'].includes(moduleName)) {
+                // 7. GESTORES (solo para módulos que los necesitan según análisis)
+                if (['juego', 'juegodeguerra', 'gestionbatalla', 'planeamiento'].includes(moduleName)) {
                     await this.loadCategory('gestores', LOAD_ORDER.gestores);
+                    console.log(`✅ Gestores cargados para ${moduleName}`);
                 }
                 
                 // 8. MÓDULOS ESPECÍFICOS
@@ -341,32 +354,72 @@
         
         async loadCommonForModule(moduleName) {
             const commonByModule = {
+                // 🏠 HOME/INDEX - Solo lo esencial para landing page
                 'home': [
                     '/Client/js/common/networkConfig.js'
                     // ❌ REMOVIDO: indexP.js no es necesario para landing page
                 ],
+                
+                // 🎯 INICIAR PARTIDA - Scripts básicos + chat
+                'partidas': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/MAIRAChat.js'
+                ],
+                
+                // 🎮 JUEGO DE GUERRA - Necesita utilidades específicas + chat
+                'juegodeguerra': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/utils/utilsJDG.js',
+                    '/Client/js/common/MAIRAChat.js'
+                ],
+                
+                // 🏢 INICIO GB - Solo chat y configuración
+                'inicioGB': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/MAIRAChat.js'
+                ],
+                
+                // ⚔️ GESTIÓN BATALLA - Suite completa como planeamiento PERO sin edicioncompleto.js
+                'gestionbatalla': [
+                    '/Client/js/common/networkConfig.js',
+                    '/Client/js/common/MAIRAChat.js',
+                    '/Client/js/common/indexP.js',
+                    '/Client/js/common/mapaP.js',
+                    '/Client/js/common/simbolosP.js',
+                    '/Client/js/common/herramientasP.js',
+                    '/Client/js/common/dibujosMCCP.js',
+                    '/Client/js/common/atajosP.js',
+                    '/Client/js/common/CalculoMarcha.js',
+                    '/Client/js/common/graficoMarcha.js',
+                    '/Client/js/common/panelMarcha.js',
+                    '/Client/js/common/miradial.js',
+                    '/Client/js/utils/calcosP.js'
+                    // ❌ NO incluir edicioncompleto.js (está comentado en gestionbatalla.html)
+                ],
+                
+                // 📋 PLANEAMIENTO - Suite completa CON edicioncompleto.js
                 'planeamiento': [
                     '/Client/js/common/networkConfig.js',
                     '/Client/js/common/indexP.js',
                     '/Client/js/common/mapaP.js',
                     '/Client/js/common/simbolosP.js',
                     '/Client/js/common/herramientasP.js',
-                    '/Client/js/common/migrationMap.js',
-                    '/Client/js/common/toolsInitializer.js',
-                    '/Client/js/common/dibujosMCCP.js'
-                ],
-                'gestionBatalla': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/indexP.js',
-                    '/Client/js/common/mapaP.js',
-                    '/Client/js/common/simbolosP.js',
-                    '/Client/js/common/herramientasP.js',
+                    '/Client/js/common/dibujosMCCP.js',
+                    '/Client/js/common/atajosP.js',
+                    '/Client/js/common/CalculoMarcha.js',
+                    '/Client/js/common/graficoMarcha.js',
+                    '/Client/js/common/panelMarcha.js',
+                    '/Client/js/common/edicioncompleto.js',  // ✅ Solo en planeamiento
+                    '/Client/js/utils/calcosP.js',
                     '/Client/js/common/migrationMap.js',
                     '/Client/js/common/toolsInitializer.js'
                 ],
+                
+                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Scripts específicos en orden crítico
                 'organizacion': [
                     '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/indexP.js'
+                    '/Client/js/common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
+                    // Los demás van en modules.organizacion con orden específico
                 ]
             };
             
@@ -377,29 +430,61 @@
         
         async loadHandlersForModule(moduleName) {
             const handlersByModule = {
+                // 🏠 HOME - Solo dependency manager para librerías externas
                 'home': [
                     '/Client/js/handlers/dependency-manager.js'  // ✅ CRÍTICO: Dependency manager para cargar Leaflet/etc
                 ],
+                
+                // 📋 PLANEAMIENTO - Handlers completos según planeamiento.html
                 'planeamiento': [
                     '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    '/Client/js/handlers/elevationHandler.js',   // ✅ CRÍTICO: elevation.worker.js + elevationHandler.js
+                    '/Client/js/handlers/vegetacionhandler.js',  // ✅ CRÍTICO: vegetacionhandler.js
+                    '/Client/js/workers/elevation.worker.js',    // ✅ Workers de elevación
                     '/Client/js/utils/geometryUtils.js',
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
-                    '/Client/js/handlers/measurementHandler.js',
-                    '/Client/js/handlers/elevationHandler.js'
+                    '/Client/js/services/elevationProfileService.js',
+                    '/Client/js/handlers/measurementHandler.js'
                 ],
-                'gestionBatalla': [
+                
+                // ⚔️ GESTIÓN BATALLA - Mismos handlers críticos que planeamiento
+                'gestionbatalla': [
                     '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    '/Client/js/handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
+                    '/Client/js/handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
+                    '/Client/js/workers/elevation.worker.js',    // ✅ Workers de elevación
                     '/Client/js/utils/geometryUtils.js',
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
+                    '/Client/js/services/elevationProfileService.js',
+                    '/Client/js/handlers/measurementHandler.js'
+                ],
+                
+                // 🎮 JUEGO DE GUERRA - Handlers básicos de terreno
+                'juegodeguerra': [
+                    '/Client/js/handlers/dependency-manager.js',
                     '/Client/js/handlers/elevationHandler.js',
-                    '/Client/js/handlers/edicionGB.js'
+                    '/Client/js/handlers/vegetacionhandler.js',
+                    '/Client/js/workers/elevation.worker.js'
                 ],
+                
+                // 🏗️ ORGANIZACIÓN - Solo dependency manager
                 'organizacion': [
-                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
-                    '/Client/js/handlers/CO.js'
+                    '/Client/js/handlers/dependency-manager.js' // ✅ CRÍTICO: Dependency manager primero
                 ],
+                
+                // 🎯 PARTIDAS - Solo dependency manager para socket.io
+                'partidas': [
+                    '/Client/js/handlers/dependency-manager.js'
+                ],
+                
+                // 🏢 INICIO GB - Solo dependency manager 
+                'inicioGB': [
+                    '/Client/js/handlers/dependency-manager.js'
+                ],
+                
+                // 🎮 JUEGO (básico) - Todos los handlers
                 'juego': LOAD_ORDER.handlers // Juego necesita todos
             };
             
