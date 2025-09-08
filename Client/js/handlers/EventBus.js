@@ -67,6 +67,14 @@ class EventBus {
 if (typeof window !== 'undefined') {
     window.MAIRA = window.MAIRA || {};
     window.MAIRA.EventBus = new EventBus();
+    
+    // Exportar funciones críticas al scope global
+    window.eventBus = window.MAIRA.EventBus;
+    window.emitir = (evento, datos) => window.MAIRA.EventBus.emit(evento, datos);
+    window.escuchar = (evento, callback) => window.MAIRA.EventBus.on(evento, callback);
+    window.dejarDeEscuchar = (evento, callback) => window.MAIRA.EventBus.off(evento, callback);
+    
+    console.log('📡 EventBus cargado y funciones exportadas al scope global');
 }
 
 if (typeof module !== 'undefined' && module.exports) {

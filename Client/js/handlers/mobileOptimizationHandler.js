@@ -174,27 +174,28 @@ class MobileOptimizationHandler {
     }
 
     /**
-     * Optimiza controles del mapa para móvil
+     * Optimiza controles del mapa para móvil (Leaflet)
      */
     optimizarControlesMapa() {
-        if (!window.map) return;
+        const mapa = window.mapa || window.map || null;
+        if (!mapa) return;
         
-        // Ajustar zoom por defecto para móvil
-        const view = window.map.getView();
-        if (view) {
-            const currentZoom = view.getZoom();
-            if (currentZoom > 15) {
-                view.setZoom(Math.min(currentZoom, 15));
-            }
+        // Ajustar zoom por defecto para móvil usando Leaflet
+        const currentZoom = mapa.getZoom();
+        if (currentZoom > 15) {
+            mapa.setZoom(Math.min(currentZoom, 15));
         }
         
-        // Configurar interacciones optimizadas para touch
-        const interactions = window.map.getInteractions();
-        interactions.forEach(interaction => {
-            if (interaction instanceof ol.interaction.PinchZoom) {
-                interaction.set('duration', 200);
-            }
-        });
+        // Configurar opciones touch optimizadas para Leaflet
+        if (mapa.touchZoom) {
+            mapa.touchZoom.disable();
+            mapa.touchZoom.enable();
+        }
+        
+        if (mapa.doubleClickZoom) {
+            mapa.doubleClickZoom.disable();
+            mapa.doubleClickZoom.enable();
+        }
     }
 
     /**
@@ -219,12 +220,13 @@ class MobileOptimizationHandler {
     }
 
     /**
-     * Configura eventos táctiles específicos
+     * Configura eventos táctiles específicos (Leaflet)
      */
     configurarEventosTactiles() {
-        // Prevenir zoom doble tap en el mapa
-        if (window.map && window.map.getViewport()) {
-            const viewport = window.map.getViewport();
+        // Prevenir zoom doble tap en el mapa Leaflet
+        const mapa = window.mapa || window.map || null;
+        if (mapa && mapa.getContainer) {
+            const viewport = mapa.getContainer();
             
             let ultimoTap = 0;
             viewport.addEventListener('touchend', (e) => {
@@ -389,26 +391,25 @@ class MobileOptimizationHandler {
     }
 
     /**
-     * Aplica optimizaciones de rendimiento
+     * Aplica optimizaciones de rendimiento (Leaflet)
      */
     aplicarOptimizacionesRendimiento() {
-        // Reducir calidad de renderizado en móviles
-        if (window.map) {
-            const layers = window.map.getLayers();
-            layers.forEach(layer => {
-                if (layer.setRenderOrder) {
-                    layer.setRenderOrder(null); // Desactivar ordenamiento complejo
-                }
-            });
+        // Optimizaciones para mapa Leaflet
+        const mapa = window.mapa || window.map || null;
+        if (mapa) {
+            // Configurar opciones de rendimiento para Leaflet
+            if (mapa.options) {
+                mapa.options.preferCanvas = true; // Usar Canvas en lugar de SVG para mejor rendimiento
+            }
         }
         
-        // Throttle de eventos de resize
+        // Throttle de eventos de resize para Leaflet
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (window.map) {
-                    window.map.updateSize();
+                if (mapa && mapa.invalidateSize) {
+                    mapa.invalidateSize(); // Método correcto para Leaflet
                 }
             }, 250);
         });

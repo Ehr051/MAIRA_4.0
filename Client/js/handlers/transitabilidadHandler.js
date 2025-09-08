@@ -385,6 +385,13 @@ class TransitabilidadHandler {
 // Crear instancia global
 window.transitabilidadHandler = new TransitabilidadHandler();
 
+// Exportar funciones críticas al scope global
+window.analizarTransitabilidad = (puntos, tipoVehiculo) => window.transitabilidadHandler.analizarTransitabilidad(puntos, tipoVehiculo);
+window.calcularRutaOptima = (inicio, fin, opciones) => window.transitabilidadHandler.calcularRutaOptima(inicio, fin, opciones);
+window.evaluarPuntoTransitabilidad = (lat, lng, vehiculo) => window.transitabilidadHandler.evaluarPuntoTransitabilidad(lat, lng, vehiculo);
+window.obtenerFactorTransitabilidad = (elevacion, vegetacion, pendiente, vehiculo) => 
+    window.transitabilidadHandler.obtenerFactorTransitabilidad(elevacion, vegetacion, pendiente, vehiculo);
+
 // Inicializar automáticamente cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -394,4 +401,4 @@ if (document.readyState === 'loading') {
     window.transitabilidadHandler.initialize();
 }
 
-console.log('🚗 TransitabilidadHandler módulo cargado');
+console.log('🚗 TransitabilidadHandler cargado y funciones exportadas al scope global');

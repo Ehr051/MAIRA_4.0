@@ -487,6 +487,12 @@ class PendienteHandler {
 // Crear instancia global
 window.pendienteHandler = new PendienteHandler();
 
+// Exportar funciones críticas al scope global
+window.calcularPendiente = (lat, lng, radio) => window.pendienteHandler.calcularPendiente(lat, lng, radio);
+window.analizarPendienteArea = (bounds, resolucion) => window.pendienteHandler.analizarPendienteArea(bounds, resolucion);
+window.obtenerClasificacionPendiente = (grados) => window.pendienteHandler.obtenerClasificacionPendiente(grados);
+window.calcularDireccionPendiente = (lat, lng, radio) => window.pendienteHandler.calcularDireccionPendiente(lat, lng, radio);
+
 // Inicializar automáticamente cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -496,4 +502,4 @@ if (document.readyState === 'loading') {
     window.pendienteHandler.initialize();
 }
 
-console.log('📐 PendienteHandler módulo cargado');
+console.log('📐 PendienteHandler cargado y funciones exportadas al scope global');

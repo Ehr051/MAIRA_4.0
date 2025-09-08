@@ -514,25 +514,32 @@ class MapInteractionHandler {
      * Inicializa los event listeners para interacciones del mapa
      */
     inicializarEventListeners() {
-        if (!window.map) {
-            console.warn('⚠️ Mapa no disponible para inicializar event listeners');
+        // Buscar mapa Leaflet
+        const mapa = window.mapa || window.map || null;
+        if (!mapa) {
+            console.warn('⚠️ Mapa Leaflet no disponible para inicializar event listeners');
             return;
         }
 
-        // Event listener para click en el mapa
-        window.map.on('click', (evt) => {
-            const feature = window.map.forEachFeatureAtPixel(evt.pixel, (feature) => {
-                return feature;
+        // Event listener para click en el mapa usando Leaflet
+        mapa.on('click', (evt) => {
+            const layers = [];
+            
+            // Buscar layers en el punto clickeado
+            mapa.eachLayer((layer) => {
+                if (layer.feature || layer._layers) {
+                    layers.push(layer);
+                }
             });
 
-            if (feature) {
-                this.seleccionarElemento(feature);
+            if (layers.length > 0) {
+                this.seleccionarElemento(layers[0]);
             } else {
                 this.deseleccionarElemento();
             }
         });
 
-        console.log('✅ Event listeners de MapInteractionHandler inicializados');
+        console.log('✅ Event listeners de MapInteractionHandler inicializados con Leaflet');
     }
 }
 

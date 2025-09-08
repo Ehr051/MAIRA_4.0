@@ -570,6 +570,12 @@ class PerformanceOptimizer {
 // Crear instancia global
 window.performanceOptimizer = new PerformanceOptimizer();
 
+// Exportar funciones críticas al scope global
+window.optimizarRendimiento = () => window.performanceOptimizer.optimizarGeneral();
+window.limpiarCache = () => window.performanceOptimizer.limpiarCaches();
+window.monitorearRendimiento = () => window.performanceOptimizer.monitorearRendimiento();
+window.optimizarMemoria = () => window.performanceOptimizer.optimizarMemoria();
+
 // Inicializar automáticamente
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -579,4 +585,4 @@ if (document.readyState === 'loading') {
     window.performanceOptimizer.initialize();
 }
 
-console.log('🚀 PerformanceOptimizer módulo cargado');
+console.log('🚀 PerformanceOptimizer cargado y funciones exportadas al scope global');
