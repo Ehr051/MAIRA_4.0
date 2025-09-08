@@ -35,6 +35,10 @@ class DependencyManager {
             'leaflet-measure': '/node_modules/leaflet-measure/dist/leaflet-measure.min.js',
             'leaflet-measure-css': '/node_modules/leaflet-measure/dist/leaflet-measure.css',
             
+            // ========== LEAFLET PATTERN - DESDE CLIENT/LIBS ==========
+            'leaflet-pattern': '/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js',
+            'leaflet-pattern-alt': '/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js',
+            
             // Otras librerías desde node_modules  
             'milsymbol': '/node_modules/milsymbol/dist/milsymbol.js',
             'd3': '/node_modules/d3/dist/d3.min.js',
@@ -77,6 +81,7 @@ class DependencyManager {
             'leaflet-markercluster': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
             'leaflet-markercluster-css': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
             'leaflet-markercluster-default-css': 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+            'leaflet-pattern': 'https://unpkg.com/leaflet-pattern@0.2.0/dist/leaflet.pattern.js',
             'milsymbol': 'https://unpkg.com/milsymbol@2.2.0/dist/milsymbol.js',
             'd3': 'https://unpkg.com/d3@7.8.4/dist/d3.min.js',
             'socket.io-client': 'https://unpkg.com/socket.io-client@4.8.0/dist/socket.io.min.js',
