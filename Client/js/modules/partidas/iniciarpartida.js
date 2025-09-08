@@ -398,6 +398,13 @@ async function inicializarSocket() {
             console.log('🔧 Usando datos de localStorage:', userInfo);
         }
         
+        // ✅ Verificar que socket.io esté disponible
+        if (typeof io === 'undefined') {
+            console.error('❌ Socket.IO no está disponible. Verifique que el script se esté cargando correctamente.');
+            mostrarError('Error de conexión: Socket.IO no disponible');
+            return;
+        }
+        
         socket = io(SERVER_URL, {
             transports: ['polling'],  // Solo polling para Render
             timeout: 30000,

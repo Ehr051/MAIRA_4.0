@@ -93,8 +93,15 @@ function inicializarCuadroOrganizacion() {
       return;
     }
     
-    // Inicializar jsPlumb
-    window.jsPlumbInstance = jsPlumb.getInstance({
+    // ✅ Verificar que jsPlumb esté disponible
+    if (typeof jsPlumb === 'undefined') {
+        console.error('❌ jsPlumb no está disponible. Verifique que el script se esté cargando correctamente.');
+        // Continuar sin jsPlumb para evitar que el módulo falle completamente
+        window.jsPlumbInstance = null;
+        console.log('⚠️ Continuando sin jsPlumb - las conexiones no estarán disponibles');
+    } else {
+        // Inicializar jsPlumb
+        window.jsPlumbInstance = jsPlumb.getInstance({
       Connector: ["Flowchart", { cornerRadius: 5, stub: 10 }],
       Anchors: ["Bottom", "Top"],
       Endpoint: ["Dot", { radius: 2 }],
@@ -106,6 +113,7 @@ function inicializarCuadroOrganizacion() {
       ]
     });
     window.jsPlumbInstance.setContainer(canvas);
+    }
     
     // Inicializar símbolos
     inicializarSimbolos();

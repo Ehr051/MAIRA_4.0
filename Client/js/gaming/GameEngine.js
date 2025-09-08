@@ -797,43 +797,6 @@ class TurnManager {
     }
 }
 
-class AIDirector {
-    constructor(options) {
-        this.gameEngine = options.gameEngine;
-        this.adaptiveDifficulty = options.adaptiveDifficulty;
-        this.listeners = new Map();
-    }
-
-    async generateScenario() {
-        return {
-            name: 'Escenario Básico',
-            description: 'Operación de entrenamiento estándar',
-            objectives: [],
-            events: []
-        };
-    }
-
-    onTurnStart(turnData) {
-        console.log(`🤖 AI Director procesando turno ${turnData.turn}`);
-    }
-
-    update(deltaTime) {
-        // Lógica AI Director
-    }
-
-    on(event, handler) {
-        if (!this.listeners.has(event)) {
-            this.listeners.set(event, []);
-        }
-        this.listeners.get(event).push(handler);
-    }
-
-    emit(event, data) {
-        const handlers = this.listeners.get(event) || [];
-        handlers.forEach(handler => handler(data));
-    }
-}
-
 class FogOfWar {
     constructor(options) {
         this.gameEngine = options.gameEngine;

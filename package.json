@@ -12,6 +12,7 @@
         "install-gesture-deps": "python3 server/install_deps.py",
         "start-py-https": "python3 server/serverhttps.py",
         "dev-https": "concurrently \"npm run start-py-https\" \"npm run start-js\"",
+        "build": "echo 'Building for production...' && npm install --production=false",
         "build:production": "npm run optimize:assets && npm run prepare:client",
         "optimize:assets": "echo 'Optimizing assets for production...'",
         "prepare:client": "echo 'Preparing client files for static hosting...'"

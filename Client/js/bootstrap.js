@@ -74,7 +74,10 @@
             '/Client/js/handlers/mobileOptimizationHandler.js',  // Optimización móvil
             '/Client/js/handlers/mapInteractionHandler.js', // Interacciones del mapa
             '/Client/js/services/elevationProfileService.js',   // Servicio de perfiles
-            '/Client/js/handlers/measurementHandler.js'     // Medición de distancia (último - depende de otros)
+            '/Client/js/handlers/measurementHandler.js',    // Medición de distancia (último - depende de otros)
+            
+            // ✅ GAMING Y DIRECTOR
+            '/Client/js/handlers/DirectorManager.js'        // Sistema roles director/creador
         ],
         
         // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
