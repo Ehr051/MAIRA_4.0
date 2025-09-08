@@ -97,7 +97,14 @@ class ThreeDMapService {
     }
 
     async setupControls() {
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // Verificar que OrbitControls esté disponible
+        if (typeof THREE.OrbitControls === 'undefined' && typeof OrbitControls === 'undefined') {
+            console.warn('⚠️ OrbitControls no disponible, usando controles básicos');
+            return;
+        }
+        
+        const Controls = THREE.OrbitControls || OrbitControls;
+        this.controls = new Controls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.maxPolarAngle = Math.PI / 2;
@@ -349,9 +356,207 @@ class ThreeDMapService {
     }
 }
 
+// Instancia global del servicio 3D
+let threeDMapInstance = null;
+let is3DActive = false;
+
+/**
+ * Función global para alternar vista 3D
+ */
+function toggleVista3D() {
+    console.log('🎮 Toggle Vista 3D solicitado');
+    
+    if (!window.THREE) {
+        console.warn('⚠️ Three.js no está disponible. Cargando desde CDN...');
+        loadThreeJS().then(() => {
+            toggleVista3D();
+        });
+        return;
+    }
+    
+    if (!is3DActive) {
+        activarVista3D();
+    } else {
+        desactivarVista3D();
+    }
+}
+
+/**
+ * Activar vista 3D
+ */
+function activarVista3D() {
+    try {
+        console.log('🚀 Activando vista 3D...');
+        
+        // Crear contenedor 3D si no existe
+        let container3D = document.getElementById('vista3d-container');
+        if (!container3D) {
+            container3D = document.createElement('div');
+            container3D.id = 'vista3d-container';
+            container3D.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+            `;
+            
+            // Botón de cerrar
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '✕ Cerrar Vista 3D';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                padding: 10px 20px;
+                background: #ff4444;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                z-index: 10000;
+            `;
+            closeBtn.onclick = desactivarVista3D;
+            container3D.appendChild(closeBtn);
+            
+            // Contenedor del canvas 3D
+            const canvas3D = document.createElement('div');
+            canvas3D.id = 'canvas3d';
+            canvas3D.style.cssText = `
+                flex: 1;
+                width: 100%;
+                height: 100%;
+            `;
+            container3D.appendChild(canvas3D);
+            
+            document.body.appendChild(container3D);
+        }
+        
+        // Inicializar servicio 3D
+        if (!threeDMapInstance) {
+            threeDMapInstance = new ThreeDMapService({
+                config: {
+                    THREEJS: {
+                        enabled: true,
+                        renderer: { antialias: true, alpha: true },
+                        camera: { fov: 60, near: 0.1, far: 10000 },
+                        terrain: { elevation_scale: 0.001, segments: 256 }
+                    }
+                }
+            });
+        }
+        
+        // Inicializar vista 3D
+        threeDMapInstance.initialize('canvas3d').then(() => {
+            console.log('✅ Vista 3D activada');
+            is3DActive = true;
+            
+            // Generar terreno básico si no hay datos
+            const basicElevationData = generateBasicTerrain();
+            threeDMapInstance.loadTerrain(basicElevationData, null, {
+                width: 1000,
+                height: 1000
+            });
+            
+        }).catch(error => {
+            console.error('❌ Error activando vista 3D:', error);
+            alert('Error al activar vista 3D. Verifique que Three.js esté cargado.');
+        });
+        
+    } catch (error) {
+        console.error('❌ Error en activarVista3D:', error);
+    }
+}
+
+/**
+ * Desactivar vista 3D
+ */
+function desactivarVista3D() {
+    console.log('🔄 Desactivando vista 3D...');
+    
+    const container = document.getElementById('vista3d-container');
+    if (container) {
+        container.remove();
+    }
+    
+    if (threeDMapInstance) {
+        threeDMapInstance.destroy();
+    }
+    
+    is3DActive = false;
+    console.log('✅ Vista 3D desactivada');
+}
+
+/**
+ * Generar datos básicos de terreno para prueba
+ */
+function generateBasicTerrain() {
+    const size = 256;
+    const data = new Float32Array(size * size);
+    
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            const x = (i / size) * 2 - 1;
+            const y = (j / size) * 2 - 1;
+            const distance = Math.sqrt(x * x + y * y);
+            data[i * size + j] = Math.max(0, 100 * (1 - distance)) + Math.random() * 20;
+        }
+    }
+    
+    return {
+        data: data,
+        width: size,
+        height: size
+    };
+}
+
+/**
+ * Cargar Three.js desde CDN
+ */
+function loadThreeJS() {
+    return new Promise((resolve, reject) => {
+        if (window.THREE) {
+            resolve();
+            return;
+        }
+        
+        console.log('📦 Cargando Three.js desde CDN...');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.skypack.dev/three@0.144.0';
+        script.onload = () => {
+            console.log('✅ Three.js cargado');
+            // Cargar OrbitControls
+            const controlsScript = document.createElement('script');
+            controlsScript.type = 'module';
+            controlsScript.innerHTML = `
+                import { OrbitControls } from 'https://cdn.skypack.dev/three@0.144.0/examples/jsm/controls/OrbitControls.js';
+                window.OrbitControls = OrbitControls;
+            `;
+            controlsScript.onload = () => {
+                console.log('✅ OrbitControls cargado');
+                resolve();
+            };
+            controlsScript.onerror = (error) => {
+                console.warn('⚠️ Error cargando OrbitControls, continuando sin controles avanzados');
+                resolve(); // Resolver de todas formas
+            };
+            document.head.appendChild(controlsScript);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 // Exportar para sistema MAIRA
 if (typeof window !== 'undefined') {
     window.ThreeDMapService = ThreeDMapService;
+    window.toggleVista3D = toggleVista3D;
+    window.activarVista3D = activarVista3D;
+    window.desactivarVista3D = desactivarVista3D;
     
     // Integración con namespace MAIRA
     if (!window.MAIRA) window.MAIRA = {};
@@ -359,6 +564,7 @@ if (typeof window !== 'undefined') {
     window.MAIRA.Services.ThreeDMap = ThreeDMapService;
     
     console.log('✅ ThreeDMapService registrado en MAIRA.Services.ThreeDMap');
+    console.log('✅ Función toggleVista3D disponible globalmente');
 }
 
 // export default ThreeDMapService; // Comentado para evitar error de export

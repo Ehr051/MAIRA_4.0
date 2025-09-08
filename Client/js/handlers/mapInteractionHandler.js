@@ -38,7 +38,7 @@ class MapInteractionHandler {
             this.aplicarEstiloSeleccion(elemento);
             
             // Mostrar información del elemento
-            this.mostrarInformacionElemento(elemento);
+            //this.mostrarInformacionElemento(elemento);
             
             // Disparar evento de selección
             this.dispararEventoSeleccion(elemento);
@@ -224,7 +224,7 @@ class MapInteractionHandler {
     /**
      * Muestra información del elemento seleccionado (versión Leaflet)
      */
-    mostrarInformacionElemento(elemento) {
+    /**mostrarInformacionElemento(elemento) {
         try {
             // Crear o actualizar panel de información
             let panelInfo = document.getElementById('elemento-info-panel');

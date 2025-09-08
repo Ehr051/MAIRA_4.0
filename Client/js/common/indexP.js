@@ -414,6 +414,19 @@ function inicializarBotonesHerramientas() {
             }
         });
     }
+
+    var btnVista3D = document.getElementById('btnVista3D');
+    if (btnVista3D) {
+        btnVista3D.addEventListener('click', function() {
+            if (typeof toggleVista3D === 'function') {
+                toggleVista3D();
+            } else if (typeof window.toggleVista3D === 'function') {
+                window.toggleVista3D();
+            } else {
+                console.error('Función toggleVista3D no encontrada');
+            }
+        });
+    }
     
     var btnCalculoMarcha = document.getElementById('btnCalculoMarcha');
     if (btnCalculoMarcha) {

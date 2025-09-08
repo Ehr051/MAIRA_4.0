@@ -181,23 +181,7 @@ window.MAIRA.Handlers.Search = searchHandler;
 
 console.log('✅ SearchHandler cargado - initializeBuscarLugar disponible globalmente');
 
-// ✅ AUTO-INICIALIZACIÓN SI EL MAPA YA ESTÁ LISTO
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        // Esperar a que el mapa esté inicializado
-        setTimeout(() => {
-            if (window.mapa && !searchHandler.isInitialized) {
-                console.log('🚀 Auto-inicializando búsqueda de lugares...');
-                searchHandler.initializeBuscarLugar();
-            }
-        }, 2000);
-    });
-} else {
-    // DOM ya cargado
-    setTimeout(() => {
-        if (window.mapa && !searchHandler.isInitialized) {
-            console.log('🚀 Auto-inicializando búsqueda de lugares (DOM ready)...');
-            searchHandler.initializeBuscarLugar();
-        }
-    }, 2000);
-}
+// 🚫 AUTO-INICIALIZACIÓN DESACTIVADA PARA PLANEAMIENTO
+// El módulo planeamiento ya tiene su propio campo de búsqueda en el menú
+// No crear controles duplicados en el mapa
+console.log('ℹ️ Auto-inicialización desactivada - usar initializeBuscarLugar() manualmente si es necesario');
