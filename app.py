@@ -8,7 +8,7 @@ import string
 import time
 import traceback
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -63,6 +63,30 @@ socketio = SocketIO(
     transports=['polling'],  # ✅ FORZAR POLLING en lugar de websocket para Render
     upgrade=False  # ✅ NUEVO: Evitar upgrade a websocket
 )
+
+# ✅ CRÍTICO: Ruta específica para socket.io client
+@app.route('/socket.io/socket.io.js')
+def serve_socketio_js():
+    """Servir socket.io client library"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        socketio_path = os.path.join(base_dir, 'node_modules', 'socket.io', 'client-dist', 'socket.io.min.js')
+        
+        if os.path.exists(socketio_path):
+            return send_from_directory(
+                os.path.join(base_dir, 'node_modules', 'socket.io', 'client-dist'), 
+                'socket.io.min.js',
+                mimetype='application/javascript'
+            )
+        else:
+            # Fallback a CDN si no existe local
+            from flask import redirect
+            return redirect('https://cdn.socket.io/4.6.1/socket.io.min.js', code=302)
+    except Exception as e:
+        print(f"❌ Error sirviendo socket.io: {e}")
+        # Fallback a CDN
+        from flask import redirect
+        return redirect('https://cdn.socket.io/4.6.1/socket.io.min.js', code=302)
 
 # Configuración de la base de datos PostgreSQL
 def get_db_connection():
@@ -140,10 +164,22 @@ def serve_node_modules(filename):
     """Servir archivos de node_modules con content-type correcto"""
     from flask import Response
     try:
-        node_modules_dir = os.path.join('.', 'node_modules')
+        # Usar la ruta absoluta del directorio del script
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        node_modules_dir = os.path.join(base_dir, 'node_modules')
+        
+        print(f"🔍 Buscando node_modules en: {node_modules_dir}")
+        print(f"🔍 Archivo solicitado: {filename}")
+        print(f"🔍 ¿Existe directorio?: {os.path.exists(node_modules_dir)}")
+        
         if not os.path.exists(node_modules_dir):
+            print(f"❌ node_modules no encontrado en: {node_modules_dir}")
             # Fallback: si no existe node_modules, devolver error
-            return f"console.error('node_modules not found');", 404, {'Content-Type': 'application/javascript'}
+            return f"console.error('node_modules not found in {node_modules_dir}');", 404, {'Content-Type': 'application/javascript'}
+        
+        file_path = os.path.join(node_modules_dir, filename)
+        print(f"🔍 Ruta completa del archivo: {file_path}")
+        print(f"🔍 ¿Existe archivo?: {os.path.exists(file_path)}")
         
         response = send_from_directory(node_modules_dir, filename)
         
@@ -156,9 +192,11 @@ def serve_node_modules(filename):
             response.headers['Content-Type'] = 'application/json; charset=utf-8'
         
         response.headers['Cache-Control'] = 'public, max-age=31536000'  # Cache por 1 año
+        print(f"✅ Archivo servido exitosamente: {filename}")
         return response
     except Exception as e:
         print(f"❌ Error sirviendo node_modules {filename}: {e}")
+        traceback.print_exc()
         if filename.endswith('.js'):
             return f"console.error('Error loading {filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
         else:
@@ -2703,7 +2741,184 @@ def fix_json_configuracion():
 # CONFIGURACIÓN DE INICIO
 # ==========================================
 
+# ================================
+# DESCARGA E INSTALACIÓN DEL DETECTOR DE GESTOS
+# ================================
+
+@app.route('/api/download-gesture-detector')
+def download_gesture_detector():
+    """Descargar el detector de gestos para instalación local"""
+    try:
+        import zipfile
+        import io
+        from flask import send_file
+        
+        # Crear archivo ZIP en memoria
+        zip_buffer = io.BytesIO()
+        
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Agregar detectorGestos.py
+            detector_path = os.path.join('Server', 'detectorGestos.py')
+            if os.path.exists(detector_path):
+                zip_file.write(detector_path, 'detectorGestos.py')
+            
+            # Agregar requirements con dependencias por SO
+            requirements = """# MAIRA Detector de Gestos - Dependencias
+                opencv-python>=4.5.0
+                mediapipe>=0.8.0
+                numpy>=1.20.0
+                pyautogui>=0.9.52
+                websockets>=10.0
+                requests>=2.25.0
+
+                # Dependencias adicionales para Windows (opcional)
+                # pywin32>=227
+                # winshell>=0.6
+
+                # Dependencias adicionales para macOS (opcional)  
+                # pyobjc>=7.0
+
+                # Dependencias adicionales para Linux (opcional)
+                # python-xlib>=0.29"""
+            zip_file.writestr('requirements.txt', requirements)
+            
+            # Agregar launcher básico
+            launcher = create_simple_launcher()
+            zip_file.writestr('maira_gestos.py', launcher)
+            
+            # Agregar README
+            readme = "# MAIRA Detector de Gestos\n\n1. Instala dependencias: pip install -r requirements.txt\n2. Ejecuta: python maira_gestos.py\n3. Sigue las instrucciones en pantalla"
+            zip_file.writestr('README.txt', readme)
+        
+        zip_buffer.seek(0)
+        
+        return send_file(
+            io.BytesIO(zip_buffer.read()),
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name='MAIRA_Detector_Gestos.zip'
+        )
+        
+    except Exception as e:
+        print(f"Error generando descarga: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def create_simple_launcher():
+    """Crear launcher simplificado para el detector de gestos"""
+    return '''#!/usr/bin/env python3
+import sys
+import os
+import webbrowser
+import platform
+import subprocess
+from pathlib import Path
+
+# Agregar directorio actual al path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+print("🤚 MAIRA Detector de Gestos")
+print("=" * 50)
+
+# Importar detector de gestos
+try:
+    from detectorGestos import DetectorGestos
+except ImportError:
+    print("❌ Error: No se pudo importar detectorGestos.py")
+    print("📦 Instalando dependencias...")
+    deps = ['opencv-python', 'mediapipe', 'numpy', 'pyautogui', 'websockets', 'requests']
+    for dep in deps:
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', dep])
+            print(f"✅ {dep} instalado")
+        except:
+            print(f"❌ Error instalando {dep}")
+    
+    try:
+        from detectorGestos import DetectorGestos
+    except ImportError:
+        print("❌ No se pudo cargar el detector después de instalar dependencias")
+        input("Presiona ENTER para salir...")
+        sys.exit(1)
+
+def main():
+    print("\\n¿Cómo quieres usar el detector?\\n")
+    print("1️⃣  Control de pantalla (para cualquier programa)")
+    print("2️⃣  Mesa de proyección (para presentaciones)")  
+    print("3️⃣  Conectar con MAIRA Web")
+    print("0️⃣  Salir")
+    print("\\n" + "-"*50)
+    
+    choice = input("\\nSelecciona una opción (0-3): ").strip()
+    
+    if choice == "1":
+        print("\\n🖥️ Iniciando control de pantalla...")
+        detector = DetectorGestos(modo="pantalla")
+        detector.iniciar()
+    elif choice == "2":
+        print("\\n📽️ Iniciando modo mesa...")
+        detector = DetectorGestos(modo="mesa")  
+        detector.iniciar()
+    elif choice == "3":
+        print("\\n🌐 Conectando con MAIRA Web...")
+        webbrowser.open("https://maira-production.onrender.com")
+        print("\\n📋 Instrucciones:")
+        print("   1. Espera a que MAIRA cargue")
+        print("   2. Haz click en 'Control por Gestos' 🤚")
+        print("   3. Regresa aquí cuando esté activado")
+        input("\\nPresiona ENTER cuando hayas activado gestos en MAIRA...")
+        detector = DetectorGestos(modo="pantalla")
+        detector.iniciar()
+    elif choice == "0":
+        print("\\n👋 ¡Hasta luego!")
+    else:
+        print("\\n❌ Opción no válida")
+        input("Presiona ENTER para intentar nuevamente...")
+        main()
+
+if __name__ == "__main__":
+    main()
+'''
+
+# ==========================================
+# RUTAS PARA SERVIR CSS PERSONALIZADOS
+# ==========================================
+@app.route('/Client/css/<path:filename>')
+def serve_css(filename):
+    """Servir archivos CSS personalizados"""
+    try:
+        css_path = os.path.join(app.root_path, 'Client', 'css', filename)
+        print(f"🎨 Sirviendo CSS: {css_path}")
+        
+        if os.path.exists(css_path):
+            return send_file(css_path, mimetype='text/css')
+        else:
+            print(f"❌ CSS no encontrado: {css_path}")
+            return f"/* CSS no encontrado: {filename} */", 404
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS {filename}: {str(e)}")
+        return f"/* Error cargando CSS: {str(e)} */", 500
+
+@app.route('/debug/css')
+def debug_css():
+    """Debug: listar todos los archivos CSS disponibles"""
+    css_files = []
+    css_dir = os.path.join(app.root_path, 'Client', 'css')
+    
+    for root, dirs, files in os.walk(css_dir):
+        for file in files:
+            if file.endswith('.css'):
+                rel_path = os.path.relpath(os.path.join(root, file), css_dir)
+                css_files.append(rel_path)
+    
+    return {
+        'css_directory': css_dir,
+        'css_files': css_files,
+        'total_files': len(css_files)
+    }
+
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    print(f"🚀 Iniciando MAIRA 4.0 en puerto {port}")
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Iniciando MAIRA 4.0 en puerto {port}")
     socketio.run(app, host='0.0.0.0', port=port, debug=False)
