@@ -39,8 +39,19 @@ window.getServerUrl = function() {
     return window.MAIRA_CONFIG.SERVER_URL;
 };
 
-// Inicialización automática cuando está listo
-document.addEventListener('DOMContentLoaded', function() {
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando config (ejecución inmediata)');
+
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeConfig);
+} else {
+    console.log("✅ DOM ya cargado, inicializando config inmediatamente");
+    initializeConfig();
+}
+
+function initializeConfig() {
     console.log('🚀 MAIRA Frontend configurado para:', window.MAIRA_CONFIG.APP_CONFIG.environment);
     console.log('📡 Servidor:', window.MAIRA_CONFIG.SERVER_URL);
     
@@ -55,4 +66,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.warn('⚠️ Servidor no disponible:', error);
             });
     }
-});
+}

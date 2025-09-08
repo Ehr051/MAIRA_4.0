@@ -2,12 +2,24 @@
 const isLocalDevelopment = false; // Cambia esto a true para desarrollo local
 const API_BASE_URL = window.getServerUrl ? window.getServerUrl() : (SERVER_URL || 'http://localhost:5000');
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded');
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando validación (ejecución inmediata)');
 
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeValidation);
+} else {
+    console.log("✅ DOM ya cargado, inicializando validación inmediatamente");
+    initializeValidation();
+}
+
+function initializeValidation() {
+    console.log('DOM fully loaded - Inicializando validación');
+    
     // Inicializar todos los event listeners
     inicializarEventListeners();
-});
+}
 
 function inicializarEventListeners() {
     // Botones de inicio

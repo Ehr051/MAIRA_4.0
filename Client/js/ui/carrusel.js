@@ -1,5 +1,18 @@
 // Carrusel tipo coverflow para selección de modos
-document.addEventListener('DOMContentLoaded', function() {
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando carrusel (ejecución inmediata)');
+
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeCarrusel);
+} else {
+    console.log("✅ DOM ya cargado, inicializando carrusel inmediatamente");
+    initializeCarrusel();
+}
+
+function initializeCarrusel() {
+    console.log('🎠 Ejecutando inicialización de carrusel');
     // Al principio de document.addEventListener('DOMContentLoaded', function() {
     // Verificar si hay una sesión activa y mostrar directamente la selección de modos
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -447,4 +460,4 @@ document.addEventListener('DOMContentLoaded', function() {
             return 0;
         }
     }
-});
+}
