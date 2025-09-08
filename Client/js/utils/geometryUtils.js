@@ -1,38 +1,54 @@
 /**
- * @fileoverview Utilidades geométricas
- * @version 1.0.0
- * @description Módulo especializado para cálculos geométricos y manipulación de líneas
- * Extraído de herramientasP.js como parte de la refactorización modular
+ * @fileoverview Utilidades geométricas - VERSIÓN LEAFLET
+ * @version 2.0.0
+ * @description Módulo especializado para cálculos geométricos y manipulación de líneas con Leaflet
+ * Convertido de OpenLayers a Leaflet para compatibilidad con el sistema original
  */
 
 class GeometryUtils {
     constructor() {
-        console.log('✅ GeometryUtils inicializado');
+        console.log('✅ GeometryUtils inicializado con Leaflet');
     }
 
     /**
-     * Calcula la distancia entre dos puntos geográficos
+     * Calcula la distancia entre dos puntos geográficos usando Leaflet
      */
     calcularDistancia(punto1, punto2) {
         try {
-            // Si son coordenadas simples [lon, lat]
+            // Si es una polyline de Leaflet, usar su función de distancia
+            if (punto1 instanceof L.Polyline) {
+                const coords = punto1.getLatLngs();
+                let distanciaTotal = 0;
+                for (let i = 1; i < coords.length; i++) {
+                    distanciaTotal += L.latLng(coords[i-1]).distanceTo(L.latLng(coords[i]));
+                }
+                return distanciaTotal;
+            }
+            
+            // Si son coordenadas simples [lat, lon] o [lon, lat]
             if (Array.isArray(punto1) && Array.isArray(punto2)) {
-                const linea = new ol.geom.LineString([punto1, punto2]);
-                return ol.sphere.getLength(linea);
+                // Asumir formato [lat, lon] para Leaflet
+                const latlng1 = L.latLng(punto1[0], punto1[1]);
+                const latlng2 = L.latLng(punto2[0], punto2[1]);
+                return latlng1.distanceTo(latlng2);
             }
             
             // Si son objetos con lat/lon
+            if (punto1.lat !== undefined && punto1.lng !== undefined &&
+                punto2.lat !== undefined && punto2.lng !== undefined) {
+                return L.latLng(punto1).distanceTo(L.latLng(punto2));
+            }
+            
+            // Si son objetos con lat/lon (lon alternativo)
             if (punto1.lat !== undefined && punto1.lon !== undefined &&
                 punto2.lat !== undefined && punto2.lon !== undefined) {
                 return this.calcularDistanciaHaversine(punto1, punto2);
             }
             
-            // Si son features de OpenLayers
-            if (punto1.getGeometry && punto2.getGeometry) {
-                const coord1 = punto1.getGeometry().getCoordinates();
-                const coord2 = punto2.getGeometry().getCoordinates();
-                const linea = new ol.geom.LineString([coord1, coord2]);
-                return ol.sphere.getLength(linea);
+            // Si son LatLng de Leaflet
+            if (punto1.lat !== undefined && punto1.lng !== undefined &&
+                punto2.lat !== undefined && punto2.lng !== undefined) {
+                return punto1.distanceTo(punto2);
             }
             
             console.warn('⚠️ Formato de puntos no reconocido para calcular distancia');
@@ -63,27 +79,36 @@ class GeometryUtils {
     }
 
     /**
-     * Crea una línea entre dos puntos
+     * Crea una línea entre dos puntos usando Leaflet
      */
     crearLinea(puntoInicio, puntoFin, propiedades = {}) {
         try {
-            const coordenadas = [puntoInicio, puntoFin];
-            const geometria = new ol.geom.LineString(coordenadas);
+            // Convertir puntos a formato LatLng de Leaflet
+            let latLng1, latLng2;
             
-            const feature = new ol.Feature({
-                geometry: geometria,
+            if (Array.isArray(puntoInicio)) {
+                latLng1 = L.latLng(puntoInicio[0], puntoInicio[1]);
+            } else {
+                latLng1 = L.latLng(puntoInicio);
+            }
+            
+            if (Array.isArray(puntoFin)) {
+                latLng2 = L.latLng(puntoFin[0], puntoFin[1]);
+            } else {
+                latLng2 = L.latLng(puntoFin);
+            }
+            
+            const coordenadas = [latLng1, latLng2];
+            
+            // Crear polyline de Leaflet
+            const linea = L.polyline(coordenadas, {
+                color: propiedades.color || '#3388ff',
+                weight: propiedades.width || 2,
+                opacity: propiedades.opacity || 1,
                 ...propiedades
             });
             
-            // Estilo por defecto
-            feature.setStyle(new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: propiedades.color || '#3388ff',
-                    width: propiedades.width || 2
-                })
-            }));
-            
-            return feature;
+            return linea;
             
         } catch (error) {
             console.error('❌ Error creando línea:', error);
@@ -92,17 +117,24 @@ class GeometryUtils {
     }
 
     /**
-     * Actualiza una línea existente
+     * Actualiza una línea existente de Leaflet
      */
-    actualizarLinea(lineaFeature, nuevasCoordenadas) {
+    actualizarLinea(lineaLeaflet, nuevasCoordenadas) {
         try {
-            if (!lineaFeature) {
-                console.warn('⚠️ Feature de línea no proporcionado');
+            if (!lineaLeaflet || !lineaLeaflet.setLatLngs) {
+                console.warn('⚠️ Polyline de Leaflet no proporcionado');
                 return false;
             }
             
-            const geometria = new ol.geom.LineString(nuevasCoordenadas);
-            lineaFeature.setGeometry(geometria);
+            // Convertir coordenadas a LatLng si es necesario
+            const latLngs = nuevasCoordenadas.map(coord => {
+                if (Array.isArray(coord)) {
+                    return L.latLng(coord[0], coord[1]);
+                }
+                return L.latLng(coord);
+            });
+            
+            lineaLeaflet.setLatLngs(latLngs);
             
             return true;
             
@@ -143,12 +175,20 @@ class GeometryUtils {
     }
 
     /**
-     * Calcula el área de un polígono
+     * Calcula el área de un polígono usando Leaflet
      */
     calcularArea(coordenadas) {
         try {
-            const geometria = new ol.geom.Polygon([coordenadas]);
-            return ol.sphere.getArea(geometria);
+            // Convertir a LatLng si es necesario
+            const latLngs = coordenadas.map(coord => {
+                if (Array.isArray(coord)) {
+                    return L.latLng(coord[0], coord[1]);
+                }
+                return L.latLng(coord);
+            });
+            
+            // Usar algoritmo de Shoelace para calcular área en metros cuadrados
+            return this.calcularAreaShoelace(latLngs);
             
         } catch (error) {
             console.error('❌ Error calculando área:', error);
@@ -157,12 +197,36 @@ class GeometryUtils {
     }
 
     /**
-     * Calcula el perímetro de un polígono
+     * Calcula el perímetro de un polígono usando Leaflet
      */
     calcularPerimetro(coordenadas) {
         try {
-            const geometria = new ol.geom.Polygon([coordenadas]);
-            return ol.sphere.getLength(geometria);
+            let perimetro = 0;
+            
+            for (let i = 0; i < coordenadas.length - 1; i++) {
+                const punto1 = Array.isArray(coordenadas[i]) ? 
+                    L.latLng(coordenadas[i][0], coordenadas[i][1]) : 
+                    L.latLng(coordenadas[i]);
+                const punto2 = Array.isArray(coordenadas[i + 1]) ? 
+                    L.latLng(coordenadas[i + 1][0], coordenadas[i + 1][1]) : 
+                    L.latLng(coordenadas[i + 1]);
+                
+                perimetro += punto1.distanceTo(punto2);
+            }
+            
+            // Cerrar el polígono si no está cerrado
+            if (coordenadas.length > 2) {
+                const primero = Array.isArray(coordenadas[0]) ? 
+                    L.latLng(coordenadas[0][0], coordenadas[0][1]) : 
+                    L.latLng(coordenadas[0]);
+                const ultimo = Array.isArray(coordenadas[coordenadas.length - 1]) ? 
+                    L.latLng(coordenadas[coordenadas.length - 1][0], coordenadas[coordenadas.length - 1][1]) : 
+                    L.latLng(coordenadas[coordenadas.length - 1]);
+                
+                perimetro += ultimo.distanceTo(primero);
+            }
+            
+            return perimetro;
             
         } catch (error) {
             console.error('❌ Error calculando perímetro:', error);
@@ -171,18 +235,82 @@ class GeometryUtils {
     }
 
     /**
-     * Simplifica una línea reduciendo puntos
+     * Calcula área usando algoritmo Shoelace para coordenadas geográficas
+     */
+    calcularAreaShoelace(latLngs) {
+        if (latLngs.length < 3) return 0;
+        
+        const R = 6371000; // Radio de la Tierra en metros
+        let area = 0;
+        
+        for (let i = 0; i < latLngs.length; i++) {
+            const j = (i + 1) % latLngs.length;
+            const lat1 = latLngs[i].lat * Math.PI / 180;
+            const lat2 = latLngs[j].lat * Math.PI / 180;
+            const lng1 = latLngs[i].lng * Math.PI / 180;
+            const lng2 = latLngs[j].lng * Math.PI / 180;
+            
+            area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+        }
+        
+        area = Math.abs(area) * R * R / 2;
+        return area;
+    }
+
+    /**
+     * Simplifica una línea reduciendo puntos (implementación básica)
      */
     simplificarLinea(coordenadas, tolerancia = 0.0001) {
         try {
-            const geometria = new ol.geom.LineString(coordenadas);
-            const geometriaSimplificada = geometria.simplify(tolerancia);
-            return geometriaSimplificada.getCoordinates();
+            // Implementación básica de simplificación Douglas-Peucker
+            if (coordenadas.length <= 2) return coordenadas;
+            
+            return this.douglasPeucker(coordenadas, tolerancia);
             
         } catch (error) {
             console.error('❌ Error simplificando línea:', error);
             return coordenadas;
         }
+    }
+
+    /**
+     * Algoritmo Douglas-Peucker para simplificación de líneas
+     */
+    douglasPeucker(puntos, tolerancia) {
+        if (puntos.length <= 2) return puntos;
+        
+        // Encontrar el punto con mayor distancia a la línea formada por el primer y último punto
+        let distanciaMaxima = 0;
+        let indiceMaximo = 0;
+        
+        for (let i = 1; i < puntos.length - 1; i++) {
+            const distancia = this.distanciaPuntoALinea(puntos[i], puntos[0], puntos[puntos.length - 1]);
+            if (distancia > distanciaMaxima) {
+                distanciaMaxima = distancia;
+                indiceMaximo = i;
+            }
+        }
+        
+        // Si la distancia máxima es mayor que la tolerancia, dividir recursivamente
+        if (distanciaMaxima > tolerancia) {
+            const resultados1 = this.douglasPeucker(puntos.slice(0, indiceMaximo + 1), tolerancia);
+            const resultados2 = this.douglasPeucker(puntos.slice(indiceMaximo), tolerancia);
+            
+            return resultados1.slice(0, -1).concat(resultados2);
+        } else {
+            return [puntos[0], puntos[puntos.length - 1]];
+        }
+    }
+
+    /**
+     * Calcula la distancia de un punto a una línea
+     */
+    distanciaPuntoALinea(punto, lineaInicio, lineaFin) {
+        const A = lineaFin[1] - lineaInicio[1];
+        const B = lineaInicio[0] - lineaFin[0];
+        const C = lineaFin[0] * lineaInicio[1] - lineaInicio[0] * lineaFin[1];
+        
+        return Math.abs(A * punto[0] + B * punto[1] + C) / Math.sqrt(A * A + B * B);
     }
 
     /**
@@ -311,11 +439,14 @@ class GeometryUtils {
     }
 
     /**
-     * Convierte coordenadas entre sistemas de referencia
+     * Convierte coordenadas entre sistemas de referencia (simplificado para Leaflet)
      */
     convertirCoordenadas(coordenadas, proyeccionOrigen, proyeccionDestino) {
         try {
-            return ol.proj.transform(coordenadas, proyeccionOrigen, proyeccionDestino);
+            // Para Leaflet, la mayoría de conversiones son transparentes
+            // Esta función se mantiene para compatibilidad
+            console.warn('⚠️ Conversión de coordenadas: Leaflet maneja esto automáticamente en la mayoría de casos');
+            return coordenadas;
             
         } catch (error) {
             console.error('❌ Error convirtiendo coordenadas:', error);
@@ -367,14 +498,17 @@ class GeometryUtils {
     }
 
     /**
-     * Convierte coordenadas a UTM (simplificado)
+     * Convierte coordenadas a UTM (simplificado sin OpenLayers)
      */
     convertirAUTM(lat, lon) {
-        // Esta es una implementación simplificada
-        // Para mayor precisión, usar proj4 o similar
+        // Implementación simplificada sin OpenLayers
+        // Para mayor precisión, se puede integrar con proj4js en el futuro
         try {
-            const utmCoords = ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
-            return `UTM: ${utmCoords[0].toFixed(0)}, ${utmCoords[1].toFixed(0)}`;
+            // Calcular zona UTM
+            const zona = Math.floor((lon + 180) / 6) + 1;
+            const hemisferio = lat >= 0 ? 'N' : 'S';
+            
+            return `UTM ${zona}${hemisferio}: Requiere proj4js para conversión exacta`;
         } catch (error) {
             return 'UTM: No disponible';
         }
@@ -389,4 +523,4 @@ window.calcularDistancia = (punto1, punto2) => window.geometryUtils.calcularDist
 window.crearLinea = (inicio, fin, props) => window.geometryUtils.crearLinea(inicio, fin, props);
 window.actualizarLinea = (linea, coords) => window.geometryUtils.actualizarLinea(linea, coords);
 
-console.log('✅ GeometryUtils cargado y funciones exportadas al scope global');
+console.log('✅ GeometryUtils con Leaflet cargado y funciones exportadas al scope global');

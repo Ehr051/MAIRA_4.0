@@ -1,8 +1,8 @@
 /**
- * @fileoverview Manejador de interacciones del mapa
- * @version 1.0.0
- * @description Módulo especializado para selección y manipulación de elementos del mapa
- * Extraído de herramientasP.js como parte de la refactorización modular
+ * @fileoverview Manejador de interacciones del mapa - VERSIÓN LEAFLET
+ * @version 2.0.0
+ * @description Módulo especializado para selección y manipulación de elementos del mapa con Leaflet
+ * Convertido de OpenLayers a Leaflet para compatibilidad con el sistema original
  */
 
 class MapInteractionHandler {
@@ -12,7 +12,7 @@ class MapInteractionHandler {
         this.modoSeleccion = false;
         this.estiloOriginal = null;
         
-        console.log('✅ MapInteractionHandler inicializado');
+        console.log('✅ MapInteractionHandler inicializado con Leaflet');
     }
 
     /**
@@ -82,22 +82,24 @@ class MapInteractionHandler {
     }
 
     /**
-     * Aplica estilo de selección al elemento
+     * Aplica estilo de selección al elemento usando Leaflet
      */
     aplicarEstiloSeleccion(elemento) {
         try {
-            // Guardar estilo original
-            this.estiloOriginal = elemento.getStyle();
+            // Guardar estilo original para Leaflet
+            if (elemento.options) {
+                this.estiloOriginal = {...elemento.options};
+            }
             
-            // Determinar tipo de elemento y aplicar estilo apropiado
-            const geometria = elemento.getGeometry();
-            
-            if (geometria instanceof ol.geom.Point) {
+            // Determinar tipo de elemento Leaflet y aplicar estilo apropiado
+            if (elemento instanceof L.Marker) {
                 this.aplicarEstiloSeleccionPunto(elemento);
-            } else if (geometria instanceof ol.geom.LineString) {
+            } else if (elemento instanceof L.Polyline && !(elemento instanceof L.Polygon)) {
                 this.aplicarEstiloSeleccionLinea(elemento);
-            } else if (geometria instanceof ol.geom.Polygon) {
+            } else if (elemento instanceof L.Polygon) {
                 this.aplicarEstiloSeleccionPoligono(elemento);
+            } else if (elemento instanceof L.Circle || elemento instanceof L.CircleMarker) {
+                this.aplicarEstiloSeleccionCirculo(elemento);
             } else {
                 this.aplicarEstiloSeleccionGenerico(elemento);
             }
@@ -108,104 +110,130 @@ class MapInteractionHandler {
     }
 
     /**
-     * Aplica estilo de selección para puntos
+     * Aplica estilo de selección para marcadores/puntos en Leaflet
      */
     aplicarEstiloSeleccionPunto(elemento) {
-        const estilo = new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 8,
-                fill: new ol.style.Fill({ color: '#ff0000' }),
-                stroke: new ol.style.Stroke({ 
-                    color: '#ffffff', 
-                    width: 3 
-                })
-            }),
-            zIndex: 1000
-        });
-        
-        elemento.setStyle(estilo);
-    }
-
-    /**
-     * Aplica estilo de selección para líneas
-     */
-    aplicarEstiloSeleccionLinea(elemento) {
-        const estilo = new ol.style.Style({
-            stroke: new ol.style.Stroke({
+        // Para marcadores, crear un círculo de selección
+        if (elemento.getLatLng) {
+            const latlng = elemento.getLatLng();
+            
+            // Crear círculo de selección temporal
+            if (this.circuloSeleccion) {
+                this.circuloSeleccion.remove();
+            }
+            
+            this.circuloSeleccion = L.circle(latlng, {
+                radius: 50, // Radio en metros
                 color: '#ff0000',
-                width: 4,
-                lineDash: [5, 5]
-            }),
-            zIndex: 1000
-        });
-        
-        elemento.setStyle(estilo);
-    }
-
-    /**
-     * Aplica estilo de selección para polígonos
-     */
-    aplicarEstiloSeleccionPoligono(elemento) {
-        const estilo = new ol.style.Style({
-            fill: new ol.style.Fill({ 
-                color: 'rgba(255, 0, 0, 0.3)' 
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#ff0000',
-                width: 3,
-                lineDash: [10, 5]
-            }),
-            zIndex: 1000
-        });
-        
-        elemento.setStyle(estilo);
-    }
-
-    /**
-     * Aplica estilo de selección genérico
-     */
-    aplicarEstiloSeleccionGenerico(elemento) {
-        const estilo = new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#ff0000',
-                width: 3
-            }),
-            fill: new ol.style.Fill({ 
-                color: 'rgba(255, 0, 0, 0.2)' 
-            }),
-            zIndex: 1000
-        });
-        
-        elemento.setStyle(estilo);
-    }
-
-    /**
-     * Restaura el estilo original del elemento
-     */
-    restaurarEstiloOriginal(elemento) {
-        if (this.estiloOriginal) {
-            elemento.setStyle(this.estiloOriginal);
-        } else {
-            elemento.setStyle(null); // Usar estilo por defecto
+                weight: 3,
+                opacity: 1,
+                fillColor: '#ff0000',
+                fillOpacity: 0.3
+            });
+            
+            if (window.mapa) {
+                this.circuloSeleccion.addTo(window.mapa);
+            }
         }
     }
 
     /**
-     * Muestra información del elemento seleccionado
+     * Aplica estilo de selección para líneas en Leaflet
+     */
+    aplicarEstiloSeleccionLinea(elemento) {
+        elemento.setStyle({
+            color: '#ff0000',
+            weight: 4,
+            opacity: 1,
+            dashArray: '5, 5'
+        });
+    }
+
+    /**
+     * Aplica estilo de selección para polígonos en Leaflet
+     */
+    aplicarEstiloSeleccionPoligono(elemento) {
+        elemento.setStyle({
+            color: '#ff0000',
+            weight: 3,
+            opacity: 1,
+            fillColor: '#ff0000',
+            fillOpacity: 0.3,
+            dashArray: '10, 5'
+        });
+    }
+
+    /**
+     * Aplica estilo de selección para círculos en Leaflet
+     */
+    aplicarEstiloSeleccionCirculo(elemento) {
+        elemento.setStyle({
+            color: '#ff0000',
+            weight: 3,
+            opacity: 1,
+            fillColor: '#ff0000',
+            fillOpacity: 0.3
+        });
+    }
+
+    /**
+     * Aplica estilo de selección genérico para Leaflet
+     */
+    aplicarEstiloSeleccionGenerico(elemento) {
+        if (elemento.setStyle) {
+            elemento.setStyle({
+                color: '#ff0000',
+                weight: 3,
+                opacity: 1,
+                fillColor: '#ff0000',
+                fillOpacity: 0.2
+            });
+        }
+    }
+
+    /**
+     * Restaura el estilo original del elemento Leaflet
+     */
+    restaurarEstiloOriginal(elemento) {
+        try {
+            if (this.estiloOriginal && elemento.setStyle) {
+                elemento.setStyle(this.estiloOriginal);
+            } else if (elemento.setStyle) {
+                // Restaurar estilo por defecto básico
+                const estiloDefecto = {
+                    color: '#3388ff',
+                    weight: 3,
+                    opacity: 1,
+                    fillColor: '#3388ff',
+                    fillOpacity: 0.2
+                };
+                elemento.setStyle(estiloDefecto);
+            }
+            
+            // Limpiar círculo de selección si existe
+            if (this.circuloSeleccion) {
+                this.circuloSeleccion.remove();
+                this.circuloSeleccion = null;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error restaurando estilo original:', error);
+        }
+    }
+
+    /**
+     * Muestra información del elemento seleccionado (versión Leaflet)
      */
     mostrarInformacionElemento(elemento) {
         try {
-            const propiedades = elemento.getProperties();
-            const geometria = elemento.getGeometry();
-            
             // Crear o actualizar panel de información
             let panelInfo = document.getElementById('elemento-info-panel');
             if (!panelInfo) {
                 panelInfo = this.crearPanelInformacion();
             }
             
-            // Obtener información del elemento
-            const info = this.extraerInformacionElemento(elemento, propiedades, geometria);
+            // Obtener información del elemento Leaflet
+            const info = this.extraerInformacionElemento(elemento);
             
             // Actualizar contenido del panel
             const contenido = document.getElementById('elemento-info-contenido');
@@ -287,11 +315,11 @@ class MapInteractionHandler {
     }
 
     /**
-     * Extrae información relevante del elemento
+     * Extrae información relevante del elemento usando Leaflet
      */
-    extraerInformacionElemento(elemento, propiedades, geometria) {
+    extraerInformacionElemento(elemento, propiedades) {
         const info = {
-            tipo: this.determinarTipoGeometria(geometria),
+            tipo: this.determinarTipoElemento(elemento),
             propiedades: {},
             coordenadas: null,
             area: null,
@@ -299,41 +327,91 @@ class MapInteractionHandler {
         };
         
         // Extraer propiedades relevantes
-        Object.keys(propiedades).forEach(key => {
-            if (key !== 'geometry' && propiedades[key] !== undefined) {
-                info.propiedades[key] = propiedades[key];
-            }
-        });
+        if (propiedades) {
+            Object.keys(propiedades).forEach(key => {
+                if (key !== 'geometry' && propiedades[key] !== undefined) {
+                    info.propiedades[key] = propiedades[key];
+                }
+            });
+        }
         
-        // Calcular métricas geométricas
-        if (geometria instanceof ol.geom.Point) {
-            info.coordenadas = geometria.getCoordinates();
-        } else if (geometria instanceof ol.geom.LineString) {
-            info.longitud = ol.sphere.getLength(geometria);
-            info.coordenadas = geometria.getCoordinates();
-        } else if (geometria instanceof ol.geom.Polygon) {
-            info.area = ol.sphere.getArea(geometria);
-            info.coordenadas = geometria.getCoordinates()[0]; // Exterior ring
+        // Extraer propiedades del elemento Leaflet
+        if (elemento.options) {
+            Object.keys(elemento.options).forEach(key => {
+                if (key !== 'geometry' && elemento.options[key] !== undefined) {
+                    info.propiedades[key] = elemento.options[key];
+                }
+            });
+        }
+        
+        // Calcular métricas geométricas usando Leaflet
+        if (elemento instanceof L.Marker) {
+            info.coordenadas = elemento.getLatLng();
+        } else if (elemento instanceof L.Polyline && !(elemento instanceof L.Polygon)) {
+            const coords = elemento.getLatLngs();
+            info.coordenadas = coords;
+            info.longitud = this.calcularLongitudLinea(coords);
+        } else if (elemento instanceof L.Polygon) {
+            const coords = elemento.getLatLngs()[0]; // Exterior ring
+            info.coordenadas = coords;
+            info.area = this.calcularAreaPoligono(coords);
+        } else if (elemento instanceof L.Circle) {
+            info.coordenadas = elemento.getLatLng();
+            info.area = Math.PI * Math.pow(elemento.getRadius(), 2);
         }
         
         return info;
     }
 
     /**
-     * Determina el tipo de geometría
+     * Calcula la longitud de una línea usando Leaflet
      */
-    determinarTipoGeometria(geometria) {
-        if (geometria instanceof ol.geom.Point) return 'Punto';
-        if (geometria instanceof ol.geom.LineString) return 'Línea';
-        if (geometria instanceof ol.geom.Polygon) return 'Polígono';
-        if (geometria instanceof ol.geom.MultiPoint) return 'Multi-Punto';
-        if (geometria instanceof ol.geom.MultiLineString) return 'Multi-Línea';
-        if (geometria instanceof ol.geom.MultiPolygon) return 'Multi-Polígono';
+    calcularLongitudLinea(coordenadas) {
+        let longitud = 0;
+        for (let i = 1; i < coordenadas.length; i++) {
+            longitud += L.latLng(coordenadas[i-1]).distanceTo(L.latLng(coordenadas[i]));
+        }
+        return longitud;
+    }
+
+    /**
+     * Calcula el área de un polígono usando Leaflet (algoritmo básico)
+     */
+    calcularAreaPoligono(coordenadas) {
+        if (coordenadas.length < 3) return 0;
+        
+        let area = 0;
+        const R = 6371000; // Radio de la Tierra en metros
+        
+        for (let i = 0; i < coordenadas.length; i++) {
+            const j = (i + 1) % coordenadas.length;
+            const lat1 = coordenadas[i].lat * Math.PI / 180;
+            const lat2 = coordenadas[j].lat * Math.PI / 180;
+            const lng1 = coordenadas[i].lng * Math.PI / 180;
+            const lng2 = coordenadas[j].lng * Math.PI / 180;
+            
+            area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+        }
+        
+        area = Math.abs(area) * R * R / 2;
+        return area;
+    }
+
+    /**
+     * Determina el tipo de elemento Leaflet
+     */
+    determinarTipoElemento(elemento) {
+        if (elemento instanceof L.Marker) return 'Marcador';
+        if (elemento instanceof L.Polygon) return 'Polígono';
+        if (elemento instanceof L.Polyline) return 'Línea';
+        if (elemento instanceof L.Circle) return 'Círculo';
+        if (elemento instanceof L.CircleMarker) return 'Marcador Circular';
+        if (elemento instanceof L.Rectangle) return 'Rectángulo';
         return 'Desconocido';
     }
 
     /**
-     * Genera HTML para mostrar la información
+     * Genera HTML para mostrar la información de elementos Leaflet
      */
     generarHTMLInformacion(info) {
         let html = `<div style="margin-bottom: 15px;">
@@ -364,18 +442,20 @@ class MapInteractionHandler {
             html += '</ul></div>';
         }
         
-        // Coordenadas (primeros puntos)
+        // Coordenadas (formato Leaflet)
         if (info.coordenadas) {
             html += '<div style="margin-bottom: 10px;"><strong>Coordenadas:</strong><br>';
             
-            if (info.tipo === 'Punto') {
-                const [x, y] = info.coordenadas;
-                html += `${x.toFixed(6)}, ${y.toFixed(6)}`;
-            } else {
+            if (info.tipo === 'Marcador' || info.tipo === 'Círculo') {
+                // Para marcadores y círculos, coordenadas es un LatLng
+                html += `${info.coordenadas.lat.toFixed(6)}, ${info.coordenadas.lng.toFixed(6)}`;
+            } else if (Array.isArray(info.coordenadas)) {
                 const maxPuntos = Math.min(3, info.coordenadas.length);
                 for (let i = 0; i < maxPuntos; i++) {
-                    const [x, y] = info.coordenadas[i];
-                    html += `${x.toFixed(6)}, ${y.toFixed(6)}<br>`;
+                    const coord = info.coordenadas[i];
+                    if (coord.lat !== undefined && coord.lng !== undefined) {
+                        html += `${coord.lat.toFixed(6)}, ${coord.lng.toFixed(6)}<br>`;
+                    }
                 }
                 if (info.coordenadas.length > 3) {
                     html += `... y ${info.coordenadas.length - 3} puntos más`;
