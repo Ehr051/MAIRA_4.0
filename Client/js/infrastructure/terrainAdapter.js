@@ -774,8 +774,19 @@ window.MAIRA.Elevacion = {
     version: '1.0.0'
 };
 
-// ✅ AUTO-INICIALIZACIÓN
-document.addEventListener('DOMContentLoaded', async function() {
+// ✅ AUTO-INICIALIZACIÓN - EJECUTAR INMEDIATAMENTE
+console.log('🚀 Inicializando terrainAdapter (ejecución inmediata)');
+
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeTerrainAdapter);
+} else {
+    console.log("✅ DOM ya cargado, inicializando terrainAdapter inmediatamente");
+    initializeTerrainAdapter();
+}
+
+async function initializeTerrainAdapter() {
     try {
         await window.MAIRA.Elevacion.inicializar();
         
@@ -787,4 +798,4 @@ document.addEventListener('DOMContentLoaded', async function() {
     } catch (error) {
         console.warn('⚠️ Error inicializando MAIRA.Elevacion:', error);
     }
-});
+}
