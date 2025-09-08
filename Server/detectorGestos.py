@@ -148,6 +148,12 @@ class DetectorGestos:
         # Variables de estado para gestos
         self.cursor_x, self.cursor_y = 0, 0
         self.arrastrando = False
+        
+        # Variables para calibración automática de distancia
+        self.tamaño_mano_referencia = None  # Tamaño promedio de la mano
+        self.factor_distancia = 1.0  # Factor de ajuste basado en distancia
+        self.historial_tamaños_mano = []  # Últimos 10 tamaños para promedio
+        self.distancia_pinza_adaptativa = self.configuracion.distancia_pinza
         self.ultimo_click_tiempo = 0
         self.click_count = 0
         self.gesto_anterior = TipoGesto.NINGUNO
@@ -198,11 +204,12 @@ class DetectorGestos:
         # Cargar calibración existente si está en modo mesa
         if self.modo == ModoOperacion.MESA:
             self._cargar_calibracion()
-            # Intentar detección automática de proyección
-            self._detectar_proyeccion_automatica = True
-            self.area_proyeccion = None  # (x, y, width, height) del área detectada
-            self.marcos_sin_deteccion = 0
-            logger.info("Modo MESA activado - Detección automática de proyección habilitada")
+        
+        # Habilitar detección automática de proyección para ambos modos
+        self._detectar_proyeccion_automatica = True
+        self.area_proyeccion = None  # (x, y, width, height) del área detectada
+        self.marcos_sin_deteccion = 0
+        logger.info(f"Modo {modo.value.upper()} activado - Detección automática de proyección habilitada")
         
         logger.info(f"Detector de gestos inicializado en modo: {modo}")
     
@@ -244,13 +251,33 @@ class DetectorGestos:
         """Cambia entre modo pantalla y mesa"""
         if self.modo == ModoOperacion.PANTALLA:
             self.modo = ModoOperacion.MESA
-            logger.info("Cambiado a modo MESA (proyección)")
+            # 🔄 ACTIVAR DETECCIÓN AUTOMÁTICA AL CAMBIAR A MODO MESA
+            self._detectar_proyeccion_automatica = True
+            self.area_proyeccion = None
+            self.marcos_sin_deteccion = 0
+            logger.info("✅ Cambiado a modo MESA - Detección automática ACTIVADA")
+            logger.info("💡 Usa 'C' para calibración manual si necesitas ajustar")
         else:
             self.modo = ModoOperacion.PANTALLA
             # Resetear calibración al cambiar a pantalla
             self.puntos_camara = []
             self.puntos_proyeccion = []
+            # Desactivar detección automática en modo pantalla
+            self._detectar_proyeccion_automatica = False
             logger.info("Cambiado a modo PANTALLA (control directo)")
+    
+    def _activar_deteccion_automatica(self):
+        """Activa/reinicia la detección automática de proyección"""
+        self._detectar_proyeccion_automatica = True
+        self.area_proyeccion = None
+        self.marcos_sin_deteccion = 0
+        # Limpiar calibración manual previa
+        self.puntos_camara = []
+        self.puntos_proyeccion = []
+        self.matriz_transformacion = np.eye(3)
+        self.calibrando = False
+        logger.info("🔄 Detección automática REINICIADA - Buscando proyección...")
+        logger.info("💡 La detección comenzará en 3 segundos...")
     
     def _cambiar_camara(self):
         """Solicita cambio de cámara al sistema principal"""
@@ -261,6 +288,10 @@ class DetectorGestos:
     def _iniciar_calibracion(self):
         """Inicia el proceso de calibración para modo mesa"""
         if self.modo == ModoOperacion.MESA:
+            # 🚫 DESACTIVAR DETECCIÓN AUTOMÁTICA PARA CALIBRACIÓN MANUAL
+            self._detectar_proyeccion_automatica = False
+            self.area_proyeccion = None
+            
             self.calibrando = True
             self.puntos_camara = []
             self.puntos_proyeccion = []
@@ -589,23 +620,24 @@ class DetectorGestos:
             for contour in sorted(contours, key=cv2.contourArea, reverse=True):
                 area = cv2.contourArea(contour)
                 
-                # Filtrar contornos muy pequeños (menos del 10% de la imagen)
-                min_area = (frame.shape[0] * frame.shape[1]) * 0.1
+                # Filtrar contornos muy pequeños (menos del 5% de la imagen)
+                min_area = (frame.shape[0] * frame.shape[1]) * 0.05
                 if area < min_area:
                     continue
                 
                 # Aproximar el contorno a un polígono
-                epsilon = 0.02 * cv2.arcLength(contour, True)
+                epsilon = 0.04 * cv2.arcLength(contour, True)  # Más permisivo
                 approx = cv2.approxPolyDP(contour, epsilon, True)
                 
-                # Si es aproximadamente un rectángulo (4 vértices)
-                if len(approx) == 4:
+                # Si es aproximadamente un rectángulo (4 o 5 vértices para ser más permisivo)
+                if 4 <= len(approx) <= 5:
                     # Verificar que sea relativamente rectangular
                     x, y, w, h = cv2.boundingRect(approx)
                     aspect_ratio = w / h
                     
-                    # Aceptar ratios entre 1:3 y 3:1 (rectangulares razonables)
-                    if 0.3 <= aspect_ratio <= 3.0 and w > 100 and h > 100:
+                    # Aceptar ratios más amplios y tamaños más pequeños
+                    if 0.2 <= aspect_ratio <= 5.0 and w > 50 and h > 50:
+                        logger.info(f"🎯 Área detectada: {w}x{h} en ({x},{y}) - Ratio: {aspect_ratio:.2f}")
                         return (x, y, w, h)
             
             return None
@@ -696,6 +728,85 @@ class DetectorGestos:
         except Exception as e:
             logger.error(f"Error configurando transformación automática: {e}")
     
+    def _calcular_tamaño_mano(self, landmarks, frame_shape) -> float:
+        """Calcula el tamaño de la mano basado en la distancia entre puntos clave"""
+        try:
+            altura, ancho = frame_shape[:2]
+            
+            # Convertir landmarks a coordenadas
+            puntos = []
+            for landmark in landmarks.landmark:
+                x = int(landmark.x * ancho)
+                y = int(landmark.y * altura)
+                puntos.append((x, y))
+            
+            # Calcular distancia entre muñeca y dedo medio
+            muneca = puntos[0]  # Wrist
+            medio_tip = puntos[12]  # Middle finger tip
+            
+            distancia = np.sqrt((muneca[0] - medio_tip[0])**2 + (muneca[1] - medio_tip[1])**2)
+            return distancia
+            
+        except Exception as e:
+            logger.error(f"Error calculando tamaño de mano: {e}")
+            return 100.0  # Valor por defecto
+    
+    def _calibrar_distancia_automatica(self, landmarks, frame_shape):
+        """Calibra automáticamente la distancia basada en el tamaño de la mano"""
+        tamaño_actual = self._calcular_tamaño_mano(landmarks, frame_shape)
+        
+        # Agregar al historial (máximo 10 mediciones)
+        self.historial_tamaños_mano.append(tamaño_actual)
+        if len(self.historial_tamaños_mano) > 10:
+            self.historial_tamaños_mano.pop(0)
+        
+        # Calcular tamaño promedio
+        tamaño_promedio = sum(self.historial_tamaños_mano) / len(self.historial_tamaños_mano)
+        
+        # Si es la primera vez, establecer como referencia
+        if self.tamaño_mano_referencia is None:
+            self.tamaño_mano_referencia = tamaño_promedio
+            logger.info(f"🤚 Tamaño de mano referencia establecido: {self.tamaño_mano_referencia:.1f}")
+        
+        # Calcular factor de distancia (tamaño más pequeño = más lejos)
+        if self.tamaño_mano_referencia > 0:
+            self.factor_distancia = tamaño_promedio / self.tamaño_mano_referencia
+            
+            # Ajustar distancia de pinza adaptativa
+            self.distancia_pinza_adaptativa = self.configuracion.distancia_pinza * self.factor_distancia
+            
+            # Limitar valores extremos
+            self.distancia_pinza_adaptativa = max(20, min(100, self.distancia_pinza_adaptativa))
+    
+    def _mostrar_deteccion_automatica(self, frame: np.ndarray):
+        """Implementar rectángulos en esquinas para detección automática (modo backup)"""
+        altura, ancho = frame.shape[:2]
+        
+        # Tamaño de los rectángulos de esquina
+        rect_size = 50
+        color = (0, 255, 255)  # Amarillo
+        thickness = 3
+        
+        # Rectángulo superior izquierda
+        cv2.rectangle(frame, (20, 20), (20 + rect_size, 20 + rect_size), color, thickness)
+        cv2.putText(frame, "1", (35, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        # Rectángulo superior derecha
+        cv2.rectangle(frame, (ancho - 70, 20), (ancho - 20, 20 + rect_size), color, thickness)
+        cv2.putText(frame, "2", (ancho - 55, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        # Rectángulo inferior derecha
+        cv2.rectangle(frame, (ancho - 70, altura - 70), (ancho - 20, altura - 20), color, thickness)
+        cv2.putText(frame, "3", (ancho - 55, altura - 35), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        # Rectángulo inferior izquierda
+        cv2.rectangle(frame, (20, altura - 70), (20 + rect_size, altura - 20), color, thickness)
+        cv2.putText(frame, "4", (35, altura - 35), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        # Texto informativo
+        cv2.putText(frame, "MODO DETECCION: Apunta a rectangulos 1-2-3-4", 
+                   (ancho//2 - 200, altura - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+    
     def dibujar_interfaz_principal(self, frame: np.ndarray) -> np.ndarray:
         """Dibuja la interfaz principal del sistema"""
         altura, ancho = frame.shape[:2]
@@ -770,6 +881,29 @@ class DetectorGestos:
             cv2.putText(frame, f"Calibracion: {puntos_cal}/4 puntos completados", (20, y_pos), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 200, 0), 2)
             
+            # Estado de detección automática
+            y_pos += 25
+            if hasattr(self, '_detectar_proyeccion_automatica') and self._detectar_proyeccion_automatica:
+                if hasattr(self, 'area_proyeccion') and self.area_proyeccion:
+                    estado_auto = "Auto: DETECTADO ✓"
+                    color_auto = (0, 255, 0)
+                else:
+                    estado_auto = f"Auto: Buscando... ({getattr(self, 'marcos_sin_deteccion', 0)}/100)"
+                    color_auto = (255, 200, 0)
+            else:
+                estado_auto = "Auto: DESACTIVADO (Usa 'A')"
+                color_auto = (100, 100, 100)
+            
+            cv2.putText(frame, estado_auto, (20, y_pos), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, color_auto, 1)
+            
+            # Información de calibración automática de distancia
+            if hasattr(self, 'factor_distancia') and self.factor_distancia:
+                y_pos += 25
+                color_factor = (0, 255, 0) if 0.8 <= self.factor_distancia <= 1.2 else (255, 100, 0)
+                cv2.putText(frame, f"Distancia: {self.factor_distancia:.2f}x (Adaptativo: {int(self.distancia_pinza_adaptativa)}px)", 
+                           (20, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color_factor, 1)
+            
             if puntos_cal < 4:
                 y_pos += 25
                 cv2.putText(frame, "Presiona CALIBRAR para configurar proyeccion", (20, y_pos), 
@@ -801,7 +935,8 @@ class DetectorGestos:
             "V - Mostrar/Ocultar interfaz", 
             "M - Cambiar modo (Pantalla/Mesa)",
             "K - Cambiar camara",
-            "C - Calibrar (solo modo mesa)",
+            "C - Calibracion manual (modo mesa)",
+            "A - Deteccion automatica (modo mesa)",
             "R - Reset calibracion/zoom",
             "",
             "GESTOS DISPONIBLES:",
@@ -903,21 +1038,31 @@ class DetectorGestos:
         # Detectar manos
         resultados = self.hands.process(rgb_frame)
         
-        # DETECCIÓN AUTOMÁTICA DE PROYECCIÓN (solo en modo mesa)
+        # DETECCIÓN AUTOMÁTICA DE PROYECCIÓN (solo en modo MESA)
         if hasattr(self, '_detectar_proyeccion_automatica') and self._detectar_proyeccion_automatica and self.modo == ModoOperacion.MESA:
+            # Mostrar información de depuración
+            cv2.putText(frame, "DETECCION AUTO ACTIVA", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            
             if not hasattr(self, 'area_proyeccion') or self.area_proyeccion is None:
-                # Intentar detectar área de proyección cada 30 frames
+                cv2.putText(frame, "Buscando proyeccion...", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+                
+                # Intentar detectar área de proyección cada 10 frames
                 if not hasattr(self, '_frame_count_deteccion'):
                     self._frame_count_deteccion = 0
                 
                 self._frame_count_deteccion += 1
-                if self._frame_count_deteccion % 30 == 0:  # Cada 30 frames
+                if self._frame_count_deteccion % 10 == 0:  # Cada 10 frames (más frecuente)
+                    logger.info(f"🔍 Intentando detectar proyección (frame {self._frame_count_deteccion})")
                     area_detectada = self._detectar_area_proyeccion(frame)
                     if area_detectada:
                         self.area_proyeccion = area_detectada
                         logger.info(f"✅ Área de proyección detectada automáticamente: {area_detectada}")
                         # Configurar matriz de transformación automática
                         self._configurar_transformacion_automatica()
+                    else:
+                        logger.debug(f"⚪ No se detectó proyección en frame {self._frame_count_deteccion}")
+            else:
+                cv2.putText(frame, f"Proyeccion detectada!", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
             
             # Dibujar área de proyección si está detectada
             if hasattr(self, 'area_proyeccion') and self.area_proyeccion:
@@ -963,6 +1108,9 @@ class DetectorGestos:
         """Detecta gestos con una sola mano"""
         altura, ancho = frame.shape[:2]
         
+        # 🔧 CALIBRACIÓN AUTOMÁTICA DE DISTANCIA
+        self._calibrar_distancia_automatica(landmarks, (altura, ancho))
+        
         # Si estamos calibrando, procesar calibración
         if self.calibrando and not self.esperando_confirmacion:
             self._procesar_calibracion(frame, landmarks)
@@ -1001,7 +1149,7 @@ class DetectorGestos:
         # Determinar gesto
         tiempo_actual = time.time()
         
-        if distancia_pulgar_indice < self.configuracion.distancia_pinza:
+        if distancia_pulgar_indice < self.distancia_pinza_adaptativa:
             # Click izquierdo o arrastrar
             posicion_click = ((pulgar_tip[0] + indice_tip[0]) // 2, (pulgar_tip[1] + indice_tip[1]) // 2)
             
@@ -1034,7 +1182,7 @@ class DetectorGestos:
                         confianza=0.9
                     )
         
-        elif distancia_pulgar_medio < self.configuracion.distancia_pinza:
+        elif distancia_pulgar_medio < self.distancia_pinza_adaptativa:
             # Click derecho
             posicion_click = ((pulgar_tip[0] + medio_tip[0]) // 2, (pulgar_tip[1] + medio_tip[1]) // 2)
             return InfoGesto(
@@ -1277,6 +1425,11 @@ class DetectorGestos:
             self._cambiar_camara()
         elif tecla == ord('c') or tecla == ord('C'):  # Calibración
             self._iniciar_calibracion()
+        elif tecla == ord('a') or tecla == ord('A'):  # Detección automática
+            if self.modo == ModoOperacion.MESA:
+                self._activar_deteccion_automatica()
+            else:
+                logger.info("⚠️  Detección automática solo disponible en modo MESA")
         elif tecla == ord('u') or tecla == ord('U'):  # Deshacer último punto
             self.deshacer_ultimo_punto()
         elif tecla == ord('r') or tecla == ord('R'):
