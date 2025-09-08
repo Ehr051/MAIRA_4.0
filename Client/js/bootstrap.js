@@ -284,8 +284,8 @@
                 // 6. HANDLERS (solo los necesarios por módulo)
                 await this.loadHandlersForModule(moduleName);
                 
-                // 7. GESTORES (solo para módulos que los necesitan según análisis + 4.0)
-                if (['juegodeguerra', 'gestionbatalla', 'planeamiento'].includes(moduleName)) {
+                // 7. GESTORES (solo para módulos de JUEGO, NO planeamiento)
+                if (['juegodeguerra', 'gestionbatalla'].includes(moduleName)) {
                     await this.loadCategory('gestores', LOAD_ORDER.gestores);
                     console.log(`✅ Gestores cargados para ${moduleName}`);
                 }
