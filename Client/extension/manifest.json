@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "MAIRA Gesture Control",
+  "version": "1.0.0",
+  "description": "Control por gestos para MAIRA 4.0 - Control de mesa interactivo",
+  
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "webRTC"
+  ],
+  
+  "host_permissions": [
+    "https://maira-production.onrender.com/*",
+    "https://localhost:*/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [{
+    "matches": ["https://maira-production.onrender.com/*"],
+    "js": ["content.js"],
+    "css": ["gesture-ui.css"]
+  }],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MAIRA Gesture Control"
+  },
+  
+  "web_accessible_resources": [{
+    "resources": ["gesture-detector.js", "calibration-ui.html"],
+    "matches": ["https://maira-production.onrender.com/*"]
+  }],
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png", 
+    "128": "icons/icon128.png"
+  }
+}

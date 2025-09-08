@@ -90,6 +90,13 @@
  
  <!-- Scripts de tiles externos y GitHub Releases -->
  <!-- Archivos movidos a tools/static-debug ya no necesarios en producción -->
+ 
+ <!-- MediaPipe para control por gestos -->
+ <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
+ 
+ <!-- Control por gestos MAIRA -->
+ <script src="js/gesture-control-web.js"></script>
+ 
 </head>
 <body>
   <!-- Loading container al principio del body -->
@@ -973,5 +980,83 @@
       <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
     </div>
   </main>
+
+  <!-- Script para Control por Gestos -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnControlGestos = document.getElementById('btnControlGestos');
+      
+      if (btnControlGestos) {
+        btnControlGestos.addEventListener('click', function(e) {
+          e.preventDefault();
+          descargarDetectorGestos();
+        });
+      }
+    });
+
+    async function descargarDetectorGestos() {
+      const btnControlGestos = document.getElementById('btnControlGestos');
+      
+      try {
+        // Mostrar mensaje de confirmación
+        const confirmacion = confirm(
+          '🤚 MAIRA Detector de Gestos\n\n' +
+          '¿Deseas descargar e instalar el detector de gestos en tu PC?\n\n' +
+          '✅ Control por gestos para cualquier programa\n' +
+          '✅ Mesa de proyección interactiva\n' +
+          '✅ Integración con MAIRA Web\n\n' +
+          'Se descargará un archivo ZIP con instalador automático.'
+        );
+        
+        if (!confirmacion) return;
+        
+        // Mostrar indicador de descarga
+        const mensajeOriginal = btnControlGestos.innerHTML;
+        btnControlGestos.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Descargando...';
+        btnControlGestos.disabled = true;
+        
+        // Realizar descarga
+        const response = await fetch('/api/download-gesture-detector');
+        
+        if (!response.ok) {
+          throw new Error(`Error en descarga: ${response.status}`);
+        }
+        
+        // Crear blob y descargar archivo
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'MAIRA_Detector_Gestos.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        // Mostrar instrucciones
+        setTimeout(() => {
+          alert(
+            '📦 ¡Descarga completada!\n\n' +
+            '📋 Próximos pasos:\n' +
+            '1. Busca el archivo "MAIRA_Detector_Gestos.zip" en Descargas\n' +
+            '2. Extrae el archivo ZIP\n' +
+            '3. Ejecuta "maira_gestos.py" (doble click)\n' +
+            '4. Sigue las instrucciones en pantalla\n\n' +
+            '💡 El detector funcionará con MAIRA y cualquier otro programa.'
+          );
+        }, 500);
+        
+      } catch (error) {
+        console.error('Error descargando detector de gestos:', error);
+        alert('❌ Error al descargar el detector de gestos.\nVerifica tu conexión e intenta nuevamente.');
+      } finally {
+        // Restaurar botón
+        if (btnControlGestos) {
+          btnControlGestos.innerHTML = mensajeOriginal;
+          btnControlGestos.disabled = false;
+        }
+      }
+    }
+  </script>
 </body>
 </html>
