@@ -73,6 +73,16 @@
         if (typeof MAIRABootstrap !== 'undefined') {
           await MAIRABootstrap.loadForModule('planeamiento');
           console.log('✅ Bootstrap DDD completado para módulo Planeamiento');
+          
+          // Cargar dependencias específicas de planeamiento (MGRS, etc.)
+          if (typeof loadPlaneamientoDependencies === 'function') {
+            console.log('🗺️ Cargando dependencias específicas de planeamiento...');
+            await loadPlaneamientoDependencies();
+            console.log('✅ Dependencias de planeamiento cargadas completamente');
+          } else {
+            console.warn('⚠️ loadPlaneamientoDependencies no disponible');
+          }
+          
         } else {
           console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
           // Fallback de emergencia si falla el bootstrap

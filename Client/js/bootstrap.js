@@ -49,8 +49,6 @@
             '/Client/js/common/mapaP.js',
             '/Client/js/common/simbolosP.js',     // ✅ actualizarSidc y agregarMarcador se cargan aquí
             '/Client/js/common/herramientasP.js',  // ✅ REFACTORIZADO: Ahora es stub de compatibilidad
-            // '/Client/js/common/herramientasP.js',  // ❌ REFACTORIZADO: Reemplazado por módulos especializados
-            '/Client/js/common/migrationMap.js',      // 📋 NUEVO: Documentación de la refactorización
             '/Client/js/common/toolsInitializer.js',  // ✅ NUEVO: Inicializador de herramientas refactorizadas
             '/Client/js/common/dibujosMCCP.js',
             '/Client/js/common/atajosP.js',
@@ -393,7 +391,8 @@
                 'juegodeguerra': [
                     '/Client/js/common/networkConfig.js',
                     // ❌ NO utilsJDG.js - este archivo NO existe en el sistema
-                    '/Client/js/common/MAIRAChat.js'        // ✅ juegodeguerra.html SÍ tiene chat
+                    '/Client/js/common/MAIRAChat.js',       // ✅ juegodeguerra.html SÍ tiene chat
+                    '/Client/js/utils/calcosP.js'           // ✅ AGREGADO: Gestión de calcos necesaria para mapas
                 ],
                 
                 // 🏢 INICIO GB - Básicos + Chat (confirmado con viejo/static)
@@ -435,7 +434,6 @@
                     '/Client/js/common/panelMarcha.js',
                     '/Client/js/common/edicioncompleto.js', // ✅ Solo en planeamiento
                     '/Client/js/utils/calcosP.js',
-                    '/Client/js/common/migrationMap.js',
                     '/Client/js/common/toolsInitializer.js'
                 ],
                 
@@ -480,6 +478,7 @@
                     '/Client/js/handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
                     '/Client/js/handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
                     '/Client/js/workers/elevation.worker.js',    // ✅ Workers de elevación
+                    '/Client/js/workers/vegetation.worker.js',   // ✅ AGREGADO: Worker vegetación
                     '/Client/js/utils/geometryUtils.js',
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
@@ -492,7 +491,8 @@
                     '/Client/js/handlers/dependency-manager.js',
                     '/Client/js/handlers/elevationHandler.js',
                     '/Client/js/handlers/vegetacionhandler.js',
-                    '/Client/js/workers/elevation.worker.js'
+                    '/Client/js/workers/elevation.worker.js',
+                    '/Client/js/workers/vegetation.worker.js'    // ✅ AGREGADO: Worker vegetación
                 ],
                 
                 // 🏗️ ORGANIZACIÓN - Solo dependency manager
