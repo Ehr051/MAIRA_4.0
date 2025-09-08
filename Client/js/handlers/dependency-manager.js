@@ -234,6 +234,29 @@ class DependencyManager {
     }
 
     /**
+     * Carga dependencias específicas de planeamiento
+     */
+    async loadPlaneamientoDependencies() {
+        const planeamientoDependencies = [
+            'mgrs',  // ✅ Para cuadrículas MGRS
+            'leaflet-elevation',
+            { name: 'leaflet-elevation-css', type: 'css' },
+            'geotiff'
+        ];
+
+        console.log('🗺️ Cargando dependencias de planeamiento...');
+        
+        try {
+            await this.loadDependencies(planeamientoDependencies);
+            console.log('✅ Dependencias de planeamiento cargadas');
+            return true;
+        } catch (error) {
+            console.error('❌ Error cargando dependencias de planeamiento:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Verifica si una dependencia está disponible
      */
     isDependencyLoaded(name) {
@@ -257,6 +280,7 @@ window.dependencyManager = new DependencyManager();
 
 // Función de conveniencia
 window.loadMAIRADependencies = () => window.dependencyManager.loadMAIRADependencies();
+window.loadPlaneamientoDependencies = () => window.dependencyManager.loadPlaneamientoDependencies();
 
 console.log('🚀 Dependency Manager inicializado');
 

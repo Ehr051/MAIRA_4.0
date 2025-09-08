@@ -57,7 +57,10 @@
             '/Client/js/common/CalculoMarcha.js',
             '/Client/js/common/graficoMarcha.js',
             '/Client/js/common/edicioncompleto.js',
-            '/Client/js/utils/calcosP.js'
+            '/Client/js/utils/calcosP.js',
+            // ✅ AGREGADOS: Archivos que faltaban
+            '/Client/js/common/unidades.js',          // ✅ Gestión de unidades
+            '/Client/js/common/partidas.js'           // ✅ Gestión de partidas
         ],
         
         // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN) + MÓDULOS REFACTORIZADOS
@@ -80,7 +83,13 @@
             '/Client/js/handlers/measurementHandler.js',    // Medición de distancia (último - depende de otros)
             
             // ✅ GAMING Y DIRECTOR
-            '/Client/js/handlers/DirectorManager.js'        // Sistema roles director/creador
+            '/Client/js/handlers/DirectorManager.js',       // Sistema roles director/creador
+            
+            // ✅ AGREGADOS: Handlers que estaban faltando
+            '/Client/js/handlers/performanceOptimizer.js',  // ✅ Optimización performance
+            '/Client/js/handlers/EventBus.js',              // ✅ Bus de eventos
+            '/Client/js/handlers/pendienteHandler.js',      // ✅ De herramientasP.js
+            '/Client/js/handlers/transitabilidadHandler.js' // ✅ De herramientasP.js
         ],
         
         // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
@@ -110,14 +119,16 @@
                 // ❌ NO index.js - no existe en original
             ],
             
-            // 📋 PLANEAMIENTO - Herramientas COMPLETAS + Tests + servicios básicos
+            // 📋 PLANEAMIENTO - Herramientas COMPLETAS + Tests + servicios básicos + script principal
             planeamiento: [
                 '/Client/js/common/indexP.js',             // ✅ PRIMERO - Script principal de planeamiento
+                '/Client/js/modules/planeamiento/planeamiento.js', // ✅ AGREGADO: Script base planeamiento
                 '/Client/js/Test/autoTest.js',
                 '/Client/js/Test/visualizadorTests.js',
                 '/Client/js/Test/testPlaneamiento.js',
                 '/Client/js/handlers/searchHandler.js',    // ✅ Búsqueda de lugares  
-                '/Client/js/handlers/testHandler.js'       // ✅ Testing automatizado
+                '/Client/js/handlers/testHandler.js',      // ✅ Testing automatizado
+                '/Client/js/workers/vegetation.worker.js'  // ✅ AGREGADO: Worker vegetación
                 // ✅ Las herramientas refactorizadas se cargan automáticamente en handlers
                 // ✅ toolsInitializer.js ya está en common y se auto-inicializa
                 // ✅ USA: transitabilityService, slopeAnalysisService, elevationProfileService, threeDMapService
@@ -135,8 +146,9 @@
             
             // 🎯 INICIAR PARTIDA - Scripts exactos del viejo/static/iniciarpartida.html
             partidas: [
-                '/Client/js/common/partidas.js',           // ✅ partidas.js según original
-                '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
+                '/Client/js/modules/partidas/iniciarpartida.js', // ✅ iniciarpartida.js según original
+                '/Client/js/utils/config.js',              // ✅ AGREGADO: Config para producción
+                '/Client/js/utils/validacion.js'           // ✅ AGREGADO: Validación usuarios DB
             ],
             
             // 🎮 JUEGO DE GUERRA - Solo gestores, combate y servicios específicos de simulación
@@ -146,7 +158,8 @@
                 // ✅ Los gestores se cargan automáticamente en la categoría 'gestores'
                 '/Client/js/gaming/GameEngine.js',         // ✅ Motor de juego avanzado
                 '/Client/js/gaming/AIDirector.js',         // ✅ Director de IA
-                '/Client/js/services/combatSystem3DIntegrator.js'  // ✅ ESPECÍFICO: Integración 3D combate SOLO SIMULACIONES
+                '/Client/js/services/combatSystem3DIntegrator.js',  // ✅ ESPECÍFICO: Integración 3D combate SOLO SIMULACIONES
+                '/Client/js/gaming/FogOfWar.js'            // ✅ AGREGADO: Niebla de guerra
             ],
             
             // 🏢 INICIO GB - Con chat
@@ -161,10 +174,7 @@
                 '/Client/js/modules/gestion/informesGB.js',
                 '/Client/js/modules/gestion/elementosGB.js',
                 '/Client/js/modules/gestion/gestionBatalla.js',
-                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ Script principal según análisis
                 '/Client/js/gaming/AIDirector.js'          // ✅ Director de IA para seguimiento
-                // ❌ NO NECESITA: combatSystem3DIntegrator (es solo para simulaciones)
-                // ❌ NO NECESITA: autonomousAgentService (herramienta de desarrollo en tools/)
             ]
         },
         
