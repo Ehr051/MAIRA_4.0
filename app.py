@@ -771,8 +771,8 @@ def crear_partida(data):
             # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = true
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
-                VALUES (%s, %s, 'sin_equipo', false, true)
-            """, (partida_id, creador_id))
+                VALUES (%s, %s, %s, %s, %s)
+            """, (partida_id, creador_id, 'sin_equipo', False, True))
             
             conn.commit()
             print("Commit realizado con éxito")
@@ -954,8 +954,8 @@ def unirse_a_partida(data):
             # Agregar usuario a la partida
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
-                VALUES (%s, %s, 'sin_equipo', false, false)
-            """, (partida['id'], user_id))
+                VALUES (%s, %s, %s, %s, %s)
+            """, (partida['id'], user_id, 'sin_equipo', False, False))
             
             conn.commit()
             
@@ -1325,8 +1325,8 @@ def crear_operacion_gb(data):
                 # Insertar al creador como director de operación
                 cursor.execute("""
                     INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
-                    VALUES (%s, %s, 'director', false, true)
-                """, (operacion_id, creador_id))
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (operacion_id, creador_id, 'director', False, True))
                 print("✅ [DEBUG] Creador insertado como director")
             else:
                 print("⚠️ [DEBUG] No se pudo obtener ID del creador")
@@ -1440,8 +1440,8 @@ def unirse_operacion_gb(data):
             equipo = elemento_info.get('designacion', 'elemento')
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
-                VALUES (%s, %s, %s, false, false)
-            """, (operacion['id'], user_id, equipo))
+                VALUES (%s, %s, %s, %s, %s)
+            """, (operacion['id'], user_id, equipo, False, False))
             
             conn.commit()
             
@@ -1873,8 +1873,8 @@ def api_unirse_partida():
             # Unir al usuario a la partida
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
-                VALUES (%s, %s, 'sin_equipo', false, false)
-            """, (partida_id, usuario_id))
+                VALUES (%s, %s, %s, %s, %s)
+            """, (partida_id, usuario_id, 'sin_equipo', False, False))
             
             conn.commit()
             
