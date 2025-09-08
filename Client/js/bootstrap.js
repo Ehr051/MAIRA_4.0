@@ -26,16 +26,17 @@
             '/Client/js/infrastructure/terrainAdapter.js'
         ],
         
-        // 4. SERVICIOS DDD BÁSICOS (Hexagonal Architecture) - Solo servicios globales
+        // 4. SERVICIOS DDD BÁSICOS (Hexagonal Architecture) - Solo servicios de aplicación web
         services: [
             '/Client/js/services/servicesManager.js',
             '/Client/js/services/transitabilityService.js',    // ✅ GLOBAL: Planeamiento + Juego
             '/Client/js/services/slopeAnalysisService.js',     // ✅ GLOBAL: Análisis terreno
             '/Client/js/services/elevationProfileService.js',  // ✅ GLOBAL: Perfiles elevación
             '/Client/js/services/threeDMapService.js'          // ✅ GLOBAL: Mapas 3D básicos
-            // ❌ MOVIDOS A MÓDULOS ESPECÍFICOS:
-            // - combatSystem3DIntegrator.js → juegodeguerra + gestionbatalla
-            // - autonomousAgentService.js → gestionbatalla únicamente
+            // ❌ MOVIDOS ESPECÍFICOS:
+            // - combatSystem3DIntegrator.js → SOLO juegodeguerra (simulaciones)
+            // ❌ MOVIDOS A TOOLS:
+            // - autonomousAgentService.js → tools/development (herramienta DE desarrollo)
         ],
         
         // 5. MÓDULOS COMUNES (INCLUYE LAS FUNCIONES GLOBALES)
@@ -120,7 +121,7 @@
                 // ✅ Las herramientas refactorizadas se cargan automáticamente en handlers
                 // ✅ toolsInitializer.js ya está en common y se auto-inicializa
                 // ✅ USA: transitabilityService, slopeAnalysisService, elevationProfileService, threeDMapService
-                // ❌ NO USA: combatSystem3DIntegrator, autonomousAgentService
+                // ❌ NO USA: combatSystem3DIntegrator (solo simulaciones), autonomousAgentService (tools)
             ],
             
             // 🏗️ CO/ORGANIZACIÓN - ESPECÍFICO: Sin herramientas de mapa, solo organización
@@ -138,14 +139,14 @@
                 '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
             ],
             
-            // 🎮 JUEGO DE GUERRA - Solo gestores y componentes base + servicios específicos
+            // 🎮 JUEGO DE GUERRA - Solo gestores, combate y servicios específicos de simulación
             juegodeguerra: [
                 '/Client/js/modules/juego/hexgrid.js',     // ✅ Grid hexagonal
                 '/Client/js/modules/juego/combate.js',     // ✅ Sistema de combate
                 // ✅ Los gestores se cargan automáticamente en la categoría 'gestores'
                 '/Client/js/gaming/GameEngine.js',         // ✅ Motor de juego avanzado
                 '/Client/js/gaming/AIDirector.js',         // ✅ Director de IA
-                '/Client/js/services/combatSystem3DIntegrator.js'  // ✅ ESPECÍFICO: Integración 3D combate
+                '/Client/js/services/combatSystem3DIntegrator.js'  // ✅ ESPECÍFICO: Integración 3D combate SOLO SIMULACIONES
             ],
             
             // 🏢 INICIO GB - Con chat
@@ -153,17 +154,17 @@
                 '/Client/js/modules/gestion/inicioGBhandler.js'
             ],
             
-            // ⚔️ GESTIÓN BATALLA - Con chat + funcionalidades 4.0 completas + servicios específicos
+            // ⚔️ GESTIÓN BATALLA - Seguimiento de operaciones en tiempo real (NO simulaciones)
             gestionbatalla: [
                 '/Client/js/utils/utilsGB.js',             // ✅ Específico GB según análisis
                 '/Client/js/modules/gestion/edicionGB.js',
                 '/Client/js/modules/gestion/informesGB.js',
                 '/Client/js/modules/gestion/elementosGB.js',
-                '/Client/js/modules/gestion/gestionBatalla.js', // ✅ Script principal según análisis
-                // ✅ Funcionalidades 4.0 agregadas:
-                '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA para GB
-                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ 4.0: Integración 3D combate
-                '/Client/js/services/autonomousAgentService.js'    // ✅ 4.0: Agentes autónomos SOLO EN GB
+                '/Client/js/modules/gestion/gestionBatalla.js',
+                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ Script principal según análisis
+                '/Client/js/gaming/AIDirector.js'          // ✅ Director de IA para seguimiento
+                // ❌ NO NECESITA: combatSystem3DIntegrator (es solo para simulaciones)
+                // ❌ NO NECESITA: autonomousAgentService (herramienta de desarrollo en tools/)
             ]
         },
         

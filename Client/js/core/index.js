@@ -162,9 +162,8 @@ class MAIRACore {
             const { SlopeAnalysisService } = await import('../services/slopeAnalysisService.js');
             this.registerService('slopeAnalysis', new SlopeAnalysisService(this));
             
-            // Autonomous Agent Service
-            const { AutonomousAgentService } = await import('../services/autonomousAgentService.js');
-            this.registerService('autonomousAgent', new AutonomousAgentService(this));
+            // ❌ REMOVIDO: AutonomousAgentService - movido a tools/development
+            // Es herramienta de desarrollo, no servicio de la aplicación web
             
             // User Identity Service (ya cargado como módulo core)
             const UserIdentityService = await import('./UserIdentity.js');

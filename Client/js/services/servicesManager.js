@@ -69,8 +69,8 @@ class MAIRAServicesManager {
             { name: 'transitability', class: 'TransitabilityService', required: false },
             { name: 'slopeAnalysis', class: 'SlopeAnalysisService', required: false },
             { name: 'threeDMap', class: 'ThreeDMapService', required: false },
-            { name: 'combatSystem3D', class: 'CombatSystem3DIntegrator', required: false },
-            { name: 'autonomousAgent', class: 'AutonomousAgentService', required: false }
+            { name: 'combatSystem3D', class: 'CombatSystem3DIntegrator', required: false }
+            // ❌ REMOVIDO: autonomousAgent - movido a tools/development (no es servicio de la app)
         ];
 
         for (const service of availableServices) {
