@@ -449,7 +449,9 @@
                     '/Client/js/handlers/mobileOptimizationHandler.js',
                     '/Client/js/handlers/mapInteractionHandler.js',
                     '/Client/js/services/elevationProfileService.js',
-                    '/Client/js/handlers/measurementHandler.js'
+                    '/Client/js/handlers/measurementHandler.js',
+                    '/Client/js/handlers/searchHandler.js',     // ✅ NUEVO: Búsqueda de lugares (initializeBuscarLugar)
+                    '/Client/js/handlers/testHandler.js'        // ✅ NUEVO: Testing (ejecutarTestPlaneamiento)
                 ],
                 
                 // ⚔️ GESTIÓN BATALLA - Mismos handlers críticos que planeamiento
