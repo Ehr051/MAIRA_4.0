@@ -2786,8 +2786,50 @@ def download_gesture_detector():
             launcher = create_simple_launcher()
             zip_file.writestr('maira_gestos.py', launcher)
             
-            # Agregar README
-            readme = "# MAIRA Detector de Gestos\n\n1. Instala dependencias: pip install -r requirements.txt\n2. Ejecuta: python maira_gestos.py\n3. Sigue las instrucciones en pantalla"
+            # Agregar archivos de inicio por sistema operativo
+            # Archivo .bat para Windows
+            bat_content = '''@echo off
+echo ========================================
+echo    MAIRA Detector de Gestos - Windows
+echo ========================================
+cd /d "%~dp0"
+python maira_gestos.py
+pause'''
+            zip_file.writestr('iniciar_gestos.bat', bat_content)
+            
+            # Archivo .sh para macOS/Linux
+            sh_content = '''#!/bin/bash
+echo "========================================"
+echo "   MAIRA Detector de Gestos - Unix"
+echo "========================================"
+cd "$(dirname "$0")"
+python3 maira_gestos.py
+read -p "Presiona ENTER para continuar..."'''
+            zip_file.writestr('iniciar_gestos.sh', sh_content)
+            
+            # Agregar README actualizado
+            readme = """# MAIRA Detector de Gestos
+
+## 🚀 Instalación Rápida:
+
+### Windows:
+1. Ejecuta: iniciar_gestos.bat
+2. Si no funciona: pip install -r requirements.txt && python maira_gestos.py
+
+### macOS/Linux:
+1. Ejecuta: chmod +x iniciar_gestos.sh && ./iniciar_gestos.sh
+2. Si no funciona: pip3 install -r requirements.txt && python3 maira_gestos.py
+
+## 🎮 Modos Disponibles:
+- **Pantalla**: Control directo del escritorio
+- **Mesa**: Con detección automática de área de proyección
+- **Web**: Conectar con MAIRA online
+
+## 🔧 Modo Mesa (Nuevo):
+- Detección automática del área de proyección
+- Recuadro verde muestra el área activa
+- Solo procesa gestos dentro del área
+- Mapeo automático a coordenadas de pantalla"""
             zip_file.writestr('README.txt', readme)
         
         zip_buffer.seek(0)
