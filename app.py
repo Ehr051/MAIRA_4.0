@@ -457,7 +457,7 @@ def crear_usuario():
             
             cursor.execute(
                 "INSERT INTO usuarios (username, password, email, unidad, is_online) VALUES (%s, %s, %s, %s, %s)",
-                (username, hashed_password.decode('utf-8'), email, unidad, 0)
+                (username, hashed_password.decode('utf-8'), email, unidad, False)
             )
             
             conn.commit()
@@ -654,7 +654,7 @@ def handle_disconnect():
         if conn:
             try:
                 cursor = conn.cursor()
-                cursor.execute("UPDATE usuarios SET is_online = 0 WHERE id = %s", (user_id,))
+                cursor.execute("UPDATE usuarios SET is_online = %s WHERE id = %s", (False, user_id))
                 conn.commit()
             except Exception as e:
                 print(f"Error actualizando estado offline: {e}")
@@ -698,7 +698,7 @@ def handle_login(data):
         if conn:
             try:
                 cursor = conn.cursor()
-                cursor.execute("UPDATE usuarios SET is_online = 1 WHERE id = %s", (user_id,))
+                cursor.execute("UPDATE usuarios SET is_online = %s WHERE id = %s", (True, user_id))
                 conn.commit()
             except Exception as e:
                 print(f"Error actualizando estado online: {e}")
