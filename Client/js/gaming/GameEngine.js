@@ -947,4 +947,7 @@ window.GameEngine = GameEngine;
 
 console.log('🎮 Game Engine MAIRA 4.0 - Módulo cargado');
 
-export default GameEngine;
+// Para compatibilidad con módulos ES6 si se usa en el futuro
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = GameEngine;
+}

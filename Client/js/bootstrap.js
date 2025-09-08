@@ -79,19 +79,18 @@
         
         // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
         gestores: [
-            '/Client/js/utils/eventemitter.js',             // ✅ PRIMERO - Base de eventos
-            '/Client/js/handlers/gestorBase.js',            // ✅ SEGUNDO - Hereda de EventEmitter
-            '/Client/js/handlers/gestorComunicacion.js',
-            '/Client/js/handlers/gestorEventos.js',
-            '/Client/js/handlers/gestorCarga.js',
-            '/Client/js/handlers/gestorEstado.js',
-            '/Client/js/handlers/gestorMapa.js',
-            '/Client/js/handlers/gestorAcciones.js',
-            '/Client/js/handlers/gestorInterfaz.js',
-            '/Client/js/handlers/gestorUnidades.js',
-            '/Client/js/handlers/gestorFases.js',
-            '/Client/js/handlers/gestorTurnos.js',
-            '/Client/js/handlers/gestorJuego.js'            // ✅ ÚLTIMO - Coordina todos
+            '/Client/js/modules/juego/gestorBase.js',       // ✅ PRIMERO - Base de todos los gestores
+            '/Client/js/modules/juego/gestorEventos.js',    // ✅ SEGUNDO - Sistema de eventos
+            '/Client/js/modules/juego/gestorEstado.js',     // ✅ TERCERO - Gestión de estado
+            '/Client/js/modules/juego/gestorComunicacion.js', // ✅ Comunicación
+            '/Client/js/modules/juego/gestorCarga.js',      // ✅ Carga de datos
+            '/Client/js/modules/juego/gestorMapa.js',       // ✅ Gestión del mapa
+            '/Client/js/modules/juego/gestorInterfaz.js',   // ✅ Interfaz de usuario
+            '/Client/js/modules/juego/gestorAcciones.js',   // ✅ Acciones del juego
+            '/Client/js/modules/juego/gestorUnidades.js',   // ✅ Gestión de unidades
+            '/Client/js/modules/juego/gestorFases.js',      // ✅ Fases del juego
+            '/Client/js/handlers/gestorTurnos.js',          // ✅ Sistema de turnos (compartido)
+            '/Client/js/modules/juego/gestorJuego.js'       // ✅ ÚLTIMO - Coordina todos
         ],
         
         // 8. MÓDULOS ESPECÍFICOS - Basado en análisis HTML real + funcionalidades 4.0
@@ -105,15 +104,14 @@
                 // ❌ NO index.js - no existe en original
             ],
             
-            // 📋 PLANEAMIENTO - Sin chat + Tests + funcionalidades 4.0
+            // 📋 PLANEAMIENTO - Sin chat + Tests + funcionalidades 4.0 + herramientas completas
             planeamiento: [
-                '/Client/js/Test/testPlaneamiento.js',
+                '/Client/js/common/indexP.js',             // ✅ PRIMERO - Script principal de planeamiento
                 '/Client/js/Test/autoTest.js',
                 '/Client/js/Test/visualizadorTests.js',
-                // ✅ Funcionalidades 4.0 agregadas:
-                '/Client/js/services/elevationProfileService.js',
-                '/Client/js/handlers/mapInteractionHandler.js',
-                '/Client/js/utils/geometryUtils.js'
+                '/Client/js/Test/testPlaneamiento.js'
+                // ✅ Las herramientas refactorizadas se cargan automáticamente en handlers
+                // ✅ toolsInitializer.js ya está en common y se auto-inicializa
             ],
             
             // 🏗️ CO/ORGANIZACIÓN - Sin chat, orden crítico + funcionalidades 4.0
@@ -129,18 +127,13 @@
                 '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
             ],
             
-            // 🎮 JUEGO DE GUERRA - Rutas corregidas según ubicación real + funcionalidades 4.0
+            // 🎮 JUEGO DE GUERRA - Solo gestores y componentes base
             juegodeguerra: [
-                // ❌ NO utilsJDG.js - este archivo NO existe en el sistema original
-                '/Client/js/modules/juego/hexgrid.js',     // ✅ EXISTE: en modules/juego/
-                '/Client/js/modules/juego/combate.js',     // ✅ Verificar si existe
-                '/Client/js/modules/juego/juegodeguerra.js', // ✅ Verificar si existe
-                // ✅ Funcionalidades 4.0 - verificar ubicaciones:
-                '/Client/js/gaming/GameEngine.js',         // ✅ EXISTE: Motor de juego avanzado
-                '/Client/js/gaming/AIDirector.js',         // ✅ Verificar si existe
-                '/Client/js/modules/juego/gestorTurnos.js', // ✅ EXISTE: en modules/juego/ (no handlers/)
-                '/Client/js/handlers/gestorFases.js',      // ✅ Verificar ubicación
-                '/Client/js/handlers/gestorInterfaz.js'    // ✅ Verificar ubicación
+                '/Client/js/modules/juego/hexgrid.js',     // ✅ Grid hexagonal
+                '/Client/js/modules/juego/combate.js',     // ✅ Sistema de combate
+                // ✅ Los gestores se cargan automáticamente en la categoría 'gestores'
+                '/Client/js/gaming/GameEngine.js',         // ✅ Motor de juego avanzado
+                '/Client/js/gaming/AIDirector.js'          // ✅ Director de IA
             ],
             
             // 🏢 INICIO GB - Con chat
@@ -156,9 +149,6 @@
                 '/Client/js/modules/gestion/elementosGB.js',
                 '/Client/js/modules/gestion/gestionBatalla.js', // ✅ Script principal según análisis
                 // ✅ Funcionalidades 4.0 agregadas:
-                '/Client/js/handlers/gestorTurnos.js',     // ✅ 4.0: Sistema de turnos avanzado
-                '/Client/js/handlers/gestorFases.js',      // ✅ 4.0: Gestión de fases
-                '/Client/js/handlers/gestorInterfaz.js',   // ✅ 4.0: Interfaz mejorada
                 '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA para GB
                 '/Client/js/services/combatSystem3DIntegrator.js', // ✅ 4.0: Integración 3D
                 '/Client/js/services/autonomousAgentService.js'    // ✅ 4.0: Agentes autónomos

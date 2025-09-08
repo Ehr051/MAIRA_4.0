@@ -1017,4 +1017,7 @@ window.AIDirector = AIDirector;
 
 console.log('🤖 AI Director MAIRA 4.0 - Módulo cargado');
 
-export default AIDirector;
+// Para compatibilidad con módulos ES6 si se usa en el futuro
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = AIDirector;
+}

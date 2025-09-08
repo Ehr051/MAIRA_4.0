@@ -25,7 +25,7 @@ const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legac
 // Índice de tiles
 // Variables de estado específicas del elevation handler
 let elevationTileIndex;
-let indiceCargado = false;
+let elevationHandlerIndiceCargado = false;
 
 // Cargar el índice de tiles al iniciar
 const cargarIndiceTiles = new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
           // Es el formato de mini-tiles
           console.log('✅ Formato mini-tiles detectado');
           elevationTileIndex = response;
-          indiceCargado = true;
+          elevationHandlerIndiceCargado = true;
           console.log('Índice de tiles cargado correctamente.');
           resolve();
           return;
@@ -75,7 +75,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
             }
           }
           elevationTileIndex = data.tiles;
-          indiceCargado = true;
+          elevationHandlerIndiceCargado = true;
           console.log('Índice de tiles cargado correctamente.');
           resolve();
           return;
@@ -106,7 +106,7 @@ function generarIndiceNuevo() {
 
 // Función para cargar datos de elevación
 async function cargarDatosElevacion(bounds) {
-  if (!indiceCargado) {
+  if (!elevationHandlerIndiceCargado) {
     console.warn('Esperando a que el índice de tiles se cargue.');
     await cargarIndiceTiles;
   }
@@ -497,7 +497,7 @@ async function obtenerElevacion(lat, lon) {
     return null;
   }
 
-  if (!indiceCargado) {
+  if (!elevationHandlerIndiceCargado) {
     console.warn('Esperando a que el índice de tiles se cargue.');
     await cargarIndiceTiles;
   }
@@ -531,7 +531,7 @@ async function obtenerElevacion(lat, lon) {
 // Función para obtener el estado del sistema (agregada para evitar errores)
 function obtenerEstadoSistema() {
   return {
-    indiceCargado: !!indiceCargado,
+    elevationHandlerIndiceCargado: !!elevationHandlerIndiceCargado,
     tileIndex: elevationTileIndex ? 'Cargado' : 'No cargado',
   };
 }
