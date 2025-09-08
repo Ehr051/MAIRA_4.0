@@ -66,23 +66,27 @@ class ToolsInitializer {
     esperarModulos() {
         return new Promise((resolve) => {
             const verificarModulos = () => {
-                const modulosRequeridos = [
-                    'measurementHandler',
-                    'elevationProfileService', 
-                    'mapInteractionHandler',
-                    'geometryUtils',
-                    'mobileOptimizationHandler'
+                // ✅ VERIFICAR FUNCIONES GLOBALES QUE SÍ EXISTEN (de herramientasP.js refactorizado)
+                const funcionesRequeridas = [
+                    'medirDistancia',
+                    'addDistancePoint',
+                    'finalizarMedicion',
+                    'calcularDistancia',
+                    'mostrarPerfilElevacion',
+                    'seleccionarElemento',
+                    'deseleccionarElemento'
                 ];
 
-                const modulosDisponibles = modulosRequeridos.every(modulo => 
-                    window[modulo] !== undefined
+                const funcionesDisponibles = funcionesRequeridas.every(func => 
+                    typeof window[func] === 'function'
                 );
 
-                if (modulosDisponibles) {
-                    console.log('✅ Todos los módulos cargados');
+                if (funcionesDisponibles) {
+                    console.log('✅ Todas las funciones de herramientas cargadas');
                     resolve();
                 } else {
-                    console.log('⏳ Esperando módulos...');
+                    const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
+                    console.log('⏳ Esperando funciones:', faltantes);
                     setTimeout(verificarModulos, 100);
                 }
             };
@@ -97,14 +101,15 @@ class ToolsInitializer {
     inicializarEventListeners() {
         console.log('🔗 Inicializando event listeners...');
 
-        // Event listeners del measurement handler
-        if (window.measurementHandler) {
-            window.measurementHandler.inicializarEventListeners();
+        // ✅ VERIFICAR FUNCIONES ANTES DE USAR
+        // Event listeners del measurement (si existe)
+        if (typeof window.medirDistancia === 'function') {
+            console.log('✅ Event listeners de medición disponibles');
         }
 
-        // Event listeners del map interaction handler
-        if (window.mapInteractionHandler) {
-            window.mapInteractionHandler.inicializarEventListeners();
+        // Event listeners de selección (si existe)
+        if (typeof window.seleccionarElemento === 'function') {
+            console.log('✅ Event listeners de selección disponibles');
         }
 
         // Event listeners generales de la aplicación
@@ -132,21 +137,27 @@ class ToolsInitializer {
         // Event listener para teclas de escape (finalizar medición)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (window.measurementHandler && window.measurementHandler.mediendoDistancia) {
-                    window.finalizarMedicion();
+                if (window.measuringDistance) {  // ✅ VARIABLE GLOBAL CORRECTA
+                    if (typeof window.finalizarMedicion === 'function') {
+                        window.finalizarMedicion();
+                    }
                 }
-                if (window.mapInteractionHandler && window.mapInteractionHandler.hayElementoSeleccionado()) {
-                    window.deseleccionarElemento();
+                if (window.elementoSeleccionado) {  // ✅ VARIABLE GLOBAL CORRECTA
+                    if (typeof window.deseleccionarElemento === 'function') {
+                        window.deseleccionarElemento();
+                    }
                 }
             }
         });
 
         // Event listener para double-click en el mapa (finalizar medición)
-        if (window.map) {
-            window.map.on('dblclick', (evt) => {
-                if (window.measurementHandler && window.measurementHandler.mediendoDistancia) {
+        if (window.mapa) {  // ✅ USAR 'mapa' NO 'map'
+            window.mapa.on('dblclick', (evt) => {
+                if (window.measuringDistance) {  // ✅ VARIABLE GLOBAL CORRECTA
                     evt.preventDefault();
-                    window.finalizarMedicion();
+                    if (typeof window.finalizarMedicion === 'function') {
+                        window.finalizarMedicion();
+                    }
                 }
             });
         }
@@ -158,22 +169,10 @@ class ToolsInitializer {
     configurarInteracciones() {
         console.log('🔄 Configurando interacciones entre módulos...');
 
-        // Configurar la conexión entre measurement y elevation profile
-        if (window.measurementHandler && window.elevationProfileService) {
-            // Override del método mostrarPerfilElevacion para usar el servicio correcto
-            const originalMostrarPerfil = window.measurementHandler.mostrarPerfilElevacion;
-            
-            window.measurementHandler.mostrarPerfilElevacion = function() {
-                if (this.puntosMedicion.length >= 2) {
-                    const puntos = this.puntosMedicion.map((coord, index) => ({
-                        lat: coord[1],
-                        lon: coord[0],
-                        index: index
-                    }));
-                    
-                    window.elevationProfileService.mostrarGraficoPerfil(puntos, this.distanciaTotal);
-                }
-            };
+        // ✅ VERIFICAR QUE LAS FUNCIONES EXISTAN ANTES DE CONFIGURAR INTERACCIONES
+        if (typeof window.mostrarPerfilElevacion === 'function' && 
+            typeof window.mostrarGraficoPerfil === 'function') {
+            console.log('✅ Interacciones de perfil de elevación disponibles');
         }
 
         // Configurar la integración con el elevation handler existente
@@ -186,20 +185,11 @@ class ToolsInitializer {
      * Configura la integración con el elevation handler existente
      */
     configurarIntegracionElevacion() {
-        // Conectar el elevation profile service con el elevation handler
-        if (window.elevationProfileService && window.elevationHandler) {
-            // Override del método de obtener elevación para usar el handler existente
-            window.elevationProfileService.obtenerElevacion = async function(lat, lon) {
-                try {
-                    if (window.elevationHandler && window.elevationHandler.obtenerElevacion) {
-                        return await window.elevationHandler.obtenerElevacion(lat, lon);
-                    }
-                    return 0;
-                } catch (error) {
-                    console.warn('⚠️ Error obteniendo elevación:', error);
-                    return 0;
-                }
-            };
+        // ✅ VERIFICAR QUE LOS HANDLERS EXISTAN
+        if (window.elevationHandler && typeof window.elevationHandler.obtenerElevacion === 'function') {
+            console.log('✅ ElevationHandler disponible para integración');
+        } else {
+            console.log('⚠️ ElevationHandler no disponible aún');
         }
     }
 
@@ -234,21 +224,30 @@ class ToolsInitializer {
         }
 
         // Verificar módulos de handlers
-        const modulosHandler = [
-            'measurementHandler',
-            'elevationProfileService',
-            'mapInteractionHandler',
-            'geometryUtils',
-            'mobileOptimizationHandler'
+        const funcionesHandler = [
+            'medirDistancia',
+            'finalizarMedicion', 
+            'seleccionarElemento',
+            'calcularDistancia',
+            'mostrarPerfilElevacion'
         ];
 
-        const modulosActivos = modulosHandler.filter(modulo => window[modulo]);
-        console.log(`✅ Módulos activos (${modulosActivos.length}/${modulosHandler.length}):`, modulosActivos);
+        const funcionesActivas = funcionesHandler.filter(func => typeof window[func] === 'function');
+        console.log(`✅ Funciones activas (${funcionesActivas.length}/${funcionesHandler.length}):`, funcionesActivas);
+
+        // Verificar handlers de terreno
+        const handlersTerreno = ['elevationHandler', 'vegetacionHandler'];
+        const handlersTerrenoActivos = handlersTerreno.filter(handler => window[handler]);
+        console.log(`✅ Handlers de terreno activos (${handlersTerrenoActivos.length}/${handlersTerreno.length}):`, handlersTerrenoActivos);
 
         // Verificar compatibilidad móvil
-        if (window.mobileOptimizationHandler) {
-            const infoDispositivo = window.mobileOptimizationHandler.obtenerInfoDispositivo();
-            console.log('📱 Info del dispositivo:', infoDispositivo);
+        if (typeof window.detectarDispositivoMovil === 'function') {
+            try {
+                const infoDispositivo = window.detectarDispositivoMovil();
+                console.log('📱 Info del dispositivo:', infoDispositivo);
+            } catch (error) {
+                console.log('📱 Detectar dispositivo móvil disponible pero con error:', error.message);
+            }
         }
     }
 
@@ -267,17 +266,23 @@ class ToolsInitializer {
     obtenerEstado() {
         return {
             inicializado: this.modulosInicializados,
-            modulos: {
-                measurementHandler: !!window.measurementHandler,
-                elevationProfileService: !!window.elevationProfileService,
-                mapInteractionHandler: !!window.mapInteractionHandler,
-                geometryUtils: !!window.geometryUtils,
-                mobileOptimizationHandler: !!window.mobileOptimizationHandler
+            handlers: {
+                elevationHandler: !!window.elevationHandler,
+                vegetacionHandler: !!window.vegetacionHandler,
+                searchHandler: !!window.searchHandler
             },
             funciones: {
                 medirDistancia: typeof window.medirDistancia === 'function',
                 seleccionarElemento: typeof window.seleccionarElemento === 'function',
-                mostrarGraficoPerfil: typeof window.mostrarGraficoPerfil === 'function'
+                mostrarGraficoPerfil: typeof window.mostrarGraficoPerfil === 'function',
+                calcularDistancia: typeof window.calcularDistancia === 'function',
+                finalizarMedicion: typeof window.finalizarMedicion === 'function'
+            },
+            variables: {
+                mapa: !!window.mapa,
+                calcoActivo: !!window.calcoActivo,
+                measuringDistance: !!window.measuringDistance,
+                elementoSeleccionado: !!window.elementoSeleccionado
             }
         };
     }
