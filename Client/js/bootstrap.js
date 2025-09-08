@@ -54,7 +54,7 @@
             '/Client/js/common/atajosP.js',
             '/Client/js/common/CalculoMarcha.js',
             '/Client/js/common/graficoMarcha.js',
-            '/Client/js/common/edicioncompleto.js',
+            // ❌ MOVIDO: edicioncompleto.js solo para planeamiento
             '/Client/js/utils/calcosP.js',
             // ✅ AGREGADOS: Archivos que faltaban
             '/Client/js/common/unidades.js',          // ✅ Gestión de unidades
