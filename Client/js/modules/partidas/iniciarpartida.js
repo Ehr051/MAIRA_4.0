@@ -5,10 +5,20 @@ let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
 
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando iniciarpartida (ejecución inmediata)');
 
-document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+} else {
+    console.log("✅ DOM ya cargado, inicializando iniciarpartida inmediatamente");
+    inicializarAplicacion();
+}
 
 function inicializarAplicacion() {
+    console.log('🚀 Ejecutando inicialización de iniciarpartida');
     userId = localStorage.getItem('userId');
     userName = localStorage.getItem('username');
     if (!userId || !userName) {

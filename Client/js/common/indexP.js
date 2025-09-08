@@ -5,8 +5,20 @@
 var mapaInicializado = false;
 var medicionDistancia = false;
 
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando indexP (ejecución inmediata)');
+
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', initializeIndexP);
+} else {
+    console.log("✅ DOM ya cargado, inicializando indexP inmediatamente");
+    initializeIndexP();
+}
+
 // Función principal que se ejecuta cuando el DOM está completamente cargado
-document.addEventListener('DOMContentLoaded', async function() {
+async function initializeIndexP() {
     console.log("DOM completamente cargado y parseado");
     
     // Determinar si estamos en modo de Gestión de Batalla basado en la URL actual
@@ -78,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             inicializarControles();
             initializeBuscarLugar();
         }
-});
+}
 
 // Inicializar controles
 function inicializarControles() {
