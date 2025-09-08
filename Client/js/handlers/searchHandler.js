@@ -19,8 +19,8 @@ class SearchHandler {
         try {
             console.log('🔍 Inicializando búsqueda de lugares...');
             
-            // Verificar que el mapa esté disponible
-            if (!window.map) {
+            // Verificar que el mapa esté disponible - USAR VARIABLE CORRECTA
+            if (!window.mapa) {
                 console.error('❌ Mapa no disponible para búsqueda');
                 return false;
             }
@@ -59,18 +59,18 @@ class SearchHandler {
                 console.log('📍 Lugar encontrado:', result);
                 
                 // Centrar mapa en resultado
-                window.map.setView(result.center, 15);
+                window.mapa.setView(result.center, 15);
                 
                 // Agregar marcador temporal
                 const marker = L.marker(result.center)
-                    .addTo(window.map)
+                    .addTo(window.mapa)
                     .bindPopup(`📍 ${result.name}`)
                     .openPopup();
                 
                 // Remover marcador después de 10 segundos
                 setTimeout(() => {
-                    if (window.map.hasLayer(marker)) {
-                        window.map.removeLayer(marker);
+                    if (window.mapa.hasLayer(marker)) {
+                        window.mapa.removeLayer(marker);
                     }
                 }, 10000);
                 
@@ -78,7 +78,7 @@ class SearchHandler {
             });
 
             // Agregar control al mapa
-            this.searchControl.addTo(window.map);
+            this.searchControl.addTo(window.mapa);
             this.isInitialized = true;
             
             console.log('✅ Búsqueda de lugares inicializada correctamente');
@@ -126,7 +126,7 @@ class SearchHandler {
                 }
             });
             
-            new BasicSearchControl({ position: 'topright' }).addTo(window.map);
+            new BasicSearchControl({ position: 'topright' }).addTo(window.mapa);
             this.isInitialized = true;
             
             console.log('✅ Búsqueda básica inicializada');
@@ -143,8 +143,8 @@ class SearchHandler {
      */
     cleanup() {
         try {
-            if (this.searchControl && window.map && window.map.hasLayer(this.searchControl)) {
-                window.map.removeControl(this.searchControl);
+            if (this.searchControl && window.mapa && window.mapa.hasLayer(this.searchControl)) {
+                window.mapa.removeControl(this.searchControl);
             }
             this.searchControl = null;
             this.isInitialized = false;
@@ -161,7 +161,7 @@ class SearchHandler {
         return {
             initialized: this.isInitialized,
             hasControl: !!this.searchControl,
-            mapAvailable: !!window.map
+            mapAvailable: !!window.mapa
         };
     }
 }
@@ -186,7 +186,7 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         // Esperar a que el mapa esté inicializado
         setTimeout(() => {
-            if (window.map && !searchHandler.isInitialized) {
+            if (window.mapa && !searchHandler.isInitialized) {
                 console.log('🚀 Auto-inicializando búsqueda de lugares...');
                 searchHandler.initializeBuscarLugar();
             }
@@ -195,7 +195,7 @@ if (document.readyState === 'loading') {
 } else {
     // DOM ya cargado
     setTimeout(() => {
-        if (window.map && !searchHandler.isInitialized) {
+        if (window.mapa && !searchHandler.isInitialized) {
             console.log('🚀 Auto-inicializando búsqueda de lugares (DOM ready)...');
             searchHandler.initializeBuscarLugar();
         }
