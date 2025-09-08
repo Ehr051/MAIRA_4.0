@@ -26,14 +26,16 @@
             '/Client/js/infrastructure/terrainAdapter.js'
         ],
         
-        // 4. SERVICIOS DDD (Hexagonal Architecture)
+        // 4. SERVICIOS DDD BÁSICOS (Hexagonal Architecture) - Solo servicios globales
         services: [
             '/Client/js/services/servicesManager.js',
-            '/Client/js/services/transitabilityService.js',
-            '/Client/js/services/slopeAnalysisService.js',
-            '/Client/js/services/threeDMapService.js',
-            '/Client/js/services/combatSystem3DIntegrator.js',
-            '/Client/js/services/autonomousAgentService.js'
+            '/Client/js/services/transitabilityService.js',    // ✅ GLOBAL: Planeamiento + Juego
+            '/Client/js/services/slopeAnalysisService.js',     // ✅ GLOBAL: Análisis terreno
+            '/Client/js/services/elevationProfileService.js',  // ✅ GLOBAL: Perfiles elevación
+            '/Client/js/services/threeDMapService.js'          // ✅ GLOBAL: Mapas 3D básicos
+            // ❌ MOVIDOS A MÓDULOS ESPECÍFICOS:
+            // - combatSystem3DIntegrator.js → juegodeguerra + gestionbatalla
+            // - autonomousAgentService.js → gestionbatalla únicamente
         ],
         
         // 5. MÓDULOS COMUNES (INCLUYE LAS FUNCIONES GLOBALES)
@@ -107,21 +109,27 @@
                 // ❌ NO index.js - no existe en original
             ],
             
-            // 📋 PLANEAMIENTO - Sin chat + Tests + funcionalidades 4.0 + herramientas completas
+            // 📋 PLANEAMIENTO - Herramientas COMPLETAS + Tests + servicios básicos
             planeamiento: [
                 '/Client/js/common/indexP.js',             // ✅ PRIMERO - Script principal de planeamiento
                 '/Client/js/Test/autoTest.js',
                 '/Client/js/Test/visualizadorTests.js',
-                '/Client/js/Test/testPlaneamiento.js'
+                '/Client/js/Test/testPlaneamiento.js',
+                '/Client/js/handlers/searchHandler.js',    // ✅ Búsqueda de lugares  
+                '/Client/js/handlers/testHandler.js'       // ✅ Testing automatizado
                 // ✅ Las herramientas refactorizadas se cargan automáticamente en handlers
                 // ✅ toolsInitializer.js ya está en common y se auto-inicializa
+                // ✅ USA: transitabilityService, slopeAnalysisService, elevationProfileService, threeDMapService
+                // ❌ NO USA: combatSystem3DIntegrator, autonomousAgentService
             ],
             
-            // 🏗️ CO/ORGANIZACIÓN - Sin chat, orden crítico + funcionalidades 4.0
+            // 🏗️ CO/ORGANIZACIÓN - ESPECÍFICO: Sin herramientas de mapa, solo organización
             organizacion: [
-                '/Client/js/ui/paneledicionCO.js',         // ✅ SEGUNDO - Panel edición
-                '/Client/js/modules/organizacion/conexionesCO.js', // ✅ TERCERO - Conexiones
-                '/Client/js/modules/organizacion/CO.js'    // ✅ ÚLTIMO - Lógica principal
+                '/Client/js/ui/paneledicionCO.js',         // ✅ Panel edición
+                '/Client/js/modules/organizacion/conexionesCO.js', // ✅ Conexiones
+                '/Client/js/modules/organizacion/CO.js'    // ✅ Lógica principal
+                // ❌ NO NECESITA: herramientas, medición, perfiles, etc.
+                // ❌ NO NECESITA: servicios de combate o agentes autónomos
             ],
             
             // 🎯 INICIAR PARTIDA - Scripts exactos del viejo/static/iniciarpartida.html
@@ -130,13 +138,14 @@
                 '/Client/js/modules/partidas/iniciarpartida.js' // ✅ iniciarpartida.js según original
             ],
             
-            // 🎮 JUEGO DE GUERRA - Solo gestores y componentes base
+            // 🎮 JUEGO DE GUERRA - Solo gestores y componentes base + servicios específicos
             juegodeguerra: [
                 '/Client/js/modules/juego/hexgrid.js',     // ✅ Grid hexagonal
                 '/Client/js/modules/juego/combate.js',     // ✅ Sistema de combate
                 // ✅ Los gestores se cargan automáticamente en la categoría 'gestores'
                 '/Client/js/gaming/GameEngine.js',         // ✅ Motor de juego avanzado
-                '/Client/js/gaming/AIDirector.js'          // ✅ Director de IA
+                '/Client/js/gaming/AIDirector.js',         // ✅ Director de IA
+                '/Client/js/services/combatSystem3DIntegrator.js'  // ✅ ESPECÍFICO: Integración 3D combate
             ],
             
             // 🏢 INICIO GB - Con chat
@@ -144,7 +153,7 @@
                 '/Client/js/modules/gestion/inicioGBhandler.js'
             ],
             
-            // ⚔️ GESTIÓN BATALLA - Con chat + funcionalidades 4.0 completas
+            // ⚔️ GESTIÓN BATALLA - Con chat + funcionalidades 4.0 completas + servicios específicos
             gestionbatalla: [
                 '/Client/js/utils/utilsGB.js',             // ✅ Específico GB según análisis
                 '/Client/js/modules/gestion/edicionGB.js',
@@ -153,8 +162,8 @@
                 '/Client/js/modules/gestion/gestionBatalla.js', // ✅ Script principal según análisis
                 // ✅ Funcionalidades 4.0 agregadas:
                 '/Client/js/gaming/AIDirector.js',         // ✅ 4.0: Director de IA para GB
-                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ 4.0: Integración 3D
-                '/Client/js/services/autonomousAgentService.js'    // ✅ 4.0: Agentes autónomos
+                '/Client/js/services/combatSystem3DIntegrator.js', // ✅ 4.0: Integración 3D combate
+                '/Client/js/services/autonomousAgentService.js'    // ✅ 4.0: Agentes autónomos SOLO EN GB
             ]
         },
         
