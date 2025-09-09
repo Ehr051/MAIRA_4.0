@@ -69,6 +69,12 @@ class DependencyManager {
         
         // 🌐 FALLBACK: CDN solo si node_modules falla
         this.cdnFallbacks = {
+            // ========== BOOTSTRAP Y JQUERY CRÍTICOS ==========
+            'bootstrap-css': 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css',
+            'bootstrap-js': 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js',
+            'jquery': 'https://code.jquery.com/jquery-3.5.1.min.js',
+            
+            // ========== LEAFLET Y MAPAS ==========
             'leaflet': 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
             'leaflet-css': 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
             'leaflet-draw': 'https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js',
@@ -243,8 +249,11 @@ class DependencyManager {
             console.log('✅ Todas las dependencias cargadas correctamente');
             return true;
         } catch (error) {
-            console.error('❌ Error cargando dependencias:', error);
-            throw error;
+            console.error('❌ Error cargando dependencias MAIRA:', error.message || error);
+            console.warn('⚠️ Continuando con dependencias CDN fallback...');
+            
+            // No lanzar error, intentar continuar con CDN fallbacks
+            return false;
         }
     }
 
