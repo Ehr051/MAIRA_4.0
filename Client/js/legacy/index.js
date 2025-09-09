@@ -264,4 +264,5 @@ if (typeof window !== 'undefined') {
     }
 }
 
-export default maiCore;
+// export default maiCore; // Convertido a window global para compatibilidad
+window.maiCore = maiCore;

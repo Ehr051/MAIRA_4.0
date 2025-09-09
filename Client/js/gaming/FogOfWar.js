@@ -917,4 +917,4 @@ window.FogOfWar = FogOfWar;
 
 console.log('🌫️ Fog of War MAIRA 4.0 - Módulo cargado');
 
-export default FogOfWar;
+// export default FogOfWar; // Convertido a window global para compatibilidad

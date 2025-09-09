@@ -34,5 +34,41 @@
         lineas_actuales: "~1800 distribuidas"
     };
 
+    // 🔗 FUNCIONES GLOBALES CRÍTICAS (Redirecciones a módulos)
+    window.medirDistancia = function() {
+        if (window.measurementHandler) {
+            return window.measurementHandler.medirDistancia.apply(this, arguments);
+        }
+        console.warn("measurementHandler no disponible");
+    };
+
+    window.addDistancePoint = function() {
+        if (window.measurementHandler) {
+            return window.measurementHandler.addDistancePoint.apply(this, arguments);
+        }
+        console.warn("measurementHandler no disponible");
+    };
+
+    window.finalizarMedicion = function() {
+        if (window.measurementHandler) {
+            return window.measurementHandler.finalizarMedicion.apply(this, arguments);
+        }
+        console.warn("measurementHandler no disponible");
+    };
+
+    window.mostrarGraficoPerfil = function() {
+        if (window.elevationProfileService) {
+            return window.elevationProfileService.mostrarGraficoPerfil.apply(this, arguments);
+        }
+        console.warn("elevationProfileService no disponible");
+    };
+
+    window.calcularDistancia = function() {
+        if (window.geometryUtils) {
+            return window.geometryUtils.calcularDistancia.apply(this, arguments);
+        }
+        console.warn("geometryUtils no disponible");
+    };
+
     console.log("✅ herramientasP.js stub cargado - funcionalidad en módulos especializados");
 })();

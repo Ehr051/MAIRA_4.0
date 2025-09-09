@@ -301,19 +301,6 @@
                     }
                 }
                 
-                // 🎨 CARGAR DEPENDENCIAS MAIRA (CSS + Librerías externas) AHORA MISMO
-                if (typeof window.loadMAIRADependencies === 'function') {
-                    console.log(`🎨 Cargando dependencias MAIRA para módulo: ${moduleName}`);
-                    try {
-                        await window.loadMAIRADependencies(moduleName);
-                        console.log(`✅ Dependencias MAIRA cargadas para ${moduleName}`);
-                    } catch (error) {
-                        console.warn(`⚠️ Error cargando dependencias MAIRA para ${moduleName}:`, error);
-                    }
-                } else {
-                    console.warn('⚠️ loadMAIRADependencies no está disponible');
-                }
-                
                 // 1. CORE (siempre necesario)
                 await this.loadCategory('core', LOAD_ORDER.core);
                 
@@ -571,6 +558,33 @@
     console.log('✅ MAIRABootstrap disponible globalmente');
     console.log('🔍 Funciones globales (toggleMenu, actualizarSidc, agregarMarcador) se cargan desde sus módulos respectivos');
     
+    // 🎯 FUNCIÓN DE CARGA SELECTIVA PARA DIFERENTES PÁGINAS
+    window.MAIRABootstrap.loadForSpecificModule = function(pageName) {
+        console.log(`🎯 Carga selectiva para: ${pageName}`);
+        
+        const pageModules = {
+            'planeamiento': ['handlers/measurementHandler.js', 'services/elevationProfileService.js'],
+            'CO': ['handlers/mapInteractionHandler.js', 'utils/geometryUtils.js'],
+            'juegodeguerra': ['gaming/GameEngine.js', 'gaming/FogOfWar.js'],
+            'index': ['handlers/mobileOptimizationHandler.js']
+        };
+        
+        const modules = pageModules[pageName] || [];
+        console.log(`📦 Cargando ${modules.length} módulos específicos para ${pageName}`);
+        
+        return modules;
+    };
+
+    // 🎯 CARGA SELECTIVA INTELIGENTE
+    window.MAIRABootstrap.loadSelectiveModules = function() {
+        const pathname = window.location.pathname;
+        const page = pathname.includes('planeamiento') ? 'planeamiento' :
+                    pathname.includes('CO') ? 'CO' :
+                    pathname.includes('juegodeguerra') ? 'juegodeguerra' : 'index';
+        
+        return this.loadForSpecificModule(page);
+    };
+
     // 🎯 DISPARAR EVENTO PERSONALIZADO CUANDO BOOTSTRAP ESTÁ LISTO
     const bootstrapReadyEvent = new CustomEvent('MAIRABootstrapReady', {
         detail: { 
