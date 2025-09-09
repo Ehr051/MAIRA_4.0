@@ -204,9 +204,9 @@ class DependencyManager {
     }
 
     /**
-     * Carga dependencias básicas de MAIRA
+     * Carga dependencias básicas de MAIRA con CSS específicos por módulo
      */
-    async loadMAIRADependencies() {
+    async loadMAIRADependencies(moduleName = null) {
         const coreDependencies = [
             // ✅ CSS EXTERNAS PRIMERO (para que tengan MENOR prioridad)
             { name: 'bootstrap-css', type: 'css' },
@@ -237,8 +237,8 @@ class DependencyManager {
             await this.loadDependencies(coreDependencies);
             
             // ✅ AHORA CARGAR CSS PERSONALIZADOS DE MAIRA AL FINAL (MAYOR PRIORIDAD)
-            console.log('🎨 Cargando CSS personalizados de MAIRA con mayor prioridad...');
-            await this.loadCustomMAIRAStyles();
+            console.log(`🎨 Cargando CSS personalizados específicos del módulo...`);
+            await this.loadCustomMAIRAStyles(moduleName);
             
             console.log('✅ Todas las dependencias cargadas correctamente');
             return true;
@@ -249,22 +249,62 @@ class DependencyManager {
     }
 
     /**
-     * ✅ NUEVA FUNCIÓN: Carga los CSS personalizados de MAIRA AL FINAL
+     * ✅ NUEVA FUNCIÓN: Carga los CSS personalizados de MAIRA AL FINAL según el módulo
      */
-    async loadCustomMAIRAStyles() {
-        const customStyles = [
-            { name: 'planeamiento-css', type: 'css', url: '/Client/css/common/planeamiento.css' },
-            { name: 'cyg-marcha-css', type: 'css', url: '/Client/css/common/CYGMarcha.css' },
-            { name: 'grafico-marcha-css', type: 'css', url: '/Client/css/common/graficomarcha.css' },
-            { name: 'test-buttons-css', type: 'css', url: '/Client/css/common/test-buttons.css' }
-        ];
+    async loadCustomMAIRAStyles(moduleName = null) {
+        // Determinar módulo actual si no se especifica
+        if (!moduleName) {
+            const currentPage = window.location.pathname;
+            if (currentPage.includes('planeamiento.html')) {
+                moduleName = 'planeamiento';
+            } else if (currentPage.includes('juegodeguerra.html')) {
+                moduleName = 'juegodeguerra';
+            } else if (currentPage.includes('CO.html')) {
+                moduleName = 'organizacion';
+            } else if (currentPage.includes('index.html') || currentPage === '/') {
+                moduleName = 'index';
+            } else {
+                moduleName = 'default';
+            }
+        }
+
+        console.log(`🎨 Cargando CSS personalizados para módulo: ${moduleName}`);
+
+        // ✅ CSS ESPECÍFICOS POR MÓDULO (se cargan AL FINAL con mayor prioridad)
+        const moduleStyles = {
+            'planeamiento': [
+                { name: 'planeamiento-css', url: '/Client/css/common/planeamiento.css' },
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+            ],
+            'juegodeguerra': [
+                { name: 'juego-guerra-css', url: '/Client/css/common/juegodeguerra.css' },
+                { name: 'gbatalla-css', url: '/Client/css/common/GBatalla.css' },
+                { name: 'responsive-fixes-css', url: '/Client/css/common/responsive-fixes.css' }
+            ],
+            'organizacion': [
+                { name: 'co-css', url: '/Client/css/common/CO.css' },
+                { name: 'miradial-css', url: '/Client/css/common/miradial.css' }
+            ],
+            'index': [
+                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' },
+                { name: 'index-carrusel-css', url: '/Client/css/modules/index/carrusel.css' }
+            ],
+            'default': [
+                // CSS básicos para páginas sin módulo específico
+                { name: 'basic-style-css', url: '/Client/css/common/style.css' }
+            ]
+        };
+
+        const customStyles = moduleStyles[moduleName] || moduleStyles['default'];
 
         for (const style of customStyles) {
             try {
                 await this.loadFromUrl(style.url, 'css');
-                console.log(`✅ ${style.name} cargado con mayor prioridad`);
+                console.log(`✅ ${style.name} cargado con mayor prioridad para ${moduleName}`);
             } catch (error) {
-                console.warn(`⚠️ No se pudo cargar ${style.name}:`, error);
+                console.warn(`⚠️ No se pudo cargar ${style.name} para ${moduleName}:`, error);
             }
         }
     }
@@ -314,8 +354,8 @@ class DependencyManager {
 // Instancia global
 window.dependencyManager = new DependencyManager();
 
-// Función de conveniencia
-window.loadMAIRADependencies = () => window.dependencyManager.loadMAIRADependencies();
+// Funciones de conveniencia con soporte para módulos específicos
+window.loadMAIRADependencies = (moduleName = null) => window.dependencyManager.loadMAIRADependencies(moduleName);
 window.loadPlaneamientoDependencies = () => window.dependencyManager.loadPlaneamientoDependencies();
 
 console.log('🚀 Dependency Manager inicializado');
