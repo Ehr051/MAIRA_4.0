@@ -11,6 +11,7 @@ class DependencyManager {
             'jquery': '/node_modules/jquery/dist/jquery.min.js',
             'bootstrap': '/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
             'bootstrap-css': '/node_modules/bootstrap/dist/css/bootstrap.min.css',
+            'fontawesome-css': '/node_modules/@fortawesome/fontawesome-free/css/all.min.css',
             'leaflet': '/node_modules/leaflet/dist/leaflet.js',
             'leaflet-css': '/node_modules/leaflet/dist/leaflet.css',
             
@@ -207,19 +208,23 @@ class DependencyManager {
      */
     async loadMAIRADependencies() {
         const coreDependencies = [
+            // CSS fundamentales primero
+            { name: 'bootstrap-css', type: 'css' },
+            { name: 'fontawesome-css', type: 'css' },
             { name: 'leaflet-css', type: 'css' },
-            'leaflet',
             { name: 'leaflet-draw-css', type: 'css' },
-            'leaflet-draw',
-            // TEMPORALMENTE REMOVIDO: leaflet-fullscreen (ruta CSS incorrecta)
-            // { name: 'leaflet-fullscreen-css', type: 'css' },
-            // 'leaflet-fullscreen',
             { name: 'leaflet-control-geocoder-css', type: 'css' },
-            'leaflet-control-geocoder',
             { name: 'leaflet-easybutton-css', type: 'css' },
-            'leaflet-easybutton',
             { name: 'leaflet-markercluster-css', type: 'css' },
             { name: 'leaflet-markercluster-default-css', type: 'css' },
+            
+            // JavaScript básico
+            'jquery',
+            'bootstrap',
+            'leaflet',
+            'leaflet-draw',
+            'leaflet-control-geocoder',
+            'leaflet-easybutton',
             'leaflet-markercluster',
             'milsymbol',
             'd3',

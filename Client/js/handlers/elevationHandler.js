@@ -27,8 +27,8 @@ const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legac
 let elevationTileIndex;
 let elevationHandlerIndiceCargado = false;
 
-// Cargar el índice de tiles al iniciar
-const cargarIndiceTiles = new Promise((resolve, reject) => {
+// Cargar el índice de tiles al iniciar - ELEVATION HANDLER
+const cargarIndiceElevationTiles = new Promise((resolve, reject) => {
   console.log('🔄 Intentando cargar master_mini_tiles_index.json...');
   
   // Función para intentar cargar desde una URL
@@ -108,7 +108,7 @@ function generarIndiceNuevo() {
 async function cargarDatosElevacion(bounds) {
   if (!elevationHandlerIndiceCargado) {
     console.warn('Esperando a que el índice de tiles se cargue.');
-    await cargarIndiceTiles;
+    await cargarIndiceElevationTiles;
   }
 
   if (!elevationTileIndex) {
@@ -499,7 +499,7 @@ async function obtenerElevacion(lat, lon) {
 
   if (!elevationHandlerIndiceCargado) {
     console.warn('Esperando a que el índice de tiles se cargue.');
-    await cargarIndiceTiles;
+    await cargarIndiceElevationTiles;
   }
 
   const bounds = { north: lat, south: lat, east: lon, west: lon };
@@ -695,7 +695,7 @@ window.MAIRA.Elevacion = {
     // ✅ API PRINCIPAL
     inicializar: async function() {
         try {
-            await cargarIndiceTiles;  // Esperar carga índice
+            await cargarIndiceElevationTiles;  // Esperar carga índice
             console.log('✅ MAIRA.Elevacion inicializado');
             return true;
         } catch (error) {

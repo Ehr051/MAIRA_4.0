@@ -19,34 +19,84 @@ class MapInteractionHandler {
      * Selecciona un elemento en el mapa
      */
     seleccionarElemento(elemento) {
+        console.log('🎯 Seleccionando elemento:', elemento);
+        
         try {
-            if (!elemento) {
-                console.warn('⚠️ Elemento nulo pasado a seleccionarElemento');
-                return;
-            }
-
-            console.log('🎯 Seleccionando elemento:', elemento);
-            
-            // Deseleccionar elemento anterior si existe
-            if (this.elementoSeleccionado) {
+            // ✅ DESELECCIONAR ANTERIOR SI EXISTE:
+            if (window.elementoSeleccionado && window.elementoSeleccionado !== elemento) {
                 this.deseleccionarElemento();
             }
+            
+            // ✅ GUARDAR ESTILO ORIGINAL SOLO LA PRIMERA VEZ:
+            if (elemento.setStyle && !elemento.originalStyle && !elemento._editedStyle) {
+                elemento.originalStyle = {
+                    color: elemento.options.color || '#3388ff',
+                    weight: elemento.options.weight || 3,
+                    opacity: elemento.options.opacity || 1,
+                    fillOpacity: elemento.options.fillOpacity || 0.2
+                };
+                console.log('💾 Estilo original guardado:', elemento.originalStyle);
+            }
+            
+            // ✅ APLICAR ESTILO DE SELECCIÓN (RESALTAR SIN CAMBIAR COLOR):
+            if (elemento.setStyle) {
+                // Obtener el color actual del elemento (editado o original)
+                let colorActual = '#3388ff'; // Por defecto
+                let pesoActual = 3; // Por defecto
+                let dashArrayActual = null; // Por defecto
+                
+                if (elemento._editedStyle) {
+                    colorActual = elemento._editedStyle.color;
+                    pesoActual = elemento._editedStyle.weight;
+                    dashArrayActual = elemento._editedStyle.dashArray;
+                } else if (elemento.originalStyle) {
+                    colorActual = elemento.originalStyle.color;
+                    pesoActual = elemento.originalStyle.weight;
+                    dashArrayActual = elemento.originalStyle.dashArray;
+                } else {
+                    colorActual = elemento.options.color || '#3388ff';
+                    pesoActual = elemento.options.weight || 3;
+                    dashArrayActual = elemento.options.dashArray || null;
+                }
+                
+                // Si no hay dashArray definido pero el elemento tiene tipo, convertir
+                if (!dashArrayActual && elemento.tipo === 'dashed') {
+                    dashArrayActual = '5, 5';
+                }
+                
+                // Aplicar resaltado: MANTENER COLOR pero hacer más grueso y añadir sombra/glow
+                elemento.setStyle({
+                    color: colorActual, // ✅ MANTENER EL COLOR ORIGINAL/EDITADO
+                    weight: pesoActual + 3, // ✅ SOLO AUMENTAR GROSOR PARA INDICAR SELECCIÓN
+                    opacity: 1,
+                    dashArray: dashArrayActual, // ✅ MANTENER TIPO DE LÍNEA
+                    // Añadir efecto de resaltado sin cambiar color
+                    className: 'elemento-seleccionado'
+                });
+                console.log(`✅ Elemento resaltado manteniendo color: ${colorActual}, peso: ${pesoActual + 3}, dashArray: ${dashArrayActual}`);
+            }
+            
+            // ✅ ESTABLECER COMO SELECCIONADO:
+            window.elementoSeleccionado = elemento;
+            
+            // ✅ SINCRONIZAR CON GESTIÓN DE BATALLA:
+            if (window.elementoSeleccionadoGB !== undefined) {
+                window.elementoSeleccionadoGB = elemento;
+                console.log('🔄 Sincronizando con elementoSeleccionadoGB');
+            }
+            
+            console.log('✅ Elemento seleccionado exitosamente');
 
-            this.elementoSeleccionado = elemento;
-            
-            // Aplicar estilo de selección
-            this.aplicarEstiloSeleccion(elemento);
-            
-            // Mostrar información del elemento
-            //this.mostrarInformacionElemento(elemento);
-            
-            // Disparar evento de selección
-            this.dispararEventoSeleccion(elemento);
-            
-            console.log('✅ Elemento seleccionado correctamente');
-            
+            // Mostrar distancia en display si es línea
+            if (elemento instanceof L.Polyline && typeof elemento.distancia === 'number') {
+                const medicionDisplay = document.getElementById('medicionDistancia');
+                if (medicionDisplay) {
+                    medicionDisplay.innerHTML = `<span>Distancia: ${elemento.distancia.toFixed(2)} metros</span><button onclick=\"finalizarMedicion()\" style=\"float: right;\">X</button>`;
+                    medicionDisplay.style.display = 'block';
+                }
+            }
         } catch (error) {
-            console.error('❌ Error seleccionando elemento:', error);
+            console.error('❌ Error al seleccionar elemento:', error);
         }
     }
 
@@ -54,30 +104,52 @@ class MapInteractionHandler {
      * Deselecciona el elemento actual
      */
     deseleccionarElemento() {
+        console.log('🔄 Deseleccionando elemento actual');
+        
+        if (!window.elementoSeleccionado) {
+            console.log('⚠️ No hay elemento seleccionado para deseleccionar');
+            return;
+        }
+        
         try {
-            if (!this.elementoSeleccionado) {
-                return;
+            const elemento = window.elementoSeleccionado;
+            
+            // ✅ PRIORIDAD: 1°_editedStyle, 2°propiedades del elemento, 3°valores por defecto
+            if (elemento.setStyle) {
+                // Determinar el dashArray basado en el tipo
+                let dashArray = null;
+                if (elemento._editedStyle?.dashArray !== undefined) {
+                    dashArray = elemento._editedStyle.dashArray;
+                } else if (elemento.tipo) {
+                    dashArray = elemento.tipo === 'dashed' ? '5, 5' : null;
+                }
+                
+                const estiloFinal = {
+                    color: elemento._editedStyle?.color || elemento.color || elemento.options.color || '#3388ff',
+                    weight: elemento._editedStyle?.weight || elemento.ancho || elemento.options.weight || 3,
+                    opacity: elemento._editedStyle?.opacity || elemento.options.opacity || 1,
+                    fillOpacity: elemento._editedStyle?.fillOpacity || elemento.options.fillOpacity || 0.2,
+                    dashArray: dashArray
+                };
+                
+                elemento.setStyle(estiloFinal);
+                console.log('✅ Estilo preservado al deseleccionar:', estiloFinal);
             }
-
-            console.log('🔄 Deseleccionando elemento...');
             
-            // Restaurar estilo original
-            this.restaurarEstiloOriginal(this.elementoSeleccionado);
+            // ✅ LIMPIAR SELECCIÓN:
+            window.elementoSeleccionado = null;
             
-            // Ocultar información
-            this.ocultarInformacionElemento();
+            // ✅ SINCRONIZAR CON GESTIÓN DE BATALLA:
+            if (window.elementoSeleccionadoGB !== undefined) {
+                window.elementoSeleccionadoGB = null;
+                console.log('🔄 Sincronizando deselección con elementoSeleccionadoGB');
+            }
             
-            // Limpiar referencia
-            this.elementoSeleccionado = null;
-            this.estiloOriginal = null;
-            
-            // Disparar evento de deselección
-            this.dispararEventoDeseleccion();
-            
-            console.log('✅ Elemento deseleccionado');
+            console.log('✅ Elemento deseleccionado exitosamente');
             
         } catch (error) {
-            console.error('❌ Error deseleccionando elemento:', error);
+            console.error('❌ Error al deseleccionar elemento:', error);
+            window.elementoSeleccionado = null;
         }
     }
 
@@ -550,7 +622,7 @@ window.mapInteractionHandler = new MapInteractionHandler();
 // Nota: Estas funciones pueden coexistir con las de CO.js ya que son específicas para diferentes contextos
 window.seleccionarElementoMapa = (elemento) => window.mapInteractionHandler.seleccionarElemento(elemento);
 window.deseleccionarElementoMapa = () => window.mapInteractionHandler.deseleccionarElemento();
-window.obtenerCalcoActivo = () => window.mapInteractionHandler.obtenerElementoSeleccionado();
+window.obtenerCalcoActivo = () => window.elementoSeleccionado; // ✅ Usar window.elementoSeleccionado
 
 // Mantener compatibilidad global pero con verificación de contexto
 if (!window.seleccionarElemento) {

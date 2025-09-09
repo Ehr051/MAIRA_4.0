@@ -431,9 +431,25 @@ function obtenerSIDCActual() {
         magnitud
     });
 
+    // Validar que todos los valores existan antes de acceder
+    if (!categoria || !arma || !tipo || !caracteristica) {
+        console.warn('⚠️ Valores incompletos para construir SIDC:', { categoria, arma, tipo, caracteristica });
+        return sidc; // Retornar SIDC original si faltan datos
+    }
+
+    if (!unidadesMilitares[categoria] || !unidadesMilitares[categoria][arma]) {
+        console.warn('⚠️ Categoría o arma no encontrada:', { categoria, arma });
+        return sidc;
+    }
+
     const codigoArma = unidadesMilitares[categoria][arma].codigo;
-    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo].codigo;
-    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
+    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo]?.codigo;
+    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo]?.caracteristicas[caracteristica];
+
+    if (!codigoArma || !codigoTipo || !codigoCaracteristica) {
+        console.warn('⚠️ Códigos no encontrados:', { codigoArma, codigoTipo, codigoCaracteristica });
+        return sidc;
+    }
 
     let centroParte = (codigoArma + codigoTipo + codigoCaracteristica).padEnd(6, '-');
     sidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2, 1) + estado + centroParte;

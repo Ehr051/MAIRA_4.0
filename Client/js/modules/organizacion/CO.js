@@ -914,27 +914,6 @@ function configurarAtajosTeclado() {
 
 
 
-
-
-/* Seleccionar un elemento */
-function seleccionarElemento(el) {
-  // Deseleccionar elementos anteriores
-  deseleccionarElemento();
-  
-  // Marcar nuevo elemento como seleccionado
-  selectedElement = el;
-  if (selectedElement.classList) {
-    selectedElement.classList.add('selected');
-  }
-  
-  // Habilitar botón de eliminar en la barra de herramientas
-  var btnEliminar = document.getElementById('btnEliminar');
-  if (btnEliminar) {
-    btnEliminar.disabled = false;
-  }
-}
-
-
 function seleccionarElemento(elemento) {
     console.log('🎯 Seleccionando elemento:', elemento);
     
