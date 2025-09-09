@@ -337,32 +337,32 @@
         // 📋 CONFIGURACIÓN DE CSS POR PÁGINA
         const pageCSS = {
             'planeamiento': [
-                './Client/css/planeamiento.css',
-                './Client/css/hexgrid.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/planeamiento.css',
+                'Client/css/hexgrid.css',
+                'Client/css/responsive-fixes.css'
             ],
             'CO': [
-                './Client/css/CO.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/CO.css',
+                'Client/css/responsive-fixes.css'
             ],
             'juegodeguerra': [
-                './Client/css/juegodeguerra.css',
-                './Client/css/hexgrid.css',
-                './Client/css/GBatalla.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/juegodeguerra.css',
+                'Client/css/hexgrid.css',
+                'Client/css/GBatalla.css',
+                'Client/css/responsive-fixes.css'
             ],
             'inicioGB': [
-                './Client/css/inicioGB.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/inicioGB.css',
+                'Client/css/responsive-fixes.css'
             ],
             'gestionbatalla': [
-                './Client/css/GBatalla.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/GBatalla.css',
+                'Client/css/responsive-fixes.css'
             ],
             'index': [
-                './Client/css/style.css',
-                './Client/css/carrusel.css',
-                './Client/css/responsive-fixes.css'
+                'Client/css/style.css',
+                'Client/css/carrusel.css',
+                'Client/css/responsive-fixes.css'
             ]
         };
 
