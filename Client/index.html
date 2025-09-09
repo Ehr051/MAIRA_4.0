@@ -20,9 +20,17 @@
     
     <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
     <script src="js/bootstrap.js"></script>
+    
+    <!-- 🔍 DIAGNÓSTICO TEMPORAL PARA DEBUGGING -->
+    <script src="js/utils/diagnostic.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                // 🔍 PASO 1: Diagnóstico completo
+                console.log('🔍 EJECUTANDO DIAGNÓSTICO PREVIO...');
+                await window.MAIRADiagnostic.runAllTests();
+                
                 if (typeof MAIRABootstrap !== 'undefined') {
                     console.log('🚀 Cargando módulo HOME con DDD Bootstrap...');
                     await MAIRABootstrap.loadForModule('home');
