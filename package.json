@@ -5,8 +5,8 @@
     "main": "indexP.js",
     "scripts": {
         "start": "python3 app.py",
-        "build": "echo 'Building MAIRA dependencies...' && npm install --no-optional --force && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force && echo 'Dependencies installation complete'",
-        "postinstall": "npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force",
+        "build": "./render-build.sh",
+        "postinstall": "export NPM_CONFIG_PRODUCTION=false && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force",
         "start-py": "python3 server/server.py",
         "start-js": "node server/node.js",
         "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py",
@@ -37,7 +37,6 @@
         "jquery": "^3.7.1",
         "jspdf": "^2.5.1",
         "jsplumb": "^2.15.6",
-        "leaflet": "^1.9.4",
         "leaflet-bing-layer": "^3.3.1",
         "leaflet-control-geocoder": "^2.4.0",
         "leaflet-draw": "^1.0.4",
