@@ -208,7 +208,7 @@ class DependencyManager {
      */
     async loadMAIRADependencies() {
         const coreDependencies = [
-            // CSS fundamentales primero
+            // ✅ CSS EXTERNAS PRIMERO (para que tengan MENOR prioridad)
             { name: 'bootstrap-css', type: 'css' },
             { name: 'fontawesome-css', type: 'css' },
             { name: 'leaflet-css', type: 'css' },
@@ -235,11 +235,37 @@ class DependencyManager {
         
         try {
             await this.loadDependencies(coreDependencies);
+            
+            // ✅ AHORA CARGAR CSS PERSONALIZADOS DE MAIRA AL FINAL (MAYOR PRIORIDAD)
+            console.log('🎨 Cargando CSS personalizados de MAIRA con mayor prioridad...');
+            await this.loadCustomMAIRAStyles();
+            
             console.log('✅ Todas las dependencias cargadas correctamente');
             return true;
         } catch (error) {
             console.error('❌ Error cargando dependencias:', error);
             throw error;
+        }
+    }
+
+    /**
+     * ✅ NUEVA FUNCIÓN: Carga los CSS personalizados de MAIRA AL FINAL
+     */
+    async loadCustomMAIRAStyles() {
+        const customStyles = [
+            { name: 'planeamiento-css', type: 'css', url: '/Client/css/common/planeamiento.css' },
+            { name: 'cyg-marcha-css', type: 'css', url: '/Client/css/common/CYGMarcha.css' },
+            { name: 'grafico-marcha-css', type: 'css', url: '/Client/css/common/graficomarcha.css' },
+            { name: 'test-buttons-css', type: 'css', url: '/Client/css/common/test-buttons.css' }
+        ];
+
+        for (const style of customStyles) {
+            try {
+                await this.loadFromUrl(style.url, 'css');
+                console.log(`✅ ${style.name} cargado con mayor prioridad`);
+            } catch (error) {
+                console.warn(`⚠️ No se pudo cargar ${style.name}:`, error);
+            }
         }
     }
 

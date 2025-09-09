@@ -9,13 +9,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Estilos CSS básicos -->
-  <!-- ℹ️ Los estilos de Leaflet y demás dependencias se cargan via dependency-manager.js -->
-  <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
-  <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
-  <link rel="stylesheet" href="/Client/css/common/graficomarcha.css">
-  <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
-  <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
+  <!-- ℹ️ Los estilos de dependencias (Bootstrap, Leaflet, FontAwesome) se cargan via dependency-manager.js PRIMERO -->
+  <!-- ℹ️ Luego se cargan los estilos personalizados de MAIRA para que tengan MAYOR PRIORIDAD -->
+  
+  <!-- NOTA: Los CSS personalizados ahora se cargan dinámicamente DESPUÉS de las dependencias -->
   
   <script src="/Client/js/common/networkConfig.js"></script>
 
@@ -64,6 +61,8 @@
   <!-- Scripts de tiles optimizados movidos a tools/static-debug -->
 
 </head>
+
+<body class="maira-planeamiento">
 
 <div id="botones-principales">
   <div class="menu-btn">
