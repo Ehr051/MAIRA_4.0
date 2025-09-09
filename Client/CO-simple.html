@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Cuadro de Organización</title>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
+    
+    <!-- 🎯 CSS CRÍTICOS DIRECTOS -->
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
+    
+    <!-- CSS MAIRA Personalizados -->
+    <link rel="stylesheet" href="css/modules/CO/CO.css">
+    <link rel="stylesheet" href="css/common/miradial.css">
+    <link rel="stylesheet" href="css/common/test-buttons.css">
+    
+    <!-- 🚀 JAVASCRIPT CRÍTICOS EN ORDEN -->
+    <!-- Básicos -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+    
+    <!-- Leaflet para posicionamiento básico -->
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+    
+    <!-- jsPlumb para conexiones organizacionales -->
+    <script src="/node_modules/jsplumb/dist/js/jsplumb.min.js"></script>
+    
+    <!-- Export -->
+    <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+    <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
+    
+    <!-- 🎯 CONFIGURACIÓN MAIRA CO -->
+    <script>
+        // Configuración global MAIRA CO
+        window.MAIRA = {
+            config: {
+                SERVER_URL: window.location.origin,
+                CLIENT_URL: window.location.origin,
+                MODULE: 'organizacion'
+            },
+            CuadroOrganizacion: {
+                elementos: [],
+                conexiones: [],
+                jsPlumbInstance: null
+            }
+        };
+        
+        console.log('🏗️ MAIRA CO - Configuración básica lista');
+    </script>
+</head>
+<body>
+
+<!-- Main Navigation -->
+<div id="botones-principales">
+    <!-- File Menu -->
+    <div class="menu-btn">
+        <button id="archivoBtn" onclick="toggleMenu('archivo-menu')">
+            <i class="fas fa-file"></i> Archivo
+        </button>
+        <div id="archivo-menu" class="menu collapse">
+            <a href="#" onclick="nuevoCuadro()">Nuevo</a>
+            <a href="#" onclick="abrirCuadro()">Abrir</a>
+            <a href="#" onclick="guardarCuadro()">Guardar</a>
+            <a href="#" onclick="exportarCuadro()">Exportar</a>
+        </div>
+    </div>
+    
+    <!-- View Menu -->
+    <div class="menu-btn">
+        <button id="verBtn" onclick="toggleMenu('ver-menu')">
+            <i class="fas fa-eye"></i> Ver
+        </button>
+        <div id="ver-menu" class="menu collapse">
+            <a href="#" onclick="zoomIn()">Acercar</a>
+            <a href="#" onclick="zoomOut()">Alejar</a>
+            <a href="#" onclick="zoomFit()">Ajustar</a>
+        </div>
+    </div>
+    
+    <div class="menu-btn"> 
+        <button onclick="toggleMenu('agregar-menu')">
+            <i class="fas fa-plus"></i> Agregar Elemento
+        </button>
+        <div id="agregar-menu" class="menu collapse">
+            <div class="botones-fuerza">
+                <a href="#" onclick="agregarUnidad('comandancia')">Comandancia</a>
+                <a href="#" onclick="agregarUnidad('infanteria')">Infantería</a>
+                <a href="#" onclick="agregarUnidad('blindados')">Blindados</a>
+                <a href="#" onclick="agregarUnidad('artilleria')">Artillería</a>
+                <a href="#" onclick="agregarUnidad('logistica')">Logística</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Menu -->
+    <div class="menu-btn">
+        <button onclick="toggleMenu('ayuda-menu')">
+            <i class="fas fa-question-circle"></i> Ayuda
+        </button>
+        <div id="ayuda-menu" class="menu collapse">
+            <a href="#" onclick="mostrarAyuda()">Manual</a>
+            <a href="#" onclick="acercaDe()">Acerca de</a>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Buttons -->
+<div id="botones-secundarios">
+    <button id="btnDeshacer" onclick="deshacer()" disabled>
+        <i class="fas fa-undo-alt"></i>
+    </button>
+    <button id="btnRehacer" onclick="rehacer()" disabled>
+        <i class="fas fa-redo-alt"></i>
+    </button>
+    <button id="btnEliminar" onclick="eliminarSeleccionado()" disabled>
+        <i class="fas fa-trash"></i>
+    </button>
+    <button id="btnConectar" onclick="modoConexion()" title="Conectar elementos">
+        <i class="fas fa-link"></i>
+    </button>
+</div>
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+        <div id="canvas-organizacion" class="canvas-co">
+            <!-- Aquí se dibujarán los elementos del cuadro de organización -->
+        </div>
+    </div>
+</div>
+
+<!-- Zoom Controls -->
+<div class="zoom-controls">
+    <button id="zoomInBtn" onclick="zoomIn()" title="Acercar">
+        <i class="fas fa-plus"></i>
+    </button>
+    <div id="zoomLevel" class="zoom-level">100%</div>
+    <button id="zoomOutBtn" onclick="zoomOut()" title="Alejar">
+        <i class="fas fa-minus"></i>
+    </button>
+    <button id="zoomResetBtn" onclick="zoomReset()" title="Restablecer zoom">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+</div>
+
+<!-- Panel de Edición de Unidad -->
+<div id="panelEdicionUnidad" class="panel" style="display: none;">
+    <h3>Editar Unidad</h3>
+    
+    <div class="panel-content">
+        <div class="form-group">
+            <label>Tipo de Unidad:</label>
+            <select id="tipoUnidad">
+                <option value="comandancia">Comandancia</option>
+                <option value="infanteria">Infantería</option>
+                <option value="blindados">Blindados</option>
+                <option value="artilleria">Artillería</option>
+                <option value="logistica">Logística</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Designación:</label>
+            <input type="text" id="designacionUnidad" placeholder="Ej: RI 1">
+        </div>
+        
+        <div class="form-group">
+            <label>Efectivos:</label>
+            <input type="number" id="efectivosUnidad" min="1" placeholder="100">
+        </div>
+        
+        <div class="form-group">
+            <label>Comandante:</label>
+            <input type="text" id="comandanteUnidad" placeholder="Nombre del comandante">
+        </div>
+    </div>
+    
+    <div class="panel-buttons">
+        <button onclick="aplicarCambios()" class="btn btn-primary">Aplicar</button>
+        <button onclick="cerrarPanel()" class="btn btn-secondary">Cancelar</button>
+    </div>
+</div>
+
+<!-- 📦 FUNCIONES BÁSICAS DE CUADRO DE ORGANIZACIÓN -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🏗️ Inicializando MAIRA Cuadro de Organización...');
+    
+    try {
+        // Inicializar canvas
+        initializeCanvas();
+        
+        // Configurar jsPlumb
+        initializeJsPlumb();
+        
+        // Configurar eventos básicos
+        setupEventListeners();
+        
+        console.log('✅ MAIRA CO inicializado correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error inicializando CO:', error);
+    }
+});
+
+function initializeCanvas() {
+    const canvas = document.getElementById('canvas-organizacion');
+    if (canvas) {
+        // Configurar canvas como área de trabajo
+        canvas.style.position = 'relative';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        console.log('✅ Canvas inicializado');
+    }
+}
+
+function initializeJsPlumb() {
+    if (typeof jsPlumb !== 'undefined') {
+        // Configurar jsPlumb para conexiones
+        const instance = jsPlumb.newInstance({
+            Container: 'canvas-organizacion',
+            Connector: ['Flowchart', { stub: [40, 60], gap: 10, cornerRadius: 5 }],
+            PaintStyle: { stroke: '#606060', strokeWidth: 2 },
+            HoverPaintStyle: { stroke: '#1e8151', strokeWidth: 3 },
+            EndpointStyle: { fill: '#606060', stroke: '#606060' },
+            Endpoint: ['Dot', { radius: 8 }]
+        });
+        
+        window.MAIRA.CuadroOrganizacion.jsPlumbInstance = instance;
+        console.log('✅ jsPlumb inicializado');
+    }
+}
+
+function setupEventListeners() {
+    // Event listener para el canvas
+    const canvas = document.getElementById('canvas-organizacion');
+    canvas.addEventListener('dblclick', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        mostrarMenuContextual(x, y);
+    });
+    
+    console.log('✅ Event listeners configurados');
+}
+
+// Funciones básicas de menú
+function toggleMenu(menuId) {
+    const menu = document.getElementById(menuId);
+    if (menu) {
+        // Cerrar otros menús
+        document.querySelectorAll('.menu').forEach(m => {
+            if (m.id !== menuId) m.classList.remove('show');
+        });
+        menu.classList.toggle('show');
+    }
+}
+
+let elementCounter = 0;
+
+function agregarUnidad(tipo) {
+    const canvas = document.getElementById('canvas-organizacion');
+    if (!canvas) return;
+    
+    elementCounter++;
+    
+    // Crear elemento visual
+    const elemento = document.createElement('div');
+    elemento.className = `elemento-unidad tipo-${tipo}`;
+    elemento.id = `unidad-${elementCounter}`;
+    elemento.style.position = 'absolute';
+    elemento.style.left = '100px';
+    elemento.style.top = `${100 + (elementCounter * 80)}px`;
+    elemento.style.width = '120px';
+    elemento.style.height = '60px';
+    elemento.style.border = '2px solid #333';
+    elemento.style.backgroundColor = '#f0f0f0';
+    elemento.style.borderRadius = '5px';
+    elemento.style.cursor = 'move';
+    elemento.style.display = 'flex';
+    elemento.style.alignItems = 'center';
+    elemento.style.justifyContent = 'center';
+    elemento.style.fontSize = '12px';
+    elemento.style.fontWeight = 'bold';
+    elemento.innerHTML = `${tipo.toUpperCase()}<br>${elementCounter}`;
+    
+    // Eventos del elemento
+    elemento.addEventListener('click', function() {
+        seleccionarElemento(this);
+    });
+    
+    elemento.addEventListener('dblclick', function() {
+        editarElemento(this);
+    });
+    
+    canvas.appendChild(elemento);
+    
+    // Hacer draggable con jsPlumb si está disponible
+    if (window.MAIRA.CuadroOrganizacion.jsPlumbInstance) {
+        window.MAIRA.CuadroOrganizacion.jsPlumbInstance.draggable(elemento);
+        
+        // Agregar endpoints para conexiones
+        window.MAIRA.CuadroOrganizacion.jsPlumbInstance.addEndpoint(elemento, {
+            anchor: 'Top',
+            isSource: false,
+            isTarget: true
+        });
+        
+        window.MAIRA.CuadroOrganizacion.jsPlumbInstance.addEndpoint(elemento, {
+            anchor: 'Bottom',
+            isSource: true,
+            isTarget: false
+        });
+    }
+    
+    // Agregar a lista de elementos
+    window.MAIRA.CuadroOrganizacion.elementos.push({
+        id: elemento.id,
+        tipo: tipo,
+        elemento: elemento
+    });
+    
+    console.log(`✅ Unidad ${tipo} agregada con ID: ${elemento.id}`);
+}
+
+let elementoSeleccionado = null;
+
+function seleccionarElemento(elemento) {
+    // Deseleccionar anterior
+    if (elementoSeleccionado) {
+        elementoSeleccionado.style.borderColor = '#333';
+    }
+    
+    // Seleccionar nuevo
+    elementoSeleccionado = elemento;
+    elemento.style.borderColor = '#007bff';
+    
+    // Habilitar botón eliminar
+    document.getElementById('btnEliminar').disabled = false;
+    
+    console.log(`📌 Elemento seleccionado: ${elemento.id}`);
+}
+
+function editarElemento(elemento) {
+    // Abrir panel de edición
+    const panel = document.getElementById('panelEdicionUnidad');
+    panel.style.display = 'block';
+    
+    // Cargar datos del elemento
+    // TODO: Implementar carga de datos
+    
+    console.log(`✏️ Editando elemento: ${elemento.id}`);
+}
+
+function eliminarSeleccionado() {
+    if (!elementoSeleccionado) return;
+    
+    // Eliminar conexiones del jsPlumb
+    if (window.MAIRA.CuadroOrganizacion.jsPlumbInstance) {
+        window.MAIRA.CuadroOrganizacion.jsPlumbInstance.remove(elementoSeleccionado);
+    }
+    
+    // Eliminar del DOM
+    elementoSeleccionado.remove();
+    
+    // Eliminar de lista
+    window.MAIRA.CuadroOrganizacion.elementos = 
+        window.MAIRA.CuadroOrganizacion.elementos.filter(el => el.elemento !== elementoSeleccionado);
+    
+    elementoSeleccionado = null;
+    document.getElementById('btnEliminar').disabled = true;
+    
+    console.log('🗑️ Elemento eliminado');
+}
+
+// Funciones de zoom
+let zoomLevel = 100;
+
+function zoomIn() {
+    zoomLevel = Math.min(zoomLevel + 10, 200);
+    updateZoom();
+}
+
+function zoomOut() {
+    zoomLevel = Math.max(zoomLevel - 10, 50);
+    updateZoom();
+}
+
+function zoomReset() {
+    zoomLevel = 100;
+    updateZoom();
+}
+
+function updateZoom() {
+    const canvas = document.getElementById('canvas-organizacion');
+    canvas.style.transform = `scale(${zoomLevel / 100})`;
+    document.getElementById('zoomLevel').textContent = `${zoomLevel}%`;
+}
+
+// Funciones de archivo
+function nuevoCuadro() {
+    if (confirm('¿Crear nuevo cuadro? Se perderán los cambios no guardados.')) {
+        // Limpiar canvas
+        const canvas = document.getElementById('canvas-organizacion');
+        canvas.innerHTML = '';
+        
+        // Limpiar datos
+        window.MAIRA.CuadroOrganizacion.elementos = [];
+        window.MAIRA.CuadroOrganizacion.conexiones = [];
+        
+        elementCounter = 0;
+        console.log('📄 Nuevo cuadro creado');
+    }
+}
+
+function guardarCuadro() {
+    const datos = {
+        elementos: window.MAIRA.CuadroOrganizacion.elementos.map(el => ({
+            id: el.id,
+            tipo: el.tipo,
+            posicion: {
+                left: el.elemento.style.left,
+                top: el.elemento.style.top
+            }
+        })),
+        conexiones: window.MAIRA.CuadroOrganizacion.conexiones
+    };
+    
+    // Guardar en localStorage como backup
+    localStorage.setItem('maira-co-backup', JSON.stringify(datos));
+    
+    console.log('💾 Cuadro guardado');
+    alert('Cuadro guardado correctamente');
+}
+
+function exportarCuadro() {
+    console.log('📤 Exportando cuadro...');
+    
+    if (typeof html2canvas !== 'undefined') {
+        const canvas = document.getElementById('canvas-organizacion');
+        html2canvas(canvas).then(canvas => {
+            // Crear enlace de descarga
+            const link = document.createElement('a');
+            link.download = `cuadro-organizacion-${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            
+            console.log('✅ Cuadro exportado como imagen');
+        });
+    } else {
+        alert('Función de exportación no disponible');
+    }
+}
+
+// Funciones stub para completar
+function abrirCuadro() { console.log('📂 Abrir cuadro...'); }
+function deshacer() { console.log('↶ Deshacer...'); }
+function rehacer() { console.log('↷ Rehacer...'); }
+function modoConexion() { console.log('🔗 Modo conexión...'); }
+function aplicarCambios() { console.log('✅ Aplicar cambios...'); }
+function cerrarPanel() { 
+    document.getElementById('panelEdicionUnidad').style.display = 'none';
+}
+function mostrarAyuda() { console.log('❓ Mostrar ayuda...'); }
+function acercaDe() { alert('MAIRA 4.0 - Cuadro de Organización\nVersión Simplificada'); }
+
+console.log('🏗️ MAIRA CO - Scripts básicos cargados');
+</script>
+
+</body>
+</html>

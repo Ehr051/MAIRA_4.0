@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
+    <title>MAIRA - Mesa de Arena Interactiva</title>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="shortcut icon" href="image/favicon_logoai/favicon.ico">
+    
+    <!-- 🎯 CSS DIRECTO - FUNCIONAMIENTO GARANTIZADO -->
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="css/modules/index/style.css">
+    <link rel="stylesheet" href="css/modules/index/carrusel.css">
+    <link rel="stylesheet" href="css/common/test-buttons.css">
+    
+    <!-- 🚀 JAVASCRIPT CRÍTICO DIRECTO -->
+    <script src="https://kit.fontawesome.com/707f71e5d4.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+    
+    <!-- 📦 MAIRA CORE - SOLO LO ESENCIAL PARA INDEX -->
+    <script>
+        // Configuración mínima para INDEX
+        window.MAIRA = {
+            config: {
+                SERVER_URL: window.location.origin,
+                CLIENT_URL: window.location.origin,
+                MODULE: 'index'
+            }
+        };
+        
+        // Funciones básicas para el landing
+        function initializeLanding() {
+            console.log('🏠 MAIRA Index - Inicializando landing page');
+            
+            // Activar carrusel si existe
+            if (typeof $ !== 'undefined' && $('.carousel').length > 0) {
+                $('.carousel').carousel({
+                    interval: 5000,
+                    ride: 'carousel'
+                });
+                console.log('✅ Carrusel activado');
+            }
+            
+            // Event listeners básicos
+            setupBasicEventListeners();
+        }
+        
+        function setupBasicEventListeners() {
+            // Botones de navegación
+            document.querySelectorAll('a[href*=".html"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    console.log('🔗 Navegando a:', this.href);
+                });
+            });
+            
+            // Formularios
+            const loginForm = document.getElementById('formLogin');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('📝 Procesando login...');
+                    // Lógica de login aquí
+                });
+            }
+        }
+        
+        // Inicializar cuando DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 MAIRA 4.0 - Landing Page Iniciando...');
+            initializeLanding();
+            console.log('✅ MAIRA Landing Page Lista');
+        });
+        
+        console.log('🏠 MAIRA Index - Configuración básica cargada');
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Barra de navegación -->
+        <div class="navbar">
+            <div class="menu">
+                <h3 class="logo">MAI<span>RA</span></h3>
+                <div class="hamburger-menu">
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor principal -->
+        <div class="main-container">
+            <div class="main">
+                <header>
+                    <div class="overlay">
+                        <h1>MAIRA 4.0</h1>
+                        <h2>Mesa de Arena Interactiva de Realidad Aumentada</h2>
+                        <p>Sistema de Entrenamiento Militar Avanzado</p>
+                        <div class="header-buttons">
+                            <a href="planeamiento.html" class="btn btn-primary">Modo Planeamiento</a>
+                            <a href="juegodeguerra.html" class="btn btn-success">Juego de Guerra</a>
+                            <a href="gestionbatalla.html" class="btn btn-warning">Gestión de Batalla</a>
+                            <a href="iniciarpartida.html" class="btn btn-info">Iniciar Partida</a>
+                        </div>
+                    </div>
+                </header>
+                
+                <!-- Secciones informativas -->
+                <section id="sobre-maira" class="section">
+                    <div class="section-content">
+                        <h2>Sobre MAIRA</h2>
+                        <p>MAIRA es un sistema de entrenamiento militar que combina tecnología de realidad aumentada con simulación táctica avanzada.</p>
+                    </div>
+                </section>
+                
+                <section id="caracteristicas" class="section">
+                    <div class="section-content">
+                        <h2>Características Principales</h2>
+                        <div class="features-grid">
+                            <div class="feature">
+                                <i class="fas fa-map"></i>
+                                <h3>Planeamiento Militar</h3>
+                                <p>Herramientas avanzadas para planificación de operaciones</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-gamepad"></i>
+                                <h3>Simulación de Combate</h3>
+                                <p>Entorno realista para entrenamiento táctico</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-users"></i>
+                                <h3>Modo Multijugador</h3>
+                                <p>Colaboración en tiempo real entre equipos</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <footer>
+                    <p>&copy; 2024 MAIRA. Sistema de Entrenamiento Militar Argentino.</p>
+                </footer>
+            </div>
+            <div class="shadow one"></div>
+            <div class="shadow two"></div>
+        </div>
+
+        <!-- Panel lateral (menú desplegable) -->
+        <div class="login-panel">
+            <div class="side-menu">
+                <ul>
+                    <li><a href="#sobre-maira">Sobre MAIRA</a></li>
+                    <li><a href="#caracteristicas">Características</a></li>
+                    <li><a href="#" onclick="showLogin()">Iniciar Sesión</a></li>
+                    <li><a href="#" onclick="showCreateUser()">Crear Usuario</a></li>
+                </ul>
+            </div>
+            
+            <!-- Formulario de inicio de sesión -->
+            <div id="loginForm" class="formulario" style="display: none;">
+                <h2>Iniciar Sesión</h2>
+                <form id="formLogin">
+                    <input type="text" id="usuario" name="usuario" placeholder="Usuario" required>
+                    <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required autocomplete="current-password">
+                    <button type="submit">Ingresar</button>
+                </form>
+                <button id="btnRecuperarContrasena">Recuperar Contraseña</button>
+                <div id="errorLogin" class="error" aria-live="polite"></div>
+            </div>
+
+            <!-- Formulario de creación de usuario -->
+            <div id="crearUsuarioForm" class="formulario" style="display: none;">
+                <h2>Crear Usuario</h2>
+                <form id="formCrearUsuario">
+                    <input type="text" id="nuevoUsuario" name="nuevoUsuario" placeholder="Usuario" required>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                    <input type="password" id="nuevaContrasena" name="nuevaContrasena" placeholder="Contraseña" required autocomplete="new-password">
+                    <button type="submit">Crear Cuenta</button>
+                </form>
+                <div id="errorCrearUsuario" class="error" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts adicionales básicos -->
+    <script>
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('crearUsuarioForm').style.display = 'none';
+        }
+        
+        function showCreateUser() {
+            document.getElementById('crearUsuarioForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+        }
+        
+        // Toggle menu hamburger
+        document.querySelector('.hamburger-menu')?.addEventListener('click', function() {
+            document.querySelector('.login-panel').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

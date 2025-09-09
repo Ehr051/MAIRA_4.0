@@ -301,6 +301,19 @@
                     }
                 }
                 
+                // 🎨 CARGAR DEPENDENCIAS MAIRA (CSS + Librerías externas) AHORA MISMO
+                if (typeof window.loadMAIRADependencies === 'function') {
+                    console.log(`🎨 Cargando dependencias MAIRA para módulo: ${moduleName}`);
+                    try {
+                        await window.loadMAIRADependencies(moduleName);
+                        console.log(`✅ Dependencias MAIRA cargadas para ${moduleName}`);
+                    } catch (error) {
+                        console.warn(`⚠️ Error cargando dependencias MAIRA para ${moduleName}:`, error);
+                    }
+                } else {
+                    console.warn('⚠️ loadMAIRADependencies no está disponible');
+                }
+                
                 // 1. CORE (siempre necesario)
                 await this.loadCategory('core', LOAD_ORDER.core);
                 

@@ -289,41 +289,41 @@ class DependencyManager {
         // ✅ CSS ESPECÍFICOS POR MÓDULO (se cargan AL FINAL con mayor prioridad)
         const moduleStyles = {
             'planeamiento': [
-                { name: 'planeamiento-css', url: '../../css/common/planeamiento.css' },
-                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
+                { name: 'planeamiento-css', url: '/Client/css/common/planeamiento.css' },
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
             ],
             'juegodeguerra': [
-                { name: 'juego-guerra-css', url: '../../css/common/juegodeguerra.css' },
-                { name: 'hexgrid-css', url: '../../css/common/hexgrid.css' },
-                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
+                { name: 'juego-guerra-css', url: '/Client/css/modules/juegodeguerra/juegodeguerra.css' },
+                { name: 'hexgrid-css', url: '/Client/css/modules/juegodeguerra/hexgrid.css' },
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
             ],
             'gestionbatalla': [
-                { name: 'gbatalla-css', url: '../../css/common/GBatalla.css' },
-                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
+                { name: 'gbatalla-css', url: '/Client/css/modules/gestionbatalla/GBatalla.css' },
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
             ],
             'organizacion': [
-                { name: 'co-css', url: '../../css/common/CO.css' },
-                { name: 'miradial-css', url: '../../css/common/miradial.css' }
+                { name: 'co-css', url: '/Client/css/modules/CO/CO.css' },
+                { name: 'miradial-css', url: '/Client/css/common/miradial.css' }
             ],
             'iniciarpartida': [
-                { name: 'iniciarpartida-css', url: '../../css/common/iniciarpartida.css' }
+                { name: 'iniciarpartida-css', url: '/Client/css/modules/iniciarpartida/iniciarpartida.css' }
             ],
             'inicioGB': [
-                { name: 'iniciogb-css', url: '../../css/common/inicioGB.css' }
+                { name: 'iniciogb-css', url: '/Client/css/modules/inicioGB/inicioGB.css' }
             ],
             'index': [
-                { name: 'index-style-css', url: '../../css/modules/index/style.css' },
-                { name: 'index-carrusel-css', url: '../../css/modules/index/carrusel.css' }
+                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' },
+                { name: 'index-carrusel-css', url: '/Client/css/modules/index/carrusel.css' }
             ],
             'default': [
                 // CSS básicos para páginas sin módulo específico
-                { name: 'basic-style-css', url: '../../css/common/style.css' }
+                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' }
             ]
         };
 

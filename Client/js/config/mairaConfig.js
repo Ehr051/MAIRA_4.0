@@ -13,11 +13,11 @@
 
 // 🚀 CONFIGURACIÓN PRINCIPAL - GITHUB RELEASES
 const MAIRA_DATA_CONFIG = {
-    // Elevación - Basado en elevationHandler.js
+    // Elevación - Basado en elevationHandler.js (CORREGIDO: v4.0)
     elevation: {
         github_releases: [
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/'
         ],
         fallback_urls: [
             'https://raw.githubusercontent.com/Ehr051/MAIRA-4.0/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',

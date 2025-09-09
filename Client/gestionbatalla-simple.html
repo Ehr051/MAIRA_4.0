@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Gestión de Batalla</title>
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
+    
+    <!-- 🎯 CSS CRÍTICOS DIRECTOS -->
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
+    
+    <!-- CSS MAIRA Personalizados -->
+    <link rel="stylesheet" href="css/GBatalla.css">
+    <link rel="stylesheet" href="css/modules/batalla/battle-interface.css">
+    <link rel="stylesheet" href="css/responsive-fixes.css">
+    
+    <!-- 🚀 JAVASCRIPT CRÍTICOS EN ORDEN -->
+    <!-- Básicos -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+    
+    <!-- Leaflet para mapas tácticos -->
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+    
+    <!-- Socket.IO para tiempo real -->
+    <script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
+    
+    <!-- Charts para estadísticas -->
+    <script src="/node_modules/chart.js/dist/chart.min.js"></script>
+    
+    <!-- 🎯 CONFIGURACIÓN MAIRA GESTIÓN DE BATALLA -->
+    <script>
+        // Configuración global MAIRA
+        window.MAIRA = {
+            config: {
+                SERVER_URL: window.location.origin,
+                CLIENT_URL: window.location.origin,
+                MODULE: 'gestionbatalla'
+            },
+            GestionBatalla: {
+                mapaTactico: null,
+                batallas: new Map(),
+                unidadesEnCombate: new Map(),
+                estadisticas: {
+                    batallasPendientes: 0,
+                    batallasConcluidas: 0,
+                    victorias: { azul: 0, rojo: 0 }
+                },
+                socket: null,
+                batallaActiva: null
+            }
+        };
+        
+        console.log('⚔️ MAIRA Gestión de Batalla - Configuración básica lista');
+    </script>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-sword-cross"></i>
+            MAIRA - Gestión de Batalla
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="nuevaBatalla()">
+                        <i class="fas fa-plus"></i> Nueva Batalla
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="gestionarBatallas()">
+                        <i class="fas fa-tasks"></i> Gestionar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="resolverBatalla()">
+                        <i class="fas fa-gavel"></i> Resolver
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="estadisticasBatalla()">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <span class="navbar-text">
+                        Batallas Activas: <span id="count-batallas-activas" class="badge bg-warning">0</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid">
+    <div class="row">
+        
+        <!-- Left Sidebar - Battle Management -->
+        <div class="col-md-3 col-lg-2 sidebar-left">
+            <div class="battle-control-panel">
+                <h5><i class="fas fa-crown"></i> Control de Batalla</h5>
+                
+                <!-- Battle Actions -->
+                <div class="action-group">
+                    <h6>Acciones</h6>
+                    <button class="btn btn-sm btn-danger w-100 mb-1" onclick="iniciarCombate()">
+                        <i class="fas fa-play"></i> Iniciar Combate
+                    </button>
+                    <button class="btn btn-sm btn-warning w-100 mb-1" onclick="pausarCombate()">
+                        <i class="fas fa-pause"></i> Pausar
+                    </button>
+                    <button class="btn btn-sm btn-success w-100 mb-1" onclick="finalizarCombate()">
+                        <i class="fas fa-stop"></i> Finalizar
+                    </button>
+                </div>
+                
+                <!-- Combat Resolution -->
+                <div class="action-group">
+                    <h6>Resolución</h6>
+                    <button class="btn btn-sm btn-primary w-100 mb-1" onclick="calcularProbabilidades()">
+                        <i class="fas fa-calculator"></i> Calcular
+                    </button>
+                    <button class="btn btn-sm btn-info w-100 mb-1" onclick="aplicarResultados()">
+                        <i class="fas fa-check"></i> Aplicar
+                    </button>
+                    <button class="btn btn-sm btn-secondary w-100 mb-1" onclick="generarReporte()">
+                        <i class="fas fa-file-alt"></i> Reporte
+                    </button>
+                </div>
+                
+                <!-- Quick Settings -->
+                <div class="action-group">
+                    <h6>Configuración</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="autoResolve" checked>
+                        <label class="form-check-label" for="autoResolve">
+                            Auto-resolver
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showProbabilities">
+                        <label class="form-check-label" for="showProbabilities">
+                            Mostrar probabilidades
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center - Tactical Map -->
+        <div class="col-md-6 col-lg-8 tactical-area">
+            <div class="tactical-map-container">
+                <!-- Map Header -->
+                <div class="map-header">
+                    <h5>
+                        <i class="fas fa-map-marked-alt"></i> 
+                        Mapa Táctico
+                        <span id="battle-title" class="text-muted">- Sin batalla activa</span>
+                    </h5>
+                    <div class="map-controls">
+                        <button class="btn btn-sm btn-outline-primary" onclick="centrarEnBatalla()">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleModoVista()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tactical Map -->
+                <div id="mapa-tactico" class="tactical-map"></div>
+                
+                <!-- Battle Timeline -->
+                <div class="battle-timeline">
+                    <h6><i class="fas fa-history"></i> Línea de Tiempo</h6>
+                    <div id="timeline-container" class="timeline-scroll">
+                        <div class="timeline-item">
+                            <span class="time">00:00</span>
+                            <span class="event">Sistema iniciado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar - Battle Info -->
+        <div class="col-md-3 col-lg-2 sidebar-right">
+            <div class="battle-info-panel">
+                <h5><i class="fas fa-info-circle"></i> Información</h5>
+                
+                <!-- Active Battle -->
+                <div class="active-battle-info">
+                    <h6>Batalla Activa</h6>
+                    <div id="info-batalla-activa">
+                        <p class="text-muted">Ninguna batalla seleccionada</p>
+                    </div>
+                </div>
+                
+                <!-- Force Comparison -->
+                <div class="force-comparison">
+                    <h6>Comparación de Fuerzas</h6>
+                    <div class="force-bars">
+                        <div class="force-bar">
+                            <label>Azul</label>
+                            <div class="progress">
+                                <div id="fuerza-azul" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                            <span id="valor-azul">0</span>
+                        </div>
+                        <div class="force-bar">
+                            <label>Rojo</label>
+                            <div class="progress">
+                                <div id="fuerza-rojo" class="progress-bar bg-danger" style="width: 0%"></div>
+                            </div>
+                            <span id="valor-rojo">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Combat Factors -->
+                <div class="combat-factors">
+                    <h6>Factores de Combate</h6>
+                    <div class="factor-list">
+                        <div class="factor-item">
+                            <span>Terreno:</span>
+                            <span id="factor-terreno">Neutro</span>
+                        </div>
+                        <div class="factor-item">
+                            <span>Clima:</span>
+                            <span id="factor-clima">Normal</span>
+                        </div>
+                        <div class="factor-item">
+                            <span>Moral:</span>
+                            <span id="factor-moral">Estable</span>
+                        </div>
+                        <div class="factor-item">
+                            <span>Suministros:</span>
+                            <span id="factor-suministros">Adecuado</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Battle Results -->
+                <div class="battle-results">
+                    <h6>Resultados</h6>
+                    <div id="resultados-batalla" class="results-container">
+                        <p class="text-muted">Sin resultados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Battle List Modal -->
+<div class="modal fade" id="modalListaBatallas" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gestión de Batallas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                                <th>Fuerzas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-batallas">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    No hay batallas registradas
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Battle Modal -->
+<div class="modal fade" id="modalNuevaBatalla" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Batalla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevaBatalla">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la Batalla</label>
+                        <input type="text" class="form-control" id="nombreBatalla" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Combate</label>
+                        <select class="form-select" id="tipoCombate">
+                            <option value="encuentro">Encuentro</option>
+                            <option value="asalto">Asalto</option>
+                            <option value="defensa">Defensa</option>
+                            <option value="retirada">Retirada</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Fuerzas Azules</label>
+                            <input type="number" class="form-control" id="fuerzasAzules" min="1" value="100">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Fuerzas Rojas</label>
+                            <input type="number" class="form-control" id="fuerzasRojas" min="1" value="100">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="crearNuevaBatalla()">Crear Batalla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Battle Statistics Modal -->
+<div class="modal fade" id="modalEstadisticas" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Estadísticas de Batalla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <canvas id="chartVictorias"></canvas>
+                    </div>
+                    <div class="col-6">
+                        <canvas id="chartTiposBatalla"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📦 JAVASCRIPT PRINCIPAL DE GESTIÓN DE BATALLA -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('⚔️ Inicializando MAIRA Gestión de Batalla...');
+    
+    try {
+        // Inicializar mapa táctico
+        initializeTacticalMap();
+        
+        // Configurar Socket.IO
+        initializeBattleSocket();
+        
+        // Configurar eventos de batalla
+        setupBattleEvents();
+        
+        // Inicializar estadísticas
+        initializeBattleStats();
+        
+        console.log('✅ MAIRA Gestión de Batalla inicializado correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error inicializando Gestión de Batalla:', error);
+    }
+});
+
+function initializeTacticalMap() {
+    // Inicializar mapa táctico con Leaflet
+    const mapa = L.map('mapa-tactico', {
+        center: [-34.6118, -58.3960],
+        zoom: 12,
+        zoomControl: true
+    });
+    
+    // Capa base táctica
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        opacity: 0.7
+    }).addTo(mapa);
+    
+    // Configurar eventos del mapa
+    mapa.on('click', onTacticalMapClick);
+    mapa.on('contextmenu', onTacticalMapRightClick);
+    
+    window.MAIRA.GestionBatalla.mapaTactico = mapa;
+    console.log('✅ Mapa táctico inicializado');
+}
+
+function initializeBattleSocket() {
+    if (typeof io !== 'undefined') {
+        const socket = io(window.MAIRA.config.SERVER_URL + '/batalla');
+        
+        socket.on('connect', function() {
+            console.log('🔌 Conectado al servidor de batalla');
+        });
+        
+        socket.on('battle-update', function(data) {
+            handleBattleUpdate(data);
+        });
+        
+        socket.on('combat-result', function(data) {
+            handleCombatResult(data);
+        });
+        
+        window.MAIRA.GestionBatalla.socket = socket;
+        console.log('✅ Socket de batalla inicializado');
+    }
+}
+
+function setupBattleEvents() {
+    // Eventos de teclado para gestión de batalla
+    document.addEventListener('keydown', function(e) {
+        switch(e.key) {
+            case 'Enter':
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    iniciarCombate();
+                }
+                break;
+            case 'Escape':
+                cancelarAccionBatalla();
+                break;
+            case 'r':
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    resolverBatalla();
+                }
+                break;
+        }
+    });
+    
+    console.log('✅ Eventos de batalla configurados');
+}
+
+function initializeBattleStats() {
+    // Inicializar estadísticas vacías
+    actualizarEstadisticasBatalla();
+    console.log('✅ Estadísticas de batalla inicializadas');
+}
+
+// Variables de estado de batalla
+let batallaIdCounter = 0;
+let batallaSeleccionada = null;
+
+function onTacticalMapClick(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    console.log(`🎯 Click en mapa táctico: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    
+    // Si hay una batalla activa, manejar click en contexto de batalla
+    if (window.MAIRA.GestionBatalla.batallaActiva) {
+        manejarClickEnBatalla(lat, lng);
+    }
+}
+
+function onTacticalMapRightClick(e) {
+    e.originalEvent.preventDefault();
+    mostrarMenuTactico(e.latlng.lat, e.latlng.lng);
+}
+
+function nuevaBatalla() {
+    const modal = new bootstrap.Modal(document.getElementById('modalNuevaBatalla'));
+    modal.show();
+}
+
+function crearNuevaBatalla() {
+    const nombre = document.getElementById('nombreBatalla').value;
+    const tipo = document.getElementById('tipoCombate').value;
+    const fuerzasAzules = parseInt(document.getElementById('fuerzasAzules').value);
+    const fuerzasRojas = parseInt(document.getElementById('fuerzasRojas').value);
+    
+    if (!nombre) {
+        alert('Ingresa un nombre para la batalla');
+        return;
+    }
+    
+    batallaIdCounter++;
+    
+    // Crear nueva batalla
+    const batalla = {
+        id: `batalla-${batallaIdCounter}`,
+        nombre: nombre,
+        tipo: tipo,
+        estado: 'preparacion',
+        fuerzas: {
+            azul: fuerzasAzules,
+            rojo: fuerzasRojas
+        },
+        posicion: [-34.6118 + (Math.random() - 0.5) * 0.1, -58.3960 + (Math.random() - 0.5) * 0.1],
+        timestamp: new Date(),
+        resultados: null
+    };
+    
+    // Agregar al mapa
+    const marcador = L.marker(batalla.posicion, {
+        icon: L.divIcon({
+            html: `<div class="battle-marker ${tipo}">
+                     <i class="fas fa-sword-cross"></i>
+                   </div>`,
+            className: 'custom-battle-marker',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        })
+    }).addTo(window.MAIRA.GestionBatalla.mapaTactico);
+    
+    marcador.bindPopup(`
+        <strong>${nombre}</strong><br>
+        Tipo: ${tipo}<br>
+        Fuerzas: ${fuerzasAzules} vs ${fuerzasRojas}<br>
+        Estado: ${batalla.estado}
+    `);
+    
+    marcador.on('click', function() {
+        seleccionarBatalla(batalla);
+    });
+    
+    batalla.marcador = marcador;
+    
+    // Guardar batalla
+    window.MAIRA.GestionBatalla.batallas.set(batalla.id, batalla);
+    
+    // Actualizar estadísticas
+    window.MAIRA.GestionBatalla.estadisticas.batallasPendientes++;
+    actualizarEstadisticasBatalla();
+    
+    // Agregar a timeline
+    agregarEventoTimeline(`Nueva batalla creada: ${nombre}`);
+    
+    // Cerrar modal
+    bootstrap.Modal.getInstance(document.getElementById('modalNuevaBatalla')).hide();
+    
+    console.log(`⚔️ Nueva batalla creada: ${nombre} (ID: ${batalla.id})`);
+}
+
+function seleccionarBatalla(batalla) {
+    batallaSeleccionada = batalla;
+    window.MAIRA.GestionBatalla.batallaActiva = batalla;
+    
+    // Actualizar UI
+    document.getElementById('battle-title').textContent = `- ${batalla.nombre}`;
+    
+    // Mostrar información de la batalla
+    document.getElementById('info-batalla-activa').innerHTML = `
+        <p><strong>Nombre:</strong> ${batalla.nombre}</p>
+        <p><strong>Tipo:</strong> ${batalla.tipo}</p>
+        <p><strong>Estado:</strong> ${batalla.estado}</p>
+        <p><strong>Creada:</strong> ${batalla.timestamp.toLocaleTimeString()}</p>
+    `;
+    
+    // Actualizar barras de fuerza
+    const totalFuerzas = batalla.fuerzas.azul + batalla.fuerzas.rojo;
+    const porcentajeAzul = (batalla.fuerzas.azul / totalFuerzas) * 100;
+    const porcentajeRojo = (batalla.fuerzas.rojo / totalFuerzas) * 100;
+    
+    document.getElementById('fuerza-azul').style.width = `${porcentajeAzul}%`;
+    document.getElementById('fuerza-rojo').style.width = `${porcentajeRojo}%`;
+    document.getElementById('valor-azul').textContent = batalla.fuerzas.azul;
+    document.getElementById('valor-rojo').textContent = batalla.fuerzas.rojo;
+    
+    // Centrar mapa en la batalla
+    window.MAIRA.GestionBatalla.mapaTactico.setView(batalla.posicion, 15);
+    
+    console.log(`📌 Batalla seleccionada: ${batalla.nombre}`);
+}
+
+function iniciarCombate() {
+    if (!batallaSeleccionada) {
+        alert('Selecciona una batalla primero');
+        return;
+    }
+    
+    if (batallaSeleccionada.estado !== 'preparacion') {
+        alert('La batalla ya está en curso o finalizada');
+        return;
+    }
+    
+    // Cambiar estado a combate
+    batallaSeleccionada.estado = 'combate';
+    batallaSeleccionada.inicioReal = new Date();
+    
+    // Actualizar marcador
+    batallaSeleccionada.marcador.getElement().classList.add('combate-activo');
+    
+    // Agregar evento a timeline
+    agregarEventoTimeline(`Combate iniciado: ${batallaSeleccionada.nombre}`);
+    
+    console.log(`⚔️ Combate iniciado: ${batallaSeleccionada.nombre}`);
+}
+
+function calcularProbabilidades() {
+    if (!batallaSeleccionada || batallaSeleccionada.estado !== 'combate') {
+        alert('No hay batalla activa para calcular');
+        return;
+    }
+    
+    // Calcular probabilidades básicas
+    const fuerzaAzul = batallaSeleccionada.fuerzas.azul;
+    const fuerzaRojo = batallaSeleccionada.fuerzas.rojo;
+    const totalFuerzas = fuerzaAzul + fuerzaRojo;
+    
+    // Factores básicos (se pueden expandir)
+    const factorTerrenoAzul = 1.0; // Neutro
+    const factorTerrenoRojo = 1.0; // Neutro
+    
+    // Probabilidades ajustadas
+    const probAzul = (fuerzaAzul * factorTerrenoAzul) / (fuerzaAzul * factorTerrenoAzul + fuerzaRojo * factorTerrenoRojo);
+    const probRojo = 1 - probAzul;
+    
+    // Mostrar resultados
+    document.getElementById('resultados-batalla').innerHTML = `
+        <div class="probability-result">
+            <h6>Probabilidades de Victoria</h6>
+            <div class="prob-bar azul">
+                <span>Azul: ${(probAzul * 100).toFixed(1)}%</span>
+                <div class="progress">
+                    <div class="progress-bar bg-primary" style="width: ${probAzul * 100}%"></div>
+                </div>
+            </div>
+            <div class="prob-bar rojo">
+                <span>Rojo: ${(probRojo * 100).toFixed(1)}%</span>
+                <div class="progress">
+                    <div class="progress-bar bg-danger" style="width: ${probRojo * 100}%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Guardar probabilidades
+    batallaSeleccionada.probabilidades = { azul: probAzul, rojo: probRojo };
+    
+    console.log(`🎲 Probabilidades calculadas - Azul: ${(probAzul * 100).toFixed(1)}%, Rojo: ${(probRojo * 100).toFixed(1)}%`);
+}
+
+function aplicarResultados() {
+    if (!batallaSeleccionada || !batallaSeleccionada.probabilidades) {
+        alert('Calcula las probabilidades primero');
+        return;
+    }
+    
+    // Resolver batalla con dado virtual
+    const dadoResult = Math.random();
+    const ganadorAzul = dadoResult < batallaSeleccionada.probabilidades.azul;
+    
+    // Calcular bajas
+    const porcentajeBajas = 0.1 + Math.random() * 0.3; // 10-40% de bajas
+    const bajasAzul = Math.floor(batallaSeleccionada.fuerzas.azul * porcentajeBajas);
+    const bajasRojo = Math.floor(batallaSeleccionada.fuerzas.rojo * porcentajeBajas);
+    
+    // Aplicar resultados
+    batallaSeleccionada.fuerzas.azul -= bajasAzul;
+    batallaSeleccionada.fuerzas.rojo -= bajasRojo;
+    
+    // Determinar resultado
+    let resultado;
+    if (ganadorAzul) {
+        resultado = 'victoria_azul';
+        batallaSeleccionada.fuerzas.rojo = Math.floor(batallaSeleccionada.fuerzas.rojo * 0.7); // Penalización adicional
+        window.MAIRA.GestionBatalla.estadisticas.victorias.azul++;
+    } else {
+        resultado = 'victoria_rojo';
+        batallaSeleccionada.fuerzas.azul = Math.floor(batallaSeleccionada.fuerzas.azul * 0.7); // Penalización adicional
+        window.MAIRA.GestionBatalla.estadisticas.victorias.rojo++;
+    }
+    
+    // Finalizar batalla
+    batallaSeleccionada.estado = 'finalizada';
+    batallaSeleccionada.resultado = resultado;
+    batallaSeleccionada.finReal = new Date();
+    
+    // Actualizar estadísticas
+    window.MAIRA.GestionBatalla.estadisticas.batallasPendientes--;
+    window.MAIRA.GestionBatalla.estadisticas.batallasConcluidas++;
+    
+    // Mostrar resultado final
+    document.getElementById('resultados-batalla').innerHTML = `
+        <div class="final-result ${resultado}">
+            <h6><i class="fas fa-flag"></i> Resultado Final</h6>
+            <p><strong>Ganador:</strong> ${ganadorAzul ? 'Fuerzas Azules' : 'Fuerzas Rojas'}</p>
+            <p><strong>Bajas Azules:</strong> ${bajasAzul}</p>
+            <p><strong>Bajas Rojas:</strong> ${bajasRojo}</p>
+            <p><strong>Supervivientes Azules:</strong> ${batallaSeleccionada.fuerzas.azul}</p>
+            <p><strong>Supervivientes Rojos:</strong> ${batallaSeleccionada.fuerzas.rojo}</p>
+        </div>
+    `;
+    
+    // Actualizar marcador
+    batallaSeleccionada.marcador.getElement().classList.remove('combate-activo');
+    batallaSeleccionada.marcador.getElement().classList.add('finalizada');
+    
+    // Agregar a timeline
+    agregarEventoTimeline(`Batalla finalizada: ${batallaSeleccionada.nombre} - Ganador: ${ganadorAzul ? 'Azul' : 'Rojo'}`);
+    
+    // Actualizar estadísticas
+    actualizarEstadisticasBatalla();
+    
+    console.log(`🏆 Batalla resuelta: ${batallaSeleccionada.nombre} - Ganador: ${ganadorAzul ? 'Azul' : 'Rojo'}`);
+}
+
+function agregarEventoTimeline(evento) {
+    const timeline = document.getElementById('timeline-container');
+    const tiempo = new Date().toLocaleTimeString();
+    
+    const item = document.createElement('div');
+    item.className = 'timeline-item';
+    item.innerHTML = `
+        <span class="time">${tiempo}</span>
+        <span class="event">${evento}</span>
+    `;
+    
+    timeline.appendChild(item);
+    timeline.scrollTop = timeline.scrollHeight;
+}
+
+function actualizarEstadisticasBatalla() {
+    const stats = window.MAIRA.GestionBatalla.estadisticas;
+    document.getElementById('count-batallas-activas').textContent = stats.batallasPendientes;
+}
+
+function gestionarBatallas() {
+    // Actualizar tabla de batallas
+    const tbody = document.getElementById('tabla-batallas');
+    tbody.innerHTML = '';
+    
+    if (window.MAIRA.GestionBatalla.batallas.size === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-muted">
+                    No hay batallas registradas
+                </td>
+            </tr>
+        `;
+    } else {
+        for (let [id, batalla] of window.MAIRA.GestionBatalla.batallas) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${batalla.id}</td>
+                <td><span class="badge bg-${getEstadoColor(batalla.estado)}">${batalla.estado}</span></td>
+                <td>${batalla.nombre}</td>
+                <td>${batalla.fuerzas.azul} vs ${batalla.fuerzas.rojo}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="seleccionarBatallaPorId('${id}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarBatalla('${id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalListaBatallas'));
+    modal.show();
+}
+
+function getEstadoColor(estado) {
+    switch(estado) {
+        case 'preparacion': return 'warning';
+        case 'combate': return 'danger';
+        case 'finalizada': return 'success';
+        default: return 'secondary';
+    }
+}
+
+function estadisticasBatalla() {
+    if (typeof Chart !== 'undefined') {
+        // Gráfico de victorias
+        const ctxVictorias = document.getElementById('chartVictorias').getContext('2d');
+        new Chart(ctxVictorias, {
+            type: 'doughnut',
+            data: {
+                labels: ['Victorias Azules', 'Victorias Rojas'],
+                datasets: [{
+                    data: [
+                        window.MAIRA.GestionBatalla.estadisticas.victorias.azul,
+                        window.MAIRA.GestionBatalla.estadisticas.victorias.rojo
+                    ],
+                    backgroundColor: ['#0066cc', '#cc0000']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Victorias por Bando'
+                    }
+                }
+            }
+        });
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalEstadisticas'));
+    modal.show();
+}
+
+// Funciones stub para completar
+function pausarCombate() { console.log('⏸️ Pausar combate...'); }
+function finalizarCombate() { console.log('⏹️ Finalizar combate...'); }
+function resolverBatalla() { calcularProbabilidades(); aplicarResultados(); }
+function generarReporte() { console.log('📄 Generar reporte...'); }
+function centrarEnBatalla() { 
+    if (batallaSeleccionada) {
+        window.MAIRA.GestionBatalla.mapaTactico.setView(batallaSeleccionada.posicion, 15);
+    }
+}
+function toggleModoVista() { console.log('👁️ Toggle modo vista...'); }
+function manejarClickEnBatalla(lat, lng) { console.log(`⚔️ Click en batalla: [${lat}, ${lng}]`); }
+function mostrarMenuTactico(lat, lng) { console.log(`📋 Menú táctico: [${lat}, ${lng}]`); }
+function cancelarAccionBatalla() { console.log('❌ Cancelar acción batalla...'); }
+function handleBattleUpdate(data) { console.log('🔄 Actualización batalla:', data); }
+function handleCombatResult(data) { console.log('🏆 Resultado combate:', data); }
+function seleccionarBatallaPorId(id) {
+    const batalla = window.MAIRA.GestionBatalla.batallas.get(id);
+    if (batalla) {
+        seleccionarBatalla(batalla);
+        bootstrap.Modal.getInstance(document.getElementById('modalListaBatallas')).hide();
+    }
+}
+function eliminarBatalla(id) {
+    if (confirm('¿Eliminar esta batalla?')) {
+        const batalla = window.MAIRA.GestionBatalla.batallas.get(id);
+        if (batalla && batalla.marcador) {
+            window.MAIRA.GestionBatalla.mapaTactico.removeLayer(batalla.marcador);
+        }
+        window.MAIRA.GestionBatalla.batallas.delete(id);
+        gestionarBatallas(); // Refresh modal
+    }
+}
+
+console.log('⚔️ MAIRA Gestión de Batalla - Scripts básicos cargados');
+</script>
+
+<!-- CSS adicional para elementos de batalla -->
+<style>
+.battle-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.battle-marker.combate-activo {
+    animation: pulse 2s infinite;
+    background: #ff6b35;
+}
+
+.battle-marker.finalizada {
+    background: #6c757d;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.tactical-map {
+    height: 400px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.battle-timeline {
+    margin-top: 15px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.timeline-scroll {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.timeline-item .time {
+    color: #666;
+    margin-right: 10px;
+    min-width: 60px;
+}
+
+.force-bar {
+    margin-bottom: 10px;
+}
+
+.force-bar label {
+    font-size: 12px;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.factor-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.sidebar-left, .sidebar-right {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    padding: 15px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+.action-group {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.action-group:last-child {
+    border-bottom: none;
+}
+
+.action-group h6 {
+    color: #495057;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.tactical-area {
+    padding: 15px;
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.probability-result .prob-bar {
+    margin-bottom: 10px;
+}
+
+.probability-result .prob-bar span {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+.final-result {
+    border: 2px solid #28a745;
+    border-radius: 5px;
+    padding: 10px;
+    background: #f8fff9;
+}
+
+.final-result.victoria_rojo {
+    border-color: #dc3545;
+    background: #fff8f8;
+}
+</style>
+
+</body>
+</html>
