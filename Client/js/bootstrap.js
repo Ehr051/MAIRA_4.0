@@ -278,73 +278,19 @@
         }
 
         /**
-         * 🎯 CARGA ESPECÍFICA POR MÓDULO
+         * 🎯 CARGA ESPECÍFICA POR MÓDULO - UNIFICADA CON loadForSpecificModule
          */
         async loadForModule(moduleName) {
-            console.log(`🎯 Cargando para módulo: ${moduleName}`);
+            console.log(`🎯 Carga UNIFICADA para módulo: ${moduleName}`);
             
             try {
-                // 0. DEPENDENCY MANAGER PRIMERO (crítico para Socket.IO y otras librerías)
-                console.log('📦 Cargando Dependency Manager...');
-                await this.loadFile('./handlers/dependency-manager.js');
-                console.log('✅ Dependency Manager cargado');
+                // Usar la función unificada de carga selectiva
+                const filesToLoad = window.MAIRABootstrap.loadForSpecificModule(moduleName);
                 
-                // 🔗 VERIFICAR QUE SE EXPUSO GLOBALMENTE
-                if (typeof window.dependencyManager === 'undefined') {
-                    console.warn('⚠️ Dependency Manager no disponible globalmente, reintentando...');
-                    // Pequeña pausa para permitir que el script se ejecute completamente
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    if (typeof window.dependencyManager === 'undefined') {
-                        console.error('❌ Dependency Manager falló al exponerse globalmente');
-                    } else {
-                        console.log('✅ Dependency Manager ahora disponible globalmente');
-                    }
-                }
+                console.log(`📦 Archivos a cargar para ${moduleName}:`, filesToLoad.length);
                 
-                // 1. CORE (siempre necesario)
-                await this.loadCategory('core', LOAD_ORDER.core);
-                
-                // 2. UTILS (siempre necesario)
-                await this.loadCategory('utils', LOAD_ORDER.utils);
-                
-                // 3. INFRAESTRUCTURA
-                await this.loadCategory('infrastructure', LOAD_ORDER.infrastructure);
-                
-                // 4. SERVICIOS (solo los necesarios por módulo)
-                await this.loadServicesForModule(moduleName);
-                
-                // 5. COMÚN (contiene las funciones globales básicas)
-                await this.loadCommonForModule(moduleName);
-                
-                // 6. HANDLERS (solo los necesarios por módulo)
-                await this.loadHandlersForModule(moduleName);
-                
-                // 6.5. UI (para módulos que requieren interfaz específica)
-                if (['home', 'index'].includes(moduleName)) {
-                    await this.loadCategory('ui', LOAD_ORDER.ui);
-                    console.log(`✅ UI cargada para ${moduleName}`);
-                }
-                
-                // 7. GESTORES (solo para módulos de JUEGO, NO planeamiento)
-                if (['juegodeguerra', 'gestionbatalla'].includes(moduleName)) {
-                    await this.loadCategory('gestores', LOAD_ORDER.gestores);
-                    console.log(`✅ Gestores cargados para ${moduleName}`);
-                }
-                
-                // 8. MÓDULOS ESPECÍFICOS
-                if (LOAD_ORDER.modules[moduleName]) {
-                    await this.loadCategory(`modules.${moduleName}`, LOAD_ORDER.modules[moduleName]);
-                }
-                
-                // 9. GAMING (si es necesario)
-                if (['juego', 'partidas'].includes(moduleName)) {
-                    await this.loadCategory('gaming', LOAD_ORDER.gaming);
-                }
-                
-                // 10. TESTING (solo en desarrollo)
-                if (window.location.hostname === 'localhost' || window.location.href.includes('test')) {
-                    await this.loadCategory('testing', LOAD_ORDER.testing);
-                }
+                // Cargar todos los archivos en orden
+                await this.loadFiles(filesToLoad);
                 
                 console.log(`🎉 MÓDULO ${moduleName.toUpperCase()} CARGADO COMPLETAMENTE`);
                 console.log(`📊 Archivos cargados: ${this.loadedFiles.size}`);
@@ -366,180 +312,6 @@
                 total: this.loadedFiles.size + this.errorFiles.size
             };
         }
-
-        // 🎯 MÉTODOS DE CARGA SELECTIVA POR MÓDULO
-        
-        async loadServicesForModule(moduleName) {
-            const servicesByModule = {
-                'home': [], // Home no necesita servicios pesados
-                'planeamiento': [
-                    './services/servicesManager.js',
-                    './services/transitabilityService.js', 
-                    './services/slopeAnalysisService.js',
-                    './services/elevationProfileService.js'
-                ],
-                'gestionBatalla': [
-                    './services/servicesManager.js',
-                    './services/combatSystem3DIntegrator.js',
-                    './services/elevationProfileService.js'
-                ],
-                'juego': LOAD_ORDER.services, // Juego necesita todos
-                'organizacion': [
-                    './services/servicesManager.js'
-                ]
-            };
-            
-            const services = servicesByModule[moduleName] || [];
-            if (services.length > 0) {
-                await this.loadFiles(services);
-                console.log(`✅ Servicios cargados para ${moduleName}:`, services.length);
-            }
-        }
-        
-        async loadCommonForModule(moduleName) {
-            const commonByModule = {
-                // 🏠 INDEX/HOME - Solo básicos SIN CHAT (confirmado con viejo/static/index.html)
-                'home': [
-                    './common/networkConfig.js'
-                    // ❌ NO MAIRAChat.js - index.html original NO tiene chat
-                ],
-                
-                // 🎯 INICIAR PARTIDA - Básicos + Chat (confirmado con viejo/static)
-                'partidas': [
-                    './common/networkConfig.js',
-                    './common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
-                ],
-                
-                // 🎮 JUEGO DE GUERRA - Sin utilsJDG.js que NO existe + Chat (confirmado con viejo/static)
-                'juegodeguerra': [
-                    './common/networkConfig.js',
-                    // ❌ NO utilsJDG.js - este archivo NO existe en el sistema
-                    './common/MAIRAChat.js',       // ✅ juegodeguerra.html SÍ tiene chat
-                    './utils/calcosP.js'           // ✅ AGREGADO: Gestión de calcos necesaria para mapas
-                ],
-                
-                // 🏢 INICIO GB - Básicos + Chat (confirmado con viejo/static)
-                'inicioGB': [
-                    './common/networkConfig.js',
-                    './common/MAIRAChat.js'        // ✅ inicioGB.html SÍ tiene chat
-                ],
-                
-                // ⚔️ GESTIÓN BATALLA - Suite completa + Chat (confirmado con viejo/static)
-                'gestionbatalla': [
-                    './common/networkConfig.js',
-                    './common/MAIRAChat.js',       // ✅ gestionbatalla.html SÍ tiene chat
-                    './common/indexP.js',
-                    './common/mapaP.js',
-                    './common/simbolosP.js',
-                    './common/herramientasP.js',
-                    './common/dibujosMCCP.js',
-                    './common/atajosP.js',
-                    './common/CalculoMarcha.js',
-                    './common/graficoMarcha.js',
-                    './common/panelMarcha.js',
-                    './common/miradial.js',
-                    './utils/calcosP.js'
-                    // ❌ NO incluir edicioncompleto.js (comentado en gestionbatalla.html)
-                ],
-                
-                // 📋 PLANEAMIENTO - Suite completa SIN CHAT + CON edicioncompleto.js (confirmado con viejo/static)
-                'planeamiento': [
-                    './common/networkConfig.js',
-                    // ❌ NO incluir MAIRAChat.js - planeamiento.html original NO tiene chat
-                    './common/indexP.js',
-                    './common/mapaP.js',
-                    './common/simbolosP.js',
-                    './common/herramientasP.js',
-                    './common/dibujosMCCP.js',
-                    './common/atajosP.js',
-                    './common/CalculoMarcha.js',
-                    './common/graficoMarcha.js',
-                    './common/panelMarcha.js',
-                    './common/edicioncompleto.js', // ✅ Solo en planeamiento
-                    './utils/calcosP.js',
-                    './common/toolsInitializer.js'
-                ],
-                
-                // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Solo básicos SIN CHAT (confirmado con viejo/static)
-                'organizacion': [
-                    './common/networkConfig.js',
-                    // ❌ NO incluir MAIRAChat.js - CO.html original NO tiene chat
-                    './common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
-                ]
-            };
-            
-            const common = commonByModule[moduleName] || LOAD_ORDER.common;
-            await this.loadFiles(common);
-            console.log(`✅ Common cargado para ${moduleName}:`, common.length);
-        }
-        
-        async loadHandlersForModule(moduleName) {
-            const handlersByModule = {
-                // 🏠 HOME - Handlers adicionales (dependency manager ya cargado)
-                'home': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                ],
-                
-                // 📋 PLANEAMIENTO - Handlers completos según planeamiento.html
-                'planeamiento': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                    './handlers/elevationHandler.js',   // ✅ CRÍTICO: elevation.worker.js + elevationHandler.js
-                    './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: vegetacionhandler.js
-                    './workers/elevation.worker.js',    // ✅ Workers de elevación
-                    './utils/geometryUtils.js',
-                    './handlers/mobileOptimizationHandler.js',
-                    './handlers/mapInteractionHandler.js',
-                    './services/elevationProfileService.js',
-                    './handlers/measurementHandler.js',
-                    './handlers/searchHandler.js',     // ✅ NUEVO: Búsqueda de lugares (initializeBuscarLugar)
-                    './handlers/testHandler.js'        // ✅ NUEVO: Testing (ejecutarTestPlaneamiento)
-                ],
-                
-                // ⚔️ GESTIÓN BATALLA - Mismos handlers críticos que planeamiento
-                'gestionbatalla': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                    './handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
-                    './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
-                    './workers/elevation.worker.js',    // ✅ Workers de elevación
-                    './workers/vegetation.worker.js',   // ✅ AGREGADO: Worker vegetación
-                    './utils/geometryUtils.js',
-                    './handlers/mobileOptimizationHandler.js',
-                    './handlers/mapInteractionHandler.js',
-                    './services/elevationProfileService.js',
-                    './handlers/measurementHandler.js'
-                ],
-                
-                // 🎮 JUEGO DE GUERRA - Handlers básicos de terreno
-                'juegodeguerra': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                    './handlers/elevationHandler.js',
-                    './handlers/vegetacionhandler.js',
-                    './workers/elevation.worker.js',
-                    './workers/vegetation.worker.js'    // ✅ AGREGADO: Worker vegetación
-                ],
-                
-                // 🏗️ ORGANIZACIÓN - Solo dependency manager
-                'organizacion': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                ],
-                
-                // 🎯 PARTIDAS - Solo dependency manager para socket.io
-                'partidas': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                ],
-                
-                // 🏢 INICIO GB - Solo dependency manager 
-                'inicioGB': [
-                    // dependency-manager.js YA CARGADO en loadForModule
-                ]
-            };
-            
-            const handlers = handlersByModule[moduleName] || [];
-            if (handlers.length > 0) {
-                await this.loadFiles(handlers);
-                console.log(`✅ Handlers cargados para ${moduleName}:`, handlers.length);
-            }
-        }
     }
 
     // ✅ EXPORTAR EL BOOTSTRAP GLOBALMENTE
@@ -558,21 +330,147 @@
     console.log('✅ MAIRABootstrap disponible globalmente');
     console.log('🔍 Funciones globales (toggleMenu, actualizarSidc, agregarMarcador) se cargan desde sus módulos respectivos');
     
-    // 🎯 FUNCIÓN DE CARGA SELECTIVA PARA DIFERENTES PÁGINAS
+    // 🎯 FUNCIÓN DE CARGA SELECTIVA REAL - CARGA COMPLETA SEGÚN PÁGINA
     window.MAIRABootstrap.loadForSpecificModule = function(pageName) {
-        console.log(`🎯 Carga selectiva para: ${pageName}`);
+        console.log(`🎯 Carga selectiva COMPLETA para: ${pageName}`);
         
-        const pageModules = {
-            'planeamiento': ['handlers/measurementHandler.js', 'services/elevationProfileService.js'],
-            'CO': ['handlers/mapInteractionHandler.js', 'utils/geometryUtils.js'],
-            'juegodeguerra': ['gaming/GameEngine.js', 'gaming/FogOfWar.js'],
-            'index': ['handlers/mobileOptimizationHandler.js']
+        // 📋 CONFIGURACIÓN DE CSS POR PÁGINA
+        const pageCSS = {
+            'planeamiento': [
+                './css/planeamiento.css',
+                './css/hexgrid.css',
+                './css/responsive-fixes.css'
+            ],
+            'CO': [
+                './css/CO.css',
+                './css/responsive-fixes.css'
+            ],
+            'juegodeguerra': [
+                './css/juegodeguerra.css',
+                './css/hexgrid.css',
+                './css/GBatalla.css',
+                './css/responsive-fixes.css'
+            ],
+            'inicioGB': [
+                './css/inicioGB.css',
+                './css/responsive-fixes.css'
+            ],
+            'gestionbatalla': [
+                './css/GBatalla.css',
+                './css/responsive-fixes.css'
+            ],
+            'index': [
+                './css/style.css',
+                './css/carrusel.css',
+                './css/responsive-fixes.css'
+            ]
         };
+
+        // 📋 DEPENDENCIAS EXTERNAS SEGÚN PÁGINA
+        const pageDependencies = {
+            'planeamiento': ['jquery', 'leaflet', 'proj4', 'bootstrap'],
+            'CO': ['jquery', 'leaflet', 'proj4'],
+            'juegodeguerra': ['jquery', 'leaflet', 'proj4', 'threejs'],
+            'inicioGB': ['jquery', 'bootstrap'],
+            'gestionbatalla': ['jquery', 'leaflet', 'proj4'],
+            'index': ['jquery', 'bootstrap']
+        };
+
+        // 1️⃣ CARGAR CSS ESPECÍFICO DE LA PÁGINA
+        const cssFiles = pageCSS[pageName] || pageCSS['index'];
+        cssFiles.forEach(cssFile => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = cssFile;
+            document.head.appendChild(link);
+            console.log(`🎨 CSS cargado: ${cssFile}`);
+        });
+
+        // 2️⃣ CARGAR DEPENDENCIAS EXTERNAS
+        const dependencies = pageDependencies[pageName] || [];
+        dependencies.forEach(dep => {
+            if (dep === 'jquery' && !window.$) {
+                this.loadJQuery();
+            } else if (dep === 'leaflet' && !window.L) {
+                this.loadLeaflet();
+            } else if (dep === 'proj4' && !window.proj4) {
+                this.loadProj4();
+            }
+        });
+
+        // 3️⃣ CONSTRUIR LISTA DE ARCHIVOS JS SEGÚN PÁGINA
+        const filesByCategory = [];
         
-        const modules = pageModules[pageName] || [];
-        console.log(`📦 Cargando ${modules.length} módulos específicos para ${pageName}`);
+        // SIEMPRE cargar archivos base
+        filesByCategory.push(...LOAD_ORDER.core);
+        filesByCategory.push(...LOAD_ORDER.utils);
+        filesByCategory.push(...LOAD_ORDER.infrastructure);
+        filesByCategory.push(...LOAD_ORDER.services);
         
-        return modules;
+        // Cargar archivos common (sin MAIRAChat para ciertas páginas)
+        const commonFiles = [...LOAD_ORDER.common];
+        if (pageName === 'planeamiento') {
+            // Remover chat para planeamiento
+            const chatIndex = commonFiles.indexOf('./common/MAIRAChat.js');
+            if (chatIndex > -1) commonFiles.splice(chatIndex, 1);
+        }
+        filesByCategory.push(...commonFiles);
+        
+        // Cargar handlers
+        filesByCategory.push(...LOAD_ORDER.handlers);
+        
+        // Cargar gestores solo para módulos de juego
+        if (['juegodeguerra', 'gestionbatalla'].includes(pageName)) {
+            filesByCategory.push(...LOAD_ORDER.gestores);
+        }
+        
+        // Cargar módulos específicos de la página
+        if (LOAD_ORDER.modules[pageName]) {
+            filesByCategory.push(...LOAD_ORDER.modules[pageName]);
+        }
+
+        // 4️⃣ CARGAR GAMING ENGINE si es necesario
+        if (['juegodeguerra', 'gestionbatalla'].includes(pageName)) {
+            filesByCategory.push(...LOAD_ORDER.gaming);
+        }
+
+        console.log(`📦 Cargando ${filesByCategory.length} archivos para ${pageName}:`, filesByCategory);
+        return filesByCategory;
+    };
+
+    // 🎯 FUNCIONES DE CARGA DE DEPENDENCIAS
+    window.MAIRABootstrap.loadJQuery = function() {
+        if (!window.$) {
+            const script = document.createElement('script');
+            script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+            script.onload = () => console.log('✅ jQuery cargado');
+            document.head.appendChild(script);
+        }
+    };
+
+    window.MAIRABootstrap.loadLeaflet = function() {
+        if (!window.L) {
+            // CSS primero
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(link);
+            
+            // JS después
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.onload = () => console.log('✅ Leaflet cargado');
+            document.head.appendChild(script);
+        }
+    };
+
+    window.MAIRABootstrap.loadProj4 = function() {
+        if (!window.proj4) {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/proj4@2.9.0/dist/proj4.js';
+            script.onload = () => console.log('✅ Proj4 cargado');
+            document.head.appendChild(script);
+        }
     };
 
     // 🎯 CARGA SELECTIVA INTELIGENTE
@@ -580,8 +478,11 @@
         const pathname = window.location.pathname;
         const page = pathname.includes('planeamiento') ? 'planeamiento' :
                     pathname.includes('CO') ? 'CO' :
-                    pathname.includes('juegodeguerra') ? 'juegodeguerra' : 'index';
+                    pathname.includes('juegodeguerra') ? 'juegodeguerra' :
+                    pathname.includes('inicioGB') ? 'inicioGB' :
+                    pathname.includes('gestionbatalla') ? 'gestionbatalla' : 'index';
         
+        console.log(`🔍 Página detectada: ${page} (URL: ${pathname})`);
         return this.loadForSpecificModule(page);
     };
 
