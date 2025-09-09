@@ -284,6 +284,11 @@
             console.log(`🎯 Cargando para módulo: ${moduleName}`);
             
             try {
+                // 0. DEPENDENCY MANAGER PRIMERO (crítico para Socket.IO y otras librerías)
+                console.log('📦 Cargando Dependency Manager...');
+                await this.loadFile('./handlers/dependency-manager.js');
+                console.log('✅ Dependency Manager cargado');
+                
                 // 1. CORE (siempre necesario)
                 await this.loadCategory('core', LOAD_ORDER.core);
                 
@@ -301,6 +306,12 @@
                 
                 // 6. HANDLERS (solo los necesarios por módulo)
                 await this.loadHandlersForModule(moduleName);
+                
+                // 6.5. UI (para módulos que requieren interfaz específica)
+                if (['home', 'index'].includes(moduleName)) {
+                    await this.loadCategory('ui', LOAD_ORDER.ui);
+                    console.log(`✅ UI cargada para ${moduleName}`);
+                }
                 
                 // 7. GESTORES (solo para módulos de JUEGO, NO planeamiento)
                 if (['juegodeguerra', 'gestionbatalla'].includes(moduleName)) {
@@ -452,14 +463,14 @@
         
         async loadHandlersForModule(moduleName) {
             const handlersByModule = {
-                // 🏠 HOME - Solo dependency manager para librerías externas
+                // 🏠 HOME - Handlers adicionales (dependency manager ya cargado)
                 'home': [
-                    './handlers/dependency-manager.js'  // ✅ CRÍTICO: Dependency manager para cargar Leaflet/etc
+                    // dependency-manager.js YA CARGADO en loadForModule
                 ],
                 
                 // 📋 PLANEAMIENTO - Handlers completos según planeamiento.html
                 'planeamiento': [
-                    './handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    // dependency-manager.js YA CARGADO en loadForModule
                     './handlers/elevationHandler.js',   // ✅ CRÍTICO: elevation.worker.js + elevationHandler.js
                     './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: vegetacionhandler.js
                     './workers/elevation.worker.js',    // ✅ Workers de elevación
@@ -474,7 +485,7 @@
                 
                 // ⚔️ GESTIÓN BATALLA - Mismos handlers críticos que planeamiento
                 'gestionbatalla': [
-                    './handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    // dependency-manager.js YA CARGADO en loadForModule
                     './handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
                     './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
                     './workers/elevation.worker.js',    // ✅ Workers de elevación
@@ -488,7 +499,7 @@
                 
                 // 🎮 JUEGO DE GUERRA - Handlers básicos de terreno
                 'juegodeguerra': [
-                    './handlers/dependency-manager.js',
+                    // dependency-manager.js YA CARGADO en loadForModule
                     './handlers/elevationHandler.js',
                     './handlers/vegetacionhandler.js',
                     './workers/elevation.worker.js',
@@ -497,21 +508,21 @@
                 
                 // 🏗️ ORGANIZACIÓN - Solo dependency manager
                 'organizacion': [
-                    './handlers/dependency-manager.js' // ✅ CRÍTICO: Dependency manager primero
+                    // dependency-manager.js YA CARGADO en loadForModule
                 ],
                 
                 // 🎯 PARTIDAS - Solo dependency manager para socket.io
                 'partidas': [
-                    './handlers/dependency-manager.js'
+                    // dependency-manager.js YA CARGADO en loadForModule
                 ],
                 
                 // 🏢 INICIO GB - Solo dependency manager 
                 'inicioGB': [
-                    './handlers/dependency-manager.js'
+                    // dependency-manager.js YA CARGADO en loadForModule
                 ]
             };
             
-            const handlers = handlersByModule[moduleName] || ['./handlers/dependency-manager.js'];
+            const handlers = handlersByModule[moduleName] || [];
             if (handlers.length > 0) {
                 await this.loadFiles(handlers);
                 console.log(`✅ Handlers cargados para ${moduleName}:`, handlers.length);
@@ -534,5 +545,15 @@
     console.log('🚀 MAIRA Bootstrap - Sistema de carga unificado inicializado');
     console.log('✅ MAIRABootstrap disponible globalmente');
     console.log('🔍 Funciones globales (toggleMenu, actualizarSidc, agregarMarcador) se cargan desde sus módulos respectivos');
+    
+    // 🎯 DISPARAR EVENTO PERSONALIZADO CUANDO BOOTSTRAP ESTÁ LISTO
+    const bootstrapReadyEvent = new CustomEvent('MAIRABootstrapReady', {
+        detail: { 
+            bootstrap: window.MAIRABootstrap,
+            timestamp: Date.now()
+        }
+    });
+    document.dispatchEvent(bootstrapReadyEvent);
+    console.log('📡 Evento MAIRABootstrapReady disparado');
 
 })();
