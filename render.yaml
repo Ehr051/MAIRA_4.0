@@ -21,7 +21,7 @@ services:
       - key: PORT
         value: 10000
       - key: NODE_VERSION
-        value: 18.19.0
+        value: 20.17.0
       # Variables de base de datos (configurar en Render Dashboard)
       - key: DATABASE_URL
         fromDatabase:

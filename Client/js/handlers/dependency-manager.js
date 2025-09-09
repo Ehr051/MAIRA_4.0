@@ -406,6 +406,28 @@ class DependencyManager {
     }
 
     /**
+     * Carga dependencias específicas de organización (CO)
+     */
+    async loadOrganizacionDependencies() {
+        const organizacionDependencies = [
+            'jsplumb',           // ✅ jsPlumb para conexiones en cuadros de organización
+            'milsymbol',         // ✅ Símbolos militares
+            // Agregar más dependencias específicas de CO según se necesiten
+        ];
+
+        console.log('🏗️ Cargando dependencias de organización...');
+        
+        try {
+            await this.loadDependencies(organizacionDependencies);
+            console.log('✅ Dependencias de organización cargadas');
+            return true;
+        } catch (error) {
+            console.error('❌ Error cargando dependencias de organización:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Verifica si una dependencia está disponible
      */
     isDependencyLoaded(name) {
@@ -432,6 +454,7 @@ window.loadMAIRADependencies = (moduleName = null) => window.dependencyManager.l
 window.loadPlaneamientoDependencies = () => window.dependencyManager.loadPlaneamientoDependencies();
 window.loadJuegoDependencies = () => window.dependencyManager.loadJuegoDependencies();
 window.loadGestionBatallaDependencies = () => window.dependencyManager.loadGestionBatallaDependencies();
+window.loadOrganizacionDependencies = () => window.dependencyManager.loadOrganizacionDependencies();
 
 console.log('🚀 Dependency Manager inicializado');
 
