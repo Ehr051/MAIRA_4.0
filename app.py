@@ -419,6 +419,190 @@ def serve_javascript_relative(filename):
         print(f"❌ Error sirviendo JS relativo {filename}: {e}")
         return f"console.error('Error loading {filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
 
+# ✅ CRÍTICO: Rutas específicas para carpetas JS que usa el frontend HTML directo
+@app.route('/js/common/<path:filename>')
+def serve_js_common(filename):
+    """Servir archivos JavaScript de js/common/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'common')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo JS common {filename}: {e}")
+        return f"console.error('Error loading js/common/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/js/core/<path:filename>')
+def serve_js_core_direct(filename):
+    """Servir archivos JavaScript de js/core/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'core')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo JS core {filename}: {e}")
+        return f"console.error('Error loading js/core/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/js/utils/<path:filename>')
+def serve_js_utils_direct(filename):
+    """Servir archivos JavaScript de js/utils/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'utils')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo JS utils {filename}: {e}")
+        return f"console.error('Error loading js/utils/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/js/modules/<path:filename>')
+def serve_js_modules_direct(filename):
+    """Servir archivos JavaScript de js/modules/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'modules')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo JS modules {filename}: {e}")
+        return f"console.error('Error loading js/modules/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+# ✅ CRÍTICO: Rutas específicas para carpetas JS que usa Bootstrap
+@app.route('/core/<path:filename>')
+def serve_core_js(filename):
+    """Servir archivos JavaScript de core/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'core')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo core JS {filename}: {e}")
+        return f"console.error('Error loading core/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/utils/<path:filename>')
+def serve_utils_js(filename):
+    """Servir archivos JavaScript de utils/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'utils')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo utils JS {filename}: {e}")
+        return f"console.error('Error loading utils/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/infrastructure/<path:filename>')
+def serve_infrastructure_js(filename):
+    """Servir archivos JavaScript de infrastructure/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'infrastructure')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo infrastructure JS {filename}: {e}")
+        return f"console.error('Error loading infrastructure/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/services/<path:filename>')
+def serve_services_js(filename):
+    """Servir archivos JavaScript de services/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'services')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo services JS {filename}: {e}")
+        return f"console.error('Error loading services/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/common/<path:filename>')
+def serve_common_js(filename):
+    """Servir archivos JavaScript de common/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'common')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo common JS {filename}: {e}")
+        return f"console.error('Error loading common/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/handlers/<path:filename>')
+def serve_handlers_js(filename):
+    """Servir archivos JavaScript de handlers/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'handlers')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo handlers JS {filename}: {e}")
+        return f"console.error('Error loading handlers/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/modules/<path:filename>')
+def serve_modules_js(filename):
+    """Servir archivos JavaScript de modules/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'modules')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo modules JS {filename}: {e}")
+        return f"console.error('Error loading modules/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/ui/<path:filename>')
+def serve_ui_js(filename):
+    """Servir archivos JavaScript de ui/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'ui')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo ui JS {filename}: {e}")
+        return f"console.error('Error loading ui/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/workers/<path:filename>')
+def serve_workers_js(filename):
+    """Servir archivos JavaScript de workers/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'workers')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo workers JS {filename}: {e}")
+        return f"console.error('Error loading workers/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
+@app.route('/Test/<path:filename>')
+def serve_test_js(filename):
+    """Servir archivos JavaScript de Test/"""
+    try:
+        js_dir = os.path.join('.', 'Client', 'js', 'Test')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo Test JS {filename}: {e}")
+        return f"console.error('Error loading Test/{filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
 # ✅ NUEVAS: Rutas de archivos faltantes
 @app.route('/Client/uploads/<path:filename>')
 def serve_uploads(filename):
@@ -445,6 +629,59 @@ def serve_css_relative(filename):
     except Exception as e:
         print(f"❌ Error sirviendo CSS relativo {filename}: {e}")
         return f"/* Error loading {filename}: {e} */", 404, {'Content-Type': 'text/css'}
+
+# ✅ CRÍTICO: Rutas específicas para carpetas CSS que usa el frontend
+@app.route('/css/common/<path:filename>')
+def serve_css_common(filename):
+    """Servir archivos CSS de common/"""
+    try:
+        css_dir = os.path.join('.', 'Client', 'css', 'common')
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS common {filename}: {e}")
+        return f"/* Error loading common/{filename}: {e} */", 404, {'Content-Type': 'text/css'}
+
+@app.route('/css/modules/<path:filename>')
+def serve_css_modules(filename):
+    """Servir archivos CSS de modules/"""
+    try:
+        css_dir = os.path.join('.', 'Client', 'css', 'modules')
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS modules {filename}: {e}")
+        return f"/* Error loading modules/{filename}: {e} */", 404, {'Content-Type': 'text/css'}
+
+@app.route('/css/legacy/<path:filename>')
+def serve_css_legacy(filename):
+    """Servir archivos CSS de legacy/"""
+    try:
+        css_dir = os.path.join('.', 'Client', 'css', 'legacy')
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS legacy {filename}: {e}")
+        return f"/* Error loading legacy/{filename}: {e} */", 404, {'Content-Type': 'text/css'}
+
+@app.route('/css/fixes/<path:filename>')
+def serve_css_fixes(filename):
+    """Servir archivos CSS de fixes/"""
+    try:
+        css_dir = os.path.join('.', 'Client', 'css', 'fixes')
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS fixes {filename}: {e}")
+        return f"/* Error loading fixes/{filename}: {e} */", 404, {'Content-Type': 'text/css'}
 
 @app.route('/image/<path:filename>')
 def serve_images_relative(filename):
