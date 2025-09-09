@@ -248,6 +248,21 @@ def serve_javascript(filename):
         print(f"❌ Error sirviendo JS {filename}: {e}")
         return f"console.error('Error loading {filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
 
+# ✅ NUEVO: Rutas relativas para JavaScript (sin /Client prefix)
+@app.route('/js/<path:filename>')
+def serve_javascript_relative(filename):
+    """Servir archivos JavaScript con rutas relativas"""
+    from flask import Response
+    try:
+        js_dir = os.path.join('.', 'Client', 'js')
+        response = send_from_directory(js_dir, filename)
+        response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo JS relativo {filename}: {e}")
+        return f"console.error('Error loading {filename}: {e}');", 500, {'Content-Type': 'application/javascript'}
+
 # ✅ NUEVAS: Rutas de archivos faltantes
 @app.route('/Client/uploads/<path:filename>')
 def serve_uploads(filename):
@@ -260,6 +275,46 @@ def serve_audio(filename):
     """Servir archivos de audio"""
     audio_dir = os.path.join('.', 'Client', 'audio')
     return send_from_directory(audio_dir, filename)
+
+# ✅ NUEVAS: Rutas relativas para archivos estáticos
+@app.route('/css/<path:filename>')
+def serve_css_relative(filename):
+    """Servir archivos CSS con rutas relativas"""
+    try:
+        css_dir = os.path.join('.', 'Client', 'css')
+        response = send_from_directory(css_dir, filename)
+        response.headers['Content-Type'] = 'text/css; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo CSS relativo {filename}: {e}")
+        return f"/* Error loading {filename}: {e} */", 404, {'Content-Type': 'text/css'}
+
+@app.route('/image/<path:filename>')
+def serve_images_relative(filename):
+    """Servir archivos de imagen con rutas relativas"""
+    try:
+        image_dir = os.path.join('.', 'Client', 'image')
+        return send_from_directory(image_dir, filename)
+    except Exception as e:
+        print(f"❌ Error sirviendo imagen relativa {filename}: {e}")
+        return f"Image not found: {filename}", 404
+
+@app.route('/Libs/<path:filename>')
+def serve_libs_relative(filename):
+    """Servir librerías con rutas relativas"""
+    try:
+        libs_dir = os.path.join('.', 'Client', 'Libs')
+        response = send_from_directory(libs_dir, filename)
+        if filename.endswith('.js'):
+            response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+        response.headers['Cache-Control'] = 'no-cache'
+        return response
+    except Exception as e:
+        print(f"❌ Error sirviendo lib relativa {filename}: {e}")
+        if filename.endswith('.js'):
+            return f"console.error('Error loading {filename}: {e}');", 404, {'Content-Type': 'application/javascript'}
+        return f"Library not found: {filename}", 404
 
 @app.route('/Client/<path:path>')
 def serve_client_files(path):
