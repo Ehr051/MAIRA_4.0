@@ -34,6 +34,22 @@
                 if (typeof MAIRABootstrap !== 'undefined') {
                     await MAIRABootstrap.loadForModule('partidas');
                     console.log('✅ Bootstrap DDD completado para módulo Partidas');
+                    
+                    // 🔌 CARGAR SOCKET.IO ESPECÍFICAMENTE PARA PARTIDAS
+                    if (typeof dependencyManager !== 'undefined') {
+                        console.log('🔌 Cargando Socket.IO para partidas...');
+                        await dependencyManager.loadDependency('socket.io-client');
+                        console.log('✅ Socket.IO cargado para partidas');
+                        
+                        // Verificar que io esté disponible
+                        if (typeof io !== 'undefined') {
+                            console.log('✅ Socket.IO disponible globalmente');
+                        } else {
+                            console.warn('⚠️ Socket.IO no disponible después de cargar');
+                        }
+                    } else {
+                        console.warn('⚠️ Dependency Manager no disponible para Socket.IO');
+                    }
                 } else {
                     console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
                     // Fallback de emergencia si falla el bootstrap

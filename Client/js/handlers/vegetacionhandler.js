@@ -1,11 +1,20 @@
-// vegetacionHandler.js - Sistema de vegetación MAIRA 4.0 con GitHub Releases
+// vegetacionHandler.js - Sistema de vegetación MAIRA 4.0 con prioridad local
 
 // URL base para GitHub Releases mini-tiles v4.0
 const GITHUB_RELEASES_BASE = 'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0';
 
-// URLs de fallback para mini-tiles de vegetación
+// URLs de fallback para mini-tiles de vegetación - PRIORIDAD LOCAL PRIMERO
 const VEGETATION_FALLBACK_URLS = [
+    // 🎯 PRIORIDAD 1: LOCAL (datos están presentes y verificados)
+    'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
+    '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
+    './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
+    '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
+    
+    // 🎯 PRIORIDAD 2: GITHUB RELEASES v4.0
     `${GITHUB_RELEASES_BASE}/maira_vegetacion_tiles.tar.gz`,
+    
+    // 🎯 PRIORIDAD 3: CDN GITHUB RAW
     'https://raw.githubusercontent.com/Ehr051/MAIRA-4.0/main/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
     'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
 ];

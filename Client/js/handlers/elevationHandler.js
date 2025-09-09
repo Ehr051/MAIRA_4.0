@@ -1,22 +1,31 @@
-// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
+// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v4.0
 
-// URL base para GitHub Releases mini-tiles v3.0
+// URL base para GitHub Releases mini-tiles v4.0 (ACTUALIZADO)
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 
-    // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES - ELEVATION HANDLER
+    // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES v4.0 - ELEVATION HANDLER
     const ELEVATION_GITHUB_RELEASES = [
+        'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
+        'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
+        // Fallback a v3.0 si v4.0 no existe
         'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
         'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
     ];
 
-    // URLs de fallback específicas para ELEVATION HANDLER
+    // URLs de fallback específicas para ELEVATION HANDLER - PRIORIDAD LOCAL PRIMERO
     const ELEVATION_TILES_FALLBACK_URLS = [
-            ...ELEVATION_GITHUB_RELEASES,
+            // 🎯 PRIORIDAD 1: LOCAL (datos están presentes y verificados)
             'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
             '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
             './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
             '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
-            'https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/'
+            
+            // 🎯 PRIORIDAD 2: GITHUB RELEASES v4.0
+            ...ELEVATION_GITHUB_RELEASES,
+            
+            // 🎯 PRIORIDAD 3: CDN GITHUB RAW
+            'https://raw.githubusercontent.com/Ehr051/MAIRA-4.0/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/',
+            'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/'
         ];
 
 // Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
@@ -40,10 +49,10 @@ const cargarIndiceElevationTiles = new Promise((resolve, reject) => {
     return response.json();
   };
   
-    // Lista de URLs para intentar cargar el índice
+    // Lista de URLs para intentar cargar el índice - CORREGIDO para v4.0
     const urls = [
         `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`,
-        'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+        'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
         ...ELEVATION_TILES_FALLBACK_URLS.map(url => url.endsWith('/') ? `${url}master_mini_tiles_index.json` : `${url}/master_mini_tiles_index.json`)
     ];  // Intentar cargar desde cada URL secuencialmente
   (async () => {
@@ -60,7 +69,7 @@ const cargarIndiceElevationTiles = new Promise((resolve, reject) => {
         if (data.provincias && typeof data.provincias === 'object') {
           // Es el formato de mini-tiles
           console.log('✅ Formato mini-tiles detectado');
-          elevationTileIndex = response;
+          elevationTileIndex = data;
           elevationHandlerIndiceCargado = true;
           console.log('Índice de tiles cargado correctamente.');
           resolve();

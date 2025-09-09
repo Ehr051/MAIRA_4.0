@@ -289,6 +289,18 @@
                 await this.loadFile('./handlers/dependency-manager.js');
                 console.log('✅ Dependency Manager cargado');
                 
+                // 🔗 VERIFICAR QUE SE EXPUSO GLOBALMENTE
+                if (typeof window.dependencyManager === 'undefined') {
+                    console.warn('⚠️ Dependency Manager no disponible globalmente, reintentando...');
+                    // Pequeña pausa para permitir que el script se ejecute completamente
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    if (typeof window.dependencyManager === 'undefined') {
+                        console.error('❌ Dependency Manager falló al exponerse globalmente');
+                    } else {
+                        console.log('✅ Dependency Manager ahora disponible globalmente');
+                    }
+                }
+                
                 // 1. CORE (siempre necesario)
                 await this.loadCategory('core', LOAD_ORDER.core);
                 
