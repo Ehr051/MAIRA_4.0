@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
     <title>MAIRA - Sala de Operaciones</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
-    <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/Client/css/modules/inicioGB/inicioGB.css">
-    <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
+    <link rel="stylesheet" href="css/modules/inicioGB/inicioGB.css">
+    <link rel="stylesheet" href="css/common/test-buttons.css">
     
     <!-- Librerías externas necesarias -->
     <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
@@ -21,7 +21,7 @@
     <script src="/node_modules/proj4/dist/proj4.js"></script>
     
     <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
-    <script src="/Client/js/bootstrap.js"></script>
+    <script src="js/bootstrap.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -191,14 +191,13 @@
                     </div>
                 </div>
 
-                <!-- Información del Usuario -->
-                <div class="card mb-4" id="infoUsuario">
+                <div class="card mb-4" id="infoJugador">
                     <div class="card-header">
-                        Mi Información
+                        Información del Jugador
                     </div>
                     <div class="card-body">
-                        <p><strong>ID:</strong> <span id="idUsuarioActual"></span></p>
-                        <p><strong>Estado:</strong> <span id="estadoConexion">Conectado</span></p>
+                        <p><strong>Nombre:</strong> <span id="nombreJugadorActual"></span></p>
+                        <p><strong>ID:</strong> <span id="idJugadorActual"></span></p>
                     </div>
                 </div>
 

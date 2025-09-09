@@ -11,28 +11,28 @@
     const LOAD_ORDER = {
         // 1. CORE FUNDAMENTALES - Solo archivos que realmente existen
         core: [
-            '/Client/js/core/UserIdentity.js',         // ✅ EXISTE: gestión de identidad
-            '/Client/js/utils/sessionManager.js'       // ✅ EXISTE: gestión de sesión
+            './core/UserIdentity.js',         // ✅ EXISTE: gestión de identidad
+            './utils/sessionManager.js'       // ✅ EXISTE: gestión de sesión
             // Nota: core/index.js y config/index.js usan ES6 modules - se cargan por separado
         ],
         
         // 2. UTILIDADES BASE
         utils: [
-            '/Client/js/utils/eventemitter.js'
+            './utils/eventemitter.js'
         ],
         
         // 3. INFRAESTRUCTURA DDD
         infrastructure: [
-            '/Client/js/infrastructure/terrainAdapter.js'
+            './infrastructure/terrainAdapter.js'
         ],
         
         // 4. SERVICIOS DDD BÁSICOS (Hexagonal Architecture) - Solo servicios de aplicación web
         services: [
-            '/Client/js/services/servicesManager.js',
-            '/Client/js/services/transitabilityService.js',    // ✅ GLOBAL: Planeamiento + Juego
-            '/Client/js/services/slopeAnalysisService.js',     // ✅ GLOBAL: Análisis terreno
-            '/Client/js/services/elevationProfileService.js',  // ✅ GLOBAL: Perfiles elevación
-            '/Client/js/services/threeDMapService.js'          // ✅ GLOBAL: Mapas 3D básicos
+            './services/servicesManager.js',
+            './services/transitabilityService.js',    // ✅ GLOBAL: Planeamiento + Juego
+            './services/slopeAnalysisService.js',     // ✅ GLOBAL: Análisis terreno
+            './services/elevationProfileService.js',  // ✅ GLOBAL: Perfiles elevación
+            './services/threeDMapService.js'          // ✅ GLOBAL: Mapas 3D básicos
             // ❌ MOVIDOS ESPECÍFICOS:
             // - combatSystem3DIntegrator.js → SOLO juegodeguerra (simulaciones)
             // ❌ MOVIDOS A TOOLS:
@@ -41,92 +41,92 @@
         
         // 5. MÓDULOS COMUNES (INCLUYE LAS FUNCIONES GLOBALES)
         common: [
-            '/Client/js/common/networkConfig.js',  // ✅ MOVIDO AQUÍ - es común a todos
-            '/Client/js/common/MAIRAChat.js',
-            // '/Client/js/common/indexP.js',        // ❌ MOVIDO: Solo para planeamiento, no para landing
-            '/Client/js/common/miradial.js',
-            '/Client/js/common/panelMarcha.js',
-            '/Client/js/common/mapaP.js',
-            '/Client/js/common/simbolosP.js',     // ✅ actualizarSidc y agregarMarcador se cargan aquí
-            '/Client/js/common/herramientasP.js',  // ✅ REFACTORIZADO: Ahora es stub de compatibilidad
-            '/Client/js/common/toolsInitializer.js',  // ✅ NUEVO: Inicializador de herramientas refactorizadas
-            '/Client/js/common/dibujosMCCP.js',
-            '/Client/js/common/atajosP.js',
-            '/Client/js/common/CalculoMarcha.js',
-            '/Client/js/common/graficoMarcha.js',
+            './common/networkConfig.js',  // ✅ MOVIDO AQUÍ - es común a todos
+            './common/MAIRAChat.js',
+            // './common/indexP.js',        // ❌ MOVIDO: Solo para planeamiento, no para landing
+            './common/miradial.js',
+            './common/panelMarcha.js',
+            './common/mapaP.js',
+            './common/simbolosP.js',     // ✅ actualizarSidc y agregarMarcador se cargan aquí
+            './common/herramientasP.js',  // ✅ REFACTORIZADO: Ahora es stub de compatibilidad
+            './common/toolsInitializer.js',  // ✅ NUEVO: Inicializador de herramientas refactorizadas
+            './common/dibujosMCCP.js',
+            './common/atajosP.js',
+            './common/CalculoMarcha.js',
+            './common/graficoMarcha.js',
             // ❌ MOVIDO: edicioncompleto.js solo para planeamiento
-            '/Client/js/utils/calcosP.js',
+            './utils/calcosP.js',
             // ✅ AGREGADOS: Archivos que faltaban
-            '/Client/js/common/unidades.js',          // ✅ Gestión de unidades
-            '/Client/js/common/partidas.js'           // ✅ Gestión de partidas
+            './common/unidades.js',          // ✅ Gestión de unidades
+            './common/partidas.js'           // ✅ Gestión de partidas
         ],
         
         // 6. HANDLERS (TERRENO Y OPTIMIZACIÓN) + MÓDULOS REFACTORIZADOS
         handlers: [
             // Dependency Manager PRIMERO - necesario para cargar librerías externas
-            '/Client/js/handlers/dependency-manager.js',    // ✅ NUEVO: Gestor de dependencias CDN/node_modules
+            './handlers/dependency-manager.js',    // ✅ NUEVO: Gestor de dependencias CDN/node_modules
             
             // Handlers originales de terreno
-            '/Client/js/handlers/elevationHandler.js',      // ✅ CORREGIDO: está en handlers/
-            '/Client/js/handlers/vegetacionhandler.js',     // ✅ CORREGIDO: está en handlers/
-            '/Client/js/workers/elevation.worker.js',       // ✅ CORREGIDO: worker está en workers/
-            '/Client/js/handlers/measurement-touch-optimizer.js',
-            '/Client/js/ui/mobile-optimizer.js',
+            './handlers/elevationHandler.js',      // ✅ CORREGIDO: está en handlers/
+            './handlers/vegetacionhandler.js',     // ✅ CORREGIDO: está en handlers/
+            './workers/elevation.worker.js',       // ✅ CORREGIDO: worker está en workers/
+            './handlers/measurement-touch-optimizer.js',
+            './ui/mobile-optimizer.js',
             
             // ✅ NUEVOS MÓDULOS REFACTORIZADOS (reemplazando herramientasP.js)
-            '/Client/js/utils/geometryUtils.js',            // Utilidades geométricas primero
-            '/Client/js/handlers/mobileOptimizationHandler.js',  // Optimización móvil
-            '/Client/js/handlers/mapInteractionHandler.js', // Interacciones del mapa
-            '/Client/js/services/elevationProfileService.js',   // Servicio de perfiles
-            '/Client/js/handlers/measurementHandler.js',    // Medición de distancia (último - depende de otros)
+            './utils/geometryUtils.js',            // Utilidades geométricas primero
+            './handlers/mobileOptimizationHandler.js',  // Optimización móvil
+            './handlers/mapInteractionHandler.js', // Interacciones del mapa
+            './services/elevationProfileService.js',   // Servicio de perfiles
+            './handlers/measurementHandler.js',    // Medición de distancia (último - depende de otros)
             
             // ✅ GAMING Y DIRECTOR
-            '/Client/js/handlers/DirectorManager.js',       // Sistema roles director/creador
+            './handlers/DirectorManager.js',       // Sistema roles director/creador
             
             // ✅ AGREGADOS: Handlers que estaban faltando
-            '/Client/js/handlers/performanceOptimizer.js',  // ✅ Optimización performance
-            '/Client/js/handlers/EventBus.js',              // ✅ Bus de eventos
-            '/Client/js/handlers/pendienteHandler.js',      // ✅ De herramientasP.js
-            '/Client/js/handlers/transitabilidadHandler.js' // ✅ De herramientasP.js
+            './handlers/performanceOptimizer.js',  // ✅ Optimización performance
+            './handlers/EventBus.js',              // ✅ Bus de eventos
+            './handlers/pendienteHandler.js',      // ✅ De herramientasP.js
+            './handlers/transitabilidadHandler.js' // ✅ De herramientasP.js
         ],
         
         // 7. GESTORES BASE (para juego) - ⚠️ ORDEN CRÍTICO
         gestores: [
-            '/Client/js/modules/juego/gestorBase.js',       // ✅ PRIMERO - Base de todos los gestores
-            '/Client/js/modules/juego/gestorEventos.js',    // ✅ SEGUNDO - Sistema de eventos
-            '/Client/js/modules/juego/gestorEstado.js',     // ✅ TERCERO - Gestión de estado
-            '/Client/js/modules/juego/gestorComunicacion.js', // ✅ Comunicación
-            '/Client/js/modules/juego/gestorCarga.js',      // ✅ Carga de datos
-            '/Client/js/modules/juego/gestorMapa.js',       // ✅ Gestión del mapa
-            '/Client/js/modules/juego/gestorInterfaz.js',   // ✅ Interfaz de usuario
-            '/Client/js/modules/juego/gestorAcciones.js',   // ✅ Acciones del juego
-            '/Client/js/modules/juego/gestorUnidades.js',   // ✅ Gestión de unidades
-            '/Client/js/modules/juego/gestorFases.js',      // ✅ Fases del juego
-            '/Client/js/handlers/gestorTurnos.js',          // ✅ Sistema de turnos (compartido)
-            '/Client/js/modules/juego/gestorJuego.js'       // ✅ ÚLTIMO - Coordina todos
+            './modules/juego/gestorBase.js',       // ✅ PRIMERO - Base de todos los gestores
+            './modules/juego/gestorEventos.js',    // ✅ SEGUNDO - Sistema de eventos
+            './modules/juego/gestorEstado.js',     // ✅ TERCERO - Gestión de estado
+            './modules/juego/gestorComunicacion.js', // ✅ Comunicación
+            './modules/juego/gestorCarga.js',      // ✅ Carga de datos
+            './modules/juego/gestorMapa.js',       // ✅ Gestión del mapa
+            './modules/juego/gestorInterfaz.js',   // ✅ Interfaz de usuario
+            './modules/juego/gestorAcciones.js',   // ✅ Acciones del juego
+            './modules/juego/gestorUnidades.js',   // ✅ Gestión de unidades
+            './modules/juego/gestorFases.js',      // ✅ Fases del juego
+            './handlers/gestorTurnos.js',          // ✅ Sistema de turnos (compartido)
+            './modules/juego/gestorJuego.js'       // ✅ ÚLTIMO - Coordina todos
         ],
         
         // 8. MÓDULOS ESPECÍFICOS - Basado en análisis HTML real + funcionalidades 4.0
         modules: {
             // 🏠 INDEX/HOME - Scripts exactos del viejo/static/index.html
             home: [
-                '/Client/js/utils/config.js',              // ✅ config.js según original
-                '/Client/js/ui/landing3d.js',              // ✅ CORREGIDO: movido de handlers/ a ui/ en DDD
-                '/Client/js/ui/carrusel.js',               // ✅ carrusel.js según original
-                '/Client/js/utils/validacion.js'           // ✅ validacion.js según original
+                './utils/config.js',              // ✅ config.js según original
+                './ui/landing3d.js',              // ✅ CORREGIDO: movido de handlers/ a ui/ en DDD
+                './ui/carrusel.js',               // ✅ carrusel.js según original
+                './utils/validacion.js'           // ✅ validacion.js según original
                 // ❌ NO index.js - no existe en original
             ],
             
             // 📋 PLANEAMIENTO - Herramientas COMPLETAS + Tests + servicios básicos + script principal
             planeamiento: [
-                '/Client/js/common/indexP.js',             // ✅ PRIMERO - Script principal de planeamiento
-                '/Client/js/modules/planeamiento/planeamiento.js', // ✅ AGREGADO: Script base planeamiento
-                '/Client/js/Test/autoTest.js',
-                '/Client/js/Test/visualizadorTests.js',
-                '/Client/js/Test/testPlaneamiento.js',
-                '/Client/js/handlers/searchHandler.js',    // ✅ Búsqueda de lugares  
-                '/Client/js/handlers/testHandler.js',      // ✅ Testing automatizado
-                '/Client/js/workers/vegetation.worker.js'  // ✅ AGREGADO: Worker vegetación
+                './common/indexP.js',             // ✅ PRIMERO - Script principal de planeamiento
+                './modules/planeamiento/planeamiento.js', // ✅ AGREGADO: Script base planeamiento
+                './Test/autoTest.js',
+                './Test/visualizadorTests.js',
+                './Test/testPlaneamiento.js',
+                './handlers/searchHandler.js',    // ✅ Búsqueda de lugares  
+                './handlers/testHandler.js',      // ✅ Testing automatizado
+                './workers/vegetation.worker.js'  // ✅ AGREGADO: Worker vegetación
                 // ✅ Las herramientas refactorizadas se cargan automáticamente en handlers
                 // ✅ toolsInitializer.js ya está en common y se auto-inicializa
                 // ✅ USA: transitabilityService, slopeAnalysisService, elevationProfileService, threeDMapService
@@ -135,60 +135,60 @@
             
             // 🏗️ CO/ORGANIZACIÓN - ESPECÍFICO: Sin herramientas de mapa, solo organización
             organizacion: [
-                '/Client/js/ui/paneledicionCO.js',         // ✅ Panel edición
-                '/Client/js/modules/organizacion/conexionesCO.js', // ✅ Conexiones
-                '/Client/js/modules/organizacion/CO.js'    // ✅ Lógica principal
+                './ui/paneledicionCO.js',         // ✅ Panel edición
+                './modules/organizacion/conexionesCO.js', // ✅ Conexiones
+                './modules/organizacion/CO.js'    // ✅ Lógica principal
                 // ❌ NO NECESITA: herramientas, medición, perfiles, etc.
                 // ❌ NO NECESITA: servicios de combate o agentes autónomos
             ],
             
             // 🎯 INICIAR PARTIDA - Scripts exactos del viejo/static/iniciarpartida.html
             partidas: [
-                '/Client/js/modules/partidas/iniciarpartida.js', // ✅ iniciarpartida.js según original
-                '/Client/js/utils/config.js',              // ✅ AGREGADO: Config para producción
-                '/Client/js/utils/validacion.js'           // ✅ AGREGADO: Validación usuarios DB
+                './modules/partidas/iniciarpartida.js', // ✅ iniciarpartida.js según original
+                './utils/config.js',              // ✅ AGREGADO: Config para producción
+                './utils/validacion.js'           // ✅ AGREGADO: Validación usuarios DB
             ],
             
             // 🎮 JUEGO DE GUERRA - Solo gestores, combate y servicios específicos de simulación
             juegodeguerra: [
-                '/Client/js/modules/juego/hexgrid.js',     // ✅ Grid hexagonal
-                '/Client/js/modules/juego/combate.js',     // ✅ Sistema de combate
+                './modules/juego/hexgrid.js',     // ✅ Grid hexagonal
+                './modules/juego/combate.js',     // ✅ Sistema de combate
                 // ✅ Los gestores se cargan automáticamente en la categoría 'gestores'
-                '/Client/js/gaming/GameEngine.js',         // ✅ Motor de juego avanzado
-                '/Client/js/gaming/AIDirector.js',         // ✅ Director de IA
-                '/Client/js/services/combatSystem3DIntegrator.js',  // ✅ ESPECÍFICO: Integración 3D combate SOLO SIMULACIONES
-                '/Client/js/gaming/FogOfWar.js'            // ✅ AGREGADO: Niebla de guerra
+                './gaming/GameEngine.js',         // ✅ Motor de juego avanzado
+                './gaming/AIDirector.js',         // ✅ Director de IA
+                './services/combatSystem3DIntegrator.js',  // ✅ ESPECÍFICO: Integración 3D combate SOLO SIMULACIONES
+                './gaming/FogOfWar.js'            // ✅ AGREGADO: Niebla de guerra
             ],
             
             // 🏢 INICIO GB - Con chat
             inicioGB: [
-                '/Client/js/modules/gestion/inicioGBhandler.js'
+                './modules/gestion/inicioGBhandler.js'
             ],
             
             // ⚔️ GESTIÓN BATALLA - Seguimiento de operaciones en tiempo real (NO simulaciones)
             gestionbatalla: [
-                '/Client/js/utils/utilsGB.js',             // ✅ Específico GB según análisis
-                '/Client/js/modules/gestion/edicionGB.js',
-                '/Client/js/modules/gestion/informesGB.js',
-                '/Client/js/modules/gestion/elementosGB.js',
-                '/Client/js/modules/gestion/gestionBatalla.js',
-                '/Client/js/gaming/AIDirector.js'          // ✅ Director de IA para seguimiento
+                './utils/utilsGB.js',             // ✅ Específico GB según análisis
+                './modules/gestion/edicionGB.js',
+                './modules/gestion/informesGB.js',
+                './modules/gestion/elementosGB.js',
+                './modules/gestion/gestionBatalla.js',
+                './gaming/AIDirector.js'          // ✅ Director de IA para seguimiento
             ]
         },
         
         // 9. GAMING ENGINE (opcional)
         gaming: [
-            '/Client/js/gaming/GameEngine.js',
-            '/Client/js/gaming/AIDirector.js'
+            './gaming/GameEngine.js',
+            './gaming/AIDirector.js'
         ],
         
         // 10. TESTING (si está habilitado)
         testing: [
-            '/Client/js/Test/MAIRATestSuite.js',
-            '/Client/js/Test/testButtons.js',
-            '/Client/js/Test/testPlaneamiento.js',
-            '/Client/js/Test/autoTest.js',
-            '/Client/js/Test/visualizadorTests.js'
+            './Test/MAIRATestSuite.js',
+            './Test/testButtons.js',
+            './Test/testPlaneamiento.js',
+            './Test/autoTest.js',
+            './Test/visualizadorTests.js'
         ]
     };
 
@@ -350,19 +350,19 @@
             const servicesByModule = {
                 'home': [], // Home no necesita servicios pesados
                 'planeamiento': [
-                    '/Client/js/services/servicesManager.js',
-                    '/Client/js/services/transitabilityService.js', 
-                    '/Client/js/services/slopeAnalysisService.js',
-                    '/Client/js/services/elevationProfileService.js'
+                    './services/servicesManager.js',
+                    './services/transitabilityService.js', 
+                    './services/slopeAnalysisService.js',
+                    './services/elevationProfileService.js'
                 ],
                 'gestionBatalla': [
-                    '/Client/js/services/servicesManager.js',
-                    '/Client/js/services/combatSystem3DIntegrator.js',
-                    '/Client/js/services/elevationProfileService.js'
+                    './services/servicesManager.js',
+                    './services/combatSystem3DIntegrator.js',
+                    './services/elevationProfileService.js'
                 ],
                 'juego': LOAD_ORDER.services, // Juego necesita todos
                 'organizacion': [
-                    '/Client/js/services/servicesManager.js'
+                    './services/servicesManager.js'
                 ]
             };
             
@@ -377,71 +377,71 @@
             const commonByModule = {
                 // 🏠 INDEX/HOME - Solo básicos SIN CHAT (confirmado con viejo/static/index.html)
                 'home': [
-                    '/Client/js/common/networkConfig.js'
+                    './common/networkConfig.js'
                     // ❌ NO MAIRAChat.js - index.html original NO tiene chat
                 ],
                 
                 // 🎯 INICIAR PARTIDA - Básicos + Chat (confirmado con viejo/static)
                 'partidas': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
+                    './common/networkConfig.js',
+                    './common/MAIRAChat.js'        // ✅ iniciarpartida.html SÍ tiene chat
                 ],
                 
                 // 🎮 JUEGO DE GUERRA - Sin utilsJDG.js que NO existe + Chat (confirmado con viejo/static)
                 'juegodeguerra': [
-                    '/Client/js/common/networkConfig.js',
+                    './common/networkConfig.js',
                     // ❌ NO utilsJDG.js - este archivo NO existe en el sistema
-                    '/Client/js/common/MAIRAChat.js',       // ✅ juegodeguerra.html SÍ tiene chat
-                    '/Client/js/utils/calcosP.js'           // ✅ AGREGADO: Gestión de calcos necesaria para mapas
+                    './common/MAIRAChat.js',       // ✅ juegodeguerra.html SÍ tiene chat
+                    './utils/calcosP.js'           // ✅ AGREGADO: Gestión de calcos necesaria para mapas
                 ],
                 
                 // 🏢 INICIO GB - Básicos + Chat (confirmado con viejo/static)
                 'inicioGB': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js'        // ✅ inicioGB.html SÍ tiene chat
+                    './common/networkConfig.js',
+                    './common/MAIRAChat.js'        // ✅ inicioGB.html SÍ tiene chat
                 ],
                 
                 // ⚔️ GESTIÓN BATALLA - Suite completa + Chat (confirmado con viejo/static)
                 'gestionbatalla': [
-                    '/Client/js/common/networkConfig.js',
-                    '/Client/js/common/MAIRAChat.js',       // ✅ gestionbatalla.html SÍ tiene chat
-                    '/Client/js/common/indexP.js',
-                    '/Client/js/common/mapaP.js',
-                    '/Client/js/common/simbolosP.js',
-                    '/Client/js/common/herramientasP.js',
-                    '/Client/js/common/dibujosMCCP.js',
-                    '/Client/js/common/atajosP.js',
-                    '/Client/js/common/CalculoMarcha.js',
-                    '/Client/js/common/graficoMarcha.js',
-                    '/Client/js/common/panelMarcha.js',
-                    '/Client/js/common/miradial.js',
-                    '/Client/js/utils/calcosP.js'
+                    './common/networkConfig.js',
+                    './common/MAIRAChat.js',       // ✅ gestionbatalla.html SÍ tiene chat
+                    './common/indexP.js',
+                    './common/mapaP.js',
+                    './common/simbolosP.js',
+                    './common/herramientasP.js',
+                    './common/dibujosMCCP.js',
+                    './common/atajosP.js',
+                    './common/CalculoMarcha.js',
+                    './common/graficoMarcha.js',
+                    './common/panelMarcha.js',
+                    './common/miradial.js',
+                    './utils/calcosP.js'
                     // ❌ NO incluir edicioncompleto.js (comentado en gestionbatalla.html)
                 ],
                 
                 // 📋 PLANEAMIENTO - Suite completa SIN CHAT + CON edicioncompleto.js (confirmado con viejo/static)
                 'planeamiento': [
-                    '/Client/js/common/networkConfig.js',
+                    './common/networkConfig.js',
                     // ❌ NO incluir MAIRAChat.js - planeamiento.html original NO tiene chat
-                    '/Client/js/common/indexP.js',
-                    '/Client/js/common/mapaP.js',
-                    '/Client/js/common/simbolosP.js',
-                    '/Client/js/common/herramientasP.js',
-                    '/Client/js/common/dibujosMCCP.js',
-                    '/Client/js/common/atajosP.js',
-                    '/Client/js/common/CalculoMarcha.js',
-                    '/Client/js/common/graficoMarcha.js',
-                    '/Client/js/common/panelMarcha.js',
-                    '/Client/js/common/edicioncompleto.js', // ✅ Solo en planeamiento
-                    '/Client/js/utils/calcosP.js',
-                    '/Client/js/common/toolsInitializer.js'
+                    './common/indexP.js',
+                    './common/mapaP.js',
+                    './common/simbolosP.js',
+                    './common/herramientasP.js',
+                    './common/dibujosMCCP.js',
+                    './common/atajosP.js',
+                    './common/CalculoMarcha.js',
+                    './common/graficoMarcha.js',
+                    './common/panelMarcha.js',
+                    './common/edicioncompleto.js', // ✅ Solo en planeamiento
+                    './utils/calcosP.js',
+                    './common/toolsInitializer.js'
                 ],
                 
                 // 🏗️ CO (COMANDOS Y ORGANIZACIÓN) - Solo básicos SIN CHAT (confirmado con viejo/static)
                 'organizacion': [
-                    '/Client/js/common/networkConfig.js',
+                    './common/networkConfig.js',
                     // ❌ NO incluir MAIRAChat.js - CO.html original NO tiene chat
-                    '/Client/js/common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
+                    './common/miradial.js'         // ✅ PRIMERO - Base para menús radiales
                 ]
             };
             
@@ -454,64 +454,64 @@
             const handlersByModule = {
                 // 🏠 HOME - Solo dependency manager para librerías externas
                 'home': [
-                    '/Client/js/handlers/dependency-manager.js'  // ✅ CRÍTICO: Dependency manager para cargar Leaflet/etc
+                    './handlers/dependency-manager.js'  // ✅ CRÍTICO: Dependency manager para cargar Leaflet/etc
                 ],
                 
                 // 📋 PLANEAMIENTO - Handlers completos según planeamiento.html
                 'planeamiento': [
-                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
-                    '/Client/js/handlers/elevationHandler.js',   // ✅ CRÍTICO: elevation.worker.js + elevationHandler.js
-                    '/Client/js/handlers/vegetacionhandler.js',  // ✅ CRÍTICO: vegetacionhandler.js
-                    '/Client/js/workers/elevation.worker.js',    // ✅ Workers de elevación
-                    '/Client/js/utils/geometryUtils.js',
-                    '/Client/js/handlers/mobileOptimizationHandler.js',
-                    '/Client/js/handlers/mapInteractionHandler.js',
-                    '/Client/js/services/elevationProfileService.js',
-                    '/Client/js/handlers/measurementHandler.js',
-                    '/Client/js/handlers/searchHandler.js',     // ✅ NUEVO: Búsqueda de lugares (initializeBuscarLugar)
-                    '/Client/js/handlers/testHandler.js'        // ✅ NUEVO: Testing (ejecutarTestPlaneamiento)
+                    './handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    './handlers/elevationHandler.js',   // ✅ CRÍTICO: elevation.worker.js + elevationHandler.js
+                    './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: vegetacionhandler.js
+                    './workers/elevation.worker.js',    // ✅ Workers de elevación
+                    './utils/geometryUtils.js',
+                    './handlers/mobileOptimizationHandler.js',
+                    './handlers/mapInteractionHandler.js',
+                    './services/elevationProfileService.js',
+                    './handlers/measurementHandler.js',
+                    './handlers/searchHandler.js',     // ✅ NUEVO: Búsqueda de lugares (initializeBuscarLugar)
+                    './handlers/testHandler.js'        // ✅ NUEVO: Testing (ejecutarTestPlaneamiento)
                 ],
                 
                 // ⚔️ GESTIÓN BATALLA - Mismos handlers críticos que planeamiento
                 'gestionbatalla': [
-                    '/Client/js/handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
-                    '/Client/js/handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
-                    '/Client/js/handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
-                    '/Client/js/workers/elevation.worker.js',    // ✅ Workers de elevación
-                    '/Client/js/workers/vegetation.worker.js',   // ✅ AGREGADO: Worker vegetación
-                    '/Client/js/utils/geometryUtils.js',
-                    '/Client/js/handlers/mobileOptimizationHandler.js',
-                    '/Client/js/handlers/mapInteractionHandler.js',
-                    '/Client/js/services/elevationProfileService.js',
-                    '/Client/js/handlers/measurementHandler.js'
+                    './handlers/dependency-manager.js', // ✅ CRÍTICO: Dependency manager primero
+                    './handlers/elevationHandler.js',   // ✅ CRÍTICO: igual que planeamiento
+                    './handlers/vegetacionhandler.js',  // ✅ CRÍTICO: igual que planeamiento
+                    './workers/elevation.worker.js',    // ✅ Workers de elevación
+                    './workers/vegetation.worker.js',   // ✅ AGREGADO: Worker vegetación
+                    './utils/geometryUtils.js',
+                    './handlers/mobileOptimizationHandler.js',
+                    './handlers/mapInteractionHandler.js',
+                    './services/elevationProfileService.js',
+                    './handlers/measurementHandler.js'
                 ],
                 
                 // 🎮 JUEGO DE GUERRA - Handlers básicos de terreno
                 'juegodeguerra': [
-                    '/Client/js/handlers/dependency-manager.js',
-                    '/Client/js/handlers/elevationHandler.js',
-                    '/Client/js/handlers/vegetacionhandler.js',
-                    '/Client/js/workers/elevation.worker.js',
-                    '/Client/js/workers/vegetation.worker.js'    // ✅ AGREGADO: Worker vegetación
+                    './handlers/dependency-manager.js',
+                    './handlers/elevationHandler.js',
+                    './handlers/vegetacionhandler.js',
+                    './workers/elevation.worker.js',
+                    './workers/vegetation.worker.js'    // ✅ AGREGADO: Worker vegetación
                 ],
                 
                 // 🏗️ ORGANIZACIÓN - Solo dependency manager
                 'organizacion': [
-                    '/Client/js/handlers/dependency-manager.js' // ✅ CRÍTICO: Dependency manager primero
+                    './handlers/dependency-manager.js' // ✅ CRÍTICO: Dependency manager primero
                 ],
                 
                 // 🎯 PARTIDAS - Solo dependency manager para socket.io
                 'partidas': [
-                    '/Client/js/handlers/dependency-manager.js'
+                    './handlers/dependency-manager.js'
                 ],
                 
                 // 🏢 INICIO GB - Solo dependency manager 
                 'inicioGB': [
-                    '/Client/js/handlers/dependency-manager.js'
+                    './handlers/dependency-manager.js'
                 ]
             };
             
-            const handlers = handlersByModule[moduleName] || ['/Client/js/handlers/dependency-manager.js'];
+            const handlers = handlersByModule[moduleName] || ['./handlers/dependency-manager.js'];
             if (handlers.length > 0) {
                 await this.loadFiles(handlers);
                 console.log(`✅ Handlers cargados para ${moduleName}:`, handlers.length);

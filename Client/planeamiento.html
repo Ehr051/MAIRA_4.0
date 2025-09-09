@@ -2,10 +2,10 @@
 
 <head>
   <title>Modo Planeamiento</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
-    <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -14,17 +14,17 @@
   
   <!-- NOTA: Los CSS personalizados ahora se cargan dinámicamente DESPUÉS de las dependencias -->
   
-  <script src="/Client/js/common/networkConfig.js"></script>
+  <script src="js/common/networkConfig.js"></script>
 
   <!-- Scripts JavaScript básicos - Los demás se cargan via dependency-manager.js -->
   <!-- Librerías locales específicas que no están en node_modules -->
-  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
+  <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
        NUEVA ARQUITECTURA DDD/HEXAGONAL
        Bootstrap unificado que maneja todas las dependencias
        ============================================= -->
-  <script src="/Client/js/bootstrap.js"></script>
+  <script src="js/bootstrap.js"></script>
   <script>
     // Inicialización DDD para módulo Planeamiento
     document.addEventListener('DOMContentLoaded', async function() {
@@ -54,9 +54,9 @@
       }
     });
   </script>
-  <script src="/Client/js/Test/MAIRATestSuite.js"></script>
+  <script src="js/Test/MAIRATestSuite.js"></script>
   <!-- Sistema de botones de test temporal - REMOVER EN PRODUCCIÓN -->
-  <script src="/Client/js/Test/testButtons.js"></script>
+  <script src="js/Test/testButtons.js"></script>
   
   <!-- Scripts de tiles optimizados movidos a tools/static-debug -->
 

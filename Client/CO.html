@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/Client/css/modules/CO/CO.css">
+    <link rel="stylesheet" href="css/modules/CO/CO.css">
     <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
-    <link rel="stylesheet" href="/Client/css/common/test-buttons.css">
+    <link rel="stylesheet" href="css/common/test-buttons.css">
     
     <!-- Core JavaScript Libraries (ORDEN CRÍTICO) -->
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
@@ -28,7 +28,7 @@
     
     <!-- Military Symbol Libraries -->
     <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
-    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
+    <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
     <script src="/node_modules/jsplumb/dist/js/jsplumb.min.js"></script>
     
     <!-- ✅ ORDEN CORRECTO DE SCRIPTS CO -->
@@ -61,7 +61,7 @@
          NUEVA ARQUITECTURA DDD/HEXAGONAL
          Bootstrap unificado que maneja todas las dependencias
          ============================================= -->
-    <script src="/Client/js/bootstrap.js"></script>
+    <script src="js/bootstrap.js"></script>
     <script>
         // Inicialización DDD para módulo Organización
         document.addEventListener('DOMContentLoaded', async function() {

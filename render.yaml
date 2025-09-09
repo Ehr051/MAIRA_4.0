@@ -6,9 +6,9 @@ services:
   - type: web
     name: maira-40
     env: python
+    runtime: python3
     plan: starter  # Cambia a 'standard' si necesitas más recursos
-    buildCommand: |
-      pip install -r requirements.txt
+    buildCommand: ./build.sh
     startCommand: |
       gunicorn --config gunicorn.conf.py app:app
     envVars:
@@ -20,6 +20,8 @@ services:
         value: app.py
       - key: PORT
         value: 10000
+      - key: NODE_VERSION
+        value: 18.19.0
       # Variables de base de datos (configurar en Render Dashboard)
       - key: DATABASE_URL
         fromDatabase:

@@ -202,6 +202,37 @@ def serve_node_modules(filename):
         else:
             return f"/* Error loading {filename}: {e} */", 500, {'Content-Type': 'text/css'}
 
+# 🔍 RUTA DE DEBUG: Verificar estado de node_modules
+@app.route('/debug/node_modules')
+def debug_node_modules_status():
+    """Endpoint para diagnosticar el estado de node_modules en el servidor"""
+    try:
+        import subprocess
+        import sys
+        
+        result = subprocess.run([sys.executable, 'debug_node_modules.py'], 
+                              capture_output=True, text=True, cwd=os.path.dirname(os.path.abspath(__file__)))
+        
+        output = result.stdout
+        error = result.stderr
+        
+        html_output = f"""
+        <html>
+        <head><title>Debug node_modules</title></head>
+        <body>
+        <h1>🔍 Diagnóstico de node_modules</h1>
+        <h2>Output:</h2>
+        <pre>{output}</pre>
+        {f'<h2>Errors:</h2><pre>{error}</pre>' if error else ''}
+        <hr>
+        <p>Timestamp: {datetime.now()}</p>
+        </body>
+        </html>
+        """
+        return html_output
+    except Exception as e:
+        return f"Error ejecutando diagnóstico: {e}", 500
+
 # ✅ CRÍTICO: Rutas específicas para JavaScript
 @app.route('/Client/js/<path:filename>')
 def serve_javascript(filename):

@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <title>M.A.I.R.A. - Modo Juego de Guerra</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
-    <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
     <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -24,13 +24,13 @@
   <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
   <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/Client/css/common/planeamiento.css">
-  <link rel="stylesheet" href="/Client/css/modules/juegodeguerra/hexgrid.css">
-  <link rel="stylesheet" href="/Client/css/modules/juegodeguerra/juegodeguerra.css">
-  <link rel="stylesheet" href="/Client/css/common/CYGMarcha.css">
-  <link rel="stylesheet" href="/Client/css/common/graficomarcha.css">
+  <link rel="stylesheet" href="css/common/planeamiento.css">
+  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
+  <link rel="stylesheet" href="css/common/CYGMarcha.css">
+  <link rel="stylesheet" href="css/common/graficomarcha.css">
   <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
-  <link rel="stylesheet" href="/Client/css/common/test-buttons.css"></script>
+  <link rel="stylesheet" href="css/common/test-buttons.css"></script>
   <!-- Scripts JavaScript -->
   <script src="/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -38,7 +38,7 @@
   <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
   
   <!-- Core MAIRA -->
-  <script src="/Client/js/common/UserIdentity.js"></script>
+  <script src="js/common/UserIdentity.js"></script>
   
   <script src="/node_modules/leaflet/dist/leaflet.js"></script>
   <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
@@ -62,13 +62,13 @@
   <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
   <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
   <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
-  <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js"></script>
+  <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
        NUEVA ARQUITECTURA DDD/HEXAGONAL
        Bootstrap unificado que maneja todas las dependencias
        ============================================= -->
-  <script src="/Client/js/bootstrap.js"></script>
+  <script src="js/bootstrap.js"></script>
   <script>
     // Inicialización DDD para módulo Juego de Guerra
     document.addEventListener('DOMContentLoaded', async function() {
@@ -79,6 +79,16 @@
         if (typeof MAIRABootstrap !== 'undefined') {
           await MAIRABootstrap.loadForModule('juegodeguerra');
           console.log('✅ Bootstrap DDD completado para módulo Juego de Guerra');
+          
+          // Cargar dependencias específicas de juego de guerra (leaflet-pattern, etc.)
+          if (typeof loadJuegoDependencies === 'function') {
+            console.log('🎮 Cargando dependencias específicas de juego de guerra...');
+            await loadJuegoDependencies();
+            console.log('✅ Dependencias de juego de guerra cargadas completamente');
+          } else {
+            console.warn('⚠️ loadJuegoDependencies no disponible');
+          }
+          
         } else {
           console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
           // Fallback de emergencia si falla el bootstrap
@@ -102,7 +112,7 @@
 <body>
   <!-- Loading container al principio del body -->
   <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100vw !important; height: 100vh !important; background-color: black; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; z-index: 9999 !important; margin: 0; padding: 0; overflow: hidden;">
-    <img src="/Client/image/M.A.I.R.A..gif" alt="M.A.I.R.A. Logo" class="logo">
+    <img src="image/M.A.I.R.A..gif" alt="M.A.I.R.A. Logo" class="logo">
     <h1>JUEGO DE GUERRA</h1>
     <div class="progress-container">
       <div class="progress-bar" id="progreso" style="width: 0%;">

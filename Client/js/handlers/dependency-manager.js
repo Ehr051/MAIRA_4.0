@@ -37,8 +37,8 @@ class DependencyManager {
             'leaflet-measure-css': '/node_modules/leaflet-measure/dist/leaflet-measure.css',
             
             // ========== LEAFLET PATTERN - DESDE CLIENT/LIBS ==========
-            'leaflet-pattern': '/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js',
-            'leaflet-pattern-alt': '/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js',
+            'leaflet-pattern': '../../Libs/leaflet-pattern/dist/leaflet.pattern.js',
+            'leaflet-pattern-alt': '../../Libs/Leaflet.pattern-master/dist/leaflet.pattern-src.js',
             
             // Otras librerías desde node_modules  
             'milsymbol': '/node_modules/milsymbol/dist/milsymbol.js',
@@ -72,6 +72,7 @@ class DependencyManager {
             // ========== BOOTSTRAP Y JQUERY CRÍTICOS ==========
             'bootstrap-css': 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css',
             'bootstrap-js': 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js',
+            'bootstrap': 'https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js',
             'jquery': 'https://code.jquery.com/jquery-3.5.1.min.js',
             
             // ========== LEAFLET Y MAPAS ==========
@@ -288,41 +289,41 @@ class DependencyManager {
         // ✅ CSS ESPECÍFICOS POR MÓDULO (se cargan AL FINAL con mayor prioridad)
         const moduleStyles = {
             'planeamiento': [
-                { name: 'planeamiento-css', url: '/Client/css/common/planeamiento.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'planeamiento-css', url: '../../css/common/planeamiento.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'juegodeguerra': [
-                { name: 'juego-guerra-css', url: '/Client/css/common/juegodeguerra.css' },
-                { name: 'hexgrid-css', url: '/Client/css/common/hexgrid.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'juego-guerra-css', url: '../../css/common/juegodeguerra.css' },
+                { name: 'hexgrid-css', url: '../../css/common/hexgrid.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'gestionbatalla': [
-                { name: 'gbatalla-css', url: '/Client/css/common/GBatalla.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'gbatalla-css', url: '../../css/common/GBatalla.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'organizacion': [
-                { name: 'co-css', url: '/Client/css/common/CO.css' },
-                { name: 'miradial-css', url: '/Client/css/common/miradial.css' }
+                { name: 'co-css', url: '../../css/common/CO.css' },
+                { name: 'miradial-css', url: '../../css/common/miradial.css' }
             ],
             'iniciarpartida': [
-                { name: 'iniciarpartida-css', url: '/Client/css/common/iniciarpartida.css' }
+                { name: 'iniciarpartida-css', url: '../../css/common/iniciarpartida.css' }
             ],
             'inicioGB': [
-                { name: 'iniciogb-css', url: '/Client/css/common/inicioGB.css' }
+                { name: 'iniciogb-css', url: '../../css/common/inicioGB.css' }
             ],
             'index': [
-                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' },
-                { name: 'index-carrusel-css', url: '/Client/css/modules/index/carrusel.css' }
+                { name: 'index-style-css', url: '../../css/modules/index/style.css' },
+                { name: 'index-carrusel-css', url: '../../css/modules/index/carrusel.css' }
             ],
             'default': [
                 // CSS básicos para páginas sin módulo específico
-                { name: 'basic-style-css', url: '/Client/css/common/style.css' }
+                { name: 'basic-style-css', url: '../../css/common/style.css' }
             ]
         };
 
@@ -343,6 +344,7 @@ class DependencyManager {
      */
     async loadPlaneamientoDependencies() {
         const planeamientoDependencies = [
+            'leaflet-pattern-alt',  // ✅ Leaflet patterns - DEBE cargar DESPUÉS de Leaflet
             'mgrs',  // ✅ Para cuadrículas MGRS
             'leaflet-elevation',
             { name: 'leaflet-elevation-css', type: 'css' },
@@ -357,6 +359,48 @@ class DependencyManager {
             return true;
         } catch (error) {
             console.error('❌ Error cargando dependencias de planeamiento:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Carga dependencias específicas de juego de guerra
+     */
+    async loadJuegoDependencies() {
+        const juegoDependencies = [
+            'leaflet-pattern-alt',  // ✅ Leaflet patterns - DEBE cargar DESPUÉS de Leaflet
+            // Agregar más dependencias específicas del juego según se necesiten
+        ];
+
+        console.log('🎮 Cargando dependencias de juego de guerra...');
+        
+        try {
+            await this.loadDependencies(juegoDependencies);
+            console.log('✅ Dependencias de juego de guerra cargadas');
+            return true;
+        } catch (error) {
+            console.error('❌ Error cargando dependencias de juego de guerra:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Carga dependencias específicas de gestión de batalla
+     */
+    async loadGestionBatallaDependencies() {
+        const gestionDependencies = [
+            'leaflet-pattern-alt',  // ✅ Leaflet patterns - DEBE cargar DESPUÉS de Leaflet
+            // Agregar más dependencias específicas de gestión de batalla según se necesiten
+        ];
+
+        console.log('⚔️ Cargando dependencias de gestión de batalla...');
+        
+        try {
+            await this.loadDependencies(gestionDependencies);
+            console.log('✅ Dependencias de gestión de batalla cargadas');
+            return true;
+        } catch (error) {
+            console.error('❌ Error cargando dependencias de gestión de batalla:', error);
             throw error;
         }
     }
@@ -386,6 +430,8 @@ window.dependencyManager = new DependencyManager();
 // Funciones de conveniencia con soporte para módulos específicos
 window.loadMAIRADependencies = (moduleName = null) => window.dependencyManager.loadMAIRADependencies(moduleName);
 window.loadPlaneamientoDependencies = () => window.dependencyManager.loadPlaneamientoDependencies();
+window.loadJuegoDependencies = () => window.dependencyManager.loadJuegoDependencies();
+window.loadGestionBatallaDependencies = () => window.dependencyManager.loadGestionBatallaDependencies();
 
 console.log('🚀 Dependency Manager inicializado');
 
