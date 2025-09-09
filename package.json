@@ -5,7 +5,8 @@
     "main": "indexP.js",
     "scripts": {
         "start": "python3 app.py",
-        "build": "echo 'Installing all dependencies...' && npm install --no-optional && npm ls jquery bootstrap leaflet jsplumb || echo 'Some packages missing - retrying...' && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free milsymbol chart.js socket.io-client proj4 html2canvas jspdf d3 file-saver fabric leaflet-draw leaflet-fullscreen leaflet-control-geocoder leaflet-easybutton leaflet.markercluster leaflet-geosearch leaflet-providers leaflet-sidebar-v2 leaflet-geometryutil leaflet-measure leaflet.pattern three jsplumb && echo 'Build completed - all node_modules ready'",
+        "build": "echo 'Building MAIRA dependencies...' && npm install --no-optional --force && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force && echo 'Dependencies installation complete'",
+        "postinstall": "npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force",
         "start-py": "python3 server/server.py",
         "start-js": "node server/node.js",
         "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py",

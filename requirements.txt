@@ -23,3 +23,6 @@ bidict==0.23.1
 simple-websocket==1.0.0
 wsproto==1.2.0
 h11==0.14.0
+
+# Post-instalación automática de dependencias Node.js
+# Se ejecuta después de instalar las dependencias Python

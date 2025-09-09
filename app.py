@@ -7,12 +7,67 @@ import random
 import string
 import time
 import traceback
+import subprocess
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+# Verificación e instalación automática de dependencias Node.js
+def verificar_dependencias_nodejs():
+    """Verifica e instala dependencias Node.js críticas si faltan"""
+    print("🔍 Verificando dependencias Node.js...")
+    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    node_modules_path = os.path.join(base_dir, 'node_modules')
+    
+    # Dependencias críticas a verificar
+    dependencias_criticas = ['jquery', 'bootstrap', 'leaflet', 'jsplumb']
+    dependencias_faltantes = []
+    
+    for dep in dependencias_criticas:
+        dep_path = os.path.join(node_modules_path, dep)
+        if not os.path.exists(dep_path):
+            dependencias_faltantes.append(dep)
+            print(f"❌ Falta dependencia: {dep}")
+        else:
+            print(f"✅ Dependencia OK: {dep}")
+    
+    # Si faltan dependencias críticas, intentar instalarlas
+    if dependencias_faltantes:
+        print(f"🚀 Instalando {len(dependencias_faltantes)} dependencias faltantes...")
+        try:
+            # Verificar que npm esté disponible
+            result = subprocess.run(['npm', '--version'], capture_output=True, text=True)
+            if result.returncode != 0:
+                print("❌ npm no disponible, continuando sin instalar dependencias")
+                return
+            
+            # Instalar dependencias faltantes
+            install_commands = [
+                ['npm', 'install', '--no-optional', '--production=false'],
+                ['npm', 'install', 'jquery@3.7.1', 'bootstrap@4.5.2', 'leaflet@1.9.4', 'jsplumb@2.15.6', '--force']
+            ]
+            
+            for cmd in install_commands:
+                print(f"🔧 Ejecutando: {' '.join(cmd)}")
+                result = subprocess.run(cmd, cwd=base_dir, capture_output=True, text=True)
+                if result.returncode == 0:
+                    print("✅ Instalación exitosa")
+                else:
+                    print(f"⚠️ Error en instalación: {result.stderr}")
+            
+            print("🎉 Instalación de dependencias completada")
+            
+        except Exception as e:
+            print(f"❌ Error instalando dependencias: {e}")
+    else:
+        print("✅ Todas las dependencias Node.js están disponibles")
+
+# Ejecutar verificación al importar
+verificar_dependencias_nodejs()
 
 # Importaciones pesadas bajo demanda
 def lazy_import_psycopg2():
@@ -232,6 +287,107 @@ def debug_node_modules_status():
         return html_output
     except Exception as e:
         return f"Error ejecutando diagnóstico: {e}", 500
+
+# 🔧 RUTA DE FIX: Forzar instalación de dependencias Node.js
+@app.route('/debug/install_dependencies')
+def force_install_dependencies():
+    """Endpoint para forzar la instalación de dependencias Node.js"""
+    try:
+        import subprocess
+        import sys
+        
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        html_output = f"""
+        <html>
+        <head><title>Instalación Dependencias Node.js</title></head>
+        <body>
+        <h1>🚀 Forzando Instalación de Dependencias Node.js</h1>
+        <p>Directorio: {base_dir}</p>
+        <h2>Proceso de Instalación:</h2>
+        <pre>
+"""
+        
+        # Lista de comandos a ejecutar
+        comandos = [
+            ['npm', '--version'],
+            ['node', '--version'],
+            ['npm', 'install', '--no-optional', '--production=false'],
+            ['npm', 'install', 'jquery@3.7.1', '--force'],
+            ['npm', 'install', 'bootstrap@4.5.2', '--force'],
+            ['npm', 'install', 'leaflet@1.9.4', '--force'],
+            ['npm', 'install', 'jsplumb@2.15.6', '--force'],
+            ['npm', 'install', '@fortawesome/fontawesome-free', '--force'],
+            ['npm', 'install', 'socket.io-client', '--force'],
+            ['npm', 'install', 'chart.js', '--force']
+        ]
+        
+        for i, cmd in enumerate(comandos, 1):
+            try:
+                print(f"🔧 [{i}/{len(comandos)}] Ejecutando: {' '.join(cmd)}")
+                html_output += f"[{i}/{len(comandos)}] Ejecutando: {' '.join(cmd)}\n"
+                
+                result = subprocess.run(
+                    cmd, 
+                    cwd=base_dir, 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=120
+                )
+                
+                if result.returncode == 0:
+                    html_output += f"✅ ÉXITO: {cmd[0]}\n"
+                    if result.stdout.strip():
+                        html_output += f"Output: {result.stdout[:500]}...\n"
+                else:
+                    html_output += f"❌ ERROR: {cmd[0]}\n"
+                    if result.stderr.strip():
+                        html_output += f"Error: {result.stderr[:500]}...\n"
+                        
+                html_output += "---\n"
+                
+            except subprocess.TimeoutExpired:
+                html_output += f"⏰ TIMEOUT: {' '.join(cmd)}\n---\n"
+            except Exception as e:
+                html_output += f"❌ EXCEPCIÓN: {' '.join(cmd)} - {e}\n---\n"
+        
+        # Verificar instalación final
+        html_output += "\n🔍 VERIFICACIÓN FINAL:\n"
+        node_modules_path = os.path.join(base_dir, 'node_modules')
+        
+        if os.path.exists(node_modules_path):
+            deps_criticas = ['jquery', 'bootstrap', 'leaflet', 'jsplumb']
+            for dep in deps_criticas:
+                dep_path = os.path.join(node_modules_path, dep)
+                if os.path.exists(dep_path):
+                    html_output += f"✅ {dep}: INSTALADO\n"
+                else:
+                    html_output += f"❌ {dep}: FALTA\n"
+        else:
+            html_output += "❌ node_modules no existe\n"
+        
+        html_output += f"""
+        </pre>
+        <hr>
+        <p>Timestamp: {datetime.now()}</p>
+        <p><a href="/debug/node_modules">📋 Ver Diagnóstico</a></p>
+        </body>
+        </html>
+        """
+        
+        return html_output
+        
+    except Exception as e:
+        return f"""
+        <html>
+        <head><title>Error Instalación</title></head>
+        <body>
+        <h1>❌ Error en Instalación</h1>
+        <pre>{str(e)}</pre>
+        <p><a href="/debug/node_modules">📋 Ver Diagnóstico</a></p>
+        </body>
+        </html>
+        """, 500
 
 # ✅ CRÍTICO: Rutas específicas para JavaScript
 @app.route('/Client/js/<path:filename>')
