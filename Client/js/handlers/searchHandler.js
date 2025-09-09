@@ -36,14 +36,19 @@ class SearchHandler {
                 return this.initializeBasicSearch();
             }
 
-            // Crear control de geocoding
+            // Crear control de geocoding con configuración mejorada
             this.searchControl = L.Control.geocoder({
                 defaultMarkGeocode: false,
                 placeholder: 'Buscar lugar...',
                 errorMessage: 'No se encontró el lugar',
                 showResultIcons: true,
-                expanded: false,
+                expanded: true, // ✅ Expandido por defecto para escritura inmediata
                 position: 'topright',
+                // ✅ Configuración para búsqueda automática al escribir
+                suggest: true,
+                suggestMinLength: 3, // Buscar después de 3 caracteres
+                suggestTimeout: 250, // Delay de 250ms para evitar muchas requests
+                queryMinLength: 2, // Mínimo 2 caracteres para búsqueda
                 geocoder: new L.Control.Geocoder.Nominatim({
                     serviceUrl: 'https://nominatim.openstreetmap.org/',
                     htmlTemplate: function(r) {
@@ -79,9 +84,43 @@ class SearchHandler {
 
             // Agregar control al mapa
             this.searchControl.addTo(window.mapa);
+            
+            // ✅ CONFIGURACIÓN ADICIONAL: Auto-activar al escribir
+            setTimeout(() => {
+                const searchInput = document.querySelector('.leaflet-control-geocoder-form input');
+                if (searchInput) {
+                    // Foco automático en el input
+                    searchInput.focus();
+                    
+                    // Evento para búsqueda automática al escribir
+                    let searchTimeout;
+                    searchInput.addEventListener('input', (e) => {
+                        const query = e.target.value.trim();
+                        
+                        // Limpiar timeout anterior
+                        if (searchTimeout) clearTimeout(searchTimeout);
+                        
+                        // Buscar automáticamente después de 500ms de pausa en escritura
+                        if (query.length >= 3) {
+                            searchTimeout = setTimeout(() => {
+                                console.log(`🔍 Búsqueda automática: "${query}"`);
+                                this.searchControl.options.geocoder.geocode(query, (results) => {
+                                    if (results && results.length > 0) {
+                                        // Mostrar sugerencias automáticamente
+                                        this.searchControl._geocodeResultList(results);
+                                    }
+                                });
+                            }, 500);
+                        }
+                    });
+                    
+                    console.log('✅ Búsqueda automática configurada');
+                }
+            }, 100);
+            
             this.isInitialized = true;
             
-            console.log('✅ Búsqueda de lugares inicializada correctamente');
+            console.log('✅ Búsqueda de lugares inicializada correctamente con auto-activación');
             return true;
             
         } catch (error) {
@@ -91,7 +130,7 @@ class SearchHandler {
     }
 
     /**
-     * Búsqueda básica sin geocoder
+     * Búsqueda básica sin geocoder con auto-activación
      */
     initializeBasicSearch() {
         try {
@@ -102,25 +141,115 @@ class SearchHandler {
                 onAdd: function(map) {
                     const container = L.DomUtil.create('div', 'leaflet-control-search');
                     container.innerHTML = `
-                        <input type="text" placeholder="Buscar lugar..." 
-                               style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
-                        <button style="padding: 5px; margin-left: 2px;">🔍</button>
+                        <div style="background: white; padding: 5px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <input type="text" id="basic-search-input" placeholder="Buscar lugar..." 
+                                   style="padding: 8px; border: 1px solid #ccc; border-radius: 3px; width: 200px;">
+                            <button id="basic-search-btn" style="padding: 8px; margin-left: 2px; background: #007ACC; color: white; border: none; border-radius: 3px; cursor: pointer;">🔍</button>
+                            <div id="basic-search-results" style="max-height: 200px; overflow-y: auto; margin-top: 5px; display: none;"></div>
+                        </div>
                     `;
                     
-                    const input = container.querySelector('input');
-                    const button = container.querySelector('button');
+                    const input = container.querySelector('#basic-search-input');
+                    const button = container.querySelector('#basic-search-btn');
+                    const resultsDiv = container.querySelector('#basic-search-results');
                     
-                    const search = () => {
-                        const query = input.value.trim();
-                        if (query) {
-                            alert(`Búsqueda básica: "${query}"\nFuncionalidad completa requiere L.Control.Geocoder`);
+                    let searchTimeout;
+                    
+                    const performSearch = async (query) => {
+                        if (!query || query.length < 3) {
+                            resultsDiv.style.display = 'none';
+                            return;
+                        }
+                        
+                        try {
+                            console.log(`🔍 Búsqueda básica: "${query}"`);
+                            
+                            // Usar Nominatim directamente
+                            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+                            const results = await response.json();
+                            
+                            if (results && results.length > 0) {
+                                resultsDiv.innerHTML = results.map((result, index) => 
+                                    `<div class="search-result" data-lat="${result.lat}" data-lon="${result.lon}" 
+                                          style="padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; hover: background: #f0f0f0;">
+                                        📍 ${result.display_name}
+                                    </div>`
+                                ).join('');
+                                
+                                resultsDiv.style.display = 'block';
+                                
+                                // Event listeners para resultados
+                                resultsDiv.querySelectorAll('.search-result').forEach(item => {
+                                    item.addEventListener('click', () => {
+                                        const lat = parseFloat(item.dataset.lat);
+                                        const lon = parseFloat(item.dataset.lon);
+                                        
+                                        // Centrar mapa
+                                        window.mapa.setView([lat, lon], 15);
+                                        
+                                        // Agregar marcador temporal
+                                        const marker = L.marker([lat, lon])
+                                            .addTo(window.mapa)
+                                            .bindPopup(`📍 ${item.textContent.replace('📍 ', '')}`)
+                                            .openPopup();
+                                        
+                                        // Remover marcador después de 10 segundos
+                                        setTimeout(() => {
+                                            if (window.mapa.hasLayer(marker)) {
+                                                window.mapa.removeLayer(marker);
+                                            }
+                                        }, 10000);
+                                        
+                                        // Ocultar resultados
+                                        resultsDiv.style.display = 'none';
+                                        input.value = '';
+                                    });
+                                });
+                            } else {
+                                resultsDiv.innerHTML = '<div style="padding: 5px;">No se encontraron resultados</div>';
+                                resultsDiv.style.display = 'block';
+                            }
+                        } catch (error) {
+                            console.error('Error en búsqueda básica:', error);
+                            resultsDiv.innerHTML = '<div style="padding: 5px; color: red;">Error en la búsqueda</div>';
+                            resultsDiv.style.display = 'block';
                         }
                     };
                     
-                    button.addEventListener('click', search);
-                    input.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') search();
+                    // ✅ AUTO-BÚSQUEDA AL ESCRIBIR
+                    input.addEventListener('input', (e) => {
+                        const query = e.target.value.trim();
+                        
+                        // Limpiar timeout anterior
+                        if (searchTimeout) clearTimeout(searchTimeout);
+                        
+                        // Búsqueda automática después de 500ms de pausa
+                        if (query.length >= 3) {
+                            searchTimeout = setTimeout(() => performSearch(query), 500);
+                        } else {
+                            resultsDiv.style.display = 'none';
+                        }
                     });
+                    
+                    // Búsqueda al hacer click en botón
+                    button.addEventListener('click', () => performSearch(input.value.trim()));
+                    
+                    // Búsqueda al presionar Enter
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            performSearch(input.value.trim());
+                        }
+                    });
+                    
+                    // Ocultar resultados al hacer click fuera
+                    document.addEventListener('click', (e) => {
+                        if (!container.contains(e.target)) {
+                            resultsDiv.style.display = 'none';
+                        }
+                    });
+                    
+                    // Auto-focus
+                    setTimeout(() => input.focus(), 100);
                     
                     return container;
                 }
@@ -129,7 +258,7 @@ class SearchHandler {
             new BasicSearchControl({ position: 'topright' }).addTo(window.mapa);
             this.isInitialized = true;
             
-            console.log('✅ Búsqueda básica inicializada');
+            console.log('✅ Búsqueda básica inicializada con auto-activación');
             return true;
             
         } catch (error) {
