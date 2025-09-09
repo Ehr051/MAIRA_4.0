@@ -25,11 +25,19 @@
        Bootstrap unificado que maneja todas las dependencias
        ============================================= -->
   <script src="js/bootstrap.js"></script>
+  
+  <!-- 🔍 DIAGNÓSTICO TEMPORAL PARA DEBUGGING -->
+  <script src="js/utils/diagnostic.js"></script>
+  
   <script>
     // Inicialización DDD para módulo Planeamiento
     document.addEventListener('DOMContentLoaded', async function() {
       try {
         console.log('🚀 Iniciando MAIRA 4.0 - Módulo Planeamiento');
+        
+        // 🔍 PASO 1: Diagnóstico completo
+        console.log('🔍 EJECUTANDO DIAGNÓSTICO PLANEAMIENTO...');
+        await window.MAIRADiagnostic.runAllTests();
         
         // Usar el bootstrap unificado siguiendo principios DDD
         if (typeof MAIRABootstrap !== 'undefined') {
