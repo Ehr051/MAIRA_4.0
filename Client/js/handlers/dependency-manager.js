@@ -259,8 +259,14 @@ class DependencyManager {
                 moduleName = 'planeamiento';
             } else if (currentPage.includes('juegodeguerra.html')) {
                 moduleName = 'juegodeguerra';
+            } else if (currentPage.includes('gestionbatalla.html')) {
+                moduleName = 'gestionbatalla';
             } else if (currentPage.includes('CO.html')) {
                 moduleName = 'organizacion';
+            } else if (currentPage.includes('iniciarpartida.html')) {
+                moduleName = 'iniciarpartida';
+            } else if (currentPage.includes('inicioGB.html')) {
+                moduleName = 'inicioGB';
             } else if (currentPage.includes('index.html') || currentPage === '/') {
                 moduleName = 'index';
             } else {
@@ -280,12 +286,26 @@ class DependencyManager {
             ],
             'juegodeguerra': [
                 { name: 'juego-guerra-css', url: '/Client/css/common/juegodeguerra.css' },
+                { name: 'hexgrid-css', url: '/Client/css/common/hexgrid.css' },
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+            ],
+            'gestionbatalla': [
                 { name: 'gbatalla-css', url: '/Client/css/common/GBatalla.css' },
-                { name: 'responsive-fixes-css', url: '/Client/css/common/responsive-fixes.css' }
+                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
             ],
             'organizacion': [
                 { name: 'co-css', url: '/Client/css/common/CO.css' },
                 { name: 'miradial-css', url: '/Client/css/common/miradial.css' }
+            ],
+            'iniciarpartida': [
+                { name: 'iniciarpartida-css', url: '/Client/css/common/iniciarpartida.css' }
+            ],
+            'inicioGB': [
+                { name: 'iniciogb-css', url: '/Client/css/common/inicioGB.css' }
             ],
             'index': [
                 { name: 'index-style-css', url: '/Client/css/modules/index/style.css' },
