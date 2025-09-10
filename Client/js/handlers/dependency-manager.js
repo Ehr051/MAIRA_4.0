@@ -215,15 +215,18 @@ class DependencyManager {
      */
     async loadMAIRADependencies(moduleName = null) {
         const coreDependencies = [
-            // ✅ CSS EXTERNAS PRIMERO (para que tengan MENOR prioridad)
-            { name: 'bootstrap-css', type: 'css' },
-            { name: 'fontawesome-css', type: 'css' },
+            // ✅ CSS LEAFLET PRIMERO (base para mapas)
             { name: 'leaflet-css', type: 'css' },
             { name: 'leaflet-draw-css', type: 'css' },
             { name: 'leaflet-control-geocoder-css', type: 'css' },
             { name: 'leaflet-easybutton-css', type: 'css' },
             { name: 'leaflet-markercluster-css', type: 'css' },
             { name: 'leaflet-markercluster-default-css', type: 'css' },
+            { name: 'leaflet-geosearch-css', type: 'css' },
+            
+            // ✅ CSS LIBRERÍAS GENERALES DESPUÉS (menor prioridad que MAIRA)
+            { name: 'fontawesome-css', type: 'css' },
+            { name: 'bootstrap-css', type: 'css' },
             
             // JavaScript básico
             'jquery',
@@ -289,41 +292,41 @@ class DependencyManager {
         // ✅ CSS ESPECÍFICOS POR MÓDULO (se cargan AL FINAL con mayor prioridad)
         const moduleStyles = {
             'planeamiento': [
-                { name: 'planeamiento-css', url: '/Client/css/common/planeamiento.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'planeamiento-css', url: '../../css/common/planeamiento.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'juegodeguerra': [
-                { name: 'juego-guerra-css', url: '/Client/css/modules/juegodeguerra/juegodeguerra.css' },
-                { name: 'hexgrid-css', url: '/Client/css/modules/juegodeguerra/hexgrid.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'juego-guerra-css', url: '../../css/common/juegodeguerra.css' },
+                { name: 'hexgrid-css', url: '../../css/common/hexgrid.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'gestionbatalla': [
-                { name: 'gbatalla-css', url: '/Client/css/modules/gestionbatalla/GBatalla.css' },
-                { name: 'cyg-marcha-css', url: '/Client/css/common/CYGMarcha.css' },
-                { name: 'grafico-marcha-css', url: '/Client/css/common/graficomarcha.css' },
-                { name: 'test-buttons-css', url: '/Client/css/common/test-buttons.css' }
+                { name: 'gbatalla-css', url: '../../css/common/GBatalla.css' },
+                { name: 'cyg-marcha-css', url: '../../css/common/CYGMarcha.css' },
+                { name: 'grafico-marcha-css', url: '../../css/common/graficomarcha.css' },
+                { name: 'test-buttons-css', url: '../../css/common/test-buttons.css' }
             ],
             'organizacion': [
-                { name: 'co-css', url: '/Client/css/modules/CO/CO.css' },
-                { name: 'miradial-css', url: '/Client/css/common/miradial.css' }
+                { name: 'co-css', url: '../../css/common/CO.css' },
+                { name: 'miradial-css', url: '../../css/common/miradial.css' }
             ],
             'iniciarpartida': [
-                { name: 'iniciarpartida-css', url: '/Client/css/modules/iniciarpartida/iniciarpartida.css' }
+                { name: 'iniciarpartida-css', url: '../../css/common/iniciarpartida.css' }
             ],
             'inicioGB': [
-                { name: 'iniciogb-css', url: '/Client/css/modules/inicioGB/inicioGB.css' }
+                { name: 'iniciogb-css', url: '../../css/common/inicioGB.css' }
             ],
             'index': [
-                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' },
-                { name: 'index-carrusel-css', url: '/Client/css/modules/index/carrusel.css' }
+                { name: 'index-style-css', url: '../../css/modules/index/style.css' },
+                { name: 'index-carrusel-css', url: '../../css/modules/index/carrusel.css' }
             ],
             'default': [
                 // CSS básicos para páginas sin módulo específico
-                { name: 'index-style-css', url: '/Client/css/modules/index/style.css' }
+                { name: 'basic-style-css', url: '../../css/common/style.css' }
             ]
         };
 
