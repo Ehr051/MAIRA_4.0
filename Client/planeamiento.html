@@ -940,6 +940,55 @@
 
 <!-- Contenedor para los detalles de la marcha -->
 
+<!-- Script de verificación de funcionalidad -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🧪 VERIFICACIÓN DE FUNCIONALIDAD RESTAURADA');
+    
+    // Esperar un poco para que todos los scripts se carguen
+    setTimeout(function() {
+        console.log('📋 Verificando funciones críticas:');
+        
+        const funcionesCriticas = [
+            'medirDistancia',
+            'toggleMenu', 
+            'seleccionarElemento',
+            'finalizarMedicion',
+            'clearCache'
+        ];
+        
+        let funcionesOK = 0;
+        funcionesCriticas.forEach(func => {
+            if (typeof window[func] === 'function') {
+                console.log(`✅ ${func} - OK`);
+                funcionesOK++;
+            } else {
+                console.log(`❌ ${func} - FALTA`);
+            }
+        });
+        
+        console.log(`📊 Funciones disponibles: ${funcionesOK}/${funcionesCriticas.length}`);
+        
+        // Verificar objetos globales
+        console.log('📋 Verificando objetos globales:');
+        console.log('- MAIRA.UserIdentity:', typeof window.MAIRA?.UserIdentity);
+        console.log('- gestorTurnos:', typeof window.gestorTurnos);
+        console.log('- mapa:', typeof window.mapa);
+        
+        // Verificar elemento de medición
+        const medicionElement = document.getElementById('medicionDistancia');
+        console.log('- #medicionDistancia:', medicionElement ? 'Encontrado' : 'NO ENCONTRADO');
+        
+        if (funcionesOK === funcionesCriticas.length) {
+            console.log('🎉 TODAS LAS FUNCIONES CRÍTICAS RESTAURADAS');
+        } else {
+            console.log('⚠️ Algunas funciones aún faltan');
+        }
+        
+    }, 2000);
+});
+</script>
+
 </main>
 </body>
 
