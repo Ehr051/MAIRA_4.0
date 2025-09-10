@@ -821,18 +821,35 @@ function guardarCambiosUnidad() {
             return false;
         }
         
-        // Definir jugadorElemento antes de usarlo
-        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
+        // Definir jugadorElemento - en planeamiento no es crítico, solo usar valor por defecto
+        const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
+                                 document.title.includes('Planeamiento');
         
-        if (!jugadorElemento) {
-            if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
+        let jugadorElemento;
+        if (esModoPlaneamiento) {
+            // En planeamiento, usar cualquier valor por defecto - no es crítico
+            jugadorElemento = elementoSeleccionado.options.jugador || 
+                            window.MAIRA?.UserIdentity?.getUserId() || 
+                            localStorage.getItem('userId') || 
+                            'planner_user';
+            console.log('🎯 Modo planeamiento: usando jugador por defecto');
+        } else {
+            // En modo juego, sí validar propietario
+            jugadorElemento = elementoSeleccionado.options.jugador || 
+                             (typeof window.obtenerJugadorPropietario === 'function' 
+                              ? window.obtenerJugadorPropietario() 
+                              : window.userId);
+            
+            if (!jugadorElemento) {
+                if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                    window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
+                }
+                console.error('Validación fallida: falta propietario');
+                return false;
             }
-            console.error('Validación fallida: falta propietario');
-            return false;
         }
         
-        console.log('✅ Validación completa - elemento tiene tipo, designación, magnitud y propietario');
+        console.log('✅ Validación completa - elemento listo para edición');
 
         // Guardar la posición actual y el ID
         const posicionActual = elementoSeleccionado.getLatLng();

@@ -65,6 +65,9 @@ class ToolsInitializer {
      */
     esperarModulos() {
         return new Promise((resolve) => {
+            const startTime = Date.now();
+            const maxWaitTime = 10000; // 10 segundos máximo
+            
             const verificarModulos = () => {
                 // ✅ VERIFICAR FUNCIONES GLOBALES QUE SÍ EXISTEN (de herramientasP.js refactorizado)
                 const funcionesRequeridas = [
@@ -85,9 +88,17 @@ class ToolsInitializer {
                     console.log('✅ Todas las funciones de herramientas cargadas');
                     resolve();
                 } else {
-                    const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
-                    console.log('⏳ Esperando funciones:', faltantes);
-                    setTimeout(verificarModulos, 100);
+                    const tiempoTranscurrido = Date.now() - startTime;
+                    
+                    if (tiempoTranscurrido > maxWaitTime) {
+                        const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
+                        console.warn('⚠️ Timeout esperando funciones, continuando sin:', faltantes);
+                        resolve(); // Resolver de todas formas para evitar bloqueo
+                    } else {
+                        const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
+                        console.log('⏳ Esperando funciones:', faltantes);
+                        setTimeout(verificarModulos, 100);
+                    }
                 }
             };
 

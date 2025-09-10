@@ -19,6 +19,9 @@
   <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Fallback para Font Awesome en caso de problemas de red -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/5.15.4/css/font-awesome.min.css" media="none" onload="if(media!='all')media='all'">
+  <noscript><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/5.15.4/css/font-awesome.min.css"></noscript>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
@@ -71,7 +74,7 @@
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/slopeAnalysisService.js"></script>
   <script src="js/services/elevationProfileService.js"></script>
-  <script src="js/services/threeDMapService.js"></script>
+  <!-- <script src="js/services/threeDMapService.js"></script> --> <!-- ❌ DESHABILITADO: Causa errores ES6 modules -->
   
   <!-- Handlers de terreno -->
   <!-- <script src="js/workers/elevation.worker.js"></script> --> <!-- Workers se cargan dinámicamente -->
@@ -100,7 +103,7 @@
   <script src="js/common/toolsInitializer.js"></script>
   <script src="js/common/dibujosMCCP.js"></script>
   <script src="js/common/edicioncompleto.js"></script>
-  <script src="js/ui/paneledicionCO.js"></script>
+  <!-- <script src="js/ui/paneledicionCO.js"></script> --> <!-- ❌ DESHABILITADO: Específico de CO, no necesario en planeamiento -->
   <script src="js/common/atajosP.js"></script>
   <script src="js/common/unidades.js"></script>
   <script src="js/common/partidas.js"></script>
