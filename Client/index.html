@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
     <title>MAIRA - Mesa de Arena Interactiva</title>
     <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
@@ -19,137 +19,48 @@
     </style>
     
     <!-- ⚡ CSS NO CRÍTICO CON PRELOAD -->
-    <link rel="preload" href="Client/css/modules/index/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="Client/css/modules/index/carrusel.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="css/common/test-buttons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="css/modules/index/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="css/modules/index/carrusel.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     
     <!-- ⚡ FALLBACK PARA NAVEGADORES SIN PRELOAD -->
     <noscript>
-        <link rel="stylesheet" href="Client/css/modules/index/style.css">
-        <link rel="stylesheet" href="Client/css/modules/index/carrusel.css">
-        <link rel="stylesheet" href="css/common/test-buttons.css">
+        <link rel="stylesheet" href="css/modules/index/style.css">
+        <link rel="stylesheet" href="css/modules/index/carrusel.css">
     </noscript>
     
     <!-- ⚡ FONTAWESOME ASYNC -->
     <script src="https://kit.fontawesome.com/707f71e5d4.js" crossorigin="anonymous" async></script>
     
-    <!-- ✅ JQUERY Y PROJ4 DESDE CDN -->
+    <!-- ✅ JQUERY DESDE CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
     
-    <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
-    <script src="js/bootstrap.js"></script>
-    
-    <!-- 🔍 DIAGNÓSTICO TEMPORAL PARA DEBUGGING -->
-    <script src="js/utils/diagnostic.js"></script>
-    
-    <!-- 🔧 VALIDADOR DE FIXES DE PRODUCCIÓN -->
-    <script src="js/utils/production-fix-validator.js"></script>
-    
-    <!-- 🔍 CHECKER DE TILES Y DATOS GEOGRÁFICOS -->
-    <script src="js/utils/tiles-checker.js"></script>
+    <!-- 🚀 MAIRA Scripts Básicos para HOME -->
+    <script src="js/core/UserIdentity.js"></script>
+    <script src="js/utils/sessionManager.js"></script>
+    <script src="js/utils/config.js"></script>
+    <script src="js/ui/landing3d.js"></script>
+    <script src="js/ui/carrusel.js"></script>
+    <script src="js/utils/validacion.js"></script>
     
     <script>
-        // 🔧 FUNCIÓN DE INICIALIZACIÓN CON RETRY PATTERN
+        // 🔧 FUNCIÓN DE INICIALIZACIÓN SIMPLIFICADA PARA HOME
         async function initializeMAIRA() {
-            const maxRetries = 10;
-            let attempt = 0;
+            console.log('🚀 MAIRA 4.0 HOME Inicializando...');
             
-            while (attempt < maxRetries) {
-                try {
-                    // 🔍 Verificar que todo esté cargado
-                    if (typeof MAIRABootstrap === 'undefined') {
-                        console.log(`⏳ Intento ${attempt + 1}: MAIRABootstrap no disponible, reintentando...`);
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                        attempt++;
-                        continue;
-                    }
-                    
-                    if (typeof window.MAIRADiagnostic === 'undefined') {
-                        console.log(`⏳ Intento ${attempt + 1}: MAIRADiagnostic no disponible, reintentando...`);
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                        attempt++;
-                        continue;
-                    }
-                    
-                    // 🎯 TODO LISTO - INICIALIZAR
-                    console.log('🚀 Todos los componentes cargados, iniciando MAIRA...');
-                    
-                    // 🔍 PASO 1: Diagnóstico completo
-                    console.log('🔍 EJECUTANDO DIAGNÓSTICO PREVIO...');
-                    await window.MAIRADiagnostic.runAllTests();
-                    
-                    console.log('🚀 Cargando módulo HOME con DDD Bootstrap...');
-                    await MAIRABootstrap.loadForModule('home');
-                    console.log('✅ Módulo HOME cargado completamente');
-                    
-                    // 🎯 CARGAR DEPENDENCIAS ESPECÍFICAS DE HOME (incluyendo Socket.IO para chat)
-                    if (typeof dependencyManager !== 'undefined') {
-                        console.log('🚀 Cargando dependencias MAIRA desde node_modules...');
-                        
-                        // Cargar Socket.IO específicamente para comunicación
-                        await dependencyManager.loadDependency('socket.io-client');
-                        console.log('✅ Socket.IO cliente cargado');
-                        
-                        // Cargar el resto de dependencias
-                        await dependencyManager.loadMAIRADependencies('home');
-                        console.log('✅ Dependencias MAIRA cargadas completamente');
-                        
-                        // 🔗 INICIALIZAR SOCKET.IO
-                        if (typeof io !== 'undefined') {
-                            console.log('🔌 Inicializando conexión Socket.IO...');
-                            window.socket = io();
-                            window.socket.on('connect', () => {
-                                console.log('✅ Socket.IO conectado correctamente');
-                            });
-                            window.socket.on('disconnect', () => {
-                                console.warn('⚠️ Socket.IO desconectado');
-                            });
-                        } else {
-                            console.warn('⚠️ Socket.IO no disponible después de cargar dependencias');
-                        }
-                    } else {
-                        console.warn('⚠️ Dependency Manager no disponible');
-                    }
-                    
-                    console.log('🎉 MAIRA HOME completamente inicializado');
-                    window.MAIRAInitialized = true; // Marcar como inicializado
-                    return; // Éxito
-                    
-                } catch (error) {
-                    console.error(`💥 Error en intento ${attempt + 1}:`, error);
-                    attempt++;
-                    if (attempt < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    }
-                }
+            // Verificar dependencias básicas
+            if (typeof $ === 'undefined') {
+                console.error('❌ jQuery no cargado');
+                return;
             }
             
-            // Si llegamos aquí, falló después de todos los intentos
-            console.error('💥 MAIRA HOME falló después de', maxRetries, 'intentos');
+            console.log('✅ Dependencias básicas cargadas');
+            console.log('� MAIRA HOME inicializado correctamente');
             
-            // 🔄 FALLBACK: Cargar scripts manualmente
-            console.log('🔄 Intentando fallback manual...');
-            const scripts = [
-                '/Client/js/utils/config.js',
-                '/Client/js/Test/MAIRATestSuite.js',
-                '/Client/js/Test/testButtons.js',
-                '/Client/js/ui/landing3d.js',
-                '/Client/js/ui/carrusel.js',
-                '/Client/js/utils/validacion.js'
-            ];
-            
-            for (const src of scripts) {
-                try {
-                    const script = document.createElement('script');
-                    script.src = src;
-                    document.head.appendChild(script);
-                    console.log(`✅ Fallback cargado: ${src}`);
-                } catch (error) {
-                    console.error(`❌ Error en fallback ${src}:`, error);
-                }
-            }
+            window.MAIRAInitialized = true;
         }
+        
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initializeMAIRA);
         
         // 🎯 INICIALIZAR CON MÚLTIPLES TRIGGERS
         if (document.readyState === 'loading') {
@@ -166,7 +77,6 @@
                 initializeMAIRA();
             }
         });
-    </script>
     </script>
 </head>
 <body>

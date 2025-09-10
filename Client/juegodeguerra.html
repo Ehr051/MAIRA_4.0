@@ -65,37 +65,132 @@
   <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
-       NUEVA ARQUITECTURA DDD/HEXAGONAL
-       Bootstrap unificado que maneja todas las dependencias
+       CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0
        ============================================= -->
-  <script src="js/bootstrap.js"></script>
+       
+  <!-- 🏗️ CORE DEPENDENCIES -->
+  <script src="js/core/LoggerService.js"></script>
+  <script src="js/core/ConfigManager.js"></script>
+  <script src="js/config/GameConfiguration.js"></script>
+  <script src="js/common/EventBus.js"></script>
+  <script src="js/common/BaseComponent.js"></script>
+
+  <!-- 🔧 UTILS -->
+  <script src="js/utils/coordinates.js"></script>
+  <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/utils/validationUtils.js"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/UIUtils.js"></script>
+  <script src="js/utils/tiles-checker.js"></script>
+
+  <!-- 🏛️ INFRASTRUCTURE -->
+  <script src="js/infrastructure/ApiClient.js"></script>
+  <script src="js/infrastructure/GameStateManager.js"></script>
+  <script src="js/infrastructure/SocketManager.js"></script>
+
+  <!-- 🔄 SERVICES -->
+  <script src="js/services/operationalService.js"></script>
+  <script src="js/services/GeolocationService.js"></script>
+  <script src="js/services/GameService.js"></script>
+  <script src="js/services/UnitService.js"></script>
+  <script src="js/services/TimeService.js"></script>
+  <script src="js/services/MilSymbolService.js"></script>
+  <script src="js/services/TerrainService.js"></script>
+  <script src="js/services/FileService.js"></script>
+
+  <!-- 🎮 GAMING MODULE -->
+  <script src="js/gaming/GameEngine.js"></script>
+  <script src="js/gaming/TurnManager.js"></script>
+  <script src="js/gaming/PlayerManager.js"></script>
+  <script src="js/gaming/BattleEngine.js"></script>
+  <script src="js/gaming/UnitFactory.js"></script>
+  <script src="js/gaming/ScenarioLoader.js"></script>
+  <script src="js/gaming/GameRenderer.js"></script>
+  <script src="js/gaming/Combat.js"></script>
+  <script src="js/gaming/Movement.js"></script>
+  <script src="js/gaming/Intelligence.js"></script>
+  <script src="js/gaming/Logistics.js"></script>
+  <script src="js/gaming/Communications.js"></script>
+  <script src="js/gaming/Orders.js"></script>
+  <script src="js/gaming/MissionPlanning.js"></script>
+  <script src="js/gaming/TacticalAI.js"></script>
+  <script src="js/gaming/Weather.js"></script>
+  <script src="js/gaming/Environmental.js"></script>
+
+  <!-- 🎯 HANDLERS -->
+  <script src="js/handlers/unitHandler.js"></script>
+  <script src="js/handlers/mapHandler.js"></script>
+  <script src="js/handlers/interfaceHandler.js"></script>
+  <script src="js/handlers/gameHandler.js"></script>
+  <script src="js/handlers/drawHandler.js"></script>
+  <script src="js/handlers/hexHandler.js"></script>
+  <script src="js/handlers/tacticsHandler.js"></script>
+  <script src="js/handlers/combatHandler.js"></script>
+
+  <!-- 🧩 MODULES -->
+  <script src="js/modules/juegodeguerra/gameUI.js"></script>
+  <script src="js/modules/juegodeguerra/hexGrid.js"></script>
+  <script src="js/modules/juegodeguerra/gameControls.js"></script>
+  <script src="js/modules/juegodeguerra/gameLogic.js"></script>
+  <script src="js/modules/juegodeguerra/unitDisplay.js"></script>
+  <script src="js/modules/juegodeguerra/battleInterface.js"></script>
+
   <script>
-    // Inicialización DDD para módulo Juego de Guerra
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        console.log('🚀 Iniciando MAIRA 4.0 - Módulo Juego de Guerra');
+    // 🚀 INICIALIZACIÓN DIRECTA JUEGO DE GUERRA
+    async function initializeJuegoDeguerra() {
+        console.log('🚀 MAIRA 4.0 - Iniciando Juego de Guerra (Modo Directo)...');
         
-        // Usar el bootstrap unificado siguiendo principios DDD
-        if (typeof MAIRABootstrap !== 'undefined') {
-          await MAIRABootstrap.loadForModule('juegodeguerra');
-          console.log('✅ Bootstrap DDD completado para módulo Juego de Guerra');
-          
-          // Cargar dependencias específicas de juego de guerra (leaflet-pattern, etc.)
-          if (typeof loadJuegoDependencies === 'function') {
-            console.log('🎮 Cargando dependencias específicas de juego de guerra...');
-            await loadJuegoDependencies();
-            console.log('✅ Dependencias de juego de guerra cargadas completamente');
-          } else {
-            console.warn('⚠️ loadJuegoDependencies no disponible');
-          }
-          
-        } else {
-          console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
-          // Fallback de emergencia si falla el bootstrap
+        // Verificar dependencias críticas
+        if (typeof $ === 'undefined') {
+            console.error('❌ jQuery no cargado');
+            return;
         }
-      } catch (error) {
-        console.error('❌ Error en bootstrap DDD:', error);
-      }
+        
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet no cargado');
+            return;
+        }
+        
+        if (typeof ms === 'undefined') {
+            console.error('❌ Milsymbol no cargado');
+            return;
+        }
+        
+        // Inicializar GameEngine si existe
+        if (typeof GameEngine !== 'undefined') {
+            try {
+                await GameEngine.initialize();
+                console.log('✅ GameEngine inicializado');
+            } catch (error) {
+                console.error('❌ Error inicializando GameEngine:', error);
+            }
+        }
+        
+        // Inicializar HexGrid si existe
+        if (typeof HexGrid !== 'undefined') {
+            try {
+                HexGrid.initialize();
+                console.log('✅ HexGrid inicializado');
+            } catch (error) {
+                console.error('❌ Error inicializando HexGrid:', error);
+            }
+        }
+        
+        console.log('✅ Dependencias básicas cargadas');
+        console.log('🎮 JUEGO DE GUERRA inicializado correctamente');
+        
+        window.JuegoDeGuerraInitialized = true;
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initializeJuegoDeguerra);
+    
+    // Backup: También inicializar cuando window esté completamente cargado
+    window.addEventListener('load', () => {
+        if (!window.JuegoDeGuerraInitialized) {
+            console.log('🔄 Inicialización backup desde window.load');
+            initializeJuegoDeguerra();
+        }
     });
   </script>
  
