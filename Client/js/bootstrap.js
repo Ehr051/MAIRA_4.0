@@ -334,7 +334,7 @@
     window.MAIRABootstrap.loadForSpecificModule = function(pageName) {
         console.log(`🎯 Carga selectiva COMPLETA para: ${pageName}`);
         
-        // 📋 CONFIGURACIÓN DE CSS POR PÁGINA - RUTAS CORREGIDAS 
+        // 📋 CONFIGURACIÓN DE CSS POR PÁGINA - RUTAS CORREGIDAS COMPLETAS Y FINALES
         const pageCSS = {
             'planeamiento': [
                 'Client/css/common/planeamiento.css',
@@ -342,26 +342,31 @@
                 // ✅ responsive-fixes.css no existe - removido
             ],
             'CO': [
-                'Client/css/CO.css'
+                'Client/css/modules/CO/CO.css'
                 // ✅ responsive-fixes.css no existe - removido
             ],
             'juegodeguerra': [
-                'Client/css/juegodeguerra.css',
+                'Client/css/modules/juegodeguerra/juegodeguerra.css',
                 'Client/css/modules/juegodeguerra/hexgrid.css',
-                'Client/css/GBatalla.css'
+                'Client/css/modules/gestionbatalla/GBatalla.css'
                 // ✅ responsive-fixes.css no existe - removido
             ],
             'inicioGB': [
-                'Client/css/inicioGB.css'
+                'Client/css/modules/inicioGB/inicioGB.css'
                 // ✅ responsive-fixes.css no existe - removido
             ],
             'gestionbatalla': [
-                'Client/css/GBatalla.css'
+                'Client/css/modules/gestionbatalla/GBatalla.css'
                 // ✅ responsive-fixes.css no existe - removido
             ],
             'index': [
-                'Client/css/style.css',
-                'Client/css/carrusel.css'
+                'Client/css/modules/index/style.css',
+                'Client/css/modules/index/carrusel.css'
+                // ✅ responsive-fixes.css no existe - removido
+            ],
+            'home': [
+                'Client/css/modules/index/style.css',
+                'Client/css/modules/index/carrusel.css'
                 // ✅ responsive-fixes.css no existe - removido
             ]
         };
