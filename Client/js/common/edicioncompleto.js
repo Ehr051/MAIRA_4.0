@@ -431,25 +431,9 @@ function obtenerSIDCActual() {
         magnitud
     });
 
-    // Validar que todos los valores existan antes de acceder
-    if (!categoria || !arma || !tipo || !caracteristica) {
-        console.warn('⚠️ Valores incompletos para construir SIDC:', { categoria, arma, tipo, caracteristica });
-        return sidc; // Retornar SIDC original si faltan datos
-    }
-
-    if (!unidadesMilitares[categoria] || !unidadesMilitares[categoria][arma]) {
-        console.warn('⚠️ Categoría o arma no encontrada:', { categoria, arma });
-        return sidc;
-    }
-
     const codigoArma = unidadesMilitares[categoria][arma].codigo;
-    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo]?.codigo;
-    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo]?.caracteristicas[caracteristica];
-
-    if (!codigoArma || !codigoTipo || !codigoCaracteristica) {
-        console.warn('⚠️ Códigos no encontrados:', { codigoArma, codigoTipo, codigoCaracteristica });
-        return sidc;
-    }
+    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo].codigo;
+    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
 
     let centroParte = (codigoArma + codigoTipo + codigoCaracteristica).padEnd(6, '-');
     sidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2, 1) + estado + centroParte;
@@ -821,35 +805,18 @@ function guardarCambiosUnidad() {
             return false;
         }
         
-        // Definir jugadorElemento - en planeamiento no es crítico, solo usar valor por defecto
-        const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
-                                 document.title.includes('Planeamiento');
+        // Definir jugadorElemento antes de usarlo
+        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
         
-        let jugadorElemento;
-        if (esModoPlaneamiento) {
-            // En planeamiento, usar cualquier valor por defecto - no es crítico
-            jugadorElemento = elementoSeleccionado.options.jugador || 
-                            window.MAIRA?.UserIdentity?.getUserId() || 
-                            localStorage.getItem('userId') || 
-                            'planner_user';
-            console.log('🎯 Modo planeamiento: usando jugador por defecto');
-        } else {
-            // En modo juego, sí validar propietario
-            jugadorElemento = elementoSeleccionado.options.jugador || 
-                             (typeof window.obtenerJugadorPropietario === 'function' 
-                              ? window.obtenerJugadorPropietario() 
-                              : window.userId);
-            
-            if (!jugadorElemento) {
-                if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                    window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
-                }
-                console.error('Validación fallida: falta propietario');
-                return false;
+        if (!jugadorElemento) {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
             }
+            console.error('Validación fallida: falta propietario');
+            return false;
         }
         
-        console.log('✅ Validación completa - elemento listo para edición');
+        console.log('✅ Validación completa - elemento tiene tipo, designación, magnitud y propietario');
 
         // Guardar la posición actual y el ID
         const posicionActual = elementoSeleccionado.getLatLng();
@@ -995,26 +962,10 @@ function guardarCambiosEquipo() {
         // Crear nuevo marcador con todas las propiedades
         // Función auxiliar para obtener el jugador propietario correcto
         function obtenerJugadorPropietario() {
-            // Usar función global que detecta contexto automáticamente
-            if (typeof window.obtenerJugadorPropietario === 'function') {
-                return window.obtenerJugadorPropietario();
+            if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+                return window.gestorTurnos.obtenerJugadorPropietario();
             }
-            
-            // Fallback - detectar contexto manualmente
-            const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
-                                     document.title.includes('Planeamiento') ||
-                                     !window.gestorTurnos;
-            
-            if (esModoPlaneamiento) {
-                return window.MAIRA?.UserIdentity?.getUserId() || 
-                       localStorage.getItem('userId') || 
-                       'planner_user';
-            } else {
-                if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
-                    return window.gestorTurnos.obtenerJugadorPropietario();
-                }
-                return window.userId || 'player_1';
-            }
+            return window.userId;
         }
 
         const nuevoMarcador = L.marker(posicionActual, {

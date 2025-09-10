@@ -33,48 +33,13 @@
         lineas_actuales: "~1800 distribuidas"
     };
 
-    // 🔗 REDIRECCIONAMIENTO A MÓDULOS ESPECIALIZADOS
-    window.medirDistancia = function() {
-        if (window.measurementHandler) {
-            return window.measurementHandler.medirDistancia.apply(this, arguments);
-        }
-        console.warn("measurementHandler no disponible");
-    };
-
-    window.addDistancePoint = function() {
-        if (window.measurementHandler) {
-            return window.measurementHandler.addDistancePoint.apply(this, arguments);
-        }
-        console.warn("measurementHandler no disponible");
-    };
-
-    window.finalizarMedicion = function() {
-        if (window.measurementHandler) {
-            return window.measurementHandler.finalizarMedicion.apply(this, arguments);
-        }
-        console.warn("measurementHandler no disponible");
-    };
-
-    window.mostrarGraficoPerfil = function() {
-        if (window.elevationProfileService) {
-            return window.elevationProfileService.mostrarGraficoPerfil.apply(this, arguments);
-        }
-        console.warn("elevationProfileService no disponible");
-    };
-
-    window.mostrarPerfilElevacion = function() {
-        if (window.elevationProfileService) {
-            return window.elevationProfileService.mostrarPerfilElevacion.apply(this, arguments);
-        }
-        console.warn("elevationProfileService no disponible");
-    };
-
-    window.mostrarCuadriculas = function() {
-        if (window.mapInteractionHandler) {
-            return window.mapInteractionHandler.mostrarCuadriculas.apply(this, arguments);
-        }
-        console.warn("mapInteractionHandler no disponible");
-    };
+    // ✅ FUNCIONES YA DEFINIDAS GLOBALMENTE POR MÓDULOS ESPECIALIZADOS
+    // Las siguientes funciones están disponibles globalmente:
+    // - medirDistancia() en measurementHandler.js
+    // - addDistancePoint() en measurementHandler.js  
+    // - finalizarMedicion() en measurementHandler.js
+    // - mostrarPerfilElevacion() en measurementHandler.js
+    // - seleccionarElemento() y deseleccionarElemento() definidas más abajo
 
     window.calcularDistancia = function() {
         if (window.geometryUtils) {

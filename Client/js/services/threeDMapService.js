@@ -2,7 +2,6 @@
  * MAIRA 4.0 - Sistema de Mapas 3D
  * ================================
  * Integración de Three.js para visualización 3D del terreno
- * Convertido a formato compatible con bootstrap DDD
  */
 
 // NOTA: Three.js se carga desde node_modules en planeamiento.html:
@@ -10,7 +9,7 @@
 // OrbitControls se carga dinámicamente como módulo ES6
 
 class ThreeDMapService {
-    constructor(core) {
+    constructor(core = null) {
         this.core = core;
         this.scene = null;
         this.camera = null;
@@ -21,7 +20,7 @@ class ThreeDMapService {
         this.isInitialized = false;
         this.animationId = null;
         
-        // Configuración desde core
+        // Configuración desde core o valores por defecto
         this.config = core?.config?.THREEJS || {
             enabled: true,
             renderer: { antialias: true, alpha: true },
@@ -58,7 +57,10 @@ class ThreeDMapService {
             this.startRenderLoop();
 
             console.log('✅ Sistema 3D inicializado correctamente');
-            this.core.emit('threeDInitialized', { service: this });
+            // Solo emit si core está disponible
+            if (this.core && typeof this.core.emit === 'function') {
+                this.core.emit('threeDInitialized', { service: this });
+            }
 
         } catch (error) {
             console.error('❌ Error inicializando sistema 3D:', error);
@@ -104,21 +106,47 @@ class ThreeDMapService {
                 return;
             }
 
-            // Cargar OrbitControls dinámicamente desde node_modules
-            const { OrbitControls } = await import('/node_modules/three/examples/jsm/controls/OrbitControls.js');
+            // Cargar OrbitControls con script tag dinámico
+            await this.loadOrbitControls();
             
-            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-            this.controls.enableDamping = true;
-            this.controls.dampingFactor = 0.05;
-            this.controls.maxPolarAngle = Math.PI / 2;
-            this.controls.minDistance = 100;
-            this.controls.maxDistance = 5000;
-            
-            console.log('✅ OrbitControls cargado desde node_modules');
+            if (window.THREE && window.THREE.OrbitControls) {
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.maxPolarAngle = Math.PI / 2;
+                this.controls.minDistance = 100;
+                this.controls.maxDistance = 5000;
+                
+                console.log('✅ OrbitControls cargado desde node_modules');
+            } else {
+                console.warn('⚠️ OrbitControls no disponible después de cargar');
+            }
         } catch (error) {
             console.warn('⚠️ Error cargando OrbitControls:', error);
             console.warn('⚠️ Continuando sin controles avanzados');
         }
+    }
+
+    async loadOrbitControls() {
+        return new Promise((resolve, reject) => {
+            // Verificar si ya está cargado
+            if (window.THREE && window.THREE.OrbitControls) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = '/node_modules/three/examples/js/controls/OrbitControls.js';
+            script.onload = () => {
+                console.log('✅ OrbitControls script cargado');
+                resolve();
+            };
+            script.onerror = () => {
+                console.warn('⚠️ Error cargando OrbitControls script');
+                reject(new Error('Failed to load OrbitControls'));
+            };
+            document.head.appendChild(script);
+        });
     }
 
     async setupLights() {
@@ -447,16 +475,7 @@ function activarVista3D() {
         
         // Inicializar servicio 3D
         if (!threeDMapInstance) {
-            threeDMapInstance = new ThreeDMapService({
-                config: {
-                    THREEJS: {
-                        enabled: true,
-                        renderer: { antialias: true, alpha: true },
-                        camera: { fov: 60, near: 0.1, far: 10000 },
-                        terrain: { elevation_scale: 0.001, segments: 256 }
-                    }
-                }
-            });
+            threeDMapInstance = new ThreeDMapService(); // Sin core para uso independiente
         }
         
         // Inicializar vista 3D

@@ -154,7 +154,7 @@ class ToolsInitializer {
         // Event listener para teclas de escape (finalizar medición)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (window.measuringDistance) {  // ✅ VARIABLE GLOBAL CORRECTA
+                if (window.measurementHandler && window.measurementHandler.measuringDistance) {
                     if (typeof window.finalizarMedicion === 'function') {
                         window.finalizarMedicion();
                     }
@@ -170,8 +170,8 @@ class ToolsInitializer {
         // Event listener para double-click en el mapa (finalizar medición)
         if (window.mapa) {  // ✅ USAR 'mapa' NO 'map'
             window.mapa.on('dblclick', (evt) => {
-                if (window.measuringDistance) {  // ✅ VARIABLE GLOBAL CORRECTA
-                    evt.preventDefault();
+                if (window.measurementHandler && window.measurementHandler.measuringDistance) {
+                    // En Leaflet, evt es un evento personalizado, no necesita preventDefault
                     if (typeof window.finalizarMedicion === 'function') {
                         window.finalizarMedicion();
                     }
@@ -298,7 +298,7 @@ class ToolsInitializer {
             variables: {
                 mapa: !!window.mapa,
                 calcoActivo: !!window.calcoActivo,
-                measuringDistance: !!window.measuringDistance,
+                measuringDistance: !!(window.measurementHandler && window.measurementHandler.measuringDistance),
                 elementoSeleccionado: !!window.elementoSeleccionado
             }
         };
