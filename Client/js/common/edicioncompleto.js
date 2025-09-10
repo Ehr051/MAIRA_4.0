@@ -4,6 +4,44 @@ window.MAIRA.EdicionCompleto = window.MAIRA.EdicionCompleto || {};
 let panelEdicionActualCompleto = null;
 
 /**
+ * 🔍 DETECTOR DE CONTEXTO - Determina el modo de juego para validación apropiada
+ */
+function detectarContextoJuego() {
+    // 1. Detectar por URL
+    const url = window.location.pathname;
+    if (url.includes('planeamiento.html')) {
+        return 'planeamiento';
+    }
+    if (url.includes('juegodeguerra.html')) {
+        // Distinguir entre local y online
+        return window.socket && window.socket.connected ? 'online' : 'local';
+    }
+    
+    // 2. Detectar por variables globales
+    if (window.modoPlaneamiento === true) {
+        return 'planeamiento';
+    }
+    if (window.partidaOnline === true) {
+        return 'online';
+    }
+    if (window.partidaLocal === true) {
+        return 'local';
+    }
+    
+    // 3. Detectar por elementos DOM
+    if (document.getElementById('panelMarcha')) {
+        return 'planeamiento';
+    }
+    if (document.getElementById('turnoInfo')) {
+        return window.socket ? 'online' : 'local';
+    }
+    
+    // Default: planeamiento (más permisivo)
+    console.log('⚠️ Contexto no detectado, asumiendo planeamiento');
+    return 'planeamiento';
+}
+
+/**
  * Estructura SIDC completa (15 posiciones):
  * Pos 1: Esquema de codificación (S)
  * Pos 2: Identidad (F,H,U,N,etc)
@@ -805,15 +843,39 @@ function guardarCambiosUnidad() {
             return false;
         }
         
-        // Definir jugadorElemento antes de usarlo
-        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
+        // ✅ VALIDACIÓN CONTEXTO-AWARE DE PROPIETARIO:
+        const contextoJuego = detectarContextoJuego();
+        console.log(`🎮 Contexto detectado: ${contextoJuego}`);
         
-        if (!jugadorElemento) {
-            if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
-            }
-            console.error('Validación fallida: falta propietario');
-            return false;
+        let jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
+        
+        switch (contextoJuego) {
+            case 'planeamiento':
+                // En planeamiento NO es necesario propietario, se puede editar libremente
+                if (!jugadorElemento) {
+                    jugadorElemento = 'planeamiento'; // Asignar valor por defecto
+                    console.log('🎯 Planeamiento: Asignando propietario por defecto');
+                }
+                break;
+                
+            case 'local':
+                // En juego local, auto-asignar el jugador actual en su turno
+                if (!jugadorElemento) {
+                    jugadorElemento = window.userId || window.jugadorActual || 'jugador1';
+                    console.log(`🎲 Juego local: Auto-asignando jugador ${jugadorElemento}`);
+                }
+                break;
+                
+            case 'online':
+                // En juego online, requiere propietario y emite cambios
+                if (!jugadorElemento) {
+                    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                        window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
+                    }
+                    console.error('Validación fallida: falta propietario en modo online');
+                    return false;
+                }
+                break;
         }
         
         console.log('✅ Validación completa - elemento tiene tipo, designación, magnitud y propietario');
@@ -864,9 +926,32 @@ function guardarCambiosUnidad() {
         // Cerrar panel
         cerrarPanelEdicion('panelEdicionUnidad');
         
-        // Enviar al servidor
-        console.log("Enviando elemento actualizado al servidor");
-        const enviado = enviarElementoAlServidor(nuevoMarcador);
+        // ✅ GUARDAR SEGÚN CONTEXTO:
+        console.log("Guardando elemento según contexto:", contextoJuego);
+        let enviado = false;
+        
+        switch (contextoJuego) {
+            case 'planeamiento':
+                // En planeamiento, solo guardar localmente
+                console.log("💾 Guardado local en planeamiento");
+                enviado = true; // No necesita envío al servidor
+                break;
+                
+            case 'local':
+                // En juego local, guardar localmente y actualizar estado de partida
+                console.log("🎲 Guardado local - Juego local");
+                if (window.partidaLocal && typeof window.partidaLocal.actualizarElemento === 'function') {
+                    window.partidaLocal.actualizarElemento(nuevoMarcador);
+                }
+                enviado = true;
+                break;
+                
+            case 'online':
+                // En juego online, emitir cambios via socket
+                console.log("🌐 Enviando cambios - Juego online");
+                enviado = enviarElementoAlServidor(nuevoMarcador);
+                break;
+        }
         
         if (enviado) {
             // Notificar éxito
