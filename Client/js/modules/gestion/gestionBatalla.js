@@ -973,6 +973,11 @@ function configurarEventosChat() {
             // Mostrar panel
             panel.classList.remove('oculto');
             
+            // Actualizar botón flotante (ocultar cuando panel está abierto)
+            if (botonFlotante) {
+                botonFlotante.style.display = 'none';
+            }
+            
             // Actualizar botón de cerrar (flecha hacia la derecha para indicar "cerrar")
             if (botonCerrar) {
                 botonCerrar.innerHTML = '<i class="fas fa-chevron-right"></i>';
@@ -986,6 +991,18 @@ function configurarEventosChat() {
         } else {
             // Ocultar panel
             panel.classList.add('oculto');
+            
+            // Mostrar botón flotante (mostrar cuando panel está cerrado)
+            if (botonFlotante) {
+                botonFlotante.style.display = 'block';
+                botonFlotante.innerHTML = '<i class="fas fa-chevron-left"></i><span class="tooltip">Abrir Panel</span>';
+            }
+            
+            // Actualizar botón de cerrar (flecha hacia la izquierda para indicar "abrir")
+            if (botonCerrar) {
+                botonCerrar.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                botonCerrar.title = 'Mostrar panel';
+            }
             
             panelVisible = false;
             window.MAIRA_UI_STATES.panelAbierto = false;

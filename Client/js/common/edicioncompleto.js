@@ -978,10 +978,26 @@ function guardarCambiosEquipo() {
         // Crear nuevo marcador con todas las propiedades
         // Función auxiliar para obtener el jugador propietario correcto
         function obtenerJugadorPropietario() {
-            if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
-                return window.gestorTurnos.obtenerJugadorPropietario();
+            // Usar función global que detecta contexto automáticamente
+            if (typeof window.obtenerJugadorPropietario === 'function') {
+                return window.obtenerJugadorPropietario();
             }
-            return window.userId;
+            
+            // Fallback - detectar contexto manualmente
+            const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
+                                     document.title.includes('Planeamiento') ||
+                                     !window.gestorTurnos;
+            
+            if (esModoPlaneamiento) {
+                return window.MAIRA?.UserIdentity?.getUserId() || 
+                       localStorage.getItem('userId') || 
+                       'planner_user';
+            } else {
+                if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+                    return window.gestorTurnos.obtenerJugadorPropietario();
+                }
+                return window.userId || 'player_1';
+            }
         }
 
         const nuevoMarcador = L.marker(posicionActual, {
