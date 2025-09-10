@@ -111,9 +111,9 @@ const MAIRA_LIFECYCLE_ANALYSIS = {
         bootstrapModule: "organizacion",
         expectedFiles: [
             // Core mínimo (sin herramientas de mapa)
-            "./ui/paneledicionCO.js",
             "./modules/organizacion/conexionesCO.js",
-            "./modules/organizacion/CO.js"
+            "./modules/organizacion/CO.js",
+            "./modules/organizacion/paneledicionCO.js"
         ],
         workflow: [
             "1. Usuario accede desde index",

@@ -135,9 +135,9 @@
             
             // 🏗️ CO/ORGANIZACIÓN - ESPECÍFICO: Sin herramientas de mapa, solo organización
             organizacion: [
-                './ui/paneledicionCO.js',         // ✅ Panel edición
                 './modules/organizacion/conexionesCO.js', // ✅ Conexiones
-                './modules/organizacion/CO.js'    // ✅ Lógica principal
+                './modules/organizacion/CO.js',    // ✅ Lógica principal
+                './modules/organizacion/paneledicionCO.js' // ✅ Panel de edición CO
                 // ❌ NO NECESITA: herramientas, medición, perfiles, etc.
                 // ❌ NO NECESITA: servicios de combate o agentes autónomos
             ],
