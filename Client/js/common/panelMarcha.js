@@ -466,100 +466,57 @@
         },
 
         medirDistanciaConMarcadores: function() {
-            console.log("Iniciando medición de distancia con marcadores de PI y PT");
+            console.log("🎯 Iniciando medición de distancia con marcadores de PI y PT");
             var self = this;
             
+            // Verificar que tenemos las funciones de medición disponibles
+            if (typeof window.medirDistancia === 'function') {
+                console.log("📏 Usando sistema de medición global");
+                window.medirDistancia();
+                return;
+            }
+            
+            // Si no está disponible el sistema global, usar measurementHandler
+            if (typeof window.measurementHandler !== 'undefined' && window.measurementHandler) {
+                console.log("📏 Usando measurementHandler");
+                window.measurementHandler.medirDistancia();
+                return;
+            }
+            
+            // Fallback manual
+            console.log("📏 Iniciando medición manual");
+            
             if (window.measuringDistance) {
-                window.finalizarMedicion();
-            } else {
-                window.measuringDistance = true;
-                window.mapa.getContainer().style.cursor = 'crosshair';
-                window.lineaActual = window.crearLinea();
-        
-                // Agregar PI al primer punto
-                window.mapa.once('click', function(event) {
-                    var latLng = event.latlng;
-                    var simboloPI = new ms.Symbol(
-                        SIDC.PI,
-                        {
-                            size: 30,
-                            additionalInformation: "PI",
-                        }
-                    );
-        
-                    var marcadorPI = L.marker(latLng, {
-                        icon: L.divIcon({
-                            className: 'marcador-militar',
-                            html: simboloPI.asSVG(),
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 15]
-                        })
-                    }).addTo(window.calcoActivo);
-        
-                    // Agregar PI a la lista de puntos de control
-                    var container = document.getElementById('puntosControlList');
-                    if (container) {
-                        var tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = [
-                            '<div class="punto-control pc pi" data-tipo="PI" data-distancia="0">',
-                            '    <span>PI</span>',
-                            '    <span class="coord-info">(' + latLng.lat.toFixed(6) + ', ' + latLng.lng.toFixed(6) + ')</span>',
-                            '    <input type="text" class="pc-descripcion" placeholder="Punto Inicial">',
-                            '    <input type="color" class="color-pc" value="#FF4444" disabled>',
-                            '</div>'
-                        ].join('\n');
-                        container.insertBefore(tempDiv.firstElementChild, container.firstChild);
-                    }
-                });
-        
-                window.mapa.on('click', window.addDistancePoint);
-                window.mapa.on('mousemove', window.actualizarDistanciaProvisional);
-        
-                // Agregar PT al finalizar
-                window.mapa.once('dblclick', function(event) {
-                    var latLng = event.latlng;
-                    var simboloPT = new ms.Symbol(
-                        SIDC.PI,
-                        {
-                            size: 30,
-                            additionalInformation: "PT"
-                        }
-                    );
-        
-                    var marcadorPT = L.marker(latLng, {
-                        icon: L.divIcon({
-                            className: 'marcador-militar',
-                            html: simboloPT.asSVG(),
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 15]
-                        })
-                    }).addTo(window.calcoActivo);
-        
-                    // Agregar PT a la lista de puntos de control
-                    var container = document.getElementById('puntosControlList');
-                    if (container) {
-                        var tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = [
-                            '<div class="punto-control pc pt" data-tipo="PT">',
-                            '    <span>PT</span>',
-                            '    <span class="coord-info">(' + latLng.lat.toFixed(6) + ', ' + latLng.lng.toFixed(6) + ')</span>',
-                            '    <input type="text" class="pc-descripcion" placeholder="Punto Terminal">',
-                            '    <input type="color" class="color-pc" value="#FF4444" disabled>',
-                            '</div>'
-                        ].join('\n');
-                        container.appendChild(tempDiv.firstElementChild);
-                    }
-        
+                if (typeof window.finalizarMedicion === 'function') {
                     window.finalizarMedicion();
-                });
-        
-                var medicionDisplay = document.getElementById('medicionDistancia');
-                if (medicionDisplay) {
-                    medicionDisplay.innerHTML = [
-                        '<span>Haga clic para comenzar la medición</span>',
-                        '<button onclick="window.finalizarMedicion()" style="float: right;">×</button>'
-                    ].join('');
-                    medicionDisplay.style.display = 'block';
+                } else if (window.measurementHandler && window.measurementHandler.finalizarMedicion) {
+                    window.measurementHandler.finalizarMedicion();
+                }
+            } else {
+                // Iniciar medición
+                window.measuringDistance = true;
+                if (window.mapa) {
+                    window.mapa.getContainer().style.cursor = 'crosshair';
+                    console.log("🎯 Cursor cambiado a crosshair");
+                    
+                    // Verificar si tenemos función crearLinea
+                    if (typeof window.crearLinea === 'function') {
+                        window.lineaActual = window.crearLinea();
+                    } else if (window.measurementHandler && window.measurementHandler.crearLinea) {
+                        window.lineaActual = window.measurementHandler.crearLinea();
+                    }
+                    
+                    console.log("✅ Medición iniciada - haz clic en el mapa para comenzar");
+                    
+                    // Configurar event listeners
+                    if (typeof window.addDistancePoint === 'function') {
+                        window.mapa.on('click', window.addDistancePoint);
+                    }
+                    if (typeof window.actualizarDistanciaProvisional === 'function') {
+                        window.mapa.on('mousemove', window.actualizarDistanciaProvisional);
+                    }
+                } else {
+                    console.error("❌ No hay mapa disponible");
                 }
             }
         },

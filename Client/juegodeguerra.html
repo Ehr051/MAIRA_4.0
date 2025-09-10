@@ -3,137 +3,109 @@
 <head>
   <title>M.A.I.R.A. - Modo Juego de Guerra</title>
   <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
-    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
-    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+  <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- Estilos CSS -->
-  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-  <link rel="stylesheet" href="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
-  <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
-  <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <!-- 🎨 ESTILOS CSS (CDN + Local) -->
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+  
+  <!-- Bootstrap CDN -->  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+  
+  <!-- Leaflet y plugins CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css" />
+  
+  <!-- CSS Personalizados MAIRA -->
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
-  <!-- CSS temporal para tests - REMOVER EN PRODUCCIÓN -->
-  <link rel="stylesheet" href="css/common/test-buttons.css"></script>
-  <!-- Scripts JavaScript -->
-  <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
-  <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
   
-  <!-- Core MAIRA -->
-  <script src="js/core/UserIdentity.js"></script>
+  <!-- 🚀 SCRIPTS JAVASCRIPT (CDN primero, luego locales) -->
+  <!-- Core Libraries CDN -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
   
-  <script src="/node_modules/leaflet/dist/leaflet.js"></script>
-  <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
-  <script src="/node_modules/d3/dist/d3.min.js"></script>
-  <script src="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
-  <script src="/node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
-  <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
-  <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
-  <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
-  <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
-  <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
-  <!-- <script src="/node_modules/mgrs/mgrs.js"></script> -->
-  <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
-  <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
-  <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
-  <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
-  <script src="/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
-  <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
-  <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
-  <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
-  <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
+  <!-- Leaflet y plugins CDN -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  
+  <!-- Export Libraries (locales) -->
+  <script src="node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  
+  <!-- Socket.IO (local) -->
+  <script src="node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  
+  <!-- Military Symbol Libraries -->
+  <script src="node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="node_modules/d3/dist/d3.min.js"></script>
+  
+  <!-- Leaflet Plugins adicionales (solo los que REALMENTE necesites) -->
+  <script src="node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="node_modules/file-saver/dist/FileSaver.js"></script>
   <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
-       CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0
+       SCRIPTS JAVASCRIPT EXISTENTES - MAIRA 4.0
        ============================================= -->
        
-  <!-- 🏗️ CORE DEPENDENCIES -->
-  <script src="js/core/LoggerService.js"></script>
-  <script src="js/core/ConfigManager.js"></script>
-  <script src="js/config/GameConfiguration.js"></script>
-  <script src="js/common/EventBus.js"></script>
-  <script src="js/common/BaseComponent.js"></script>
+  <!-- 🏗️ CORE (archivos que existen) -->
+  <script src="js/core/UserIdentity.js"></script>
+  <script src="js/core/MAIRACore.js"></script>
 
-  <!-- 🔧 UTILS -->
+  <!-- 🔧 UTILS (archivos que existen) -->
+  <script src="js/utils/eventemitter.js"></script>
   <script src="js/utils/coordinates.js"></script>
-  <script src="js/utils/geometryUtils.js"></script>
-  <script src="js/utils/validationUtils.js"></script>
   <script src="js/utils/performance.js"></script>
   <script src="js/utils/UIUtils.js"></script>
   <script src="js/utils/tiles-checker.js"></script>
 
-  <!-- 🏛️ INFRASTRUCTURE -->
-  <script src="js/infrastructure/ApiClient.js"></script>
-  <script src="js/infrastructure/GameStateManager.js"></script>
-  <script src="js/infrastructure/SocketManager.js"></script>
+  <!-- 🔄 SERVICES (archivos que existen) -->
+  <script src="js/services/transitabilityService.js"></script>
+  <script src="js/services/militaryDataService.js"></script>
+  <script src="js/services/DeploymentService.js"></script>
+  <script src="js/services/PanelIntegration.js"></script>
 
-  <!-- 🔄 SERVICES -->
-  <script src="js/services/operationalService.js"></script>
-  <script src="js/services/GeolocationService.js"></script>
-  <script src="js/services/GameService.js"></script>
-  <script src="js/services/UnitService.js"></script>
-  <script src="js/services/TimeService.js"></script>
-  <script src="js/services/MilSymbolService.js"></script>
-  <script src="js/services/TerrainService.js"></script>
-  <script src="js/services/FileService.js"></script>
-
-  <!-- 🎮 GAMING MODULE -->
+  <!-- 🎮 GAMING (archivos que existen) -->
   <script src="js/gaming/GameEngine.js"></script>
-  <script src="js/gaming/TurnManager.js"></script>
-  <script src="js/gaming/PlayerManager.js"></script>
-  <script src="js/gaming/BattleEngine.js"></script>
-  <script src="js/gaming/UnitFactory.js"></script>
-  <script src="js/gaming/ScenarioLoader.js"></script>
-  <script src="js/gaming/GameRenderer.js"></script>
-  <script src="js/gaming/Combat.js"></script>
-  <script src="js/gaming/Movement.js"></script>
-  <script src="js/gaming/Intelligence.js"></script>
-  <script src="js/gaming/Logistics.js"></script>
-  <script src="js/gaming/Communications.js"></script>
-  <script src="js/gaming/Orders.js"></script>
-  <script src="js/gaming/MissionPlanning.js"></script>
-  <script src="js/gaming/TacticalAI.js"></script>
-  <script src="js/gaming/Weather.js"></script>
-  <script src="js/gaming/Environmental.js"></script>
+  <script src="js/gaming/AIDirector.js"></script>
+  <script src="js/gaming/FogOfWar.js"></script>
 
-  <!-- 🎯 HANDLERS -->
-  <script src="js/handlers/unitHandler.js"></script>
-  <script src="js/handlers/mapHandler.js"></script>
-  <script src="js/handlers/interfaceHandler.js"></script>
-  <script src="js/handlers/gameHandler.js"></script>
-  <script src="js/handlers/drawHandler.js"></script>
-  <script src="js/handlers/hexHandler.js"></script>
-  <script src="js/handlers/tacticsHandler.js"></script>
-  <script src="js/handlers/combatHandler.js"></script>
+  <!-- 🎯 HANDLERS (archivos que existen) -->
+  <script src="js/handlers/performanceOptimizer.js"></script>
+  <script src="js/handlers/elevationHandler.js"></script>
+  <script src="js/handlers/gestorTurnos.js"></script>
+  <script src="js/handlers/dependency-manager.js"></script>
+  <script src="js/handlers/EventBus.js"></script>
 
-  <!-- 🧩 MODULES -->
-  <script src="js/modules/juegodeguerra/gameUI.js"></script>
-  <script src="js/modules/juegodeguerra/hexGrid.js"></script>
-  <script src="js/modules/juegodeguerra/gameControls.js"></script>
-  <script src="js/modules/juegodeguerra/gameLogic.js"></script>
-  <script src="js/modules/juegodeguerra/unitDisplay.js"></script>
-  <script src="js/modules/juegodeguerra/battleInterface.js"></script>
+  <!-- 🧩 MODULES (archivos que existen) -->
+  <script src="js/modules/planeamiento/planeamiento.js"></script>
+  <script src="js/modules/juego/gestorBase.js"></script>
+  <script src="js/modules/juego/gestorCarga.js"></script>
+  <script src="js/modules/juego/hexgrid.js"></script>
+  <script src="js/modules/juego/gestorJuego.js"></script>
+  <script src="js/modules/juego/gestorUnidades.js"></script>
+  <script src="js/modules/juego/gestorMapa.js"></script>
+  <script src="js/modules/juego/gestorEstado.js"></script>
+
+  <!-- 🌐 COMMON (archivos necesarios) -->
+  <script src="js/common/EventBus.js"></script>
+  <script src="js/common/panelMarcha.js"></script>
 
   <script>
     // 🚀 INICIALIZACIÓN DIRECTA JUEGO DE GUERRA
@@ -156,30 +128,103 @@
             return;
         }
         
-        // Inicializar GameEngine si existe
-        if (typeof GameEngine !== 'undefined') {
-            try {
-                await GameEngine.initialize();
-                console.log('✅ GameEngine inicializado');
-            } catch (error) {
-                console.error('❌ Error inicializando GameEngine:', error);
+        try {
+            // Obtener configuración de partida
+            const configuracionPartida = obtenerConfiguracionPartida();
+            console.log('📋 Configuración de partida:', configuracionPartida);
+            
+            // Inicializar UserIdentity primero
+            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity) {
+                await MAIRA.UserIdentity.initialize();
             }
-        }
-        
-        // Inicializar HexGrid si existe
-        if (typeof HexGrid !== 'undefined') {
-            try {
+            
+            // Inicializar GameEngine con configuración
+            if (typeof GameEngine !== 'undefined') {
+                await GameEngine.initialize(configuracionPartida);
+                console.log('✅ GameEngine inicializado');
+            }
+            
+            // Inicializar GestorJuego si existe
+            if (typeof GestorJuego !== 'undefined') {
+                window.gestorJuego = new GestorJuego();
+                await window.gestorJuego.inicializar(configuracionPartida);
+                console.log('✅ GestorJuego inicializado');
+            }
+            
+            // Inicializar HexGrid si existe
+            if (typeof HexGrid !== 'undefined') {
                 HexGrid.initialize();
                 console.log('✅ HexGrid inicializado');
-            } catch (error) {
-                console.error('❌ Error inicializando HexGrid:', error);
+            }
+            
+            console.log('✅ Dependencias básicas cargadas');
+            console.log('🎮 JUEGO DE GUERRA inicializado correctamente');
+            
+            window.JuegoDeGuerraInitialized = true;
+            
+        } catch (error) {
+            console.error('❌ Error en inicialización:', error);
+            mostrarErrorInicializacion(error.message);
+        }
+    }
+    
+    function obtenerConfiguracionPartida() {
+        // Obtener parámetros de URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codigoPartida = urlParams.get('codigo');
+        
+        let configuracion = {
+            modoJuego: 'local',
+            duracionTurno: 300,
+            jugadores: [],
+            centro: [-34.9964963, -64.9672817],
+            zoom: 4
+        };
+        
+        if (codigoPartida) {
+            // Partida online
+            configuracion.modoJuego = 'online';
+            configuracion.codigoPartida = codigoPartida;
+            console.log('🌐 Partida online detectada:', codigoPartida);
+        } else {
+            // Partida local - obtener configuración del localStorage
+            const configLocal = localStorage.getItem('configuracionPartidaLocal');
+            if (configLocal) {
+                try {
+                    const parsedConfig = JSON.parse(configLocal);
+                    configuracion = { ...configuracion, ...parsedConfig };
+                    console.log('� Partida local detectada');
+                } catch (error) {
+                    console.warn('⚠️ Error leyendo configuración local:', error);
+                }
             }
         }
         
-        console.log('✅ Dependencias básicas cargadas');
-        console.log('🎮 JUEGO DE GUERRA inicializado correctamente');
-        
-        window.JuegoDeGuerraInitialized = true;
+        return configuracion;
+    }
+    
+    function mostrarErrorInicializacion(mensaje) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 9999;
+        `;
+        errorDiv.innerHTML = `
+            <h3>Error de Inicialización</h3>
+            <p>${mensaje}</p>
+            <button onclick="window.location.href='iniciarpartida.html'" style="margin-top: 10px; padding: 8px 16px;">
+                Volver a Iniciar Partida
+            </button>
+        `;
+        document.body.appendChild(errorDiv);
     }
     
     // Inicializar cuando el DOM esté listo

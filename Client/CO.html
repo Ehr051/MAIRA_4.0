@@ -6,46 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAIRA - Cuadro de Organización</title>
     
-    <!-- ℹ️ Los estilos de dependencias (Bootstrap, Leaflet, FontAwesome) se cargan via dependency-manager.js PRIMERO -->
-    <!-- ℹ️ Luego se cargan los estilos personalizados de MAIRA para que tengan MAYOR PRIORIDAD -->
+    <!-- 🎨 ESTILOS PRINCIPALES -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    
+    <!-- 🎨 ESTILOS PERSONALIZADOS MAIRA (mayor prioridad) -->
     
     <!-- NOTA: Los CSS personalizados ahora se cargan dinámicamente DESPUÉS de las dependencias -->
     
-    <!-- =============================================
-         CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0 - MÓDULO CO
-         ============================================= -->
-         
-    <!-- 🏗️ CORE DEPENDENCIES -->
-    <script src="js/core/LoggerService.js"></script>
-    <script src="js/core/ConfigManager.js"></script>
-    <script src="js/config/GameConfiguration.js"></script>
-    <script src="js/common/EventBus.js"></script>
-    <script src="js/common/BaseComponent.js"></script>
-
-    <!-- 🔧 UTILS -->
-    <script src="js/utils/coordinates.js"></script>
-    <script src="js/utils/geometryUtils.js"></script>
-    <script src="js/utils/validationUtils.js"></script>
-    <script src="js/utils/performance.js"></script>
-    <script src="js/utils/UIUtils.js"></script>
-
-    <!-- 🏛️ INFRASTRUCTURE -->
-    <script src="js/infrastructure/ApiClient.js"></script>
-    <script src="js/infrastructure/GameStateManager.js"></script>
-    <script src="js/infrastructure/SocketManager.js"></script>
-
-    <!-- 🔄 SERVICES -->
-    <script src="js/services/operationalService.js"></script>
-    <script src="js/services/GeolocationService.js"></script>
-    <script src="js/services/threeDMapService.js"></script>
 
     <!-- 🌐 COMMON -->
     <script src="js/common/networkConfig.js"></script>
-    <script src="js/common/MAIRAChat.js"></script>
 
-    <!-- 🎯 HANDLERS -->
-    <script src="js/handlers/unitHandler.js"></script>
-    <script src="js/handlers/interfaceHandler.js"></script>
 
     <!-- 🏗️ ORGANIZACIÓN ESPECÍFICOS -->
     <script src="js/ui/paneledicionCO.js"></script>

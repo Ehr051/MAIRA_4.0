@@ -1,0 +1,1803 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "extracted_date": "2025-09-10T18:44:19.353758",
+    "source": "MySQL_MAIRA_Original",
+    "classification": "RESERVADO",
+    "description": "Datos militares estáticos - Argentina"
+  },
+  "armamento": [
+    {
+      "id": "1",
+      "nombre": "FAL",
+      "tipo": "Fusil",
+      "calibre": "7.62 mm",
+      "alcance_efectivo": "400",
+      "alcance_maximo": "600",
+      "cadencia_de_tiro": "700",
+      "peso": "4.40",
+      "municion_calibre": "7.62 mm",
+      "municion_tipoA": "Común",
+      "municion_tipoB": "Trazante",
+      "municion_tipoC": "Perforante",
+      "municion_tipoD": null,
+      "capacidad_cargador": 20,
+      "cantidad_cargadores": 5,
+      "daño_contra": "Infantería, vehículos ligeros",
+      "radio_accion": null,
+      "efectivo_contra": "Personal, vehículos ligeros",
+      "total_municiones": 100,
+      "tipo_carga": "cargadores",
+      "observaciones": "Fusil principal infantería"
+    },
+    {
+      "id": "2",
+      "nombre": "SK 105",
+      "tipo": "Tanque",
+      "calibre": "105 mm",
+      "alcance_efectivo": "1500",
+      "alcance_maximo": "2000",
+      "cadencia_de_tiro": "6",
+      "peso": "17700.00",
+      "municion_calibre": "105 mm",
+      "municion_tipoA": "Explosiva",
+      "municion_tipoB": "Carga hueca",
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "41",
+      "daño_contra": "Tanques, vehículos ligeros",
+      "radio_accion": "25",
+      "efectivo_contra": "Vehículos blindados, fortificaciones"
+    },
+    {
+      "id": "3",
+      "nombre": "TAM",
+      "tipo": "Tanque",
+      "calibre": "105 mm",
+      "alcance_efectivo": "2500",
+      "alcance_maximo": "3000",
+      "cadencia_de_tiro": "6",
+      "peso": "30500.00",
+      "municion_calibre": "105 mm",
+      "municion_tipoA": "Explosiva",
+      "municion_tipoB": "Carga hueca",
+      "municion_tipoC": "Flecha",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "50",
+      "daño_contra": "Tanques, vehículos ligeros",
+      "radio_accion": "25",
+      "efectivo_contra": "Vehículos blindados, fortificaciones"
+    },
+    {
+      "id": "4",
+      "nombre": "Mortero 120 mm",
+      "tipo": "Mortero",
+      "calibre": "120 mm",
+      "alcance_efectivo": "4000",
+      "alcance_maximo": "7000",
+      "cadencia_de_tiro": "12",
+      "peso": "160.00",
+      "municion_calibre": "120 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "Humo",
+      "municion_tipoC": "Iluminación",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "30",
+      "daño_contra": "Infantería, posiciones fortificadas",
+      "radio_accion": "50",
+      "efectivo_contra": "Personal, fortificaciones ligeras"
+    },
+    {
+      "id": "5",
+      "nombre": "Mortero 81 mm",
+      "tipo": "Mortero",
+      "calibre": "81 mm",
+      "alcance_efectivo": "3200",
+      "alcance_maximo": "5700",
+      "cadencia_de_tiro": "20",
+      "peso": "60.00",
+      "municion_calibre": "81 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "Humo",
+      "municion_tipoC": "Iluminación",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "40",
+      "daño_contra": "Infantería, posiciones fortificadas",
+      "radio_accion": "35",
+      "efectivo_contra": "Personal, fortificaciones ligeras"
+    },
+    {
+      "id": "6",
+      "nombre": "Mortero 60 mm",
+      "tipo": "Mortero",
+      "calibre": "60 mm",
+      "alcance_efectivo": "1500",
+      "alcance_maximo": "3500",
+      "cadencia_de_tiro": "30",
+      "peso": "20.00",
+      "municion_calibre": "60 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "Humo",
+      "municion_tipoC": "Iluminación",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "50",
+      "daño_contra": "Infantería, posiciones fortificadas",
+      "radio_accion": "20",
+      "efectivo_contra": "Personal"
+    },
+    {
+      "id": "7",
+      "nombre": "Cañón Oto Melara",
+      "tipo": "Artillería",
+      "calibre": "155 mm",
+      "alcance_efectivo": "18000",
+      "alcance_maximo": "24000",
+      "cadencia_de_tiro": "4",
+      "peso": "12700.00",
+      "municion_calibre": "155 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "AP",
+      "municion_tipoC": "HESH",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "40",
+      "daño_contra": "Vehículos, estructuras",
+      "radio_accion": "50",
+      "efectivo_contra": "Vehículos blindados, fortificaciones"
+    },
+    {
+      "id": "8",
+      "nombre": "Granadas",
+      "tipo": "Arma de apoyo",
+      "calibre": "40 mm",
+      "alcance_efectivo": "10",
+      "alcance_maximo": "150",
+      "cadencia_de_tiro": null,
+      "peso": "0.22",
+      "municion_calibre": "40 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "Humo",
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "6",
+      "daño_contra": "Infantería",
+      "radio_accion": "10",
+      "efectivo_contra": "Personal"
+    },
+    {
+      "id": "9",
+      "nombre": "Minas Antitanque",
+      "tipo": "Mina",
+      "calibre": "N/A",
+      "alcance_efectivo": null,
+      "alcance_maximo": null,
+      "cadencia_de_tiro": null,
+      "peso": null,
+      "municion_calibre": null,
+      "municion_tipoA": null,
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": null,
+      "daño_contra": "Vehículos blindados",
+      "radio_accion": "5",
+      "efectivo_contra": "Vehículos blindados"
+    },
+    {
+      "id": "10",
+      "nombre": "Minas Antipersonales",
+      "tipo": "Mina",
+      "calibre": "N/A",
+      "alcance_efectivo": null,
+      "alcance_maximo": null,
+      "cadencia_de_tiro": null,
+      "peso": null,
+      "municion_calibre": null,
+      "municion_tipoA": null,
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": null,
+      "daño_contra": "Infantería",
+      "radio_accion": "5",
+      "efectivo_contra": "Personal"
+    },
+    {
+      "id": "11",
+      "nombre": "Palmaria",
+      "tipo": "Artillería Autopropulsada",
+      "calibre": "155 mm",
+      "alcance_efectivo": "18000",
+      "alcance_maximo": "24000",
+      "cadencia_de_tiro": "4",
+      "peso": "46000.00",
+      "municion_calibre": "155 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "AP",
+      "municion_tipoC": "HESH",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "40",
+      "daño_contra": "Vehículos, estructuras",
+      "radio_accion": "50",
+      "efectivo_contra": "Vehículos blindados, fortificaciones"
+    },
+    {
+      "id": "12",
+      "nombre": "FAP",
+      "tipo": "Fusil Ametrallador",
+      "calibre": "7.62 mm",
+      "alcance_efectivo": "800",
+      "alcance_maximo": "1000",
+      "cadencia_de_tiro": "750",
+      "peso": "5.20",
+      "municion_calibre": "7.62 mm",
+      "municion_tipoA": "Común",
+      "municion_tipoB": "Trazante",
+      "municion_tipoC": "Perforante",
+      "municion_tipoD": null,
+      "capacidad_cargador": 20,
+      "cantidad_cargadores": 6,
+      "daño_contra": "Infantería, vehículos ligeros",
+      "radio_accion": null,
+      "efectivo_contra": "Personal, vehículos ligeros",
+      "total_municiones": 120,
+      "tipo_carga": "cargadores",
+      "observaciones": "Fusil ametrallador pesado"
+    },
+    {
+      "id": "13",
+      "nombre": "MAG",
+      "tipo": "Ametralladora de Propósito General",
+      "calibre": "7.62 mm",
+      "alcance_efectivo": "1200",
+      "alcance_maximo": "1800",
+      "cadencia_de_tiro": "950",
+      "peso": "11.80",
+      "municion_calibre": "7.62 mm",
+      "municion_tipoA": "Común",
+      "municion_tipoB": "Trazante",
+      "municion_tipoC": "Perforante",
+      "municion_tipoD": null,
+      "capacidad_cargador": 250,
+      "cantidad_cargadores": 4,
+      "daño_contra": "Infantería, vehículos ligeros",
+      "radio_accion": null,
+      "efectivo_contra": "Personal, vehículos ligeros",
+      "total_municiones": 1000,
+      "tipo_carga": "valijines",
+      "observaciones": "Ametralladora propósito general - valijines de 250 disparos"
+    },
+    {
+      "id": "14",
+      "nombre": "MG74",
+      "tipo": "Ametralladora de Propósito General",
+      "calibre": "7.62 mm",
+      "alcance_efectivo": "1200",
+      "alcance_maximo": "1800",
+      "cadencia_de_tiro": "950",
+      "peso": "11.60",
+      "municion_calibre": "7.62 mm",
+      "municion_tipoA": "Común",
+      "municion_tipoB": "Trazante",
+      "municion_tipoC": "Perforante",
+      "municion_tipoD": null,
+      "capacidad_cargador": 250,
+      "cantidad_cargadores": 4,
+      "daño_contra": "Infantería, vehículos ligeros",
+      "radio_accion": null,
+      "efectivo_contra": "Personal, vehículos ligeros",
+      "total_municiones": 1000,
+      "tipo_carga": "valijines",
+      "observaciones": "Ametralladora propósito general - valijines de 250 disparos"
+    },
+    {
+      "id": "15",
+      "nombre": "Browning HP",
+      "tipo": "Pistola",
+      "calibre": "9 mm",
+      "alcance_efectivo": "50",
+      "alcance_maximo": "100",
+      "cadencia_de_tiro": null,
+      "peso": "0.90",
+      "municion_calibre": "9 mm",
+      "municion_tipoA": "Común",
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": 13,
+      "cantidad_cargadores": 3,
+      "daño_contra": "Infantería",
+      "radio_accion": null,
+      "efectivo_contra": "Personal",
+      "total_municiones": 39,
+      "tipo_carga": "cargadores",
+      "observaciones": "Pistola estándar"
+    },
+    {
+      "id": "16",
+      "nombre": "MARA",
+      "tipo": "Lanzacohetes",
+      "calibre": "88.9 mm",
+      "alcance_efectivo": "300",
+      "alcance_maximo": "500",
+      "cadencia_de_tiro": null,
+      "peso": "7.30",
+      "municion_calibre": "88.9 mm",
+      "municion_tipoA": "HEAT",
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": "1",
+      "cantidad_cargadores": "3",
+      "daño_contra": "Vehículos blindados ligeros",
+      "radio_accion": "5",
+      "efectivo_contra": "Vehículos blindados ligeros"
+    },
+    {
+      "id": "17",
+      "nombre": "TOW",
+      "tipo": "Misil Antitanque",
+      "calibre": "152 mm",
+      "alcance_efectivo": "3000",
+      "alcance_maximo": "3750",
+      "cadencia_de_tiro": null,
+      "peso": "18.90",
+      "municion_calibre": "152 mm",
+      "municion_tipoA": "HEAT",
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": "1",
+      "cantidad_cargadores": "5",
+      "daño_contra": "Tanques, vehículos blindados",
+      "radio_accion": "2",
+      "efectivo_contra": "Vehículos blindados pesados"
+    },
+    {
+      "id": "18",
+      "nombre": "Cañón CITER",
+      "tipo": "Artillería",
+      "calibre": "155 mm",
+      "alcance_efectivo": "18000",
+      "alcance_maximo": "24000",
+      "cadencia_de_tiro": "4",
+      "peso": "12700.00",
+      "municion_calibre": "155 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": "AP",
+      "municion_tipoC": "HESH",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "40",
+      "daño_contra": "Vehículos, estructuras",
+      "radio_accion": "50",
+      "efectivo_contra": "Vehículos blindados, fortificaciones"
+    },
+    {
+      "id": "19",
+      "nombre": "CP-30",
+      "tipo": "Lanzador Múltiple",
+      "calibre": "127 mm",
+      "alcance_efectivo": "28000",
+      "alcance_maximo": "30000",
+      "cadencia_de_tiro": "30",
+      "peso": "25000.00",
+      "municion_calibre": "127 mm",
+      "municion_tipoA": "HE",
+      "municion_tipoB": null,
+      "municion_tipoC": null,
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "30",
+      "daño_contra": "Vehículos, estructuras",
+      "radio_accion": "100",
+      "efectivo_contra": "Vehículos, fortificaciones, personal"
+    },
+    {
+      "id": "20",
+      "nombre": "Ametralladora 12,7",
+      "tipo": "Ametralladora Pesada",
+      "calibre": "12.7 mm",
+      "alcance_efectivo": "1800",
+      "alcance_maximo": "6800",
+      "cadencia_de_tiro": "600",
+      "peso": "38.10",
+      "municion_calibre": "12.7 mm",
+      "municion_tipoA": "API",
+      "municion_tipoB": "Trazante",
+      "municion_tipoC": "Incendiaria",
+      "municion_tipoD": null,
+      "capacidad_cargador": "100",
+      "cantidad_cargadores": "5",
+      "daño_contra": "Vehículos ligeros, fortificaciones",
+      "radio_accion": null,
+      "efectivo_contra": "Vehículos ligeros, fortificaciones, personal"
+    },
+    {
+      "id": "21",
+      "nombre": "TAM2C",
+      "tipo": "Tanque",
+      "calibre": "120 mm",
+      "alcance_efectivo": "3000",
+      "alcance_maximo": "4000",
+      "cadencia_de_tiro": "8",
+      "peso": "32000.00",
+      "municion_calibre": "120 mm",
+      "municion_tipoA": "APFSDS",
+      "municion_tipoB": "HEAT",
+      "municion_tipoC": "HE",
+      "municion_tipoD": null,
+      "capacidad_cargador": null,
+      "cantidad_cargadores": "40",
+      "daño_contra": "Tanques, vehículos blindados",
+      "radio_accion": "30",
+      "efectivo_contra": "Vehículos blindados pesados, fortificaciones"
+    }
+  ],
+  "armamento_municion": [],
+  "municiones": [],
+  "vehicles": [
+    {
+      "id": "1",
+      "name": "VC TAM",
+      "type": "Transporte de Asalto",
+      "capacity_personal": "4",
+      "cargo_capacity": null,
+      "fuel_capacity": "650.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.450",
+      "autonomy_without_supplement": "500.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.80",
+      "mobility_forest": "0.40",
+      "mobility_mountain": "0.50",
+      "mobility_urban": "0.70",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.60",
+      "mobility_swamp": "0.20"
+    },
+    {
+      "id": "2",
+      "name": "VC TAM 2C",
+      "type": "Transporte de Asalto",
+      "capacity_personal": "4",
+      "cargo_capacity": null,
+      "fuel_capacity": "650.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.450",
+      "autonomy_without_supplement": "520.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.80",
+      "mobility_forest": "0.40",
+      "mobility_mountain": "0.50",
+      "mobility_urban": "0.70",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.60",
+      "mobility_swamp": "0.20"
+    },
+    {
+      "id": "3",
+      "name": "VC SK 105",
+      "type": "Transporte de Asalto",
+      "capacity_personal": "3",
+      "cargo_capacity": null,
+      "fuel_capacity": "420.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.300",
+      "autonomy_without_supplement": "550.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.50",
+      "mobility_mountain": "0.60",
+      "mobility_urban": "0.80",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.70",
+      "mobility_swamp": "0.30"
+    },
+    {
+      "id": "4",
+      "name": "M113",
+      "type": "Transporte de personal",
+      "capacity_personal": "11",
+      "cargo_capacity": "2 toneladas",
+      "fuel_capacity": "360.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.100",
+      "autonomy_without_supplement": "480.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.60",
+      "mobility_mountain": "0.70",
+      "mobility_urban": "0.80",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.80",
+      "mobility_swamp": "0.40"
+    },
+    {
+      "id": "5",
+      "name": "VCTP",
+      "type": "Transporte de Personal",
+      "capacity_personal": "12",
+      "cargo_capacity": "1 tonelada",
+      "fuel_capacity": "650.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.250",
+      "autonomy_without_supplement": "550.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.80",
+      "mobility_forest": "0.50",
+      "mobility_mountain": "0.60",
+      "mobility_urban": "0.70",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.70",
+      "mobility_swamp": "0.30"
+    },
+    {
+      "id": "6",
+      "name": "VCTM",
+      "type": "Transporte de Morteros",
+      "capacity_personal": "7",
+      "cargo_capacity": null,
+      "fuel_capacity": "650.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.250",
+      "autonomy_without_supplement": "550.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.80",
+      "mobility_forest": "0.50",
+      "mobility_mountain": "0.60",
+      "mobility_urban": "0.70",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.70",
+      "mobility_swamp": "0.30"
+    },
+    {
+      "id": "7",
+      "name": "Agrale Marruá",
+      "type": "Utilitario",
+      "capacity_personal": "4",
+      "cargo_capacity": "750 kg",
+      "fuel_capacity": "80.00",
+      "supplementary_tank": "12.00",
+      "fuel_consumption": "0.012",
+      "autonomy_without_supplement": "600.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.70",
+      "mobility_mountain": "0.80",
+      "mobility_urban": "0.90",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.80",
+      "mobility_swamp": "0.50"
+    },
+    {
+      "id": "8",
+      "name": "Mercedes-Benz 1114",
+      "type": "Camión",
+      "capacity_personal": "3",
+      "cargo_capacity": "7 toneladas",
+      "fuel_capacity": "200.00",
+      "supplementary_tank": "25.00",
+      "fuel_consumption": "0.025",
+      "autonomy_without_supplement": "800.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.70",
+      "mobility_forest": "0.30",
+      "mobility_mountain": "0.40",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.80",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.10"
+    },
+    {
+      "id": "9",
+      "name": "Mercedes-Benz 1518",
+      "type": "Camión",
+      "capacity_personal": "3",
+      "cargo_capacity": "10 toneladas",
+      "fuel_capacity": "250.00",
+      "supplementary_tank": "30.00",
+      "fuel_consumption": "0.030",
+      "autonomy_without_supplement": "800.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.70",
+      "mobility_forest": "0.30",
+      "mobility_mountain": "0.40",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.80",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.10"
+    },
+    {
+      "id": "10",
+      "name": "Mercedes-Benz 1720",
+      "type": "Camión",
+      "capacity_personal": "3",
+      "cargo_capacity": "12 toneladas",
+      "fuel_capacity": "300.00",
+      "supplementary_tank": "35.00",
+      "fuel_consumption": "0.035",
+      "autonomy_without_supplement": "850.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.60",
+      "mobility_forest": "0.20",
+      "mobility_mountain": "0.30",
+      "mobility_urban": "0.50",
+      "mobility_desert": "0.70",
+      "mobility_snow": "0.40",
+      "mobility_swamp": "0.10"
+    },
+    {
+      "id": "11",
+      "name": "Mercedes-Benz 1113",
+      "type": "Camión",
+      "capacity_personal": "3",
+      "cargo_capacity": "6 toneladas",
+      "fuel_capacity": "180.00",
+      "supplementary_tank": "22.00",
+      "fuel_consumption": "0.022",
+      "autonomy_without_supplement": "800.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.70",
+      "mobility_forest": "0.30",
+      "mobility_mountain": "0.40",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.80",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.10"
+    },
+    {
+      "id": "12",
+      "name": "Unimog U416",
+      "type": "Camión todoterreno",
+      "capacity_personal": "3",
+      "cargo_capacity": "2 toneladas",
+      "fuel_capacity": "160.00",
+      "supplementary_tank": "20.00",
+      "fuel_consumption": "0.020",
+      "autonomy_without_supplement": "800.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.70",
+      "mobility_mountain": "0.80",
+      "mobility_urban": "0.80",
+      "mobility_desert": "0.90",
+      "mobility_snow": "0.80",
+      "mobility_swamp": "0.60"
+    },
+    {
+      "id": "13",
+      "name": "Camión con carretón",
+      "type": "Transporte de tanques",
+      "capacity_personal": "2",
+      "cargo_capacity": "1 tanque",
+      "fuel_capacity": "400.00",
+      "supplementary_tank": "50.00",
+      "fuel_consumption": "0.050",
+      "autonomy_without_supplement": "600.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "0.80",
+      "mobility_offroad": "0.40",
+      "mobility_forest": "0.10",
+      "mobility_mountain": "0.20",
+      "mobility_urban": "0.30",
+      "mobility_desert": "0.50",
+      "mobility_snow": "0.30",
+      "mobility_swamp": "0.10"
+    },
+    {
+      "id": "14",
+      "name": "Bell UH-1H \"Huey\"",
+      "type": "Helicóptero",
+      "capacity_personal": "13",
+      "cargo_capacity": "1.3 toneladas",
+      "fuel_capacity": "820.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.270",
+      "autonomy_without_supplement": "3.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "1.00",
+      "mobility_forest": null,
+      "mobility_mountain": null,
+      "mobility_urban": null,
+      "mobility_desert": null,
+      "mobility_snow": null,
+      "mobility_swamp": null
+    },
+    {
+      "id": "15",
+      "name": "H145M",
+      "type": "Helicóptero",
+      "capacity_personal": "10",
+      "cargo_capacity": "1 tonelada",
+      "fuel_capacity": "850.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.250",
+      "autonomy_without_supplement": "5.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "1.00",
+      "mobility_forest": null,
+      "mobility_mountain": null,
+      "mobility_urban": null,
+      "mobility_desert": null,
+      "mobility_snow": null,
+      "mobility_swamp": null
+    },
+    {
+      "id": "16",
+      "name": "Mi-171",
+      "type": "Helicóptero",
+      "capacity_personal": "15",
+      "cargo_capacity": "4 toneladas",
+      "fuel_capacity": "900.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.300",
+      "autonomy_without_supplement": "6.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "1.00",
+      "mobility_forest": null,
+      "mobility_mountain": null,
+      "mobility_urban": null,
+      "mobility_desert": null,
+      "mobility_snow": null,
+      "mobility_swamp": null
+    },
+    {
+      "id": "17",
+      "name": "Yamaha XT 350",
+      "type": "Motocicleta",
+      "capacity_personal": "2",
+      "cargo_capacity": "0.2 toneladas",
+      "fuel_capacity": "14.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.005",
+      "autonomy_without_supplement": "300.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.80",
+      "mobility_mountain": "0.70",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.50",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.50"
+    },
+    {
+      "id": "18",
+      "name": "Honda Tornado 250",
+      "type": "Motocicleta",
+      "capacity_personal": "2",
+      "cargo_capacity": "0.2 toneladas",
+      "fuel_capacity": "12.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.004",
+      "autonomy_without_supplement": "250.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.80",
+      "mobility_mountain": "0.70",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.50",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.50"
+    },
+    {
+      "id": "19",
+      "name": "Himalayan 450",
+      "type": "Motocicleta",
+      "capacity_personal": "2",
+      "cargo_capacity": "0.3 toneladas",
+      "fuel_capacity": "15.00",
+      "supplementary_tank": null,
+      "fuel_consumption": "0.006",
+      "autonomy_without_supplement": "350.00",
+      "autonomy_with_supplement": null,
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.80",
+      "mobility_mountain": "0.70",
+      "mobility_urban": "0.60",
+      "mobility_desert": "0.50",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.50"
+    }
+  ],
+  "animals": [
+    {
+      "id": "1",
+      "name": "Caballo de Guerra",
+      "type": "Caballo",
+      "capacity_personal": "1",
+      "cargo_capacity": "200 kg",
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.90",
+      "mobility_forest": "0.80",
+      "mobility_mountain": "0.70",
+      "mobility_urban": "0.80",
+      "mobility_desert": "0.60",
+      "mobility_snow": "0.50",
+      "mobility_swamp": "0.40"
+    },
+    {
+      "id": "2",
+      "name": "Mula de Carga",
+      "type": "Mula",
+      "capacity_personal": "1",
+      "cargo_capacity": "400 kg",
+      "mobility_road": "1.00",
+      "mobility_offroad": "0.80",
+      "mobility_forest": "0.70",
+      "mobility_mountain": "0.60",
+      "mobility_urban": "0.70",
+      "mobility_desert": "0.50",
+      "mobility_snow": "0.40",
+      "mobility_swamp": "0.30"
+    }
+  ],
+  "unidades": [
+    {
+      "id": "1",
+      "nombre": "Equipo de Tiradores",
+      "tipo": "Equipo",
+      "especialidad": "Infantería",
+      "subtipo": "Tiradores"
+    },
+    {
+      "id": "2",
+      "nombre": "Grupo de Tiradores",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Tiradores"
+    },
+    {
+      "id": "3",
+      "nombre": "Grupo de Apoyo",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Apoyo"
+    },
+    {
+      "id": "4",
+      "nombre": "Sección de Tiradores",
+      "tipo": "Sección",
+      "especialidad": "Infantería",
+      "subtipo": "Tiradores"
+    },
+    {
+      "id": "5",
+      "nombre": "Puesto Comando",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "6",
+      "nombre": "Tren de Subunidad",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "7",
+      "nombre": "Compañía de Infantería",
+      "tipo": "Subunidad",
+      "especialidad": "Infantería",
+      "subtipo": null
+    },
+    {
+      "id": "8",
+      "nombre": "Regimiento de Infantería",
+      "tipo": "Unidad",
+      "especialidad": "Infantería",
+      "subtipo": null
+    },
+    {
+      "id": "17",
+      "nombre": "Puesto Comando de Subunidad",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "20",
+      "nombre": "Puesto Comando de Unidad",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "21",
+      "nombre": "Sección Morteros",
+      "tipo": "Sección",
+      "especialidad": "Infantería",
+      "subtipo": "Apoyo"
+    },
+    {
+      "id": "22",
+      "nombre": "Tren de Combate",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "23",
+      "nombre": "Tren de Campaña",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "24",
+      "nombre": "Subunidad de Servicios",
+      "tipo": "Subunidad",
+      "especialidad": "Infantería",
+      "subtipo": "Servicios"
+    },
+    {
+      "id": "28",
+      "nombre": "Pelotón Comando",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "29",
+      "nombre": "Tren de Escuadrón",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "31",
+      "nombre": "Escuadrón Servicios",
+      "tipo": "Subunidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Servicios"
+    },
+    {
+      "id": "32",
+      "nombre": "Sección Exploración",
+      "tipo": "Sección",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Exploración"
+    },
+    {
+      "id": "33",
+      "nombre": "Sección Morteros Pesados",
+      "tipo": "Sección",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Apoyo"
+    },
+    {
+      "id": "34",
+      "nombre": "Puesto Comando de Regimiento",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "35",
+      "nombre": "Tren de Combate de Regimiento",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "36",
+      "nombre": "Tren de Campaña de Regimiento",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "38",
+      "nombre": "Equipo de Exploración",
+      "tipo": "Equipo",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": "Exploración"
+    },
+    {
+      "id": "39",
+      "nombre": "Grupo de Exploración",
+      "tipo": "Grupo",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": "Exploración"
+    },
+    {
+      "id": "40",
+      "nombre": "Sección de Exploración",
+      "tipo": "Sección",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": "Exploración"
+    },
+    {
+      "id": "41",
+      "nombre": "Escuadrón de Exploración",
+      "tipo": "Subunidad",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": null
+    },
+    {
+      "id": "42",
+      "nombre": "Regimiento de Caballería de Exploración",
+      "tipo": "Unidad",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": null
+    },
+    {
+      "id": "43",
+      "nombre": "Puesto Comando de Exploración",
+      "tipo": "Grupo",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "44",
+      "nombre": "Tren de Escuadrón de Exploración",
+      "tipo": "Grupo",
+      "especialidad": "Caballería de Exploración",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "45",
+      "nombre": "Pieza de Artillería",
+      "tipo": "Grupo",
+      "especialidad": "Artillería",
+      "subtipo": "Pieza"
+    },
+    {
+      "id": "46",
+      "nombre": "Sección de Tiro",
+      "tipo": "Sección",
+      "especialidad": "Artillería",
+      "subtipo": "Tiro"
+    },
+    {
+      "id": "47",
+      "nombre": "Batería de Tiro",
+      "tipo": "Subunidad",
+      "especialidad": "Artillería",
+      "subtipo": "Tiro"
+    },
+    {
+      "id": "48",
+      "nombre": "Grupo de Artillería",
+      "tipo": "Unidad",
+      "especialidad": "Artillería",
+      "subtipo": null
+    },
+    {
+      "id": "49",
+      "nombre": "Centro de Dirección de Tiro",
+      "tipo": "Grupo",
+      "especialidad": "Artillería",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "50",
+      "nombre": "Centro de Dirección de Fuego",
+      "tipo": "Grupo",
+      "especialidad": "Artillería",
+      "subtipo": "Comando"
+    },
+    {
+      "id": "51",
+      "nombre": "Sección Adquisición de Blancos",
+      "tipo": "Sección",
+      "especialidad": "Artillería",
+      "subtipo": "Reconocimiento"
+    },
+    {
+      "id": "52",
+      "nombre": "Tren de Batería",
+      "tipo": "Grupo",
+      "especialidad": "Artillería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "53",
+      "nombre": "Tren de Grupo",
+      "tipo": "Grupo",
+      "especialidad": "Artillería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "54",
+      "nombre": "Equipo de Ingenieros",
+      "tipo": "Equipo",
+      "especialidad": "Ingenieros",
+      "subtipo": null
+    },
+    {
+      "id": "55",
+      "nombre": "Sección de Ingenieros",
+      "tipo": "Sección",
+      "especialidad": "Ingenieros",
+      "subtipo": null
+    },
+    {
+      "id": "56",
+      "nombre": "Compañía de Ingenieros",
+      "tipo": "Subunidad",
+      "especialidad": "Ingenieros",
+      "subtipo": null
+    },
+    {
+      "id": "57",
+      "nombre": "Batallón de Ingenieros",
+      "tipo": "Unidad",
+      "especialidad": "Ingenieros",
+      "subtipo": null
+    },
+    {
+      "id": "58",
+      "nombre": "Equipo de Comunicaciones",
+      "tipo": "Equipo",
+      "especialidad": "Comunicaciones",
+      "subtipo": null
+    },
+    {
+      "id": "59",
+      "nombre": "Sección de Comunicaciones",
+      "tipo": "Sección",
+      "especialidad": "Comunicaciones",
+      "subtipo": null
+    },
+    {
+      "id": "60",
+      "nombre": "Compañía de Comunicaciones",
+      "tipo": "Subunidad",
+      "especialidad": "Comunicaciones",
+      "subtipo": null
+    },
+    {
+      "id": "61",
+      "nombre": "Batallón de Comunicaciones",
+      "tipo": "Unidad",
+      "especialidad": "Comunicaciones",
+      "subtipo": null
+    },
+    {
+      "id": "62",
+      "nombre": "Pieza Mortero 120",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Apoyo de Fuego"
+    },
+    {
+      "id": "63",
+      "nombre": "Pieza Mortero 81",
+      "tipo": "Grupo",
+      "especialidad": "Infantería",
+      "subtipo": "Apoyo de Fuego"
+    },
+    {
+      "id": "65",
+      "nombre": "Sección de Servicio de Piezas",
+      "tipo": "Sección",
+      "especialidad": "Artillería",
+      "subtipo": "Logística"
+    },
+    {
+      "id": "81",
+      "nombre": "Grupo Tanque (TAM)",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanque"
+    },
+    {
+      "id": "82",
+      "nombre": "Sección de Tanques (TAM)",
+      "tipo": "Sección",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanques"
+    },
+    {
+      "id": "83",
+      "nombre": "Escuadrón de Tanques (TAM)",
+      "tipo": "Subunidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    },
+    {
+      "id": "84",
+      "nombre": "Regimiento de Caballería Blindada (TAM)",
+      "tipo": "Unidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    },
+    {
+      "id": "85",
+      "nombre": "Grupo Tanque (SK)",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanque"
+    },
+    {
+      "id": "86",
+      "nombre": "Sección de Tanques (SK)",
+      "tipo": "Sección",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanques"
+    },
+    {
+      "id": "87",
+      "nombre": "Escuadrón de Tanques (SK)",
+      "tipo": "Subunidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    },
+    {
+      "id": "88",
+      "nombre": "Regimiento de Caballería Blindada (SK)",
+      "tipo": "Unidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    },
+    {
+      "id": "89",
+      "nombre": "Grupo Tanque (TAM2C)",
+      "tipo": "Grupo",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanque"
+    },
+    {
+      "id": "90",
+      "nombre": "Sección de Tanques (TAM2C)",
+      "tipo": "Sección",
+      "especialidad": "Caballería Blindada",
+      "subtipo": "Tanques"
+    },
+    {
+      "id": "91",
+      "nombre": "Escuadrón de Tanques (TAM2C)",
+      "tipo": "Subunidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    },
+    {
+      "id": "92",
+      "nombre": "Regimiento de Caballería Blindada (TAM2C)",
+      "tipo": "Unidad",
+      "especialidad": "Caballería Blindada",
+      "subtipo": null
+    }
+  ],
+  "roles_combate": [
+    {
+      "id": "1",
+      "role_name": "Tirador FAL",
+      "description": "Soldado equipado con fusil FAL"
+    },
+    {
+      "id": "2",
+      "role_name": "Tirador MAG",
+      "description": "Soldado equipado con ametralladora MAG"
+    },
+    {
+      "id": "3",
+      "role_name": "Tirador MG",
+      "description": "Soldado equipado con ametralladora MG"
+    },
+    {
+      "id": "4",
+      "role_name": "Tirador FAP",
+      "description": "Soldado equipado con fusil ametrallador FAP"
+    },
+    {
+      "id": "5",
+      "role_name": "Tirador ATAN",
+      "description": "Soldado equipado con arma antitanque"
+    },
+    {
+      "id": "6",
+      "role_name": "Granadero",
+      "description": "Soldado especializado en el uso de granadas o lanzagranadas"
+    },
+    {
+      "id": "7",
+      "role_name": "Jefe de Equipo",
+      "description": "Jefe de un equipo de infantería"
+    },
+    {
+      "id": "8",
+      "role_name": "Jefe de Grupo",
+      "description": "Jefe de un grupo de infantería"
+    },
+    {
+      "id": "9",
+      "role_name": "Jefe de Sección",
+      "description": "Jefe de una sección de infantería"
+    },
+    {
+      "id": "10",
+      "role_name": "Jefe de Compañía",
+      "description": "Jefe de una compañía de infantería"
+    },
+    {
+      "id": "11",
+      "role_name": "Observador Adelantado",
+      "description": "Soldado especializado en dirigir fuego de artillería o morteros"
+    },
+    {
+      "id": "12",
+      "role_name": "Tirador 12.7",
+      "description": "Opera la ametralladora 12.7 en vehículos de infantería mecanizada"
+    },
+    {
+      "id": "13",
+      "role_name": "Jefe de Mortero",
+      "description": "Jefe de mortero"
+    },
+    {
+      "id": "14",
+      "role_name": "Jefe Reemplazante de Mortero",
+      "description": "Asiste y puede reemplazar al jefe de mortero"
+    },
+    {
+      "id": "15",
+      "role_name": "Preparador de Mortero",
+      "description": "Prepara la munición para el mortero"
+    },
+    {
+      "id": "16",
+      "role_name": "Abastecedor de Mortero",
+      "description": "Suministra las municiones para el mortero"
+    },
+    {
+      "id": "17",
+      "role_name": "Cargador de Mortero",
+      "description": "Carga la munición en el mortero"
+    },
+    {
+      "id": "18",
+      "role_name": "Apuntador de Mortero",
+      "description": "Ajusta la puntería del mortero"
+    },
+    {
+      "id": "19",
+      "role_name": "Jefe de CDT",
+      "description": "Conduce el Centro de Dirección de Tiro"
+    },
+    {
+      "id": "20",
+      "role_name": "Operador de Plancheta",
+      "description": "Maneja la plancheta para cálculos de tiro"
+    },
+    {
+      "id": "21",
+      "role_name": "Operador de Goniómetro",
+      "description": "Opera el goniómetro para mediciones angulares y puntería indirecta"
+    },
+    {
+      "id": "22",
+      "role_name": "Conductor de Tanque",
+      "description": "Maneja el tanque"
+    },
+    {
+      "id": "23",
+      "role_name": "Apuntador de Tanque",
+      "description": "Maneja el sistema de puntería del tanque"
+    },
+    {
+      "id": "24",
+      "role_name": "Cargador de Tanque",
+      "description": "Asiste en la carga del cañón del tanque"
+    },
+    {
+      "id": "25",
+      "role_name": "Jefe de Tanque",
+      "description": "Comanda el tanque"
+    },
+    {
+      "id": "26",
+      "role_name": "Jefe de Sección de Tanques",
+      "description": "Lidera una sección de tanques"
+    },
+    {
+      "id": "27",
+      "role_name": "Jefe de Escuadrón de Tanques",
+      "description": "Lidera un Escuadrón de tanques"
+    },
+    {
+      "id": "28",
+      "role_name": "Jefe de Pieza de Artillería",
+      "description": "Lidera el equipo de una pieza de artillería"
+    },
+    {
+      "id": "29",
+      "role_name": "Apuntador de Artillería",
+      "description": "Maneja el sistema de puntería de la artillería"
+    },
+    {
+      "id": "30",
+      "role_name": "Cargador de Artillería",
+      "description": "Carga la munición en la pieza de artillería"
+    },
+    {
+      "id": "31",
+      "role_name": "Sirviente de Pieza",
+      "description": "Colabora en la posición del cañón y realiza trabajos de mira"
+    },
+    {
+      "id": "32",
+      "role_name": "Jefe de CDT Artillería",
+      "description": "Lidera el Centro de Dirección de Tiro de artillería"
+    },
+    {
+      "id": "33",
+      "role_name": "Jefe de CDF",
+      "description": "Lidera el Centro de Dirección de Fuegos"
+    },
+    {
+      "id": "34",
+      "role_name": "Abastecedor de Artillería",
+      "description": "Suministra municiones para la artillería"
+    },
+    {
+      "id": "35",
+      "role_name": "Preparador de Artillería",
+      "description": "Prepara las municiones para la artillería"
+    },
+    {
+      "id": "36",
+      "role_name": "Ingeniero de Combate",
+      "description": "Especialista en demoliciones y fortificaciones"
+    },
+    {
+      "id": "37",
+      "role_name": "Operador de Puentes",
+      "description": "Especialista en la construcción de puentes militares"
+    },
+    {
+      "id": "38",
+      "role_name": "Desactivador de Explosivos",
+      "description": "Especialista en desactivar artefactos explosivos"
+    },
+    {
+      "id": "39",
+      "role_name": "Operador de Radio",
+      "description": "Maneja los equipos de comunicación"
+    },
+    {
+      "id": "40",
+      "role_name": "Especialista en Guerra Electrónica",
+      "description": "Maneja equipos de interferencia y contramedidas electrónicas"
+    },
+    {
+      "id": "41",
+      "role_name": "Tirador Comunicante",
+      "description": "Lleva FAL, realiza tendidos eléctricos, antenas de circunstancia y opera radios"
+    },
+    {
+      "id": "42",
+      "role_name": "Explorador",
+      "description": "Soldado especializado en misiones de reconocimiento"
+    },
+    {
+      "id": "43",
+      "role_name": "Explorador FAL",
+      "description": "Explorador equipado con fusil FAL"
+    },
+    {
+      "id": "44",
+      "role_name": "Explorador FAP",
+      "description": "Explorador equipado con fusil ametrallador FAP"
+    },
+    {
+      "id": "45",
+      "role_name": "Explorador MAG",
+      "description": "Explorador equipado con ametralladora MAG"
+    },
+    {
+      "id": "46",
+      "role_name": "Tirador Especial",
+      "description": "Tirador de precisión para largas distancias"
+    },
+    {
+      "id": "47",
+      "role_name": "Observador",
+      "description": "Asiste al tirador especial en la detección de objetivos"
+    },
+    {
+      "id": "48",
+      "role_name": "Conductor de Vehículo Logístico",
+      "description": "Opera vehículos de transporte y abastecimiento"
+    },
+    {
+      "id": "49",
+      "role_name": "Especialista en Abastecimiento",
+      "description": "Gestiona los suministros y la logística"
+    },
+    {
+      "id": "50",
+      "role_name": "Mecánico de Vehículos",
+      "description": "Mantiene y repara vehículos militares"
+    },
+    {
+      "id": "51",
+      "role_name": "Armero",
+      "description": "Mantiene y repara armamento"
+    },
+    {
+      "id": "52",
+      "role_name": "Abastecedor Logístico",
+      "description": "Asiste en el abastecimiento y brinda seguridad a los trenes de combate y campaña"
+    },
+    {
+      "id": "53",
+      "role_name": "Auxiliar de Mecánico",
+      "description": "Asiste a los mecánicos en el mantenimiento y reparación"
+    },
+    {
+      "id": "54",
+      "role_name": "Cocinero",
+      "description": "Prepara las comidas para las tropas"
+    },
+    {
+      "id": "55",
+      "role_name": "Talabartero",
+      "description": "Repara y mantiene equipos de cuero y lona"
+    },
+    {
+      "id": "56",
+      "role_name": "Sastre",
+      "description": "Repara y mantiene uniformes y otros textiles"
+    },
+    {
+      "id": "57",
+      "role_name": "Médico de Combate",
+      "description": "Proporciona atención médica en el campo de batalla"
+    },
+    {
+      "id": "58",
+      "role_name": "Enfermero de Combate",
+      "description": "Asiste al médico y proporciona primeros auxilios"
+    },
+    {
+      "id": "59",
+      "role_name": "Conductor de Ambulancia",
+      "description": "Opera vehículos de evacuación médica"
+    },
+    {
+      "id": "60",
+      "role_name": "Camillero",
+      "description": "Auxilia al enfermero y transporta heridos"
+    }
+  ],
+  "unidades_armamento": [],
+  "unidades_roles": [
+    {
+      "unidad_id": "49",
+      "role_id": "1",
+      "cantidad": "2"
+    },
+    {
+      "unidad_id": "49",
+      "role_id": "19",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "49",
+      "role_id": "20",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "49",
+      "role_id": "21",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "13",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "14",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "15",
+      "cantidad": "2"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "16",
+      "cantidad": "2"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "17",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "62",
+      "role_id": "18",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "13",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "14",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "15",
+      "cantidad": "2"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "16",
+      "cantidad": "2"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "17",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "63",
+      "role_id": "18",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "81",
+      "role_id": "22",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "81",
+      "role_id": "23",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "81",
+      "role_id": "24",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "81",
+      "role_id": "25",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "85",
+      "role_id": "22",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "85",
+      "role_id": "23",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "85",
+      "role_id": "25",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "89",
+      "role_id": "22",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "89",
+      "role_id": "23",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "89",
+      "role_id": "24",
+      "cantidad": "1"
+    },
+    {
+      "unidad_id": "89",
+      "role_id": "25",
+      "cantidad": "1"
+    }
+  ],
+  "unidades_vehiculos": [],
+  "vehiculos_municion": [],
+  "jerarquia_militar": {
+    "magnitudes": {
+      "E": {
+        "name": "Equipo",
+        "personnel_min": 3,
+        "personnel_max": 8,
+        "subordinates": [],
+        "typical_roles": [
+          "Tirador",
+          "Jefe de Equipo",
+          "Apoyo"
+        ]
+      },
+      "G": {
+        "name": "Grupo",
+        "personnel_min": 8,
+        "personnel_max": 15,
+        "subordinates": [
+          "E"
+        ],
+        "typical_roles": [
+          "Jefe de Grupo",
+          "Tiradores",
+          "Apoyo",
+          "Comunicaciones"
+        ]
+      },
+      "S": {
+        "name": "Sección",
+        "personnel_min": 15,
+        "personnel_max": 30,
+        "subordinates": [
+          "G"
+        ],
+        "typical_roles": [
+          "Jefe de Sección",
+          "Grupos de Tiradores",
+          "Grupo de Apoyo"
+        ]
+      },
+      "SU": {
+        "name": "Subunidad",
+        "personnel_min": 80,
+        "personnel_max": 150,
+        "subordinates": [
+          "S"
+        ],
+        "typical_roles": [
+          "Comandante",
+          "Secciones",
+          "Puesto Comando",
+          "Logística"
+        ]
+      },
+      "U": {
+        "name": "Unidad",
+        "personnel_min": 400,
+        "personnel_max": 800,
+        "subordinates": [
+          "SU"
+        ],
+        "typical_roles": [
+          "Comandante",
+          "Subunidades",
+          "Estado Mayor",
+          "Servicios"
+        ]
+      }
+    }
+  }
+}

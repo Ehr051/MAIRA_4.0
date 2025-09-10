@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdate": "2025-09-10",
+    "source": "MySQL_MAIRA_Original",
+    "description": "Datos militares estáticos para MAIRA 4.0"
+  },
+  
+  "sidc_magnitudes": {
+    "E": {
+      "name": "Equipo",
+      "personnel_range": [3, 8],
+      "subordinates": [],
+      "parent": "G"
+    },
+    "G": {
+      "name": "Grupo", 
+      "personnel_range": [8, 15],
+      "subordinates": ["E"],
+      "parent": "S"
+    },
+    "S": {
+      "name": "Sección",
+      "personnel_range": [15, 30],
+      "subordinates": ["G"],
+      "parent": "SU"
+    },
+    "SU": {
+      "name": "Subunidad",
+      "personnel_range": [80, 150],
+      "subordinates": ["S"],
+      "parent": "U"
+    },
+    "U": {
+      "name": "Unidad",
+      "personnel_range": [400, 800],
+      "subordinates": ["SU"],
+      "parent": null
+    }
+  },
+
+  "unit_types": {
+    "infantry": {
+      "name": "Infantería",
+      "base_speed": 4.5,
+      "available_vehicles": [],
+      "terrain_modifiers": {
+        "road": 1.0,
+        "offroad": 0.9,
+        "forest": 0.8,
+        "mountain": 0.7,
+        "urban": 0.9,
+        "desert": 0.8,
+        "snow": 0.6,
+        "swamp": 0.5
+      }
+    },
+    "mechanized": {
+      "name": "Infantería Mecanizada",
+      "base_speed": 35,
+      "available_vehicles": ["M113", "VCTP"],
+      "terrain_modifiers": {
+        "road": 1.0,
+        "offroad": 0.8,
+        "forest": 0.5,
+        "mountain": 0.6,
+        "urban": 0.7,
+        "desert": 0.9,
+        "snow": 0.7,
+        "swamp": 0.3
+      }
+    },
+    "armored_cavalry": {
+      "name": "Caballería Blindada",
+      "base_speed": 45,
+      "available_vehicles": ["VC TAM", "VC TAM 2C", "VC SK 105"],
+      "terrain_modifiers": {
+        "road": 1.0,
+        "offroad": 0.8,
+        "forest": 0.4,
+        "mountain": 0.5,
+        "urban": 0.7,
+        "desert": 0.9,
+        "snow": 0.6,
+        "swamp": 0.2
+      }
+    }
+  },
+
+  "climate_factors": {
+    "clear": {
+      "visibility_modifier": 1.0,
+      "movement_modifier": 1.0,
+      "combat_modifier": 1.0
+    },
+    "rain": {
+      "visibility_modifier": 0.8,
+      "movement_modifier": 0.7,
+      "combat_modifier": 0.9
+    },
+    "snow": {
+      "visibility_modifier": 0.6,
+      "movement_modifier": 0.5,
+      "combat_modifier": 0.8
+    },
+    "fog": {
+      "visibility_modifier": 0.4,
+      "movement_modifier": 0.8,
+      "combat_modifier": 0.7
+    },
+    "storm": {
+      "visibility_modifier": 0.3,
+      "movement_modifier": 0.4,
+      "combat_modifier": 0.6
+    }
+  }
+}

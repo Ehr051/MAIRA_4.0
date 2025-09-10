@@ -1,8 +1,7 @@
 /**
- * MAIRA 4.0 - Transitability Service (Hexagonal Architecture)
- * ==========================================================
- * Servicio modular para cálculo de transitabilidad militar
- * Convertido a formato compatible con bootstrap DDD
+ * MAIRA 4.0 - Transitability Service
+ * =================================
+ * Servicio para cálculo de transitabilidad militar
  */
 
 class TransitabilityService {
