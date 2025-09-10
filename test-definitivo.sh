@@ -100,7 +100,6 @@ echo "============================================="
 
 # Verificar archivos críticos específicos
 critical_js_files=(
-    "Client/js/bootstrap.js"
     "Client/js/config/mairaConfig.js"
     "Client/js/common/herramientasP.js"
     "Client/js/handlers/measurementHandler.js"
@@ -133,13 +132,6 @@ else
     test_resultado "fail" "URLs GitHub NO actualizadas en mairaConfig.js"
 fi
 
-# bootstrap.js con carga selectiva
-if grep -q "loadForSpecificModule\|loadSpecificModules" Client/js/bootstrap.js 2>/dev/null; then
-    test_resultado "pass" "Bootstrap con carga selectiva implementada"
-else
-    test_resultado "fail" "Bootstrap SIN carga selectiva"
-fi
-
 # Flask con node_modules
 if grep -q "node_modules" app.py 2>/dev/null; then
     test_resultado "pass" "Flask configurado para node_modules"
@@ -161,11 +153,11 @@ html_pages=(
 
 for page in "${html_pages[@]}"; do
     if [ -f "$page" ]; then
-        # Verificar que carga bootstrap.js
-        if grep -q "bootstrap.js" "$page"; then
-            test_resultado "pass" "$(basename $page) carga bootstrap.js"
+        # Verificar que tiene scripts directos (sin bootstrap)
+        if grep -q "script src.*js/" "$page"; then
+            test_resultado "pass" "$(basename $page) carga scripts directamente"
         else
-            test_resultado "fail" "$(basename $page) NO carga bootstrap.js"
+            test_resultado "fail" "$(basename $page) NO carga scripts directos"
         fi
     else
         test_resultado "fail" "$(basename $page) no encontrada"

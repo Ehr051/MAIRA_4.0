@@ -106,10 +106,9 @@ window.MAIRA.ServicesManager
 
 ### Archivos Modificados/Creados:
 ```
-✅ /Client/js/bootstrap.js - Sistema unificado completo
 ✅ /Client/js/services/ - 6 archivos convertidos y compatibles
 ❌ /Client/js/handlers/gestorTurnos.js - ELIMINADO (duplicado)
-✅ /Client/*.html - 5 archivos usando nuevo bootstrap
+✅ /Client/*.html - 5 archivos con carga directa de scripts
 ✅ /docs/PENDIENTES_JUEGO_GUERRA.md - Esta documentación
 ```
 
@@ -171,12 +170,12 @@ console.log(window.gestorTurnos || "GestorTurnos no inicializado aún");
 
 **MAIRA 4.0 ahora tiene una arquitectura DDD/Hexagonal completa** con:
 
-- ✅ **Sistema de carga unificado** (bootstrap.js)
+- ✅ **Carga directa de scripts en HTML** (sin bootstrap.js)
 - ✅ **5 servicios especializados** completamente integrados  
-- ✅ **Gestión automática de dependencias**
+- ✅ **Gestión de dependencias via node_modules**
 - ✅ **Eliminación de duplicados y conflictos**
 - ✅ **Compatibilidad total** con sistema existente
-- ✅ **Fallbacks robusts** para máxima estabilidad
+- ✅ **Fallbacks robustos** para máxima estabilidad
 
 **El sistema está listo para deploy y testing en producción.** 🚀
 

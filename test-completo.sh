@@ -24,7 +24,6 @@ echo "📁 TEST 2: Archivos Críticos del Sistema"
 echo "----------------------------------------"
 
 critical_files=(
-    "Client/js/bootstrap.js"
     "Client/js/config/mairaConfig.js"
     "Client/js/modules/measurementHandler.js"
     "Client/js/modules/elevationProfileService.js"
@@ -80,13 +79,6 @@ if grep -q "MAIRA-4.0/v4.0" Client/js/config/mairaConfig.js 2>/dev/null; then
     echo "✅ URLs de GitHub actualizadas a v4.0"
 else
     echo "❌ URLs de GitHub no actualizadas"
-fi
-
-# Verificar bootstrap.js
-if grep -q "loadForSpecificModule" Client/js/bootstrap.js 2>/dev/null; then
-    echo "✅ Bootstrap con carga selectiva implementada"
-else
-    echo "❌ Bootstrap no tiene carga selectiva"
 fi
 
 # Test 5: Verificar Flask

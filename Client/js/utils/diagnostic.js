@@ -166,9 +166,6 @@ async function runAllTests() {
         console.error('💥 ALGUNOS TESTS FALLARON - Problemas identificados');
         
         // Sugerencias específicas
-        if (!results.bootstrap) {
-            console.error('🔧 SOLUCIÓN: Verificar carga de bootstrap.js');
-        }
         if (!results.firstFile) {
             console.error('🔧 SOLUCIÓN: Verificar rutas de archivos JS en servidor');
         }

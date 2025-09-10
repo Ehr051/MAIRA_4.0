@@ -89,7 +89,6 @@ echo "============================="
 critical_files=(
     "Client/js/gaming/FogOfWar.js"
     "Client/js/legacy/index.js"
-    "Client/js/bootstrap.js"
     "Client/js/common/herramientasP.js"
 )
 
@@ -115,13 +114,6 @@ if grep -q "releases/download/v4.0" Client/js/config/mairaConfig.js 2>/dev/null;
     test_resultado "pass" "URLs GitHub v4.0 configuradas"
 else
     test_resultado "fail" "URLs GitHub NO configuradas"
-fi
-
-# Bootstrap con carga selectiva (búsqueda corregida)
-if grep -q "loadForSpecificModule" Client/js/bootstrap.js 2>/dev/null; then
-    test_resultado "pass" "Bootstrap con carga selectiva"
-else
-    test_resultado "fail" "Bootstrap SIN carga selectiva"
 fi
 
 # Flask
