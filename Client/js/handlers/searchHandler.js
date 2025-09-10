@@ -298,10 +298,22 @@ class SearchHandler {
 // ✅ CREAR INSTANCIA GLOBAL
 const searchHandler = new SearchHandler();
 
-// ✅ EXPORTAR FUNCIÓN GLOBAL PARA COMPATIBILIDAD
-window.initializeBuscarLugar = function() {
+// ✅ EXPORTAR FUNCIÓN GLOBAL PARA COMPATIBILIDAD - INMEDIATO Y ROBUSTO
+function initializeBuscarLugar() {
     return searchHandler.initializeBuscarLugar();
-};
+}
+
+// ✅ ASEGURAR DISPONIBILIDAD GLOBAL INMEDIATA
+window.initializeBuscarLugar = initializeBuscarLugar;
+window.searchHandler = searchHandler;
+
+// ✅ VERIFICACIÓN ROBUSTA - Si hay problemas de timing
+setTimeout(() => {
+    if (typeof window.initializeBuscarLugar !== 'function') {
+        console.warn('⚠️ initializeBuscarLugar no disponible, re-exportando...');
+        window.initializeBuscarLugar = initializeBuscarLugar;
+    }
+}, 50);
 
 // ✅ EXPORTAR PARA MAIRA NAMESPACE
 if (!window.MAIRA) window.MAIRA = {};

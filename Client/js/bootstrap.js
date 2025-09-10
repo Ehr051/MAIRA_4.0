@@ -334,35 +334,35 @@
     window.MAIRABootstrap.loadForSpecificModule = function(pageName) {
         console.log(`🎯 Carga selectiva COMPLETA para: ${pageName}`);
         
-        // 📋 CONFIGURACIÓN DE CSS POR PÁGINA
+        // 📋 CONFIGURACIÓN DE CSS POR PÁGINA - RUTAS CORREGIDAS 
         const pageCSS = {
             'planeamiento': [
-                'Client/css/planeamiento.css',
-                'Client/css/hexgrid.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/common/planeamiento.css',
+                'Client/css/modules/juegodeguerra/hexgrid.css'
+                // ✅ responsive-fixes.css no existe - removido
             ],
             'CO': [
-                'Client/css/CO.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/CO.css'
+                // ✅ responsive-fixes.css no existe - removido
             ],
             'juegodeguerra': [
                 'Client/css/juegodeguerra.css',
-                'Client/css/hexgrid.css',
-                'Client/css/GBatalla.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/modules/juegodeguerra/hexgrid.css',
+                'Client/css/GBatalla.css'
+                // ✅ responsive-fixes.css no existe - removido
             ],
             'inicioGB': [
-                'Client/css/inicioGB.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/inicioGB.css'
+                // ✅ responsive-fixes.css no existe - removido
             ],
             'gestionbatalla': [
-                'Client/css/GBatalla.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/GBatalla.css'
+                // ✅ responsive-fixes.css no existe - removido
             ],
             'index': [
                 'Client/css/style.css',
-                'Client/css/carrusel.css',
-                'Client/css/responsive-fixes.css'
+                'Client/css/carrusel.css'
+                // ✅ responsive-fixes.css no existe - removido
             ]
         };
 
