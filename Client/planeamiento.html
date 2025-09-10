@@ -44,6 +44,10 @@
   <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
   <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  
+  <!-- Three.js para visualización 3D -->
+  <script src="/node_modules/three/build/three.min.js"></script>
+  
   <script type="module">
     import * as mgrs from '/node_modules/mgrs/mgrs.js';
     window.mgrs = mgrs;
@@ -74,7 +78,7 @@
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/slopeAnalysisService.js"></script>
   <script src="js/services/elevationProfileService.js"></script>
-  <!-- <script src="js/services/threeDMapService.js"></script> --> <!-- ❌ DESHABILITADO: Causa errores ES6 modules -->
+  <script src="js/services/threeDMapService.js"></script>
   
   <!-- Handlers de terreno -->
   <!-- <script src="js/workers/elevation.worker.js"></script> --> <!-- Workers se cargan dinámicamente -->
@@ -103,7 +107,6 @@
   <script src="js/common/toolsInitializer.js"></script>
   <script src="js/common/dibujosMCCP.js"></script>
   <script src="js/common/edicioncompleto.js"></script>
-  <!-- <script src="js/ui/paneledicionCO.js"></script> --> <!-- ❌ DESHABILITADO: Específico de CO, no necesario en planeamiento -->
   <script src="js/common/atajosP.js"></script>
   <script src="js/common/unidades.js"></script>
   <script src="js/common/partidas.js"></script>
@@ -957,7 +960,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'toggleMenu', 
             'seleccionarElemento',
             'finalizarMedicion',
-            'clearCache'
+            'obtenerJugadorPropietario'
         ];
         
         let funcionesOK = 0;
@@ -975,17 +978,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // Verificar objetos globales
         console.log('📋 Verificando objetos globales:');
         console.log('- MAIRA.UserIdentity:', typeof window.MAIRA?.UserIdentity);
-        console.log('- gestorTurnos:', typeof window.gestorTurnos);
         console.log('- mapa:', typeof window.mapa);
         
         // Verificar elemento de medición
         const medicionElement = document.getElementById('medicionDistancia');
         console.log('- #medicionDistancia:', medicionElement ? 'Encontrado' : 'NO ENCONTRADO');
         
-        if (funcionesOK === funcionesCriticas.length) {
-            console.log('🎉 TODAS LAS FUNCIONES CRÍTICAS RESTAURADAS');
+        // Test específico para planeamiento
+        console.log('🎯 Test específico de planeamiento:');
+        const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
+                                 document.title.includes('Planeamiento');
+        console.log('- Modo planeamiento detectado:', esModoPlaneamiento);
+        
+        if (typeof window.obtenerJugadorPropietario === 'function') {
+            const jugador = window.obtenerJugadorPropietario();
+            console.log('- Jugador propietario:', jugador);
+        }
+        
+        // Verificar herramientas refactorizadas
+        console.log('🔧 Verificando herramientas refactorizadas:');
+        console.log('- measurementHandler:', typeof window.measurementHandler);
+        console.log('- toolsInitializer:', typeof window.toolsInitializer);
+        
+        if (funcionesOK === funcionesCriticas.length && esModoPlaneamiento) {
+            console.log('🎉 TODAS LAS FUNCIONES CRÍTICAS RESTAURADAS PARA PLANEAMIENTO');
+            console.log('✅ Sistema listo para editar elementos sin validaciones innecesarias');
         } else {
-            console.log('⚠️ Algunas funciones aún faltan');
+            console.log('⚠️ Algunas funciones aún faltan o contexto incorrecto');
         }
         
     }, 2000);

@@ -5,9 +5,9 @@
  * Convertido a formato compatible con bootstrap DDD
  */
 
-// NOTA: Para usar Three.js, debe estar cargado previamente
-// <script src="https://cdn.skypack.dev/three@0.144.0"></script>
-// <script src="https://cdn.skypack.dev/three@0.144.0/examples/jsm/controls/OrbitControls.js"></script>
+// NOTA: Three.js se carga desde node_modules en planeamiento.html:
+// <script src="/node_modules/three/build/three.min.js"></script>
+// OrbitControls se carga dinámicamente como módulo ES6
 
 class ThreeDMapService {
     constructor(core) {
@@ -97,19 +97,28 @@ class ThreeDMapService {
     }
 
     async setupControls() {
-        // Verificar que OrbitControls esté disponible
-        if (typeof THREE.OrbitControls === 'undefined' && typeof OrbitControls === 'undefined') {
-            console.warn('⚠️ OrbitControls no disponible, usando controles básicos');
-            return;
+        try {
+            // Verificar que Three.js esté disponible
+            if (typeof THREE === 'undefined') {
+                console.warn('⚠️ Three.js no está disponible');
+                return;
+            }
+
+            // Cargar OrbitControls dinámicamente desde node_modules
+            const { OrbitControls } = await import('/node_modules/three/examples/jsm/controls/OrbitControls.js');
+            
+            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+            this.controls.enableDamping = true;
+            this.controls.dampingFactor = 0.05;
+            this.controls.maxPolarAngle = Math.PI / 2;
+            this.controls.minDistance = 100;
+            this.controls.maxDistance = 5000;
+            
+            console.log('✅ OrbitControls cargado desde node_modules');
+        } catch (error) {
+            console.warn('⚠️ Error cargando OrbitControls:', error);
+            console.warn('⚠️ Continuando sin controles avanzados');
         }
-        
-        const Controls = THREE.OrbitControls || OrbitControls;
-        this.controls = new Controls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.maxPolarAngle = Math.PI / 2;
-        this.controls.minDistance = 100;
-        this.controls.maxDistance = 5000;
     }
 
     async setupLights() {
@@ -519,35 +528,24 @@ function generateBasicTerrain() {
  */
 function loadThreeJS() {
     return new Promise((resolve, reject) => {
+        // Three.js ya se carga desde node_modules en planeamiento.html
         if (window.THREE) {
+            console.log('✅ Three.js ya está disponible desde node_modules');
             resolve();
             return;
         }
         
-        console.log('📦 Cargando Three.js desde CDN...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.skypack.dev/three@0.144.0';
-        script.onload = () => {
-            console.log('✅ Three.js cargado');
-            // Cargar OrbitControls
-            const controlsScript = document.createElement('script');
-            controlsScript.type = 'module';
-            controlsScript.innerHTML = `
-                import { OrbitControls } from 'https://cdn.skypack.dev/three@0.144.0/examples/jsm/controls/OrbitControls.js';
-                window.OrbitControls = OrbitControls;
-            `;
-            controlsScript.onload = () => {
-                console.log('✅ OrbitControls cargado');
+        // Si por alguna razón Three.js no está disponible, esperar un poco y reintentar
+        console.log('⏳ Esperando que Three.js se cargue desde node_modules...');
+        setTimeout(() => {
+            if (window.THREE) {
+                console.log('✅ Three.js ahora está disponible');
                 resolve();
-            };
-            controlsScript.onerror = (error) => {
-                console.warn('⚠️ Error cargando OrbitControls, continuando sin controles avanzados');
-                resolve(); // Resolver de todas formas
-            };
-            document.head.appendChild(controlsScript);
-        };
-        script.onerror = reject;
-        document.head.appendChild(script);
+            } else {
+                console.error('❌ Three.js no se pudo cargar desde node_modules');
+                reject(new Error('Three.js no disponible'));
+            }
+        }, 1000);
     });
 }
 

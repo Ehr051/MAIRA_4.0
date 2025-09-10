@@ -66,7 +66,7 @@ class ToolsInitializer {
     esperarModulos() {
         return new Promise((resolve) => {
             const startTime = Date.now();
-            const maxWaitTime = 10000; // 10 segundos máximo
+            const maxWaitTime = 5000; // Reducido a 5 segundos
             
             const verificarModulos = () => {
                 // ✅ VERIFICAR FUNCIONES GLOBALES QUE SÍ EXISTEN (de herramientasP.js refactorizado)
@@ -80,24 +80,30 @@ class ToolsInitializer {
                     'deseleccionarElemento'
                 ];
 
-                const funcionesDisponibles = funcionesRequeridas.every(func => 
+                const funcionesDisponibles = funcionesRequeridas.filter(func => 
                     typeof window[func] === 'function'
                 );
 
-                if (funcionesDisponibles) {
-                    console.log('✅ Todas las funciones de herramientas cargadas');
+                // ✅ MEJORAR: Permitir que funcione con al menos funciones básicas
+                if (funcionesDisponibles.length >= 4) { // Al menos 4 de 7 funciones
+                    console.log(`✅ Funciones de herramientas cargadas (${funcionesDisponibles.length}/7):`, funcionesDisponibles);
+                    const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
+                    if (faltantes.length > 0) {
+                        console.log('ℹ️ Funciones pendientes:', faltantes);
+                    }
                     resolve();
                 } else {
                     const tiempoTranscurrido = Date.now() - startTime;
                     
                     if (tiempoTranscurrido > maxWaitTime) {
                         const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
-                        console.warn('⚠️ Timeout esperando funciones, continuando sin:', faltantes);
+                        console.warn('⚠️ Timeout esperando funciones, continuando con funciones disponibles:', funcionesDisponibles);
+                        console.warn('⚠️ Funciones faltantes:', faltantes);
                         resolve(); // Resolver de todas formas para evitar bloqueo
                     } else {
                         const faltantes = funcionesRequeridas.filter(func => typeof window[func] !== 'function');
-                        console.log('⏳ Esperando funciones:', faltantes);
-                        setTimeout(verificarModulos, 100);
+                        console.log(`⏳ Esperando funciones (${funcionesDisponibles.length}/7 listas):`, faltantes);
+                        setTimeout(verificarModulos, 200); // Intervalo más largo
                     }
                 }
             };
