@@ -49,8 +49,7 @@
                 activa: false,
                 puntos: [],
                 linea: null,
-                marcadores: [],
-                display: null
+                marcadores: []
             };
         }
         
@@ -65,6 +64,7 @@
         
         // Iniciar nueva medición
         state.activa = true;
+        window.measuringDistance = true; // Variable global para toolsInitializer
         state.puntos = [];
         state.marcadores = [];
         
@@ -83,7 +83,7 @@
         // Cambiar cursor
         window.mapa.getContainer().style.cursor = 'crosshair';
         
-        // Mostrar display de medición
+        // Mostrar display de medición (usando elemento HTML existente)
         window.mostrarDisplayMedicion();
         
         console.log('✅ Medición iniciada - Click para agregar puntos, doble-click para finalizar');
@@ -162,57 +162,56 @@
         console.warn("measurementHandler no disponible");
     };
 
-    // Mostrar display de medición
-    window.mostrarDisplayMedicion = function() {
-        const state = window.medicionState;
-        
-        // Remover display anterior si existe
-        if (state.display) {
-            state.display.remove();
+    // Función mostrarPerfilElevacion para compatibilidad
+    window.mostrarPerfilElevacion = function() {
+        console.log('📊 Mostrando perfil de elevación');
+        if (window.elevationProfileService) {
+            return window.elevationProfileService.mostrarPerfilElevacion.apply(this, arguments);
         }
+        console.warn("elevationProfileService no disponible");
+    };
+
+    // Función deseleccionarElemento para compatibilidad
+    window.deseleccionarElemento = function() {
+        console.log('🎯 Deseleccionando elementos');
         
-        // Crear nuevo display
-        state.display = document.createElement('div');
-        state.display.id = 'medicionDistancia';
-        state.display.innerHTML = `
-            <div style="
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                z-index: 9999;
-                font-family: Arial, sans-serif;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                border: 2px solid #ff4444;
-            ">
-                <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 5px;">
-                    📏 MIDIENDO DISTANCIA
-                </div>
-                <div style="font-size: 0.9em; color: #ccc; margin-bottom: 8px;">
-                    Click: agregar punto | Doble-click: finalizar
-                </div>
-                <div id="distanciaActual" style="
-                    font-size: 1.4em; 
-                    font-weight: bold; 
-                    color: #ffff00;
-                    text-align: center;
-                ">0 m</div>
-            </div>
-        `;
-        document.body.appendChild(state.display);
+        const seleccionados = document.querySelectorAll('.elemento-seleccionado');
+        seleccionados.forEach(el => el.classList.remove('elemento-seleccionado'));
+        
+        // Limpiar variable global
+        window.elementoSeleccionado = null;
+        
+        console.log('✅ Elementos deseleccionados');
+        return true;
+    };
+
+    // Mostrar display de medición (usar elemento HTML existente)
+    window.mostrarDisplayMedicion = function() {
+        const displayElement = document.getElementById('medicionDistancia');
+        if (displayElement) {
+            displayElement.style.display = 'flex';
+            window.actualizarDisplayMedicion(0);
+            
+            // Configurar botón de cerrar si existe
+            const cerrarBtn = document.getElementById('cerrarMedicion');
+            if (cerrarBtn) {
+                cerrarBtn.onclick = function() {
+                    window.finalizarMedicion();
+                };
+            }
+        } else {
+            console.warn('⚠️ Elemento #medicionDistancia no encontrado en HTML');
+        }
     };
     
-    // Actualizar display de medición
+    // Actualizar display de medición (usar elemento HTML existente)
     window.actualizarDisplayMedicion = function(distancia) {
-        const display = document.getElementById('distanciaActual');
-        if (display) {
+        const textoElement = document.getElementById('textoMedicion');
+        if (textoElement) {
             if (distancia >= 1000) {
-                display.textContent = `${(distancia / 1000).toFixed(2)} km`;
+                textoElement.textContent = `Distancia: ${(distancia / 1000).toFixed(2)} km`;
             } else {
-                display.textContent = `${distancia.toFixed(0)} m`;
+                textoElement.textContent = `Distancia: ${distancia.toFixed(0)} m`;
             }
         }
     };
@@ -230,14 +229,15 @@
         // Restaurar cursor
         window.mapa.getContainer().style.cursor = '';
         
-        // Ocultar display
-        if (state.display) {
-            state.display.remove();
-            state.display = null;
+        // Ocultar display (usar elemento HTML existente)
+        const displayElement = document.getElementById('medicionDistancia');
+        if (displayElement) {
+            displayElement.style.display = 'none';
         }
         
         // Limpiar estado (mantener línea y marcadores en el mapa)
         state.activa = false;
+        window.measuringDistance = false; // Variable global para toolsInitializer
         
         console.log('✅ Medición completada');
     };
@@ -313,6 +313,120 @@
         }
         console.warn("geometryUtils no disponible");
     };
+
+    // Función toggleMenu para compatibilidad
+    window.toggleMenu = function(menuId) {
+        console.log('🔧 Intentando alternar menú:', menuId);
+        
+        const menu = document.getElementById(menuId);
+        if (!menu) {
+            console.warn(`⚠️ Menú '${menuId}' no encontrado`);
+            return false;
+        }
+        
+        // Método simple y compatible
+        menu.classList.toggle('show');
+        
+        const esVisible = menu.classList.contains('show');
+        console.log(`✅ Menú '${menuId}' ${esVisible ? 'mostrado' : 'ocultado'}`);
+        
+        return true;
+    };
+
+    // Función seleccionarElemento para compatibilidad
+    window.seleccionarElemento = function(elemento) {
+        console.log('🎯 Seleccionando elemento:', elemento);
+        
+        if (!elemento) {
+            console.warn('⚠️ Elemento no válido para seleccionar');
+            return false;
+        }
+        
+        // Remover selección anterior
+        const seleccionados = document.querySelectorAll('.elemento-seleccionado');
+        seleccionados.forEach(el => el.classList.remove('elemento-seleccionado'));
+        
+        // Agregar selección al nuevo elemento
+        if (elemento.classList) {
+            elemento.classList.add('elemento-seleccionado');
+        }
+        
+        console.log('✅ Elemento seleccionado');
+        return true;
+    };
+
+    // MAIRA UserIdentity stub para compatibilidad temporal
+    if (!window.MAIRA) {
+        window.MAIRA = {};
+    }
+    
+    if (!window.MAIRA.UserIdentity) {
+        window.MAIRA.UserIdentity = {
+            isAuthenticated: function() {
+                return localStorage.getItem('userId') !== null;
+            },
+            getUserId: function() {
+                return localStorage.getItem('userId') || 'user_' + Date.now();
+            },
+            getUsername: function() {
+                return localStorage.getItem('username') || 'Usuario';
+            },
+            getUserData: function() {
+                return {
+                    id: this.getUserId(),
+                    username: this.getUsername(),
+                    isAuthenticated: this.isAuthenticated()
+                };
+            }
+        };
+        console.log('✅ UserIdentity stub inicializado');
+    }
+
+    // gestorTurnos stub para compatibilidad temporal
+    if (!window.gestorTurnos) {
+        window.gestorTurnos = {
+            obtenerJugadorPropietario: function() {
+                // Devolver el ID del usuario actual
+                if (window.MAIRA && window.MAIRA.UserIdentity) {
+                    return window.MAIRA.UserIdentity.getUserId();
+                }
+                return localStorage.getItem('userId') || 'player_1';
+            }
+        };
+        console.log('✅ gestorTurnos stub inicializado');
+    }
+
+    // MAIRA.Utils stub para notificaciones
+    if (!window.MAIRA.Utils) {
+        window.MAIRA.Utils = {
+            mostrarNotificacion: function(mensaje, tipo) {
+                console.log(`[${tipo?.toUpperCase() || 'INFO'}] ${mensaje}`);
+                // Mostrar una alerta simple por ahora
+                if (tipo === 'error') {
+                    alert(`Error: ${mensaje}`);
+                }
+            }
+        };
+        console.log('✅ MAIRA.Utils stub inicializado');
+    }
+
+    // Funciones para optimización de rendimiento
+    window.clearCache = function() {
+        console.log('🧹 Limpiando cache...');
+        // Stub básico para clearCache
+        if (window.caches) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
+        }
+        console.log('✅ Cache limpiado');
+    };
+
+    // Variables globales para compatibilidad
+    window.measuringDistance = false;
+    window.elementoSeleccionado = null;
 
     console.log("✅ herramientasP.js stub cargado - funcionalidad en módulos especializados");
 })();
