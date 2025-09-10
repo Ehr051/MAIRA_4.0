@@ -20,32 +20,76 @@
     <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/node_modules/proj4/dist/proj4.js"></script>
     
-    <!-- 🚀 MAIRA DDD Bootstrap - Carga unificada de todos los JS -->
-    <script src="js/bootstrap.js"></script>
+    <!-- =============================================
+         CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0 - INICIO GB
+         ============================================= -->
+         
+    <!-- 🏗️ CORE DEPENDENCIES -->
+    <script src="js/core/UserIdentity.js"></script>
+    
+    <!-- 🌐 COMMON -->
+    <script src="js/common/networkConfig.js"></script>
+    <script src="js/common/MAIRAChat.js"></script>
+    
+    <!-- 🏢 INICIO GB ESPECÍFICOS -->
+    <script src="js/modules/gestion/inicioGBhandler.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                if (typeof MAIRABootstrap !== 'undefined') {
-                    console.log('🚀 Cargando módulo INICIO GB con DDD Bootstrap...');
-                    await MAIRABootstrap.loadForModule('inicioGB');
-                    console.log('✅ Módulo INICIO GB cargado completamente');
-                } else {
-                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
-                    // Fallback: cargar scripts manualmente si bootstrap falla
-                    const scripts = [
-                        '/Client/js/common/networkConfig.js',
-                        '/Client/js/common/MAIRAChat.js',
-                        '/Client/js/modules/gestion/inicioGBhandler.js'
-                    ];
-                    
-                    for (const src of scripts) {
-                        const script = document.createElement('script');
-                        script.src = src;
-                        document.head.appendChild(script);
-                    }
+        // 🚀 INICIALIZACIÓN DIRECTA INICIO GB
+        async function initializeInicioGB() {
+            console.log('🚀 MAIRA 4.0 - Iniciando Sala Operaciones (Modo Directo)...');
+            
+            // Verificar dependencias críticas
+            if (typeof $ === 'undefined') {
+                console.error('❌ jQuery no cargado');
+                return;
+            }
+            
+            if (typeof ms === 'undefined') {
+                console.error('❌ Milsymbol no cargado');
+                return;
+            }
+            
+            if (typeof proj4 === 'undefined') {
+                console.error('❌ Proj4 no cargado');
+                return;
+            }
+            
+            // 🔌 VERIFICAR SOCKET.IO
+            if (typeof io !== 'undefined') {
+                console.log('✅ Socket.IO disponible globalmente');
+            } else {
+                console.warn('⚠️ Socket.IO no disponible - funciones de red limitadas');
+            }
+            
+            // Inicializar específicos de Inicio GB
+            if (typeof inicializarInicioGB === 'function') {
+                try {
+                    inicializarInicioGB();
+                    console.log('✅ Inicio GB inicializado');
+                } catch (error) {
+                    console.error('❌ Error inicializando Inicio GB:', error);
                 }
-            } catch (error) {
-                console.error('💥 Error cargando módulo INICIO GB:', error);
+            }
+            
+            console.log('✅ Dependencias básicas cargadas');
+            console.log('🏢 INICIO GB inicializado correctamente');
+            
+            window.InicioGBInitialized = true;
+        }
+        
+        // Inicializar cuando el DOM esté listo o inmediatamente si ya está cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeInicioGB);
+        } else {
+            initializeInicioGB();
+        }
+        
+        // Backup: También inicializar cuando window esté completamente cargado
+        window.addEventListener('load', () => {
+            if (!window.InicioGBInitialized) {
+                console.log('� Inicialización backup desde window.load');
+                initializeInicioGB();
             }
         });
     </script>

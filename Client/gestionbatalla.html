@@ -63,37 +63,125 @@
   <!-- NOTA: leaflet.pattern.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
-       NUEVA ARQUITECTURA DDD/HEXAGONAL
-       Bootstrap unificado que maneja todas las dependencias MAIRA
+       CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0 - GESTIÓN BATALLA
        ============================================= -->
-  <script src="js/bootstrap.js"></script>
+       
+  <!-- 🏗️ CORE DEPENDENCIES -->
+  <script src="js/core/LoggerService.js"></script>
+  <script src="js/core/ConfigManager.js"></script>
+  <script src="js/config/GameConfiguration.js"></script>
+  <script src="js/common/EventBus.js"></script>
+  <script src="js/common/BaseComponent.js"></script>
+
+  <!-- 🔧 UTILS -->
+  <script src="js/utils/coordinates.js"></script>
+  <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/utils/validationUtils.js"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/UIUtils.js"></script>
+  <script src="js/utils/utilsGB.js"></script>
+
+  <!-- 🏛️ INFRASTRUCTURE -->
+  <script src="js/infrastructure/ApiClient.js"></script>
+  <script src="js/infrastructure/GameStateManager.js"></script>
+  <script src="js/infrastructure/SocketManager.js"></script>
+
+  <!-- 🔄 SERVICES -->
+  <script src="js/services/operationalService.js"></script>
+  <script src="js/services/GeolocationService.js"></script>
+  <script src="js/services/GameService.js"></script>
+  <script src="js/services/UnitService.js"></script>
+  <script src="js/services/TimeService.js"></script>
+  <script src="js/services/MilSymbolService.js"></script>
+  <script src="js/services/TerrainService.js"></script>
+  <script src="js/services/FileService.js"></script>
+  <script src="js/services/threeDMapService.js"></script>
+
+  <!-- 🌐 COMMON -->
+  <script src="js/common/networkConfig.js"></script>
+  <script src="js/common/MAIRAChat.js"></script>
+  <script src="js/common/miradial.js"></script>
+  <script src="js/common/panelMarcha.js"></script>
+  <script src="js/common/mapaP.js"></script>
+  <script src="js/common/simbolosP.js"></script>
+  <script src="js/common/herramientasP.js"></script>
+  <script src="js/common/toolsInitializer.js"></script>
+  <script src="js/common/dibujosMCCP.js"></script>
+  <script src="js/common/atajosP.js"></script>
+  <script src="js/common/CalculoMarcha.js"></script>
+  <script src="js/common/graficoMarcha.js"></script>
+  <script src="js/utils/calcosP.js"></script>
+  <script src="js/common/unidades.js"></script>
+  <script src="js/common/partidas.js"></script>
+
+  <!-- 🎯 HANDLERS -->
+  <script src="js/handlers/unitHandler.js"></script>
+  <script src="js/handlers/mapHandler.js"></script>
+  <script src="js/handlers/interfaceHandler.js"></script>
+  <script src="js/handlers/gameHandler.js"></script>
+  <script src="js/handlers/drawHandler.js"></script>
+  <script src="js/handlers/measurementHandler.js"></script>
+  <script src="js/handlers/pendienteHandler.js"></script>
+  <script src="js/handlers/transitabilidadHandler.js"></script>
+  <script src="js/handlers/performanceOptimizer.js"></script>
+
+  <!-- ⚔️ GESTIÓN BATALLA ESPECÍFICOS -->
+  <script src="js/modules/gestion/edicionGB.js"></script>
+  <script src="js/modules/gestion/informesGB.js"></script>
+  <script src="js/modules/gestion/elementosGB.js"></script>
+  <script src="js/modules/gestion/gestionBatalla.js"></script>
+  <script src="js/gaming/AIDirector.js"></script>
+
   <script>
-    // Inicialización DDD para módulo Gestión de Batalla
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        console.log('🚀 Iniciando MAIRA 4.0 - Módulo Gestión de Batalla');
+    // 🚀 INICIALIZACIÓN DIRECTA GESTIÓN BATALLA
+    async function initializeGestionBatalla() {
+        console.log('🚀 MAIRA 4.0 - Iniciando Gestión de Batalla (Modo Directo)...');
         
-        // Usar el bootstrap unificado siguiendo principios DDD
-        if (typeof MAIRABootstrap !== 'undefined') {
-          await MAIRABootstrap.loadForModule('gestionbatalla');
-          console.log('✅ Bootstrap DDD completado para módulo Gestión de Batalla');
-          
-          // Cargar dependencias específicas de gestión de batalla (leaflet-pattern, etc.)
-          if (typeof loadGestionBatallaDependencies === 'function') {
-            console.log('⚔️ Cargando dependencias específicas de gestión de batalla...');
-            await loadGestionBatallaDependencies();
-            console.log('✅ Dependencias de gestión de batalla cargadas completamente');
-          } else {
-            console.warn('⚠️ loadGestionBatallaDependencies no disponible');
-          }
-          
-        } else {
-          console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
-          // Fallback de emergencia si falla el bootstrap
+        // Verificar dependencias críticas
+        if (typeof $ === 'undefined') {
+            console.error('❌ jQuery no cargado');
+            return;
         }
-      } catch (error) {
-        console.error('❌ Error en bootstrap DDD:', error);
-      }
+        
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet no cargado');
+            return;
+        }
+        
+        if (typeof ms === 'undefined') {
+            console.error('❌ Milsymbol no cargado');
+            return;
+        }
+        
+        // Inicializar específicos de Gestión Batalla
+        if (typeof inicializarGestionBatalla === 'function') {
+            try {
+                inicializarGestionBatalla();
+                console.log('✅ Gestión de Batalla inicializada');
+            } catch (error) {
+                console.error('❌ Error inicializando Gestión de Batalla:', error);
+            }
+        }
+        
+        console.log('✅ Dependencias básicas cargadas');
+        console.log('⚔️ GESTIÓN BATALLA inicializada correctamente');
+        
+        window.GestionBatallaInitialized = true;
+    }
+    
+    // Inicializar cuando el DOM esté listo o inmediatamente si ya está cargado
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeGestionBatalla);
+    } else {
+        initializeGestionBatalla();
+    }
+    
+    // Backup: También inicializar cuando window esté completamente cargado
+    window.addEventListener('load', () => {
+        if (!window.GestionBatallaInitialized) {
+            console.log('🔄 Inicialización backup desde window.load');
+            initializeGestionBatalla();
+        }
     });
   </script>
 

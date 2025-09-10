@@ -12,71 +12,95 @@
     <!-- NOTA: Los CSS personalizados ahora se cargan dinámicamente DESPUÉS de las dependencias -->
     
     <!-- =============================================
-         NUEVA ARQUITECTURA DDD/HEXAGONAL
-         Bootstrap unificado que maneja todas las dependencias
+         CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0 - MÓDULO CO
          ============================================= -->
-    <script src="js/bootstrap.js"></script>
+         
+    <!-- 🏗️ CORE DEPENDENCIES -->
+    <script src="js/core/LoggerService.js"></script>
+    <script src="js/core/ConfigManager.js"></script>
+    <script src="js/config/GameConfiguration.js"></script>
+    <script src="js/common/EventBus.js"></script>
+    <script src="js/common/BaseComponent.js"></script>
+
+    <!-- 🔧 UTILS -->
+    <script src="js/utils/coordinates.js"></script>
+    <script src="js/utils/geometryUtils.js"></script>
+    <script src="js/utils/validationUtils.js"></script>
+    <script src="js/utils/performance.js"></script>
+    <script src="js/utils/UIUtils.js"></script>
+
+    <!-- 🏛️ INFRASTRUCTURE -->
+    <script src="js/infrastructure/ApiClient.js"></script>
+    <script src="js/infrastructure/GameStateManager.js"></script>
+    <script src="js/infrastructure/SocketManager.js"></script>
+
+    <!-- 🔄 SERVICES -->
+    <script src="js/services/operationalService.js"></script>
+    <script src="js/services/GeolocationService.js"></script>
+    <script src="js/services/threeDMapService.js"></script>
+
+    <!-- 🌐 COMMON -->
+    <script src="js/common/networkConfig.js"></script>
+    <script src="js/common/MAIRAChat.js"></script>
+
+    <!-- 🎯 HANDLERS -->
+    <script src="js/handlers/unitHandler.js"></script>
+    <script src="js/handlers/interfaceHandler.js"></script>
+
+    <!-- 🏗️ ORGANIZACIÓN ESPECÍFICOS -->
+    <script src="js/ui/paneledicionCO.js"></script>
+    <script src="js/modules/organizacion/conexionesCO.js"></script>
+    <script src="js/modules/organizacion/CO.js"></script>
+
     <script>
-        // Inicialización DDD para módulo Organización
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                console.log('🚀 Iniciando MAIRA 4.0 - Módulo Organización');
-                
-                // Usar el bootstrap unificado siguiendo principios DDD
-                if (typeof MAIRABootstrap !== 'undefined') {
-                    await MAIRABootstrap.loadForModule('organizacion');
-                    console.log('✅ Bootstrap DDD completado para módulo Organización');
-                    
-                    // Cargar dependencias específicas de organización (jsPlumb, etc.)
-                    if (typeof loadOrganizacionDependencies === 'function') {
-                        console.log('🏗️ Cargando dependencias específicas de organización...');
-                        await loadOrganizacionDependencies();
-                        console.log('✅ Dependencias de organización cargadas completamente');
-                    } else {
-                        console.warn('⚠️ loadOrganizacionDependencies no disponible');
-                    }
-                    
-                    // Inicialización específica del módulo CO
-                    setTimeout(function() {
-                        if (typeof inicializarCuadroOrganizacion === 'function') {
-                            inicializarCuadroOrganizacion();
-                            console.log('✅ Cuadro de Organización inicializado');
-                        } else {
-                            console.error('❌ Función inicializarCuadroOrganizacion no encontrada');
-                        }
-                        
-                        // Verificar integración MAIRA
-                        if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
-                            console.log('✅ MAIRA.CuadroOrganizacion disponible');
-                        } else {
-                            console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
-                        }
-                    }, 100);
-                } else {
-                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
-                    // Fallback de emergencia si falla el bootstrap - cargar scripts críticos manualmente
-                    const criticalScripts = [
-                        '/node_modules/jquery/dist/jquery.min.js',
-                        '/node_modules/bootstrap/dist/js/bootstrap.min.js',
-                        '/node_modules/leaflet/dist/leaflet.js',
-                        '/node_modules/proj4/dist/proj4.js',
-                        '/node_modules/milsymbol/dist/milsymbol.js',
-                        '/node_modules/jsplumb/dist/js/jsplumb.min.js'
-                    ];
-                    
-                    for (const src of criticalScripts) {
-                        const script = document.createElement('script');
-                        script.src = src;
-                        document.head.appendChild(script);
-                        console.log(`⚠️ Fallback: Cargado ${src}`);
-                    }
-                    
-                    // Cargar CSS críticos en fallback
-                    const criticalCSS = [
-                        '/node_modules/bootstrap/dist/css/bootstrap.min.css',
-                        '/node_modules/leaflet/dist/leaflet.css',
-                        '/node_modules/@fortawesome/fontawesome-free/css/all.min.css'
-                    ];
+        // 🚀 INICIALIZACIÓN DIRECTA MÓDULO CO
+        async function initializeCO() {
+            console.log('🚀 MAIRA 4.0 - Iniciando Módulo Organización (Modo Directo)...');
+            
+            // Verificar dependencias críticas
+            if (typeof $ === 'undefined') {
+                console.error('❌ jQuery no cargado');
+                return;
+            }
+            
+            // Inicializar Cuadro de Organización si existe
+            if (typeof inicializarCuadroOrganizacion === 'function') {
+                try {
+                    inicializarCuadroOrganizacion();
+                    console.log('✅ Cuadro de Organización inicializado');
+                } catch (error) {
+                    console.error('❌ Error inicializando Cuadro de Organización:', error);
+                }
+            }
+            
+            // Verificar integración MAIRA
+            if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
+                console.log('✅ MAIRA.CuadroOrganizacion disponible');
+            } else {
+                console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
+            }
+            
+            console.log('✅ Dependencias básicas cargadas');
+            console.log('🏗️ MÓDULO CO inicializado correctamente');
+            
+            window.COInitialized = true;
+        }
+        
+        // Inicializar cuando el DOM esté listo o inmediatamente si ya está cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCO);
+        } else {
+            initializeCO();
+        }
+        
+        // Backup: También inicializar cuando window esté completamente cargado
+        window.addEventListener('load', () => {
+            if (!window.COInitialized) {
+                console.log('🔄 Inicialización backup desde window.load');
+                initializeCO();
+            }
+        });
+    </script>
                     
                     for (const href of criticalCSS) {
                         const link = document.createElement('link');

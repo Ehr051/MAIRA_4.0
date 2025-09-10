@@ -20,42 +20,73 @@
     <script src="/node_modules/proj4/dist/proj4.js"></script>
     
     <!-- =============================================
-         NUEVA ARQUITECTURA DDD/HEXAGONAL
-         Bootstrap unificado que maneja todas las dependencias
+         CARGA DIRECTA DE DEPENDENCIAS MAIRA 4.0 - INICIAR PARTIDA
          ============================================= -->
-    <script src="js/bootstrap.js"></script>
+         
+    <!-- 🏗️ CORE DEPENDENCIES -->
+    <script src="js/core/UserIdentity.js"></script>
+    
+    <!-- 🔧 UTILS -->
+    <script src="js/utils/config.js"></script>
+    <script src="js/utils/validacion.js"></script>
+    
+    <!-- 🌐 COMMON -->
+    <script src="js/common/networkConfig.js"></script>
+    
+    <!-- 🎯 PARTIDAS ESPECÍFICOS -->
+    <script src="js/modules/partidas/iniciarpartida.js"></script>
+
     <script>
-        // Inicialización DDD para módulo Partidas
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                console.log('🚀 Iniciando MAIRA 4.0 - Módulo Iniciar Partida');
-                
-                // Usar el bootstrap unificado siguiendo principios DDD
-                if (typeof MAIRABootstrap !== 'undefined') {
-                    await MAIRABootstrap.loadForModule('partidas');
-                    console.log('✅ Bootstrap DDD completado para módulo Partidas');
-                    
-                    // 🔌 CARGAR SOCKET.IO ESPECÍFICAMENTE PARA PARTIDAS
-                    if (typeof dependencyManager !== 'undefined') {
-                        console.log('🔌 Cargando Socket.IO para partidas...');
-                        await dependencyManager.loadDependency('socket.io-client');
-                        console.log('✅ Socket.IO cargado para partidas');
-                        
-                        // Verificar que io esté disponible
-                        if (typeof io !== 'undefined') {
-                            console.log('✅ Socket.IO disponible globalmente');
-                        } else {
-                            console.warn('⚠️ Socket.IO no disponible después de cargar');
-                        }
-                    } else {
-                        console.warn('⚠️ Dependency Manager no disponible para Socket.IO');
-                    }
-                } else {
-                    console.error('❌ MAIRABootstrap no disponible - fallback a carga tradicional');
-                    // Fallback de emergencia si falla el bootstrap
+        // 🚀 INICIALIZACIÓN DIRECTA INICIAR PARTIDA
+        async function initializeIniciarPartida() {
+            console.log('🚀 MAIRA 4.0 - Iniciando Partida (Modo Directo)...');
+            
+            // Verificar dependencias críticas
+            if (typeof $ === 'undefined') {
+                console.error('❌ jQuery no cargado');
+                return;
+            }
+            
+            if (typeof proj4 === 'undefined') {
+                console.error('❌ Proj4 no cargado');
+                return;
+            }
+            
+            // 🔌 CARGAR SOCKET.IO si está disponible
+            if (typeof io !== 'undefined') {
+                console.log('✅ Socket.IO disponible globalmente');
+            } else {
+                console.warn('⚠️ Socket.IO no disponible - algunas funciones pueden estar limitadas');
+            }
+            
+            // Inicializar específicos de Partidas
+            if (typeof inicializarPartidas === 'function') {
+                try {
+                    inicializarPartidas();
+                    console.log('✅ Iniciar Partidas inicializado');
+                } catch (error) {
+                    console.error('❌ Error inicializando Partidas:', error);
                 }
-            } catch (error) {
-                console.error('❌ Error en bootstrap DDD:', error);
+            }
+            
+            console.log('✅ Dependencias básicas cargadas');
+            console.log('🎯 INICIAR PARTIDA inicializado correctamente');
+            
+            window.IniciarPartidaInitialized = true;
+        }
+        
+        // Inicializar cuando el DOM esté listo o inmediatamente si ya está cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeIniciarPartida);
+        } else {
+            initializeIniciarPartida();
+        }
+        
+        // Backup: También inicializar cuando window esté completamente cargado
+        window.addEventListener('load', () => {
+            if (!window.IniciarPartidaInitialized) {
+                console.log('🔄 Inicialización backup desde window.load');
+                initializeIniciarPartida();
             }
         });
     </script>
