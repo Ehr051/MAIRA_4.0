@@ -6,7 +6,7 @@
     "scripts": {
         "start": "python3 app.py",
         "build": "./render-build.sh",
-        "postinstall": "export NPM_CONFIG_PRODUCTION=false && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js --force",
+        "postinstall": "export NPM_CONFIG_PRODUCTION=false && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js three three-orbitcontrols milsymbol d3 --force",
         "start-py": "python3 server/server.py",
         "start-js": "node server/node.js",
         "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py",
@@ -26,7 +26,7 @@
         "bootstrap": "^4.6.2",
         "chart.js": "^4.5.0",
         "cors": "^2.8.5",
-        "d3": "^7.8.4",
+        "d3": "^7.9.0",
         "dotenv": "^16.4.5",
         "express": "^4.21.0",
         "file-saver": "^2.0.5",
@@ -64,7 +64,8 @@
         "rimraf": "^6.0.1",
         "socket.io": "^4.8.0",
         "socket.io-client": "^4.8.1",
-        "three": "^0.160.0"
+        "three": "^0.160.1",
+        "three-orbitcontrols": "^2.110.3"
     },
     "devDependencies": {
         "@babel/core": "^7.26.9",

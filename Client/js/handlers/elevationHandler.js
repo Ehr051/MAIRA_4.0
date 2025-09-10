@@ -145,10 +145,15 @@ async function cargarDatosElevacion(bounds) {
       
         // URLs a intentar en orden de preferencia
         const urlsToTry = [
-          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`,
-          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
+          // Primero intentar desde el release de GitHub
+          `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.provincia}/${tile.filename}`,
+          `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.filename}`,
+          // Fallback a las URLs anteriores
           `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
-          `https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`
+          `https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
+          // URLs locales como último recurso
+          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`,
+          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`
         ];      // Intentar cargar desde cada URL
       for (const url of urlsToTry) {
         try {
@@ -789,9 +794,33 @@ window.MAIRA.Elevacion = {
         }
     },
     
+    // Función para limpiar caché - SOLUCIÓN PARA PERFORMANCEOPTIMIZER
+    clearCache: function() {
+        console.log('🧹 Limpiando caché de elevation handler...');
+        try {
+            // Limpiar datos de elevación en memoria
+            if (window.elevationData) {
+                window.elevationData = null;
+            }
+            
+            // Limpiar caché de tiles si existe
+            if (window.tileCache) {
+                window.tileCache.clear();
+            }
+            
+            // Reset del índice si es necesario
+            elevationHandlerIndiceCargado = false;
+            
+            console.log('✅ Caché de elevation handler limpiado');
+            return true;
+        } catch (error) {
+            console.warn('⚠️ Error limpiando caché elevation handler:', error);
+            return false;
+        }
+    },
+    
     version: '1.0.0'
 };
-
 // ✅ AUTO-INICIALIZACIÓN
 document.addEventListener('DOMContentLoaded', async function() {
     try {

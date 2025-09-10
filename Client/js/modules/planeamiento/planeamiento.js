@@ -1,24 +1,40 @@
-// planeamiento.js - Eventos y funcionalidades del módulo de Planeamiento
+/**
+ * PlaneamientoManager - Gestión de elementos y funcionalidades del módulo de Planeamiento
+ */
 
 class PlaneamientoManager {
     constructor() {
-        this.socket = null;
         this.elementos = new Map();
+        this.socket = null;
         this.elementoSeleccionado = null;
         this.modoEdicion = false;
+        console.log('🎯 PlaneamientoManager inicializado');
     }
 
     inicializar() {
         console.log('🎯 Inicializando módulo de Planeamiento');
         this.configurarSocket();
         this.configurarEventos();
-        this.cargarElementosGuardados();
+        this.cargarElementosLocales();
     }
 
     configurarSocket() {
-        if (typeof socket !== 'undefined' && socket) {
-            this.socket = socket;
+        // Usar socket global si está disponible
+        if (window.socket) {
+            this.socket = window.socket;
             this.configurarEventosSocket();
+            console.log('✅ Socket conectado para Planeamiento');
+        } else {
+            console.warn('⚠️ Socket no disponible - trabajando en modo local');
+        }
+    }
+
+    configurarEventos() {
+        try {
+            this.configurarBotones();
+            this.configurarEventosSocket();
+        } catch (error) {
+            console.error('❌ Error en configuración de eventos:', error);
         }
     }
 
@@ -111,48 +127,64 @@ class PlaneamientoManager {
         this.socket.emit('eliminarElemento', data);
     }
 
-    // Métodos auxiliares
-    generarId() {
-        return 'elem_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    // ✅ ALMACENAMIENTO LOCAL PARA MODO OFFLINE
+    guardarElementoLocal(elemento) {
+        try {
+            const elementosGuardados = JSON.parse(localStorage.getItem('maira_elementos_planeamiento') || '[]');
+            elementosGuardados.push(elemento);
+            localStorage.setItem('maira_elementos_planeamiento', JSON.stringify(elementosGuardados));
+            console.log('💾 Elemento guardado localmente');
+        } catch (error) {
+            console.error('❌ Error guardando elemento local:', error);
+        }
     }
 
-    guardarElementoLocal(elemento) {
-        const elementos = JSON.parse(localStorage.getItem('planeamiento_elementos') || '[]');
-        elementos.push(elemento);
-        localStorage.setItem('planeamiento_elementos', JSON.stringify(elementos));
+    eliminarElementoLocal(elementoId) {
+        try {
+            let elementosGuardados = JSON.parse(localStorage.getItem('maira_elementos_planeamiento') || '[]');
+            elementosGuardados = elementosGuardados.filter(el => el.id !== elementoId);
+            localStorage.setItem('maira_elementos_planeamiento', JSON.stringify(elementosGuardados));
+            console.log('🗑️ Elemento eliminado localmente');
+        } catch (error) {
+            console.error('❌ Error eliminando elemento local:', error);
+        }
     }
 
     cargarElementosLocales() {
-        const elementos = JSON.parse(localStorage.getItem('planeamiento_elementos') || '[]');
+        const elementos = JSON.parse(localStorage.getItem('maira_elementos_planeamiento') || '[]');
         this.cargarElementos(elementos);
     }
 
     cargarElementos(elementos) {
-        console.log(`📋 Cargando ${elementos.length} elementos`);
-        elementos.forEach(elem => this.actualizarElementoEnMapa(elem));
+        elementos.forEach(elemento => {
+            this.elementos.set(elemento.id, elemento);
+            this.mostrarElementoEnMapa(elemento);
+        });
+        console.log(`✅ Cargados ${elementos.length} elementos`);
+    }
+
+    // ✅ UTILIDADES
+    generarId() {
+        return 'elemento_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    mostrarElementoEnMapa(elemento) {
+        // Integración con el mapa principal
+        if (window.mapaManager) {
+            window.mapaManager.agregarElemento(elemento);
+        }
     }
 
     actualizarElementoEnMapa(elemento) {
-        // Implementar lógica específica del mapa
-        console.log('🗺️ Actualizando elemento en mapa:', elemento);
+        if (window.mapaManager) {
+            window.mapaManager.actualizarElemento(elemento);
+        }
     }
 
     eliminarElementoDelMapa(elementoId) {
-        // Implementar lógica de eliminación del mapa
-        console.log('🗺️ Eliminando elemento del mapa:', elementoId);
-    }
-
-    eliminarElementoLocal(elementoId) {
-        const elementos = JSON.parse(localStorage.getItem('planeamiento_elementos') || '[]');
-        const elementosFiltrados = elementos.filter(e => e.id !== elementoId);
-        localStorage.setItem('planeamiento_elementos', JSON.stringify(elementosFiltrados));
-    }
-
-    configurarEventos() {
-        // Configurar eventos de interfaz
-        document.addEventListener('DOMContentLoaded', () => {
-            this.configurarBotones();
-        });
+        if (window.mapaManager) {
+            window.mapaManager.eliminarElemento(elementoId);
+        }
     }
 
     configurarBotones() {
