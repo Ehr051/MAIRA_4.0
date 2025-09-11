@@ -3,13 +3,12 @@
 // URL base para GitHub Releases mini-tiles v4.0 (ACTUALIZADO)
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 
-    // 🚀 URLs OPTIMIZADAS PARA CDN GITHUB RELEASES v4.0 - ELEVATION HANDLER
+    // 🚀 URLs LOCALES PARA ELEVATION HANDLER - CORREGIDO CORS
     const ELEVATION_GITHUB_RELEASES = [
-        'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
-        'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
-        // Fallback a v3.0 si v4.0 no existe
-        'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-        'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+        // Usar URLs locales para evitar CORS
+        'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+        '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+        './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json'
     ];
 
     // URLs de fallback específicas para ELEVATION HANDLER - PRIORIDAD LOCAL PRIMERO
@@ -49,10 +48,12 @@ const cargarIndiceElevationTiles = new Promise((resolve, reject) => {
     return response.json();
   };
   
-    // Lista de URLs para intentar cargar el índice - CORREGIDO para v4.0
+    // Lista de URLs para intentar cargar el índice - CORREGIDO CORS
     const urls = [
-        `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`,
-        'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
+        // URLs locales primero para evitar CORS
+        'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+        '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+        './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
         ...ELEVATION_TILES_FALLBACK_URLS.map(url => url.endsWith('/') ? `${url}master_mini_tiles_index.json` : `${url}/master_mini_tiles_index.json`)
     ];  // Intentar cargar desde cada URL secuencialmente
   (async () => {
@@ -143,17 +144,15 @@ async function cargarDatosElevacion(bounds) {
       // Primero intentar extraer el tile si es necesario
       await extractTileIfNeeded(tile);
       
-        // URLs a intentar en orden de preferencia
+        // URLs a intentar en orden de preferencia - CORREGIDO CORS
         const urlsToTry = [
-          // Primero intentar desde el release de GitHub
-          `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.provincia}/${tile.filename}`,
-          `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.filename}`,
-          // Fallback a las URLs anteriores
-          `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
-          `https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
-          // URLs locales como último recurso
+          // URLs locales primero para evitar CORS
+          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
+          `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
+          `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
           `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`,
-          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`
+          `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`,
+          `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`
         ];      // Intentar cargar desde cada URL
       for (const url of urlsToTry) {
         try {

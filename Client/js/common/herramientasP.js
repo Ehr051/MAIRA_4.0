@@ -74,28 +74,110 @@
             return false;
         }
         
-        const seleccionados = document.querySelectorAll('.elemento-seleccionado');
-        seleccionados.forEach(el => el.classList.remove('elemento-seleccionado'));
-        
-        if (elemento.classList) {
-            elemento.classList.add('elemento-seleccionado');
+        try {
+            // Deseleccionar elemento anterior si existe
+            if (window.elementoSeleccionado && window.elementoSeleccionado !== elemento) {
+                window.deseleccionarElemento();
+            }
+            
+            // Guardar estilo original solo la primera vez para elementos Leaflet
+            if (elemento.setStyle && !elemento.originalStyle && !elemento._editedStyle) {
+                elemento.originalStyle = {
+                    color: elemento.options.color || '#3388ff',
+                    weight: elemento.options.weight || 3,
+                    opacity: elemento.options.opacity || 1,
+                    fillOpacity: elemento.options.fillOpacity || 0.2,
+                    dashArray: elemento.options.dashArray || null
+                };
+                console.log('💾 Estilo original guardado:', elemento.originalStyle);
+            }
+            
+            // Aplicar estilo de selección para elementos Leaflet
+            if (elemento.setStyle) {
+                let colorActual = '#3388ff';
+                let pesoActual = 3;
+                let dashArrayActual = null;
+                
+                if (elemento._editedStyle) {
+                    colorActual = elemento._editedStyle.color;
+                    pesoActual = elemento._editedStyle.weight;
+                    dashArrayActual = elemento._editedStyle.dashArray;
+                } else if (elemento.originalStyle) {
+                    colorActual = elemento.originalStyle.color;
+                    pesoActual = elemento.originalStyle.weight;
+                    dashArrayActual = elemento.originalStyle.dashArray;
+                }
+                
+                // Estilo de selección (más grueso, mais visible)
+                elemento.setStyle({
+                    color: colorActual,
+                    weight: pesoActual + 2, // Más grueso
+                    opacity: 1,
+                    dashArray: dashArrayActual
+                });
+                
+                console.log(`🎨 Estilo de selección aplicado - Color: ${colorActual}, Peso: ${pesoActual + 2}`);
+            }
+            
+            // Para elementos DOM regulares
+            if (elemento.classList) {
+                elemento.classList.add('elemento-seleccionado');
+            }
+            
+            // Guardar elemento seleccionado globalmente
+            window.elementoSeleccionado = elemento;
+            
+            console.log('✅ Elemento seleccionado correctamente');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error seleccionando elemento:', error);
+            return false;
         }
-        
-        window.elementoSeleccionado = elemento;
-        console.log('✅ Elemento seleccionado');
-        return true;
     };
 
     window.deseleccionarElemento = function() {
         console.log('🎯 Deseleccionando elementos');
         
-        const seleccionados = document.querySelectorAll('.elemento-seleccionado');
-        seleccionados.forEach(el => el.classList.remove('elemento-seleccionado'));
-        
-        window.elementoSeleccionado = null;
-        
-        console.log('✅ Elementos deseleccionados');
-        return true;
+        try {
+            // Deseleccionar elementos DOM
+            const seleccionados = document.querySelectorAll('.elemento-seleccionado');
+            seleccionados.forEach(el => el.classList.remove('elemento-seleccionado'));
+            
+            // Restaurar estilo original para elemento Leaflet seleccionado
+            if (window.elementoSeleccionado && window.elementoSeleccionado.setStyle) {
+                const elemento = window.elementoSeleccionado;
+                
+                if (elemento._editedStyle) {
+                    // Si tiene estilo editado, usar ese
+                    elemento.setStyle(elemento._editedStyle);
+                    console.log('🎨 Estilo editado restaurado');
+                } else if (elemento.originalStyle) {
+                    // Si no, usar el original
+                    elemento.setStyle(elemento.originalStyle);
+                    console.log('🎨 Estilo original restaurado');
+                } else {
+                    // Fallback: estilo por defecto
+                    elemento.setStyle({
+                        color: '#3388ff',
+                        weight: 3,
+                        opacity: 1,
+                        dashArray: null
+                    });
+                    console.log('🎨 Estilo por defecto restaurado');
+                }
+            }
+            
+            window.elementoSeleccionado = null;
+            
+            console.log('✅ Elementos deseleccionados correctamente');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error deseleccionando elementos:', error);
+            window.elementoSeleccionado = null;
+            return false;
+        }
     };
 
     // Variables globales para compatibilidad

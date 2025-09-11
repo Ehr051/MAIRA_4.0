@@ -314,8 +314,30 @@ function crearNuevaOperacion() {
     
     console.log("Enviando solicitud de creación:", nuevaOperacion);
     
+    // Verificar que el socket esté conectado
+    if (!socket.connected) {
+        console.error("❌ Socket no está conectado");
+        mostrarError("Error: No hay conexión con el servidor. Intenta recargar la página.");
+        if (botonSubmit) {
+            botonSubmit.innerHTML = 'Crear Operación';
+            botonSubmit.disabled = false;
+        }
+        return;
+    }
+    
+    // Timeout manual para detectar si el servidor no responde
+    let timeoutId = setTimeout(() => {
+        console.error("❌ Timeout: El servidor no respondió en 15 segundos");
+        mostrarError("El servidor está tardando más de lo esperado. Verifica tu conexión e intenta nuevamente.");
+        if (botonSubmit) {
+            botonSubmit.innerHTML = 'Crear Operación';
+            botonSubmit.disabled = false;
+        }
+    }, 15000);
+    
     // Enviar al servidor
     socket.emit('crearOperacionGB', nuevaOperacion, function(respuesta) {
+        clearTimeout(timeoutId); // Cancelar timeout si hay respuesta
         console.log("Respuesta recibida:", respuesta);
         
         // Restaurar estado del botón

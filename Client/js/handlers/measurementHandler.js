@@ -604,10 +604,26 @@ function mostrarMenuContextualLinea(evento, linea) {
         font-size: 14px;
     `;
     
-    // Posicionar menú
-    const rect = evento.target.getBoundingClientRect();
-    menu.style.left = (evento.originalEvent?.clientX || rect.left) + 'px';
-    menu.style.top = (evento.originalEvent?.clientY || rect.top) + 'px';
+    // Posicionar menú usando coordenadas del evento o del mapa
+    let x, y;
+    if (evento.originalEvent && evento.originalEvent.clientX) {
+        x = evento.originalEvent.clientX;
+        y = evento.originalEvent.clientY;
+    } else if (evento.containerPoint) {
+        const mapContainer = window.mapa.getContainer();
+        const mapRect = mapContainer.getBoundingClientRect();
+        x = mapRect.left + evento.containerPoint.x;
+        y = mapRect.top + evento.containerPoint.y;
+    } else {
+        // Fallback: centro del mapa
+        const mapContainer = window.mapa.getContainer();
+        const mapRect = mapContainer.getBoundingClientRect();
+        x = mapRect.left + mapRect.width / 2;
+        y = mapRect.top + mapRect.height / 2;
+    }
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
     
     // Opciones del menú
     const opciones = [
