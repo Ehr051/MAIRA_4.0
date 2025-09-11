@@ -70,9 +70,10 @@
 
   <!-- 🔧 UTILS (archivos que existen) -->
   <script src="js/utils/eventemitter.js"></script>
-  <script src="js/utils/coordinates.js"></script>
-  <script src="js/utils/performance.js"></script>
-  <script src="js/utils/UIUtils.js"></script>
+  <!-- ❌ Archivos que no existen - comentados temporalmente -->
+  <!-- <script src="js/utils/coordinates.js"></script> -->
+  <!-- <script src="js/utils/performance.js"></script> -->
+  <!-- <script src="js/utils/UIUtils.js"></script> -->
   <script src="js/utils/tiles-checker.js"></script>
 
   <!-- � CONFIGURATION (CRÍTICO PARA SERVER_URL) -->
@@ -93,13 +94,17 @@
   <!-- 🎯 HANDLERS (archivos que existen) -->
   <script src="js/handlers/performanceOptimizer.js"></script>
   <script src="js/handlers/elevationHandler.js"></script>
-  <script src="js/handlers/gestorTurnos.js"></script>
   <script src="js/handlers/dependency-manager.js"></script>
   <script src="js/handlers/EventBus.js"></script>
+  
+  <!-- 💬 CHAT SYSTEM (CRÍTICO PARA MULTIPLAYER) -->
+  <script src="js/common/MAIRAChat.js"></script>
 
   <!-- 🧩 MODULES (archivos que existen) -->
   <script src="js/modules/planeamiento/planeamiento.js"></script>
   <script src="js/modules/juego/gestorBase.js"></script>
+  <!-- ⚠️ GestorTurnos DESPUÉS de GestorBase -->
+  <script src="js/handlers/gestorTurnos.js"></script>
   <script src="js/modules/juego/gestorCarga.js"></script>
   <script src="js/modules/juego/hexgrid.js"></script>
   <script src="js/modules/juego/gestorJuego.js"></script>
@@ -109,7 +114,7 @@
   <script src="js/modules/juego/gestorInterfaz.js"></script>
 
   <!-- 🌐 COMMON (archivos necesarios) -->
-  <script src="js/common/EventBus.js"></script>
+  <!-- <script src="js/common/EventBus.js"></script> --> <!-- ❌ EventBus está en handlers/ -->
   <script src="js/common/panelMarcha.js"></script>
 
   <script>

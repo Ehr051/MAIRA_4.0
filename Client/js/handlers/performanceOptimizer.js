@@ -466,8 +466,10 @@ class PerformanceOptimizer {
      */
     limpiarCaches() {
         // Limpiar cache de elevación
-        if (window.elevationHandler) {
+        if (window.elevationHandler && typeof window.elevationHandler.clearCache === 'function') {
             window.elevationHandler.clearCache();
+        } else {
+            console.warn('⚠️ elevationHandler.clearCache no disponible');
         }
         
         // Limpiar cache de vegetación

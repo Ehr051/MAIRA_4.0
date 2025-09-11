@@ -6,12 +6,12 @@
     <title>MAIRA - Cuadro de Organización</title>
     
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/Client/css/CO.css">
+    <link rel="stylesheet" href="/css/modules/CO/CO.css">
     
     <!-- Core JavaScript Libraries (ORDEN CRÍTICO) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -24,7 +24,7 @@
     
     <!-- Military Symbol Libraries -->
     <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
-    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+    <script src="/Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
     
     <!-- ✅ VERIFICACIÓN DE DEPENDENCIAS CRÍTICAS -->
@@ -52,10 +52,10 @@
     </script>
     
     <!-- ✅ SCRIPTS CO EN ORDEN CORRECTO -->
-    <script src="/Client/js/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
-    <script src="/Client/js/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
-    <script src="/Client/js/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
-    <script src="/Client/js/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
+    <script src="/js/common/miradial.js"></script>                      <!-- ✅ PRIMERO - Base para menús -->
+    <script src="/js/modules/organizacion/paneledicionCO.js"></script>  <!-- ✅ SEGUNDO - Panel edición -->
+    <script src="/js/modules/organizacion/conexionesCO.js"></script>    <!-- ✅ TERCERO - Conexiones -->
+    <script src="/js/modules/organizacion/CO.js"></script>              <!-- ✅ ÚLTIMO - Lógica principal -->
     
     <!-- ✅ Inicialización diferida -->
     <script>

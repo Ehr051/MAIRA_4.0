@@ -183,6 +183,11 @@ console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditabl
             L.DomEvent.preventDefault(e);
             console.log('📋 Mostrando menú contextual para línea');
             
+            // Seleccionar la línea primero
+            if (typeof window.seleccionarElemento === 'function') {
+                window.seleccionarElemento(this);
+            }
+            
             // Crear menú contextual
             mostrarMenuContextualLinea(e, this);
         });
@@ -381,8 +386,11 @@ function addDistancePoint(e) {
     
     handler.lineas[handler.lineaActual].marcadores.push(marker);
     
-    // ✅ PI/PT SOLO SI ESTÁ EN CONTEXTO DE MARCHA (NO EN MEDICIÓN NORMAL)
-    // Los símbolos PI/PT solo se insertan desde CalculoMarcha.js, no en mediciones normales
+    // ✅ PI/PT SOLO SI ESTÁ EN CONTEXTO DE MARCHA
+    if (window.modoMarcha && typeof window.contadorPuntosMarcha !== 'undefined') {
+        console.log("🎖️ Modo marcha activo - punto", window.contadorPuntosMarcha, "agregado");
+        // Los símbolos PI/PT se manejan automáticamente en panelMarcha.js
+    }
     
     handler.actualizarLinea(handler.lineaActual);
     handler.actualizarDisplayMedicion(handler.lineaActual);

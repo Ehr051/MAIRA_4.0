@@ -2106,6 +2106,9 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                     <button title="Mostrar recorrido" class="btn-tracking">
                         <i class="fas fa-route"></i>
                     </button>
+                    <button title="Perfil elevación recorrido" class="btn-tracking-elevation">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
                 </div>
             </div>
         `;
@@ -2144,6 +2147,14 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                 if (typeof iniciarTrackingElemento === 'function') {
                     iniciarTrackingElemento(elemento.id);
                 }
+            });
+        }
+
+        const btnTrackingElevation = elementoItem.querySelector('.btn-tracking-elevation');
+        if (btnTrackingElevation) {
+            btnTrackingElevation.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mostrarPerfilElevacionRecorrido(elemento.id);
             });
         }
         
@@ -4180,3 +4191,148 @@ function testEnviarActualizacionPosicion() {
 
 // Exponer función para pruebas
 window.testPosicion = testEnviarActualizacionPosicion;
+
+/**
+ * Muestra el perfil de elevación del recorrido de un elemento
+ * @param {string} elementoId - ID del elemento a analizar
+ */
+function mostrarPerfilElevacionRecorrido(elementoId) {
+    console.log(`Generando perfil de elevación para elemento ${elementoId}`);
+    
+    // Verificar que el elemento tenga tracking activo
+    if (!trackingConfig.historial[elementoId]) {
+        MAIRA.Utils.mostrarNotificacion(`Elemento ${elementoId} no tiene recorrido registrado`, "warning");
+        return;
+    }
+    
+    const tracking = trackingConfig.historial[elementoId];
+    const puntos = tracking.puntos;
+    
+    if (puntos.length < 2) {
+        MAIRA.Utils.mostrarNotificacion("El recorrido necesita al menos 2 puntos", "warning");
+        return;
+    }
+    
+    // Crear línea temporal para el perfil
+    const lineaRecorrido = L.polyline(puntos, {
+        color: tracking.linea.options.color,
+        weight: 5,
+        opacity: 1
+    });
+    
+    // Usar measurementHandler si está disponible para mostrar perfil
+    if (typeof window.mostrarPerfilElevacion === 'function') {
+        // Simular evento de línea para usar el sistema existente
+        const elemento = elementosConectados[elementoId];
+        const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+        
+        window.mostrarPerfilElevacion(lineaRecorrido, {
+            titulo: `Perfil Elevación - Recorrido de ${usuario}`,
+            puntos: puntos,
+            distancia: calcularDistanciaRecorrido(puntos)
+        });
+        
+        MAIRA.Utils.mostrarNotificacion(`Perfil de elevación generado para ${usuario}`, "success");
+    } else if (typeof window.elevationHandler !== 'undefined') {
+        // Usar elevationHandler directamente
+        window.elevationHandler.mostrarPerfilLinea(puntos, `Recorrido ${elementoId}`)
+            .then(() => {
+                MAIRA.Utils.mostrarNotificacion("Perfil de elevación mostrado", "success");
+            })
+            .catch(error => {
+                console.error("Error generando perfil:", error);
+                MAIRA.Utils.mostrarNotificacion("Error al generar perfil de elevación", "error");
+            });
+    } else {
+        // Fallback: mostrar información básica
+        const distancia = calcularDistanciaRecorrido(puntos);
+        const elemento = elementosConectados[elementoId];
+        const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+        
+        const mensaje = `
+            <h5>Recorrido de ${usuario}</h5>
+            <p><strong>Puntos registrados:</strong> ${puntos.length}</p>
+            <p><strong>Distancia aproximada:</strong> ${distancia.toFixed(2)} km</p>
+            <p><strong>Tiempo de tracking:</strong> ${calcularTiempoRecorrido(elementoId)}</p>
+        `;
+        
+        // Crear modal básico
+        mostrarModalRecorrido(mensaje, tracking.linea.options.color);
+    }
+}
+
+/**
+ * Calcula la distancia total del recorrido
+ */
+function calcularDistanciaRecorrido(puntos) {
+    let distanciaTotal = 0;
+    for (let i = 1; i < puntos.length; i++) {
+        const punto1 = L.latLng(puntos[i-1][0], puntos[i-1][1]);
+        const punto2 = L.latLng(puntos[i][0], puntos[i][1]);
+        distanciaTotal += punto1.distanceTo(punto2);
+    }
+    return distanciaTotal / 1000; // Convertir a kilómetros
+}
+
+/**
+ * Calcula el tiempo aproximado de recorrido
+ */
+function calcularTiempoRecorrido(elementoId) {
+    if (!trackingConfig.historial[elementoId]) return "Desconocido";
+    
+    const tracking = trackingConfig.historial[elementoId];
+    if (tracking.puntos.length < 2) return "Menos de 1 minuto";
+    
+    // Estimar basado en número de puntos y frecuencia de heartbeat (30s)
+    const minutos = Math.floor((tracking.puntos.length * 0.5)); // 30 segundos por punto
+    return `Aproximadamente ${minutos} minutos`;
+}
+
+/**
+ * Modal básico para mostrar información del recorrido
+ */
+function mostrarModalRecorrido(contenido, color) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-recorrido-gb';
+    modal.innerHTML = `
+        <div class="modal-content" style="border-left: 4px solid ${color}">
+            <span class="close-modal">&times;</span>
+            ${contenido}
+            <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove()">
+                Cerrar
+            </button>
+        </div>
+    `;
+    
+    modal.style.cssText = `
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    modal.querySelector('.modal-content').style.cssText = `
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    `;
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.remove();
+    });
+    
+    // Cerrar con X
+    modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
+    
+    document.body.appendChild(modal);
+}

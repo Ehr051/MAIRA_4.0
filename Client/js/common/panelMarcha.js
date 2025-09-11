@@ -466,19 +466,26 @@
         },
 
         medirDistanciaConMarcadores: function() {
-            console.log("🎯 Iniciando medición de distancia con marcadores de PI y PT");
+            console.log("🎯 Iniciando medición de distancia con marcadores de PI y PT para MARCHA");
             var self = this;
+            
+            // ✅ CONFIGURAR MODO MARCHA PARA SÍMBOLOS PI/PT
+            window.modoMarcha = true;
+            console.log("🎖️ Modo marcha activado para inserción automática de PI/PT");
+            
+            // Configurar event listeners especiales para marcha
+            this.configurarEventListenersMarcha();
             
             // Verificar que tenemos las funciones de medición disponibles
             if (typeof window.medirDistancia === 'function') {
-                console.log("📏 Usando sistema de medición global");
+                console.log("📏 Usando sistema de medición global EN MODO MARCHA");
                 window.medirDistancia();
                 return;
             }
             
             // Si no está disponible el sistema global, usar measurementHandler
             if (typeof window.measurementHandler !== 'undefined' && window.measurementHandler) {
-                console.log("📏 Usando measurementHandler");
+                console.log("📏 Usando measurementHandler EN MODO MARCHA");
                 window.measurementHandler.medirDistancia();
                 return;
             }
@@ -519,6 +526,157 @@
                     console.error("❌ No hay mapa disponible");
                 }
             }
+        },
+
+        // ✅ NUEVA FUNCIÓN: Configurar eventos especiales para modo marcha
+        configurarEventListenersMarcha: function() {
+            var self = this;
+            console.log("🎖️ Configurando event listeners especiales para modo marcha");
+            
+            // Interceptar el primer y último punto para PI/PT
+            var originalAddDistancePoint = window.addDistancePoint;
+            window.contadorPuntosMarcha = 0;
+            
+            window.addDistancePoint = function(e) {
+                // Llamar la función original
+                if (originalAddDistancePoint) {
+                    originalAddDistancePoint(e);
+                }
+                
+                // Agregar símbolos PI/PT según el contexto
+                window.contadorPuntosMarcha++;
+                var latlng = e.latlng;
+                
+                if (window.contadorPuntosMarcha === 1) {
+                    // Primer punto: crear PI
+                    console.log("🎖️ Creando símbolo PI en primer punto de marcha");
+                    self.crearSimboloPIPT(latlng, 'PI');
+                }
+                
+                // El PT se crea al finalizar la medición
+            };
+            
+            // Interceptar finalización para crear PT
+            var originalFinalizarMedicion = window.finalizarMedicion;
+            window.finalizarMedicion = function() {
+                // Crear PT en el último punto si hay puntos
+                if (window.contadorPuntosMarcha > 0 && window.measurementHandler && window.measurementHandler.lineaActual) {
+                    var linea = window.measurementHandler.lineas[window.measurementHandler.lineaActual];
+                    if (linea && linea.polyline) {
+                        var puntos = linea.polyline.getLatLngs();
+                        if (puntos.length > 0) {
+                            var ultimoPunto = puntos[puntos.length - 1];
+                            console.log("🎖️ Creando símbolo PT en último punto de marcha");
+                            self.crearSimboloPIPT(ultimoPunto, 'PT');
+                        }
+                    }
+                }
+                
+                // Llamar función original
+                if (originalFinalizarMedicion) {
+                    originalFinalizarMedicion();
+                }
+                
+                // Limpiar modo marcha
+                window.modoMarcha = false;
+                window.contadorPuntosMarcha = 0;
+                console.log("🎖️ Modo marcha finalizado");
+            };
+        },
+
+        // ✅ NUEVA FUNCIÓN: Crear símbolos PI/PT usando milsymbol.js
+        crearSimboloPIPT: function(latlng, tipo) {
+            console.log("🎖️ Creando símbolo militar", tipo, "en coordenadas:", latlng);
+            
+            // ✅ USAR EXACTAMENTE EL MISMO CÓDIGO QUE simbolosP.js
+            if (typeof window.ms === 'undefined') {
+                console.warn("milsymbol.js no disponible, usando marcador simple para", tipo);
+                // Fallback con marcador simple
+                var marker = L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'simple-militar-marker',
+                        html: `<div style="background: black; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 12px;">${tipo}</div>`,
+                        iconSize: [30, 20],
+                        iconAnchor: [15, 10]
+                    })
+                });
+                
+                if (window.mapa) {
+                    marker.addTo(window.mapa);
+                }
+                return marker;
+            }
+            
+            // ✅ CONFIGURACIÓN IDÉNTICA A simbolosP.js
+            var sidc = 'GFGPGPP---'; // Mismo SIDC que simbolosP.js
+            
+            var symbol = new ms.Symbol(sidc, {
+                size: 35,                      // ✅ Mismo tamaño que simbolosP.js
+                uniqueDesignation: tipo,       // "PI" o "PT" en el símbolo
+                infoFields: false,             // ✅ Mismo que simbolosP.js
+                colorMode: "Light",            // ✅ Mismo que simbolosP.js
+                fill: true,                    // ✅ Mismo que simbolosP.js
+                monoColor: "black"             // ✅ NEGRO como simbolosP.js
+            });
+            
+            // Crear marcador con el símbolo militar
+            var icon = L.divIcon({
+                html: symbol.asSVG(),
+                iconSize: [35, 35],
+                iconAnchor: [17, 17],
+                className: 'military-symbol-marker ' + tipo.toLowerCase()
+            });
+            
+            var marker = L.marker(latlng, {
+                icon: icon,
+                draggable: false,
+                tipo: tipo,
+                sidc: sidc
+            });
+            
+            // ✅ AGREGAR AL MAPA Y A LA LISTA DE PUNTOS DE CONTROL
+            if (window.mapa) {
+                marker.addTo(window.mapa);
+            }
+            
+            // Agregar automáticamente a la lista de puntos de control
+            this.agregarPuntoControlAutomatico(latlng.lat, latlng.lng, tipo);
+            
+            console.log("✅ Símbolo", tipo, "creado correctamente");
+            return marker;
+        },
+
+        // ✅ NUEVA FUNCIÓN: Agregar PI/PT a lista de puntos de control automáticamente
+        agregarPuntoControlAutomatico: function(lat, lng, tipo) {
+            var puntosControlList = document.getElementById('puntosControlList');
+            if (!puntosControlList) {
+                console.warn("Lista de puntos de control no encontrada");
+                return;
+            }
+            
+            // Crear elemento de punto de control especial para PI/PT
+            var puntoHTML = [
+                '<div class="punto-control pc ' + tipo.toLowerCase() + '" data-distancia="0">',
+                '    <span class="tipo-punto">' + tipo + '</span>',
+                '    <span class="coord-info">(' + lat.toFixed(6) + ', ' + lng.toFixed(6) + ')</span>',
+                '    <input type="text" class="pc-descripcion" placeholder="' + (tipo === 'PI' ? 'Punto Inicial' : 'Punto Terminal') + '">',
+                '    <input type="color" class="color-pc" value="' + (tipo === 'PI' ? '#FF0000' : '#0000FF') + '">',
+                '</div>'
+            ].join('\n');
+            
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = puntoHTML;
+            var puntoElement = tempDiv.firstElementChild;
+            
+            if (tipo === 'PI') {
+                // PI va al principio
+                puntosControlList.insertBefore(puntoElement, puntosControlList.firstChild);
+            } else {
+                // PT va al final
+                puntosControlList.appendChild(puntoElement);
+            }
+            
+            console.log("✅ Punto de control", tipo, "agregado automáticamente a la lista");
         },
 
         agregarSerie: function() {
