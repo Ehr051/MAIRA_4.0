@@ -132,7 +132,7 @@ class MAIRACore {
 
         // Precargar módulos críticos
         const criticalModules = [
-            'interface/UIManager',
+            // 'interface/UIManager', // ✅ REMOVIDO - Usamos gestorInterfaz.js existente
             'tools/NavigationOptimized',
             'tactical/MapManager'
         ];

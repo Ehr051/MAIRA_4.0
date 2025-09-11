@@ -75,7 +75,11 @@
   <script src="js/utils/UIUtils.js"></script>
   <script src="js/utils/tiles-checker.js"></script>
 
-  <!-- 🔄 SERVICES (archivos que existen) -->
+  <!-- � CONFIGURATION (CRÍTICO PARA SERVER_URL) -->
+  <script src="js/utils/config.js"></script>
+  <script src="js/common/networkConfig.js"></script>
+
+  <!-- �🔄 SERVICES (archivos que existen) -->
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/militaryDataService.js"></script>
   <script src="js/services/DeploymentService.js"></script>
@@ -102,6 +106,7 @@
   <script src="js/modules/juego/gestorUnidades.js"></script>
   <script src="js/modules/juego/gestorMapa.js"></script>
   <script src="js/modules/juego/gestorEstado.js"></script>
+  <script src="js/modules/juego/gestorInterfaz.js"></script>
 
   <!-- 🌐 COMMON (archivos necesarios) -->
   <script src="js/common/EventBus.js"></script>
@@ -140,7 +145,10 @@
             
             // Inicializar GameEngine con configuración
             if (typeof GameEngine !== 'undefined') {
-                await GameEngine.initialize(configuracionPartida);
+                window.gameEngine = new GameEngine();
+                if (configuracionPartida) {
+                    await window.gameEngine.setupGame(configuracionPartida);
+                }
                 console.log('✅ GameEngine inicializado');
             }
             

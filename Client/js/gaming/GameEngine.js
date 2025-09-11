@@ -81,6 +81,47 @@ class GameEngine {
     }
 
     /**
+     * CONFIGURAR JUEGO CON PARÁMETROS ESPECÍFICOS
+     */
+    async setupGame(configuracion) {
+        console.log('🎮 Configurando juego con parámetros:', configuracion);
+        
+        try {
+            if (configuracion) {
+                // Aplicar configuración específica
+                const currentState = this.gameState.get('current');
+                
+                if (configuracion.nombrePartida) {
+                    currentState.exercise.name = configuracion.nombrePartida;
+                }
+                
+                if (configuracion.duracionPartida) {
+                    currentState.session.timeLimit = configuracion.duracionPartida * 60000; // minutos a ms
+                }
+                
+                if (configuracion.jugadores) {
+                    configuracion.jugadores.forEach((jugador, index) => {
+                        if (index === 0) {
+                            currentState.roles.commanderBlue.player = jugador;
+                        } else if (index === 1) {
+                            currentState.roles.commanderRed.player = jugador;
+                            currentState.roles.commanderRed.aiControlled = false;
+                        }
+                    });
+                }
+                
+                this.gameState.set('current', currentState);
+                console.log('✅ Configuración de juego aplicada');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('❌ Error configurando juego:', error);
+            throw error;
+        }
+    }
+
+    /**
      * ESTADO BASE DEL JUEGO
      */
     async initializeGameState() {
