@@ -871,6 +871,9 @@ function crearPartidaOnline() {
     };
     
     console.log('🚀 Enviando crear partida al servidor...');
+    console.log('🔍 DEBUG - Socket conectado:', socket.connected);
+    console.log('🔍 DEBUG - Socket ID:', socket.id);
+    console.log('🔍 DEBUG - Configuración a enviar:', configuracion);
     
     // Configurar listeners para respuesta del servidor
     socket.once('partidaCreada', function(datosPartida) {
@@ -894,8 +897,34 @@ function crearPartidaOnline() {
         alert(error.mensaje || 'Error al crear la partida');
     });
     
+    // ✅ TIMEOUT DE SEGURIDAD para detectar si servidor no responde
+    const timeoutId = setTimeout(() => {
+        console.warn('⏰ TIMEOUT: El servidor no respondió en 10 segundos');
+        console.log('🔍 DEBUG - Estado del socket después de timeout:', {
+            connected: socket.connected,
+            id: socket.id,
+            readyState: socket.io?.readyState
+        });
+        alert('El servidor está tardando en responder. Por favor, inténtalo de nuevo.');
+    }, 10000);
+    
+    // Limpiar timeout cuando llegue respuesta
+    const originalPartidaCreada = socket._callbacks?.$partidaCreada?.[0] || socket._events?.partidaCreada;
+    socket.once('partidaCreada', function(datosPartida) {
+        clearTimeout(timeoutId);
+        console.log('✅ Respuesta recibida, timeout cancelado');
+        if (originalPartidaCreada) originalPartidaCreada(datosPartida);
+    });
+    
+    socket.once('errorCrearPartida', function(error) {
+        clearTimeout(timeoutId);
+        console.log('❌ Error recibido, timeout cancelado');
+    });
+    
     // Emitir evento para crear partida
+    console.log('📤 Emitiendo evento crearPartida...');
     socket.emit('crearPartida', { configuracion });
+    console.log('📤 Evento emitido, esperando respuesta...');
 }
 
 function mostrarSalaEspera(datosPartida) {
