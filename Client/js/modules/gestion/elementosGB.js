@@ -3759,14 +3759,64 @@ function iniciarTrackingElemento(elementoId) {
         return char.charCodeAt(0) + ((acc << 5) - acc);
     }, 0)) % trackingConfig.colores.length;
 
+    // Crear línea de tracking seleccionable
+    const lineaTracking = L.polyline([[elemento.datos.posicion.lat, elemento.datos.posicion.lng]], {
+        color: trackingConfig.colores[colorIndex],
+        weight: 3,
+        opacity: 0.7,
+        dashArray: '5, 10',
+        // Hacer la línea interactiva
+        interactive: true,
+        bubblingMouseEvents: false
+    }).addTo(window.mapa);
+
+    // Añadir propiedades personalizadas
+    lineaTracking.elementoId = elementoId;
+    lineaTracking.elemento = elemento;
+    lineaTracking.esLineaTracking = true;
+
+    // Eventos para selección y perfil
+    lineaTracking.on('click', function(e) {
+        console.log(`🔍 Línea de tracking seleccionada - Elemento: ${elementoId}`);
+        
+        // Seleccionar la línea visualmente
+        seleccionarLineaTracking(this, elementoId);
+        
+        // Prevenir propagación
+        L.DomEvent.stopPropagation(e);
+    });
+
+    // Context menu para perfil de elevación
+    lineaTracking.on('contextmenu', function(e) {
+        console.log(`📊 Context menu en línea tracking - Elemento: ${elementoId}`);
+        
+        mostrarMenuContextualTracking(e, elementoId, this);
+        
+        // Prevenir menú por defecto
+        L.DomEvent.preventDefault(e);
+        L.DomEvent.stopPropagation(e);
+    });
+
+    // Hover effects
+    lineaTracking.on('mouseover', function(e) {
+        this.setStyle({
+            weight: 5,
+            opacity: 1
+        });
+    });
+
+    lineaTracking.on('mouseout', function(e) {
+        if (!this.esSeleccionada) {
+            this.setStyle({
+                weight: 3,
+                opacity: 0.7
+            });
+        }
+    });
+
     trackingConfig.historial[elementoId] = {
         puntos: [[elemento.datos.posicion.lat, elemento.datos.posicion.lng]],
-        linea: L.polyline([[elemento.datos.posicion.lat, elemento.datos.posicion.lng]], {
-            color: trackingConfig.colores[colorIndex],
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '5, 10'
-        }).addTo(window.mapa)
+        linea: lineaTracking
     };
 
     // Marcar como seguido
@@ -4286,6 +4336,224 @@ function calcularTiempoRecorrido(elementoId) {
     // Estimar basado en número de puntos y frecuencia de heartbeat (30s)
     const minutos = Math.floor((tracking.puntos.length * 0.5)); // 30 segundos por punto
     return `Aproximadamente ${minutos} minutos`;
+}
+
+/**
+ * Selecciona visualmente una línea de tracking
+ */
+function seleccionarLineaTracking(linea, elementoId) {
+    // Deseleccionar líneas anteriores
+    Object.values(trackingConfig.historial).forEach(tracking => {
+        if (tracking.linea && tracking.linea.esSeleccionada) {
+            tracking.linea.setStyle({
+                weight: 3,
+                opacity: 0.7
+            });
+            tracking.linea.esSeleccionada = false;
+        }
+    });
+
+    // Seleccionar línea actual
+    linea.setStyle({
+        weight: 6,
+        opacity: 1
+    });
+    linea.esSeleccionada = true;
+
+    // Mostrar información en consola
+    const elemento = elementosConectados[elementoId];
+    const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+    console.log(`✅ Línea de tracking seleccionada: ${usuario}`);
+    
+    // Opcional: mostrar notificación
+    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+        MAIRA.Utils.mostrarNotificacion(`Recorrido de ${usuario} seleccionado`, "info");
+    }
+}
+
+/**
+ * Muestra context menu para línea de tracking
+ */
+function mostrarMenuContextualTracking(e, elementoId, linea) {
+    // Remover menu anterior si existe
+    const menuAnterior = document.querySelector('.menu-contextual-tracking');
+    if (menuAnterior) menuAnterior.remove();
+
+    const elemento = elementosConectados[elementoId];
+    const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+    
+    const tracking = trackingConfig.historial[elementoId];
+    const numPuntos = tracking?.puntos?.length || 0;
+    const distancia = calcularDistanciaRecorrido(tracking?.puntos || []);
+
+    // Crear menu contextual
+    const menu = document.createElement('div');
+    menu.className = 'menu-contextual-tracking';
+    menu.innerHTML = `
+        <div class="menu-header">
+            <h6>🛤️ Recorrido de ${usuario}</h6>
+            <small>${numPuntos} puntos • ${distancia.toFixed(2)} km</small>
+        </div>
+        <div class="menu-opciones">
+            <button class="menu-opcion" data-accion="perfil">
+                <i class="fas fa-chart-line"></i> Ver Perfil de Elevación
+            </button>
+            <button class="menu-opcion" data-accion="centrar">
+                <i class="fas fa-crosshairs"></i> Centrar en Recorrido  
+            </button>
+            <button class="menu-opcion" data-accion="info">
+                <i class="fas fa-info-circle"></i> Información Detallada
+            </button>
+            <button class="menu-opcion" data-accion="eliminar">
+                <i class="fas fa-trash"></i> Eliminar Tracking
+            </button>
+        </div>
+    `;
+
+    // Estilos del menu
+    menu.style.cssText = `
+        position: absolute;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 10000;
+        min-width: 200px;
+        font-size: 12px;
+    `;
+
+    // Posicionar menu
+    const containerPoint = window.mapa.latLngToContainerPoint(e.latlng);
+    menu.style.left = (containerPoint.x + 10) + 'px';
+    menu.style.top = (containerPoint.y - 10) + 'px';
+
+    // Añadir estilos para opciones
+    const estilosCSS = `
+        .menu-contextual-tracking .menu-header {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .menu-contextual-tracking .menu-header h6 {
+            margin: 0;
+            font-size: 13px;
+            color: #495057;
+        }
+        .menu-contextual-tracking .menu-header small {
+            color: #6c757d;
+        }
+        .menu-contextual-tracking .menu-opciones {
+            padding: 4px 0;
+        }
+        .menu-contextual-tracking .menu-opcion {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 12px;
+            color: #495057;
+        }
+        .menu-contextual-tracking .menu-opcion:hover {
+            background: #e9ecef;
+        }
+        .menu-contextual-tracking .menu-opcion i {
+            width: 16px;
+            margin-right: 8px;
+        }
+    `;
+
+    // Añadir estilos si no existen
+    if (!document.querySelector('#estilos-menu-tracking')) {
+        const style = document.createElement('style');
+        style.id = 'estilos-menu-tracking';
+        style.textContent = estilosCSS;
+        document.head.appendChild(style);
+    }
+
+    // Event listeners para opciones
+    menu.addEventListener('click', function(event) {
+        const accion = event.target.closest('.menu-opcion')?.dataset.accion;
+        
+        switch(accion) {
+            case 'perfil':
+                mostrarPerfilElevacionRecorrido(elementoId);
+                break;
+            case 'centrar':
+                centrarEnRecorrido(elementoId);
+                break;
+            case 'info':
+                mostrarInformacionRecorrido(elementoId);
+                break;
+            case 'eliminar':
+                eliminarTrackingElemento(elementoId);
+                break;
+        }
+        
+        menu.remove();
+    });
+
+    // Cerrar menu al hacer clic fuera
+    setTimeout(() => {
+        document.addEventListener('click', function cerrarMenu() {
+            menu.remove();
+            document.removeEventListener('click', cerrarMenu);
+        });
+    }, 100);
+
+    // Añadir al DOM
+    window.mapa.getContainer().appendChild(menu);
+}
+
+/**
+ * Centra el mapa en el recorrido completo
+ */
+function centrarEnRecorrido(elementoId) {
+    const tracking = trackingConfig.historial[elementoId];
+    if (!tracking || !tracking.puntos || tracking.puntos.length === 0) return;
+
+    const bounds = L.latLngBounds(tracking.puntos);
+    window.mapa.fitBounds(bounds, { padding: [20, 20] });
+    
+    const elemento = elementosConectados[elementoId];
+    const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+    
+    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+        MAIRA.Utils.mostrarNotificacion(`Vista centrada en recorrido de ${usuario}`, "success");
+    }
+}
+
+/**
+ * Muestra información detallada del recorrido
+ */
+function mostrarInformacionRecorrido(elementoId) {
+    const tracking = trackingConfig.historial[elementoId];
+    if (!tracking) return;
+
+    const elemento = elementosConectados[elementoId];
+    const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;
+    const distancia = calcularDistanciaRecorrido(tracking.puntos);
+    const tiempo = calcularTiempoRecorrido(elementoId);
+    
+    const info = `
+        <h5>📊 Información del Recorrido</h5>
+        <table class="table table-sm">
+            <tr><th>Elemento:</th><td>${usuario}</td></tr>
+            <tr><th>Puntos registrados:</th><td>${tracking.puntos.length}</td></tr>
+            <tr><th>Distancia total:</th><td>${distancia.toFixed(2)} km</td></tr>
+            <tr><th>Tiempo estimado:</th><td>${tiempo}</td></tr>
+            <tr><th>Color de línea:</th><td>
+                <span style="background: ${tracking.linea.options.color}; padding: 2px 8px; color: white; border-radius: 3px;">
+                    ${tracking.linea.options.color}
+                </span>
+            </td></tr>
+            <tr><th>Estado:</th><td>${trackingConfig.seguidos[elementoId] ? '🟢 Activo' : '🔴 Detenido'}</td></tr>
+        </table>
+    `;
+    
+    mostrarModalRecorrido(info, tracking.linea.options.color);
 }
 
 /**
