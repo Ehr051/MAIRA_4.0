@@ -176,7 +176,8 @@ CalculoMarchaController.prototype.inicializarDatos = function() {
     return Promise.all(puntosInterpolados.map(function(punto) {
         return Promise.all([
             window.elevationHandler.obtenerElevacion(punto.lat, punto.lng),
-            window.vegetacionHandler.obtenerVegetacionEnPunto(punto.lat, punto.lng)
+            // Usar window.vegetationHandler (sin acento) que es el estándar global
+            window.vegetationHandler ? window.vegetationHandler.obtenerVegetacionEnPunto(punto.lat, punto.lng) : Promise.resolve('unknown')
         ]).then(function(resultados) {
             return {
                 lat: punto.lat,

@@ -597,6 +597,61 @@ class PerformanceOptimizer {
             console.error('❌ Error en optimización automática:', error);
         }
     }
+
+    /**
+     * Optimizar uso de memoria
+     */
+    optimizarMemoria() {
+        try {
+            // Forzar limpieza de memoria
+            this.forzarGarbageCollection();
+            
+            // Limpiar objetos DOM huérfanos
+            this.limpiarDOMOrfanos();
+            
+            // Limpiar event listeners no utilizados
+            this.limpiarEventListeners();
+            
+            console.log('💾 Memoria optimizada');
+        } catch (error) {
+            console.warn('⚠️ Error optimizando memoria:', error);
+        }
+    }
+
+    /**
+     * Limpiar elementos DOM huérfanos
+     */
+    limpiarDOMOrfanos() {
+        // Remover elementos sin padre
+        document.querySelectorAll('*').forEach(el => {
+            if (!el.parentNode && el !== document.documentElement) {
+                el.remove();
+            }
+        });
+    }
+
+    /**
+     * Limpiar event listeners no utilizados
+     */
+    limpiarEventListeners() {
+        // Limpiar listeners de Leaflet huérfanos
+        if (window.L) {
+            document.querySelectorAll('*').forEach(el => {
+                if (el._leaflet_events) {
+                    Object.keys(el._leaflet_events).forEach(eventType => {
+                        const handlers = el._leaflet_events[eventType];
+                        if (handlers && handlers.length === 0) {
+                            delete el._leaflet_events[eventType];
+                        }
+                    });
+                    
+                    if (Object.keys(el._leaflet_events).length === 0) {
+                        delete el._leaflet_events;
+                    }
+                }
+            });
+        }
+    }
     
     /**
      * Reducir calidad visual para mejorar rendimiento

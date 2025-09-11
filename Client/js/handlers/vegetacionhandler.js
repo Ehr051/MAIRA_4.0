@@ -321,6 +321,12 @@ class VegetacionHandler {
 // Exportar para uso global
 if (typeof window !== 'undefined') {
     window.VegetacionHandler = VegetacionHandler;
+    
+    // Inicializar automáticamente
+    if (!window.vegetationHandler) {
+        window.vegetationHandler = new VegetacionHandler();
+        console.log('🌿 VegetationHandler inicializado automáticamente');
+    }
 }
 
 // Para Node.js

@@ -35,13 +35,20 @@ L.GridLayer.MGRS = L.GridLayer.extend({
         
         if (isFinite(nw.lat) && isFinite(nw.lng) && isFinite(se.lat) && isFinite(se.lng)) {
             try {
-                var mgrsNW = mgrs.forward([nw.lng, nw.lat], 5);
-                var mgrsSE = mgrs.forward([se.lng, se.lat], 5);
-                
-                tile.innerHTML = '<div class="grid-label-text" style="position: absolute; top: 0; left: 0;">' + mgrsNW + '</div>' +
-                                 '<div class="grid-label-text" style="position: absolute; bottom: 0; right: 0;">' + mgrsSE + '</div>';
+                // Verificar que mgrs esté disponible
+                if (typeof window.mgrs !== 'undefined') {
+                    var mgrsNW = window.mgrs.forward([nw.lng, nw.lat], 5);
+                    var mgrsSE = window.mgrs.forward([se.lng, se.lat], 5);
+                    
+                    tile.innerHTML = '<div class="grid-label-text" style="position: absolute; top: 0; left: 0;">' + mgrsNW + '</div>' +
+                                     '<div class="grid-label-text" style="position: absolute; bottom: 0; right: 0;">' + mgrsSE + '</div>';
+                } else {
+                    console.warn('⚠️ Librería MGRS no disponible - cargue dependency-manager.js primero');
+                    tile.innerHTML = '<div class="grid-label-text">Grid</div>';
+                }
             } catch (error) {
                 console.error('Error al crear tile MGRS:', error);
+                tile.innerHTML = '<div class="grid-label-text">Grid</div>';
             }
         }
         

@@ -59,7 +59,14 @@ class TransitabilidadHandler {
             }
             
             if (typeof window.vegetationHandler === 'undefined') {
-                console.warn('⚠️ VegetationHandler no disponible');
+                console.warn('⚠️ VegetationHandler no disponible, intentando inicializar...');
+                // Intentar inicializar VegetationHandler si la clase está disponible
+                if (typeof VegetacionHandler !== 'undefined') {
+                    window.vegetationHandler = new VegetacionHandler();
+                    console.log('✅ VegetationHandler inicializado correctamente');
+                } else {
+                    console.warn('⚠️ Clase VegetacionHandler no encontrada - archivo no cargado');
+                }
             }
             
             this.initialized = true;

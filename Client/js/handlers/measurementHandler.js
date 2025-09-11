@@ -639,16 +639,31 @@ function mostrarMenuContextualLinea(evento, linea) {
         },
         {
             icono: '🖊️',
-            texto: 'Editar Línea',
+            texto: 'Editar Propiedades',
             accion: () => {
-                // Habilitar modo edición
-                if (!linea.editing) {
-                    linea.editing = new L.Edit.Poly(linea);
-                }
-                linea.editing.enable();
+                // Seleccionar elemento primero
+                window.seleccionarElemento(linea);
                 
-                if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                    window.MAIRA.Utils.mostrarNotificacion('Línea en modo edición. Arrastra los puntos para modificar.', 'info');
+                // Usar editarElementoSeleccionado de edicioncompleto.js que determina el tipo
+                if (typeof window.editarElementoSeleccionado === 'function') {
+                    console.log('📋 Usando editarElementoSeleccionado de edicioncompleto.js');
+                    window.editarElementoSeleccionado();
+                } else if (typeof window.editarElementoSeleccionadoOriginal === 'function') {
+                    console.log('📋 Usando editarElementoSeleccionadoOriginal como fallback');
+                    window.editarElementoSeleccionadoOriginal();
+                } else {
+                    // Fallback: solo habilitar edición visual
+                    console.log('📋 Fallback: solo edición visual');
+                    if (!linea.editing) {
+                        linea.editing = new L.Edit.Poly(linea);
+                    }
+                    linea.editing.enable();
+                    
+                    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                        window.MAIRA.Utils.mostrarNotificacion('Línea en modo edición. Arrastra los puntos para modificar.', 'info');
+                    } else {
+                        alert('[INFO] Línea en modo edición. Arrastra los puntos para modificar.');
+                    }
                 }
                 menu.remove();
             }

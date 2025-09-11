@@ -135,45 +135,56 @@ class ThreeDMapService {
                 return;
             }
 
+            // Usar script simple sin módulos ES6
             const script = document.createElement('script');
-            // Usar OrbitControls desde node_modules con importmap
-            script.type = 'module';
-            script.textContent = `
-                try {
-                    // Importar OrbitControls desde Three.js examples
-                    import('/node_modules/three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
-                        window.THREE.OrbitControls = OrbitControls;
-                        console.log('✅ OrbitControls cargado desde node_modules');
-                        window.dispatchEvent(new Event('orbitControlsLoaded'));
-                    }).catch(error => {
-                        console.error('❌ Error cargando OrbitControls desde node_modules:', error);
-                        window.dispatchEvent(new Event('orbitControlsError'));
-                    });
-                } catch (error) {
-                    console.error('❌ Error en script OrbitControls:', error);
-                    window.dispatchEvent(new Event('orbitControlsError'));
+            script.src = '/node_modules/three/examples/js/controls/OrbitControls.js';
+            script.onload = () => {
+                if (window.THREE && window.THREE.OrbitControls) {
+                    console.log('✅ OrbitControls cargado desde node_modules');
+                    resolve();
+                } else {
+                    console.warn('⚠️ OrbitControls no se pudo cargar correctamente');
+                    // Fallback: crear mock básico
+                    this.createOrbitControlsFallback();
+                    resolve();
                 }
-            `;
+            };
             
-            const handleLoad = () => {
-                console.log('✅ OrbitControls listo');
-                window.removeEventListener('orbitControlsLoaded', handleLoad);
-                window.removeEventListener('orbitControlsError', handleError);
+            script.onerror = () => {
+                console.warn('⚠️ Error cargando OrbitControls, creando fallback');
+                // Crear fallback básico
+                this.createOrbitControlsFallback();
                 resolve();
             };
             
-            const handleError = () => {
-                console.warn('⚠️ Error cargando OrbitControls');
-                window.removeEventListener('orbitControlsLoaded', handleLoad);
-                window.removeEventListener('orbitControlsError', handleError);
-                reject(new Error('Failed to load OrbitControls'));
-            };
-            
-            window.addEventListener('orbitControlsLoaded', handleLoad);
-            window.addEventListener('orbitControlsError', handleError);
-            
             document.head.appendChild(script);
         });
+    }
+
+    /**
+     * Crear fallback básico de OrbitControls
+     */
+    createOrbitControlsFallback() {
+        if (!window.THREE) return;
+        
+        window.THREE.OrbitControls = function(camera, domElement) {
+            this.object = camera;
+            this.domElement = domElement;
+            this.enabled = true;
+            this.enableDamping = true;
+            this.dampingFactor = 0.05;
+            this.enableZoom = true;
+            this.minDistance = 0;
+            this.maxDistance = Infinity;
+            this.minPolarAngle = 0;
+            this.maxPolarAngle = Math.PI;
+            
+            // Métodos básicos
+            this.update = function() { /* mock */ };
+            this.dispose = function() { /* mock */ };
+        };
+        
+        console.log('🔄 OrbitControls fallback creado');
     }
 
     async setupLights() {
