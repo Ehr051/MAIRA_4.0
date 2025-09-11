@@ -315,18 +315,43 @@ function habilitarDobleClicEnElementos() {
         if (layer instanceof L.Path || layer instanceof L.Marker) {
             layer.off('click').on('click', function(e) {
                 L.DomEvent.stopPropagation(e);
-                seleccionarElemento(this);
+                console.log('🎯 Click en elemento:', this.constructor.name);
+                // Usar la función global de selección
+                if (typeof window.seleccionarElemento === 'function') {
+                    window.seleccionarElemento(this);
+                } else if (window.mapInteractionHandler && window.mapInteractionHandler.seleccionarElemento) {
+                    window.mapInteractionHandler.seleccionarElemento(this);
+                } else {
+                    console.warn('⚠️ Sistema de selección no disponible');
+                    window.elementoSeleccionado = this;
+                }
             });
 
             layer.off('dblclick').on('dblclick', function(e) {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
-                mostrarMenuContextual(e);
+                console.log('🎯 Doble click en elemento - abriendo edición');
+                // Seleccionar primero
+                if (typeof window.seleccionarElemento === 'function') {
+                    window.seleccionarElemento(this);
+                } else {
+                    window.elementoSeleccionado = this;
+                }
+                // Luego editar
+                if (typeof window.editarElementoSeleccionado === 'function') {
+                    window.editarElementoSeleccionado();
+                }
             });
 
             layer.off('contextmenu').on('contextmenu', function(e) {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
+                // Seleccionar elemento antes del menú contextual
+                if (typeof window.seleccionarElemento === 'function') {
+                    window.seleccionarElemento(this);
+                } else {
+                    window.elementoSeleccionado = this;
+                }
                 mostrarMenuContextual(e);
             });
         }
@@ -667,7 +692,19 @@ function finalizarDibujo(e) {
         }
         
 
-        elemento.on('click', function() { seleccionarElemento(this); });
+        // Event handler para selección con verificación de disponibilidad
+        elemento.on('click', function(e) {
+            console.log('🎯 Click en elemento creado:', this.constructor.name);
+            L.DomEvent.stopPropagation(e);
+            if (typeof window.seleccionarElemento === 'function') {
+                window.seleccionarElemento(this);
+            } else if (window.mapInteractionHandler && window.mapInteractionHandler.seleccionarElemento) {
+                window.mapInteractionHandler.seleccionarElemento(this);
+            } else {
+                console.warn('⚠️ Sistema de selección no disponible');
+                window.elementoSeleccionado = this;
+            }
+        });
 
         if (typeof registrarAccion === 'function') {
             registrarAccion({

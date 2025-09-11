@@ -2019,8 +2019,9 @@ function editarElementoSeleccionado() {
                 console.log("🎯 [DEBUG] Es unidad, mostrando panel unidad");
                 mostrarPanelEdicionUnidad(elementoSeleccionado);
             } else {
-                console.log("🎯 [DEBUG] Elemento especial");
-                mostrarPanelEdicionElementoEspecial(elementoSeleccionado);
+                console.log("🎯 [DEBUG] Elemento especial, tratando como MCC");
+                // Para elementos sin SIDC específico, tratar como MCC
+                mostrarPanelEdicionMCC(elementoSeleccionado, 'linea');
             }
         } else {
             console.log("🎯 [DEBUG] Elemento sin SIDC identificado");
