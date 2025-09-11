@@ -12,7 +12,84 @@ class MeasurementHandler {
         this.calcoActivo = null;
         this.mapa = null;
         
-        console.log('✅ MeasurementHandler inicializado con Leaflet');
+        // ✅ FUNCIONES GLOBALES RESTAURADAS PARA EDICIÓN DE LÍNEAS
+window.hacerLineaEditable = function(linea) {
+    if (!linea || !(linea instanceof L.Polyline)) {
+        console.warn('⚠️ Elemento no válido para hacer editable');
+        return false;
+    }
+    
+    console.log('🖊️ Haciendo línea editable...');
+    
+    // Habilitar edición nativa de Leaflet
+    if (!linea.editing) {
+        linea.editing = new L.Edit.Poly(linea);
+    }
+    linea.editing.enable();
+    
+    // Agregar eventos de edición
+    linea.on('edit', function() {
+        if (window.measurementHandler) {
+            // Buscar ID de la línea en el handler
+            for (let [lineId, lineData] of Object.entries(window.measurementHandler.lineas)) {
+                if (lineData.polyline === linea) {
+                    window.measurementHandler.actualizarLinea(lineId);
+                    break;
+                }
+            }
+        }
+    });
+    
+    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+        window.MAIRA.Utils.mostrarNotificacion('Línea editable activada. Arrastra los puntos para modificar.', 'success');
+    }
+    
+    return true;
+};
+
+window.deshabilitarEdicionLinea = function(linea) {
+    if (!linea || !linea.editing) {
+        return false;
+    }
+    
+    console.log('🔒 Deshabilitando edición de línea...');
+    linea.editing.disable();
+    
+    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+        window.MAIRA.Utils.mostrarNotificacion('Edición de línea deshabilitada.', 'info');
+    }
+    
+    return true;
+};
+
+window.convertirAPolyline = function(elemento) {
+    if (!elemento) return null;
+    
+    // Si ya es polyline, retornar
+    if (elemento instanceof L.Polyline) {
+        console.log('✅ El elemento ya es una polyline');
+        return elemento;
+    }
+    
+    // Si es un polígono, convertir a polyline
+    if (elemento instanceof L.Polygon) {
+        console.log('🔄 Convirtiendo polígono a polyline...');
+        const coordenadas = elemento.getLatLngs()[0]; // Los polígonos tienen coordenadas anidadas
+        const nuevaPolyline = L.polyline(coordenadas, elemento.options);
+        
+        // Copiar propiedades importantes
+        if (elemento.distancia) nuevaPolyline.distancia = elemento.distancia;
+        if (elemento.options.distancia) nuevaPolyline.options.distancia = elemento.options.distancia;
+        
+        return nuevaPolyline;
+    }
+    
+    console.warn('⚠️ Tipo de elemento no compatible para conversión a polyline');
+    return null;
+};
+
+console.log('✅ MeasurementHandler con Leaflet cargado y funciones exportadas al scope global');
+console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditable, deshabilitarEdicionLinea, convertirAPolyline');
     }
     
     // Establecer referencia al mapa
@@ -101,6 +178,37 @@ class MeasurementHandler {
                 const mostrarPerfil = window.mostrarPerfilElevacion || window.mostrarGraficoPerfil;
                 mostrarPerfil();
             }
+        });
+
+        // ✅ FUNCIONALIDAD DE EDICIÓN RESTAURADA - Doble click para editar
+        nuevaLinea.on('dblclick', function(e) {
+            L.DomEvent.stopPropagation(e);
+            console.log('🖊️ Activando modo edición para línea de medición');
+            
+            // Habilitar edición nativa de Leaflet
+            if (!this.editing) {
+                this.editing = new L.Edit.Poly(this);
+            }
+            this.editing.enable();
+            
+            // Mensaje al usuario
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion('Línea en modo edición. Arrastra los puntos para modificar. Click fuera para terminar.', 'info');
+            } else {
+                console.log('📝 Línea en modo edición - arrastra los puntos para modificar');
+            }
+        });
+
+        // ✅ EVENTO PARA ACTUALIZAR DISTANCIA AL EDITAR
+        nuevaLinea.on('edit', function(e) {
+            const self = this;
+            // Recalcular distancia después de editar
+            setTimeout(() => {
+                if (window.measurementHandler) {
+                    const nuevaDistancia = window.measurementHandler.actualizarLinea(id);
+                    console.log('📏 Distancia actualizada tras edición:', nuevaDistancia.toFixed(2), 'm');
+                }
+            }, 100);
         });
         
         return id;

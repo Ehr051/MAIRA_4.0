@@ -136,9 +136,14 @@ class ThreeDMapService {
             }
 
             const script = document.createElement('script');
-            script.src = '/node_modules/three/examples/js/controls/OrbitControls.js';
+            // Usar la ruta correcta para three-orbitcontrols
+            script.src = 'node_modules/three-orbitcontrols/OrbitControls.js';
             script.onload = () => {
-                console.log('✅ OrbitControls script cargado');
+                console.log('✅ OrbitControls script cargado desde three-orbitcontrols');
+                // Asignar a THREE.OrbitControls si no está ahí
+                if (typeof OrbitControls !== 'undefined' && !window.THREE.OrbitControls) {
+                    window.THREE.OrbitControls = OrbitControls;
+                }
                 resolve();
             };
             script.onerror = () => {
@@ -192,7 +197,10 @@ class ThreeDMapService {
             this.scene.add(this.terrainMesh);
 
             console.log('✅ Terreno 3D cargado');
-            this.core.emit('terrainLoaded', { mesh: this.terrainMesh });
+            // Solo emit si core está disponible y tiene la función emit
+            if (this.core && typeof this.core.emit === 'function') {
+                this.core.emit('terrainLoaded', { mesh: this.terrainMesh });
+            }
 
         } catch (error) {
             console.error('❌ Error cargando terreno 3D:', error);

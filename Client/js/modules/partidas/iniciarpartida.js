@@ -4,6 +4,9 @@ let partidaActual = null;
 let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
+let socket = null;
+let userId = null;
+let userName = null;
 
 // 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
 console.log('🚀 Inicializando iniciarpartida (ejecución inmediata)');
@@ -234,11 +237,16 @@ function volverConfiguracionGeneral() {
     document.getElementById('configuracionGeneralLocal').style.display = 'block';
 }
 
+function iniciarJuegoLocal(configuracion) {
+    console.log('🏠 Iniciando juego local con configuración:', configuracion);
+    localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
+    window.location.href = 'juegodeguerra.html';
+}
+
 function iniciarJuegoLocalDesdeUI() {
     if (validarConfiguracionJugadores()) {
         const configuracion = recopilarConfiguracionPartida();
-        localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
-        window.location.href = 'juegodeguerra.html';
+        iniciarJuegoLocal(configuracion);
     }
 }
 
@@ -344,7 +352,91 @@ function manejarInvitacionRecibida(data) {
     }
 }
 
+function unirseAPartida(codigo) {
+    console.log('🎯 Función unirseAPartida llamada con código:', codigo);
+    
+    // Si no se proporciona código, obtenerlo del formulario
+    if (!codigo) {
+        codigo = document.getElementById('codigoPartida')?.value?.trim();
+    }
+    
+    if (typeof codigo !== 'string' || codigo.length === 0) {
+        console.error('❌ El código de partida no es válido:', codigo);
+        mostrarError('Código de partida no válido');
+        return;
+    }
 
+    console.log('✅ Intentando unirse a la partida con código:', codigo);
+    mostrarIndicadorCarga();
+
+    // Si ya estamos en la partida con el mismo código, redirigimos a la sala de espera
+    if (partidaActual && partidaActual.codigo === codigo) {
+        console.log('ℹ️ Ya estás en esta partida, mostrando sala de espera');
+        mostrarSalaEspera(partidaActual);
+        ocultarIndicadorCarga();
+        return;
+    }
+
+    // Si ya estamos en otra partida, salimos de la partida actual antes de unirnos a otra
+    if (partidaActual) {
+        console.log('🔄 Ya estás en una partida. Saliendo de la partida actual antes de unirse a otra.');
+        socket.emit('salirPartida', { codigo: partidaActual.codigo }, () => {
+            partidaActual = null; // Limpiar la partida actual antes de unirse a la nueva
+            emitirUnirseAPartida(codigo);
+        });
+    } else {
+        emitirUnirseAPartida(codigo);
+    }
+}
+
+function emitirUnirseAPartida(codigo) {
+    console.log('Emitiendo evento unirseAPartida con:', {
+        codigo: codigo,
+        userId: userId, 
+        userName: userName
+    });
+    
+    socket.emit('unirseAPartida', { 
+        codigo: codigo,
+        userId: userId,
+        userName: userName
+    });
+
+    // Configurar listeners para manejar respuestas
+    socket.once('unidoAPartida', function(datosPartida) {
+        ocultarIndicadorCarga();
+        console.log("Unido a la partida con éxito:", datosPartida);
+        
+        // Guardar datos para transición a juegodeguerra.html
+        partidaActual = datosPartida;
+        
+        // Encontrar el equipo del jugador
+        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const equipoJugador = miJugador ? miJugador.equipo : null;
+        
+        // Guardar en sessionStorage para mantener durante navegación
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+            partidaActual: datosPartida,
+            userId: userId,
+            userName: userName,
+            equipoJugador: equipoJugador
+        }));
+        
+        // Mostrar sala de espera
+        mostrarSalaEspera(datosPartida);
+        
+        // Cambiar de sala para el chat
+        if (window.cambiarSalaChat) {
+            window.cambiarSalaChat(codigo);
+        }
+    });
+
+    socket.once('errorUnirseAPartida', function(error) {
+        ocultarIndicadorCarga();
+        console.error('Error al unirse a la partida:', error);
+        mostrarError(error.mensaje || 'Error al unirse a la partida');
+    });
+}
 
 function limpiarFormularioCrearPartida() {
     document.getElementById('nombrePartida').value = '';
@@ -372,7 +464,9 @@ function iniciarJuego(data) {
 
 
 async function inicializarSocket() {
-    console.log('Conectando al servidor:', SERVER_URL);
+    // Verificar que SERVER_URL esté disponible
+    const serverUrl = window.SERVER_URL || 'http://localhost:5000';
+    console.log('Conectando al servidor:', serverUrl);
     
     try {
         // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
@@ -653,6 +747,72 @@ function obtenerPartidasDisponibles() {
     }
 }
 
+function crearPartida(e) {
+    e.preventDefault();
+    
+    console.log('🎮 Validando antes de crear partida...');
+    
+    // Verificar conexión de socket
+    if (!socket || !socket.connected) {
+        console.error('❌ Socket no conectado');
+        mostrarError('Error: No hay conexión con el servidor. Intentar reconectar.');
+        return;
+    }
+    
+    // Verificar datos de usuario usando UserIdentity
+    let currentUserId, currentUserName;
+    
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        currentUserId = MAIRA.UserIdentity.getUserId();
+        currentUserName = MAIRA.UserIdentity.getUsername();
+    } else {
+        // Fallback a variables globales
+        currentUserId = userId;
+        currentUserName = userName;
+    }
+    
+    if (!currentUserId || !currentUserName) {
+        console.error('❌ Datos de usuario no configurados');
+        mostrarError('Error: Datos de usuario no configurados. Redirigir a inicio.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log(`✅ Usuario validado: ${currentUserName} (${currentUserId})`);
+    
+    // Asegurar variables globales para compatibilidad
+    window.userId = currentUserId;
+    window.userName = currentUserName;
+    
+    console.log('✅ Validaciones pasadas, continuando...');
+    
+    const nombrePartida = document.getElementById('nombrePartida').value;
+    const duracionPartida = document.getElementById('duracionPartida').value;
+    const duracionTurno = document.getElementById('duracionTurno').value;
+    const objetivoPartida = document.getElementById('objetivoPartida').value;
+    
+    if (!nombrePartida || !duracionPartida || !duracionTurno || !objetivoPartida) {
+        mostrarError('Por favor, complete todos los campos');
+        return;
+    }
+    
+    const configuracion = {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modo: modoSeleccionado,
+        creadorId: currentUserId
+    };
+
+    if (modoSeleccionado === 'local') {
+        iniciarJuegoLocal(configuracion);
+    } else {
+        console.log('🚀 Enviando crear partida al servidor...');
+        socket.emit('crearPartida', { configuracion });
+    }
+}
+
 function crearPartidaOnline() {
     console.log('🎮 Creando partida online...');
     
@@ -808,6 +968,27 @@ window.manejarReconexion = manejarReconexion;
 window.manejarErrorConexion = manejarErrorConexion;
 window.inicializarEventListeners = inicializarEventListeners;
 window.inicializarInterfazUsuario = inicializarInterfazUsuario;
+// ✅ FUNCIONES AUXILIARES FALTANTES
+function mostrarIndicadorCarga() {
+    const indicador = document.getElementById('indicadorCarga');
+    if (indicador) {
+        indicador.style.display = 'block';
+    }
+}
+
+function ocultarIndicadorCarga() {
+    const indicador = document.getElementById('indicadorCarga');
+    if (indicador) {
+        indicador.style.display = 'none';
+    }
+}
+
+function mostrarError(mensaje) {
+    console.error('❌ Error:', mensaje);
+    alert(mensaje); // Por ahora usar alert, después se puede mejorar con modal
+}
+
+// ✅ EXPORTACIONES GLOBALES
 window.actualizarInfoUsuario = actualizarInfoUsuario;
 window.cambiarModoJuego = cambiarModoJuego;
 window.mostrarFormularioCrearPartida = mostrarFormularioCrearPartida;
@@ -834,7 +1015,9 @@ window.recopilarConfiguracionPartida = recopilarConfiguracionPartida;
 window.actualizarListaJugadoresLocal = actualizarListaJugadoresLocal;
 window.manejarConexion = manejarConexion;
 window.unirseAPartida = unirseAPartida;
+window.crearPartida = crearPartida;
 window.crearPartidaOnline = crearPartidaOnline;
+window.iniciarJuegoLocal = iniciarJuegoLocal;
 window.mostrarSalaEspera = mostrarSalaEspera;
 window.actualizarListaJugadoresSala = actualizarListaJugadoresSala;
 

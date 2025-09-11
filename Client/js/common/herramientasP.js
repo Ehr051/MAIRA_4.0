@@ -167,5 +167,58 @@
         console.log('✅ MAIRA.Utils stub inicializado');
     }
 
+    // ✅ FUNCIÓN CRÍTICA PERDIDA: interpolarPuntosRuta 
+    // Función necesaria para CalculoMarcha.js - interpola puntos en una ruta
+    window.interpolarPuntosRuta = function(puntosBase, numeroSegmentos = 10) {
+        try {
+            if (!puntosBase || puntosBase.length < 2) {
+                console.warn('⚠️ interpolarPuntosRuta: No hay suficientes puntos para interpolar');
+                return puntosBase || [];
+            }
+
+            console.log('🔄 Interpolando ruta con', puntosBase.length, 'puntos base');
+            
+            const puntosInterpolados = [];
+            
+            for (let i = 0; i < puntosBase.length - 1; i++) {
+                const puntoInicio = puntosBase[i];
+                const puntoFin = puntosBase[i + 1];
+                
+                // Agregar punto de inicio
+                puntosInterpolados.push({
+                    lat: puntoInicio.lat,
+                    lng: puntoInicio.lng
+                });
+                
+                // Interpolar puntos intermedios entre cada par de puntos
+                for (let j = 1; j < numeroSegmentos; j++) {
+                    const factor = j / numeroSegmentos;
+                    const lat = puntoInicio.lat + (puntoFin.lat - puntoInicio.lat) * factor;
+                    const lng = puntoInicio.lng + (puntoFin.lng - puntoInicio.lng) * factor;
+                    
+                    puntosInterpolados.push({
+                        lat: lat,
+                        lng: lng
+                    });
+                }
+            }
+            
+            // Agregar último punto
+            const ultimoPunto = puntosBase[puntosBase.length - 1];
+            puntosInterpolados.push({
+                lat: ultimoPunto.lat,
+                lng: ultimoPunto.lng
+            });
+            
+            console.log('✅ Ruta interpolada:', puntosInterpolados.length, 'puntos totales');
+            return puntosInterpolados;
+            
+        } catch (error) {
+            console.error('❌ Error en interpolarPuntosRuta:', error);
+            return puntosBase || [];
+        }
+    };
+
     console.log("✅ herramientasP.js stub cargado - funcionalidad en módulos especializados");
+    console.log("✅ interpolarPuntosRuta restaurada para CalculoMarcha.js");
 })();

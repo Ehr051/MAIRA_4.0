@@ -376,8 +376,11 @@ class PerformanceOptimizer {
             if (currentTime >= lastTime + 1000) {
                 const fps = Math.round((frames * 1000) / (currentTime - lastTime));
                 
-                if (fps < 30) {
-                    console.warn(`⚠️ FPS bajo detectado: ${fps}`);
+                // Solo reportar FPS críticos para evitar spam en consola
+                if (fps < 15) {
+                    console.warn(`⚠️ FPS crítico detectado: ${fps}`);
+                    // Intentar optimización automática
+                    this.optimizarAutomaticamente();
                 }
                 
                 frames = 0;
