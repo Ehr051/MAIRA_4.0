@@ -36,7 +36,7 @@
 #### 4. **CO.html Dependencies - CORREGIDO ✅**
 **Problema:** Paths incorrectos para dependencias causando fallos de carga
 **Solución:**
-- Corregidos paths de `../node_modules/` a `/node_modules/`
+- Corregidos paths de `/node_modules/` a `/node_modules/`
 - Font Awesome cambiado de CDN a versión local: `/node_modules/@fortawesome/fontawesome-free/css/all.min.css`
 - Verificadas dependencias críticas: jQuery, Leaflet, milsymbol, jsPlumb
 

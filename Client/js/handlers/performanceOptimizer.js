@@ -380,7 +380,12 @@ class PerformanceOptimizer {
                 if (fps < 15) {
                     console.warn(`⚠️ FPS crítico detectado: ${fps}`);
                     // Intentar optimización automática
-                    this.optimizarAutomaticamente();
+                    if (typeof this.optimizarAutomaticamente === 'function') {
+                        this.optimizarAutomaticamente();
+                    } else {
+                        // Optimización básica alternativa
+                        this.optimizarMemoria();
+                    }
                 }
                 
                 frames = 0;
@@ -569,6 +574,54 @@ class PerformanceOptimizer {
     handleInputChange(event) {
         // Aquí se pueden agregar validaciones optimizadas
         console.log(`Input changed: ${event.target.name || event.target.id}`);
+    }
+    
+    /**
+     * Optimización automática cuando el FPS es crítico
+     */
+    optimizarAutomaticamente() {
+        console.log('🔧 Ejecutando optimización automática por FPS crítico');
+        
+        try {
+            // Limpiar cachés para liberar memoria
+            this.limpiarCaches();
+            
+            // Optimizar memoria
+            this.optimizarMemoria();
+            
+            // Reducir calidad visual temporalmente si es posible
+            this.reducirCalidadVisual();
+            
+            console.log('✅ Optimización automática completada');
+        } catch (error) {
+            console.error('❌ Error en optimización automática:', error);
+        }
+    }
+    
+    /**
+     * Reducir calidad visual para mejorar rendimiento
+     */
+    reducirCalidadVisual() {
+        try {
+            // Reducir transparencias
+            const elementos = document.querySelectorAll('[style*="opacity"], .fade, .transparent');
+            elementos.forEach(el => {
+                const currentOpacity = window.getComputedStyle(el).opacity;
+                if (parseFloat(currentOpacity) < 1 && parseFloat(currentOpacity) > 0.5) {
+                    el.style.opacity = '0.7';
+                }
+            });
+            
+            // Deshabilitar animaciones CSS temporalmente
+            document.body.style.transition = 'none';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 5000);
+            
+            console.log('🎨 Calidad visual reducida temporalmente');
+        } catch (error) {
+            console.warn('⚠️ Error reduciendo calidad visual:', error);
+        }
     }
 }
 

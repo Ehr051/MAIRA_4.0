@@ -136,20 +136,42 @@ class ThreeDMapService {
             }
 
             const script = document.createElement('script');
-            // Usar la ruta correcta para three-orbitcontrols
-            script.src = 'node_modules/three-orbitcontrols/OrbitControls.js';
-            script.onload = () => {
-                console.log('✅ OrbitControls script cargado desde three-orbitcontrols');
-                // Asignar a THREE.OrbitControls si no está ahí
-                if (typeof OrbitControls !== 'undefined' && !window.THREE.OrbitControls) {
-                    window.THREE.OrbitControls = OrbitControls;
+            // Usar OrbitControls desde node_modules con importmap
+            script.type = 'module';
+            script.textContent = `
+                try {
+                    // Importar OrbitControls desde Three.js examples
+                    import('/node_modules/three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
+                        window.THREE.OrbitControls = OrbitControls;
+                        console.log('✅ OrbitControls cargado desde node_modules');
+                        window.dispatchEvent(new Event('orbitControlsLoaded'));
+                    }).catch(error => {
+                        console.error('❌ Error cargando OrbitControls desde node_modules:', error);
+                        window.dispatchEvent(new Event('orbitControlsError'));
+                    });
+                } catch (error) {
+                    console.error('❌ Error en script OrbitControls:', error);
+                    window.dispatchEvent(new Event('orbitControlsError'));
                 }
+            `;
+            
+            const handleLoad = () => {
+                console.log('✅ OrbitControls listo');
+                window.removeEventListener('orbitControlsLoaded', handleLoad);
+                window.removeEventListener('orbitControlsError', handleError);
                 resolve();
             };
-            script.onerror = () => {
-                console.warn('⚠️ Error cargando OrbitControls script');
+            
+            const handleError = () => {
+                console.warn('⚠️ Error cargando OrbitControls');
+                window.removeEventListener('orbitControlsLoaded', handleLoad);
+                window.removeEventListener('orbitControlsError', handleError);
                 reject(new Error('Failed to load OrbitControls'));
             };
+            
+            window.addEventListener('orbitControlsLoaded', handleLoad);
+            window.addEventListener('orbitControlsError', handleError);
+            
             document.head.appendChild(script);
         });
     }

@@ -229,8 +229,25 @@ def serve_node_modules(filename):
         
         if not os.path.exists(node_modules_dir):
             print(f"❌ node_modules no encontrado en: {node_modules_dir}")
-            # Fallback: si no existe node_modules, devolver error
-            return f"console.error('node_modules not found in {node_modules_dir}');", 404, {'Content-Type': 'application/javascript'}
+            # Intentar rutas alternativas
+            alternate_paths = [
+                '/opt/render/project/src/node_modules',  # Ruta típica de Render
+                os.path.join(os.getcwd(), 'node_modules'),  # Working directory
+                '/app/node_modules'  # Ruta Docker típica
+            ]
+            for alt_path in alternate_paths:
+                if os.path.exists(alt_path):
+                    print(f"✅ node_modules encontrado en ruta alternativa: {alt_path}")
+                    node_modules_dir = alt_path
+                    break
+            else:
+                # Ninguna ruta funcionó
+                error_msg = f"node_modules not found. Tried: {[node_modules_dir] + alternate_paths}"
+                print(f"❌ {error_msg}")
+                if filename.endswith('.js'):
+                    return f"console.error('{error_msg}');", 404, {'Content-Type': 'application/javascript'}
+                else:
+                    return f"/* {error_msg} */", 404, {'Content-Type': 'text/css'}
         
         file_path = os.path.join(node_modules_dir, filename)
         print(f"🔍 Ruta completa del archivo: {file_path}")
@@ -813,32 +830,25 @@ def proxy_github_file(file_path):
 
 @app.route('/api/extract-tile', methods=['POST'])
 def extract_tile():
-    """Endpoint para extraer un tile específico desde un archivo TAR.GZ"""
+    """Endpoint para obtener tiles desde GitHub Releases - CORREGIDO"""
     try:
         data = request.json
         provincia = data.get('provincia')
         tile_filename = data.get('tile_filename')
-        tar_filename = data.get('tar_filename')
         
-        if not all([provincia, tile_filename, tar_filename]):
+        if not all([provincia, tile_filename]):
             return jsonify({"success": False, "message": "Faltan parámetros requeridos"}), 400
         
-        # Construir rutas
-        base_path = f"mini_tiles_github/{provincia}"
-        tar_path = os.path.join(base_path, tar_filename)
-        tiles_dir = os.path.join(base_path, "tiles")
-        output_path = os.path.join(tiles_dir, tile_filename)
+        # ✅ CORREGIDO: Responder que el tile debe cargarse desde GitHub Releases
+        # Los datos están en releases, no en archivos locales
+        github_url = f"https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/{provincia}/{tile_filename}"
         
-        # Verificar si el tile ya está extraído
-        if os.path.exists(output_path):
-            return jsonify({"success": True, "message": "Tile ya disponible", "path": f"/{output_path}"})
-        
-        # Crear directorio de tiles si no existe
-        os.makedirs(tiles_dir, exist_ok=True)
-        
-        # Verificar que el archivo TAR.GZ existe
-        if not os.path.exists(tar_path):
-            return jsonify({"success": False, "message": f"Archivo TAR.GZ no encontrado: {tar_path}"}), 404
+        return jsonify({
+            "success": True, 
+            "message": "Usar GitHub Releases",
+            "github_url": github_url,
+            "path": f"/{provincia}/{tile_filename}"
+        })
         
         # Extraer el tile específico
         tarfile_lib, traceback_lib = lazy_import_tarfile()
@@ -1784,10 +1794,11 @@ def unidad_desplegada(data):
     emit('unidadDesplegada', data, room=sala)
 
 @socketio.on('crearOperacionGB')
-def crear_operacion_gb(data):
+def crear_operacion_gb(data, callback=None):
     try:
         print("🎖️ [DEBUG] Iniciando creación de operación GB")
         print(f"📥 [DEBUG] Datos recibidos del frontend: {json.dumps(data, indent=2)}")
+        print(f"📞 [DEBUG] Callback recibido: {callback is not None}")
         
         nombre = data.get('nombre')
         descripcion = data.get('descripcion', '')
@@ -1797,7 +1808,10 @@ def crear_operacion_gb(data):
         
         if not nombre:
             print("❌ [DEBUG] Error: Nombre de operación faltante")
-            emit('error', {'mensaje': 'Nombre de operación requerido'})
+            if callback:
+                callback({'error': 'Nombre de operación requerido'})
+            else:
+                emit('error', {'mensaje': 'Nombre de operación requerido'})
             return
 
         codigo_operacion = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -1809,7 +1823,10 @@ def crear_operacion_gb(data):
         conn = get_db_connection()
         if conn is None:
             print("❌ [DEBUG] Error: No se pudo establecer conexión con la base de datos")
-            emit('error', {'mensaje': 'Error de conexión a la base de datos'})
+            if callback:
+                callback({'error': 'Error de conexión a la base de datos'})
+            else:
+                emit('error', {'mensaje': 'Error de conexión a la base de datos'})
             return
 
         try:
@@ -1869,8 +1886,13 @@ def crear_operacion_gb(data):
             join_room(f"gb_{codigo_operacion}", sid=request.sid)
             print(f"🏠 [DEBUG] Usuario unido a sala: gb_{codigo_operacion}")
             
-            print(f"📤 [DEBUG] Emitiendo 'operacionGBCreada' con datos: {operacion}")
-            emit('operacionGBCreada', {'operacion': operacion})
+            # Responder al callback si existe
+            if callback:
+                print("📞 [DEBUG] Respondiendo vía callback")
+                callback({'operacion': operacion})
+            else:
+                print(f"📤 [DEBUG] Emitiendo 'operacionGBCreada' con datos: {operacion}")
+                emit('operacionGBCreada', {'operacion': operacion})
             
             # Actualizar lista global de operaciones
             print("🔄 [DEBUG] Actualizando lista global de operaciones")
@@ -1883,7 +1905,10 @@ def crear_operacion_gb(data):
             print(f"❌ [DEBUG] Error en la base de datos al crear operación GB: {e}")
             print(f"📊 [DEBUG] Tipo de error: {type(e).__name__}")
             print(f"📄 [DEBUG] Detalles del error: {str(e)}")
-            emit('error', {'mensaje': f'Error en la base de datos: {str(e)}'})
+            if callback:
+                callback({'error': f'Error en la base de datos: {str(e)}'})
+            else:
+                emit('error', {'mensaje': f'Error en la base de datos: {str(e)}'})
         finally:
             cursor.close()
             conn.close()
@@ -1893,7 +1918,10 @@ def crear_operacion_gb(data):
         print(f"❌ [DEBUG] Error general al crear operación GB: {e}")
         print(f"📊 [DEBUG] Tipo de error: {type(e).__name__}")
         print(f"📄 [DEBUG] Detalles del error: {str(e)}")
-        emit('error', {'mensaje': f'Error interno: {str(e)}'})
+        if callback:
+            callback({'error': f'Error interno: {str(e)}'})
+        else:
+            emit('error', {'mensaje': f'Error interno: {str(e)}'})
 
 @socketio.on('obtenerOperacionesGB')
 def obtener_operaciones_gb(data=None):

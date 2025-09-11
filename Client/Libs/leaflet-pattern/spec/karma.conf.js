@@ -1,6 +1,6 @@
 // Karma configuration
 var libSources = require(__dirname+'/../build/build.js').getFiles();
-var leafletSources = require(__dirname+'/../node_modules/leaflet/build/build.js').getFiles();
+var leafletSources = require(__dirname+'//node_modules/leaflet/build/build.js').getFiles();
 
 // base path, that will be used to resolve files and exclude
 basePath = '';
@@ -9,12 +9,12 @@ for (var i=0; i < libSources.length; i++) {
 	libSources[i] = "../" + libSources[i];
 }
 for (var i=0; i < leafletSources.length; i++) {
-	leafletSources[i] = "../node_modules/leaflet/" + leafletSources[i];
+	leafletSources[i] = "/node_modules/leaflet/" + leafletSources[i];
 }
 
 // list of files / patterns to load in the browser
 files = [].concat([
-	"../node_modules/mocha/mocha.js",
+	"/node_modules/mocha/mocha.js",
 	MOCHA_ADAPTER,
 	"sinon.js",
 	"expect.js"

@@ -10,15 +10,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Estilos CSS -->
-  <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-draw/dist/leaflet.draw.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-  <link rel="stylesheet" href="node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-measure/dist/leaflet-measure.css" />
-  <link rel="stylesheet" href="node_modules/leaflet-easybutton/src/easy-button.css" />
-  <link rel="stylesheet" href="node_modules/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
+  <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
@@ -27,38 +27,38 @@
   <!-- Scripts JavaScript -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
   
-  <script src="node_modules/leaflet/dist/leaflet.js"></script>
-  <script src="node_modules/milsymbol/dist/milsymbol.js"></script>
-  <script src="node_modules/d3/dist/d3.min.js"></script>
-  <script src="node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
-  <script src="node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
-  <script src="node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
-  <script src="node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
-  <script src="node_modules/geotiff/dist-browser/geotiff.js"></script>
-  <script src="node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
-  <script src="node_modules/proj4/dist/proj4.js"></script>
-  <!-- <script src="../node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="/node_modules/d3/dist/d3.min.js"></script>
+  <script src="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="/node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="/node_modules/proj4/dist/proj4.js"></script>
+  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
   
   <!-- Three.js para visualización 3D -->
-  <script src="node_modules/three/build/three.min.js"></script>
+  <script src="/node_modules/three/build/three.min.js"></script>
   
   <script type="module">
-    import * as mgrs from 'node_modules/mgrs/mgrs.js';
+    import * as mgrs from '/node_modules/mgrs/mgrs.js';
     window.mgrs = mgrs;
   </script>
-  <script src="../node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
-  <script src="../node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <script src="../node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
-  <script src="../node_modules/leaflet-easybutton/src/easy-button.js"></script>
-  <script src="../node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
-  <script src="../node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
-  <script src="../node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
-  <script src="node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
-  <script src="../node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
-  <script src="../node_modules/file-saver/dist/FileSaver.js"></script>
+  <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
   <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
 
   <!-- Scripts personalizados -->

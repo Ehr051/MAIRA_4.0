@@ -148,7 +148,7 @@ this.cdnMap = {
 
 this.localFallbacks = {
     // ... fallbacks existentes
-    'nueva-libreria': '../node_modules/nueva-libreria/dist/nueva-libreria.js'
+    'nueva-libreria': '/node_modules/nueva-libreria/dist/nueva-libreria.js'
 };
 ```
 
@@ -212,7 +212,7 @@ const stats = window.dependencyManager.getStats();
 console.log('Local fallbacks disponibles:', stats);
 
 // Probar carga manual
-await window.dependencyManager.loadFromUrl('../node_modules/leaflet/dist/leaflet.js', 'script');
+await window.dependencyManager.loadFromUrl('/node_modules/leaflet/dist/leaflet.js', 'script');
 ```
 
 ### Problema: Versiones incompatibles

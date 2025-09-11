@@ -6,7 +6,7 @@
     "scripts": {
         "start": "python3 app.py",
         "build": "./render-build.sh",
-        "postinstall": "export NPM_CONFIG_PRODUCTION=false && npm install jquery bootstrap leaflet jsplumb @fortawesome/fontawesome-free socket.io-client chart.js three three-orbitcontrols milsymbol d3 --force",
+        "postinstall": "export NPM_CONFIG_PRODUCTION=false && npm install --verbose && echo 'Verificando dependencias críticas...' && ls node_modules/@fortawesome/ && ls node_modules/mgrs/ && ls node_modules/milsymbol/ && echo 'Dependencias verificadas'",
         "start-py": "python3 server/server.py",
         "start-js": "node server/node.js",
         "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py",
