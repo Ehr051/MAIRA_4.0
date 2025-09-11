@@ -160,7 +160,7 @@ console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditabl
             totalDistance: 0
         };
       
-        // ✅ EVENTOS DE LA LÍNEA PARA GRÁFICO DE MARCHA:
+        // ✅ EVENTOS DE LA LÍNEA - CLICK SOLO SELECCIONA, NO AUTO-PERFIL:
         nuevaLinea.on('click', function(e) {
             if (typeof window.seleccionarElemento === 'function') {
                 window.seleccionarElemento(this);
@@ -173,30 +173,18 @@ console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditabl
                     medicionDisplay.style.display = 'block';
                 }
             }
-            // Mostrar perfil de elevación si corresponde
-            if (window.mostrarPerfilElevacion || window.mostrarGraficoPerfil) {
-                const mostrarPerfil = window.mostrarPerfilElevacion || window.mostrarGraficoPerfil;
-                mostrarPerfil();
-            }
+            // ✅ NO AUTO-PERFIL: Solo seleccionar, el usuario debe usar el menú contextual
+            console.log('📏 Línea seleccionada. Doble-click para mostrar menú de opciones.');
         });
 
-        // ✅ FUNCIONALIDAD DE EDICIÓN RESTAURADA - Doble click para editar
+        // ✅ DOBLE-CLICK MUESTRA MENÚ CONTEXTUAL (NO AUTO-EDICIÓN):
         nuevaLinea.on('dblclick', function(e) {
             L.DomEvent.stopPropagation(e);
-            console.log('🖊️ Activando modo edición para línea de medición');
+            L.DomEvent.preventDefault(e);
+            console.log('📋 Mostrando menú contextual para línea');
             
-            // Habilitar edición nativa de Leaflet
-            if (!this.editing) {
-                this.editing = new L.Edit.Poly(this);
-            }
-            this.editing.enable();
-            
-            // Mensaje al usuario
-            if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                window.MAIRA.Utils.mostrarNotificacion('Línea en modo edición. Arrastra los puntos para modificar. Click fuera para terminar.', 'info');
-            } else {
-                console.log('📝 Línea en modo edición - arrastra los puntos para modificar');
-            }
+            // Crear menú contextual
+            mostrarMenuContextualLinea(e, this);
         });
 
         // ✅ EVENTO PARA ACTUALIZAR DISTANCIA AL EDITAR
@@ -371,8 +359,12 @@ function addDistancePoint(e) {
     if (!handler.lineaActual || !handler.lineas[handler.lineaActual]) return;
     
     const latlng = e.latlng;
+    const puntos = handler.lineas[handler.lineaActual].polyline.getLatLngs();
+    const esPrimerPunto = puntos.length === 0;
+    
     handler.lineas[handler.lineaActual].polyline.addLatLng(latlng);
     
+    // ✅ CREAR MARCADOR ESTÁNDAR PARA VÉRTICE
     const marker = L.marker(latlng, {
         draggable: true,
         icon: L.divIcon({
@@ -388,10 +380,14 @@ function addDistancePoint(e) {
     });
     
     handler.lineas[handler.lineaActual].marcadores.push(marker);
+    
+    // ✅ PI/PT SOLO SI ESTÁ EN CONTEXTO DE MARCHA (NO EN MEDICIÓN NORMAL)
+    // Los símbolos PI/PT solo se insertan desde CalculoMarcha.js, no en mediciones normales
+    
     handler.actualizarLinea(handler.lineaActual);
     handler.actualizarDisplayMedicion(handler.lineaActual);
     
-    console.log(`📍 Punto agregado - Distancia: ${handler.lineas[handler.lineaActual].distancia.toFixed(2)}m`);
+    console.log(`📍 Punto agregado ${esPrimerPunto ? '(PI)' : ''} - Distancia: ${handler.lineas[handler.lineaActual].distancia.toFixed(2)}m`);
 }
 
 function actualizarDistanciaProvisional(e) {
@@ -576,4 +572,153 @@ Object.defineProperty(window, 'lineaActual', {
     set: function(value) { window.measurementHandler.lineaActual = value; }
 });
 
-console.log('✅ MeasurementHandler cargado - Funciones exportadas al scope global - Compatibilidad con gráfico de marcha');
+// ========== FUNCIÓN MENÚ CONTEXTUAL ==========
+
+function mostrarMenuContextualLinea(evento, linea) {
+    // Remover menú existente si existe
+    const menuExistente = document.getElementById('menuContextualLinea');
+    if (menuExistente) {
+        menuExistente.remove();
+    }
+    
+    // Crear menú contextual
+    const menu = document.createElement('div');
+    menu.id = 'menuContextualLinea';
+    menu.style.cssText = `
+        position: fixed;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000;
+        min-width: 180px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    `;
+    
+    // Posicionar menú
+    const rect = evento.target.getBoundingClientRect();
+    menu.style.left = (evento.originalEvent?.clientX || rect.left) + 'px';
+    menu.style.top = (evento.originalEvent?.clientY || rect.top) + 'px';
+    
+    // Opciones del menú
+    const opciones = [
+        {
+            icono: '📈',
+            texto: 'Ver Perfil de Elevación',
+            accion: () => {
+                // Seleccionar la línea y mostrar perfil
+                window.seleccionarElemento(linea);
+                mostrarPerfilElevacion();
+                menu.remove();
+            }
+        },
+        {
+            icono: '🖊️',
+            texto: 'Editar Línea',
+            accion: () => {
+                // Habilitar modo edición
+                if (!linea.editing) {
+                    linea.editing = new L.Edit.Poly(linea);
+                }
+                linea.editing.enable();
+                
+                if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                    window.MAIRA.Utils.mostrarNotificacion('Línea en modo edición. Arrastra los puntos para modificar.', 'info');
+                }
+                menu.remove();
+            }
+        },
+        {
+            icono: '📏',
+            texto: 'Mostrar Distancia',
+            accion: () => {
+                const distancia = linea.distancia || linea.distanciaTotal || window.measurementHandler.calcularDistancia(linea);
+                if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                    window.MAIRA.Utils.mostrarNotificacion(`Distancia: ${distancia.toFixed(2)} metros`, 'info');
+                } else {
+                    alert(`Distancia: ${distancia.toFixed(2)} metros`);
+                }
+                menu.remove();
+            }
+        },
+        {
+            icono: '🗑️',
+            texto: 'Eliminar Línea',
+            accion: () => {
+                if (confirm('¿Está seguro de que desea eliminar esta línea?')) {
+                    // Remover del calco
+                    if (linea._map) {
+                        linea._map.removeLayer(linea);
+                    }
+                    
+                    // Remover del handler si existe
+                    for (let [lineId, lineData] of Object.entries(window.measurementHandler.lineas)) {
+                        if (lineData.polyline === linea) {
+                            // Remover marcadores
+                            if (lineData.marcadores) {
+                                lineData.marcadores.forEach(marker => {
+                                    if (marker._map) {
+                                        marker._map.removeLayer(marker);
+                                    }
+                                });
+                            }
+                            delete window.measurementHandler.lineas[lineId];
+                            break;
+                        }
+                    }
+                    
+                    if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                        window.MAIRA.Utils.mostrarNotificacion('Línea eliminada', 'success');
+                    }
+                }
+                menu.remove();
+            }
+        }
+    ];
+    
+    // Crear botones del menú
+    opciones.forEach(opcion => {
+        const boton = document.createElement('div');
+        boton.style.cssText = `
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        `;
+        
+        boton.innerHTML = `${opcion.icono} ${opcion.texto}`;
+        
+        boton.addEventListener('mouseenter', () => {
+            boton.style.backgroundColor = '#f5f5f5';
+        });
+        
+        boton.addEventListener('mouseleave', () => {
+            boton.style.backgroundColor = 'transparent';
+        });
+        
+        boton.addEventListener('click', opcion.accion);
+        
+        menu.appendChild(boton);
+    });
+    
+    // Agregar al DOM
+    document.body.appendChild(menu);
+    
+    // Cerrar menú al hacer click fuera
+    setTimeout(() => {
+        document.addEventListener('click', function cerrarMenu(e) {
+            if (!menu.contains(e.target)) {
+                menu.remove();
+                document.removeEventListener('click', cerrarMenu);
+            }
+        });
+    }, 100);
+    
+    console.log('📋 Menú contextual mostrado para línea');
+}
+
+// Exportar función de menú contextual
+window.mostrarMenuContextualLinea = mostrarMenuContextualLinea;
+
+console.log('✅ MeasurementHandler cargado - Funciones exportadas al scope global - Menú contextual implementado');

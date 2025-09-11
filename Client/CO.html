@@ -1,91 +1,81 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- ✅ HEAD CORREGIDO PARA CO.html -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAIRA - Cuadro de Organización</title>
     
-    <!-- 🎨 ESTILOS PRINCIPALES -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css">
     
-    <!-- 🎨 ESTILOS PERSONALIZADOS MAIRA (mayor prioridad) -->
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/Client/css/CO.css">
     
-    <!-- NOTA: Los CSS personalizados ahora se cargan dinámicamente DESPUÉS de las dependencias -->
+    <!-- Core JavaScript Libraries (ORDEN CRÍTICO) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
     
-
-    <!-- 🌐 COMMON -->
-    <script src="js/common/networkConfig.js"></script>
-
-
-    <!-- 🏗️ ORGANIZACIÓN ESPECÍFICOS -->
-    <script src="js/ui/paneledicionCO.js"></script>
-    <script src="js/modules/organizacion/conexionesCO.js"></script>
-    <script src="js/modules/organizacion/CO.js"></script>
-
+    <!-- Export Libraries -->
+    <script src="/node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+    <script src="/node_modules/html2canvas/dist/html2canvas.min.js"></script>
+    
+    <!-- Military Symbol Libraries -->
+    <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
+    <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
+    
+    <!-- ✅ VERIFICACIÓN DE DEPENDENCIAS CRÍTICAS -->
     <script>
-        // 🚀 INICIALIZACIÓN DIRECTA MÓDULO CO
-        async function initializeCO() {
-            console.log('🚀 MAIRA 4.0 - Iniciando Módulo Organización (Modo Directo)...');
+        window.addEventListener('DOMContentLoaded', function() {
+            const dependenciasRequeridas = [
+                { nombre: 'jQuery', objeto: 'jQuery' },
+                { nombre: 'Leaflet', objeto: 'L' },
+                { nombre: 'milsymbol', objeto: 'ms' },
+                { nombre: 'jsPlumb', objeto: 'jsPlumb' }
+            ];
             
-            // Verificar dependencias críticas
-            if (typeof $ === 'undefined') {
-                console.error('❌ jQuery no cargado');
+            const dependenciasFaltantes = dependenciasRequeridas.filter(dep => 
+                typeof window[dep.objeto] === 'undefined'
+            );
+            
+            if (dependenciasFaltantes.length > 0) {
+                console.error('❌ Dependencias faltantes:', dependenciasFaltantes.map(d => d.nombre));
+                alert('Error: Faltan dependencias críticas. Revise la consola.');
                 return;
             }
             
-            // Inicializar Cuadro de Organización si existe
-            if (typeof inicializarCuadroOrganizacion === 'function') {
-                try {
-                    inicializarCuadroOrganizacion();
-                    console.log('✅ Cuadro de Organización inicializado');
-                } catch (error) {
-                    console.error('❌ Error inicializando Cuadro de Organización:', error);
-                }
-            }
-            
-            // Verificar integración MAIRA
-            if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
-                console.log('✅ MAIRA.CuadroOrganizacion disponible');
-            } else {
-                console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
-            }
-            
-            console.log('✅ Dependencias básicas cargadas');
-            console.log('🏗️ MÓDULO CO inicializado correctamente');
-            
-            window.COInitialized = true;
-        }
-        
-        // Inicializar cuando el DOM esté listo o inmediatamente si ya está cargado
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeCO);
-        } else {
-            initializeCO();
-        }
-        
-        // Backup: También inicializar cuando window esté completamente cargado
-        window.addEventListener('load', () => {
-            if (!window.COInitialized) {
-                console.log('🔄 Inicialización backup desde window.load');
-                initializeCO();
-            }
+            console.log('✅ Todas las dependencias cargadas correctamente');
         });
     </script>
-                    
-                    for (const href of criticalCSS) {
-                        const link = document.createElement('link');
-                        link.rel = 'stylesheet';
-                        link.href = href;
-                        document.head.appendChild(link);
-                        console.log(`⚠️ Fallback: Cargado ${href}`);
-                    }
+    
+    <!-- ✅ SCRIPTS CO EN ORDEN CORRECTO -->
+    <script src="/Client/js/miradial.js"></script>          <!-- ✅ PRIMERO - Base para menús -->
+    <script src="/Client/js/paneledicionCO.js"></script>    <!-- ✅ SEGUNDO - Panel edición -->
+    <script src="/Client/js/conexionesCO.js"></script>      <!-- ✅ TERCERO - Conexiones -->
+    <script src="/Client/js/CO.js"></script>                <!-- ✅ ÚLTIMO - Lógica principal -->
+    
+    <!-- ✅ Inicialización diferida -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar que todos los scripts se carguen
+            setTimeout(function() {
+                if (typeof inicializarCuadroOrganizacion === 'function') {
+                    inicializarCuadroOrganizacion();
+                    console.log('✅ Cuadro de Organización inicializado');
+                } else {
+                    console.error('❌ Función inicializarCuadroOrganizacion no encontrada');
                 }
-            } catch (error) {
-                console.error('❌ Error en bootstrap DDD:', error);
-            }
+                
+                // Verificar integración MAIRA
+                if (window.MAIRA && window.MAIRA.CuadroOrganizacion) {
+                    console.log('✅ MAIRA.CuadroOrganizacion disponible');
+                } else {
+                    console.warn('⚠️ Estructura MAIRA.CuadroOrganizacion no encontrada');
+                }
+            }, 100);
         });
     </script>
 </head>
