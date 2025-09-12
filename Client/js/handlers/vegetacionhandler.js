@@ -39,13 +39,20 @@ class VegetacionHandler {
 
     async loadVegetationIndex() {
         try {
-            // Intentar cargar el índice de tiles de vegetación
-            const indexUrl = `${GITHUB_RELEASES_BASE}/vegetation_master_index.json`;
-            const response = await fetch(indexUrl);
+            // Intentar cargar primero desde archivos locales
+            let indexUrl = 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json';
+            let response = await fetch(indexUrl);
+            
+            if (!response.ok) {
+                // Fallback a GitHub releases
+                console.log('🔄 Intentando cargar desde GitHub releases...');
+                indexUrl = `${GITHUB_RELEASES_BASE}/vegetation_master_index.json`;
+                response = await fetch(indexUrl);
+            }
             
             if (response.ok) {
                 this.vegetationIndex = await response.json();
-                console.log('🌿 Índice de tiles de vegetación cargado');
+                console.log('🌿 Índice de tiles de vegetación cargado desde:', indexUrl.includes('Client/') ? 'archivos locales' : 'GitHub releases');
             } else {
                 console.warn('⚠️ No se pudo cargar el índice de vegetación, usando sistema de fallback');
             }

@@ -1,0 +1,33 @@
+{
+  "name": "maira-testing",
+  "version": "1.0.0",
+  "description": "Suite de testing para MAIRA 4.0",
+  "scripts": {
+    "test": "jest",
+    "test:unit": "jest tests/unit/",
+    "test:integration": "jest tests/integration/",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:python": "python3 tests/unit/test_socket_backend.py",
+    "test:all": "./run_tests.sh"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "collectCoverageFrom": [
+      "Client/js/**/*.js",
+      "!Client/js/Libs/**",
+      "!**/node_modules/**"  
+    ],
+    "testMatch": [
+      "<rootDir>/tests/**/*.js"
+    ],
+    "verbose": true,
+    "testPathIgnorePatterns": ["/node_modules/", "/tests/setup.js"]
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@types/jest": "^29.5.5"
+  }
+}

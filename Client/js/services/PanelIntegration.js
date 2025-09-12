@@ -482,6 +482,12 @@ class PanelIntegration {
                 await window.unitHandler.updateUnit(elementData);
             }
             
+            // 🔧 CORREGIR: Actualizar lista de elementos del calco activo
+            if (typeof window.actualizarElementosCalco === 'function') {
+                window.actualizarElementosCalco();
+                console.log('✅ Lista de elementos del calco actualizada después de editar elemento');
+            }
+            
             // Emitir evento de actualización
             this.emitElementUpdated(elementData);
             

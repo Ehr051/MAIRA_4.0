@@ -2142,11 +2142,11 @@ function agregarMarcador(sidc, nombre) {
         
         console.log("Clic en el canvas:", e.clientX, e.clientY);
         
-        // Obtener posición ajustada
+        // Obtener posición ajustada (MEJORADO - primera inserción)
         var rect = canvas.getBoundingClientRect();
-        var scale = getCurrentScale();
-        var x = (e.clientX - rect.left) / scale;
-        var y = (e.clientY - rect.top) / scale;
+        var scale = getCurrentScale() || 1; // Evitar división por 0
+        var x = (e.clientX - rect.left - canvas.offsetLeft) / scale;
+        var y = (e.clientY - rect.top - canvas.offsetTop) / scale;
         
         // Ajustar a la cuadrícula
         var left = Math.round(x / 10) * 10;

@@ -22,12 +22,31 @@ if (document.readyState === 'loading') {
 
 function inicializarAplicacion() {
     console.log('🚀 Ejecutando inicialización de iniciarpartida');
-    userId = localStorage.getItem('userId');
-    userName = localStorage.getItem('username');
+    
+    // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
+    const userData = MAIRA.UserIdentity.obtenerUsuario();
+    
+    if (userData && userData.id) {
+        userId = userData.id;
+        userName = userData.nombre;
+        
+        // Sincronizar con localStorage
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('username', userName);
+        
+        console.log('📊 Usuario cargado desde UserIdentity:', { id: userId, nombre: userName });
+    } else {
+        // Fallback a localStorage
+        userId = localStorage.getItem('userId');
+        userName = localStorage.getItem('username');
+    }
+    
     if (!userId || !userName) {
+        console.error('❌ No se pudieron obtener datos de usuario');
         window.location.href = 'index.html';
         return;
     }
+    
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -474,14 +493,12 @@ async function inicializarSocket() {
         let token = null;
         
         // Intentar obtener desde UserIdentity primero
-        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-            const userId = MAIRA.UserIdentity.getUserId();
-            const username = MAIRA.UserIdentity.getUsername();
-            const userData = MAIRA.UserIdentity.getUserData();
+        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
+            const userData = MAIRA.UserIdentity.obtenerUsuario();
             userInfo = {
-                id: userId,
-                username: username,
-                token: userData.token || localStorage.getItem('authToken')
+                id: userData.id,
+                username: userData.nombre,
+                token: localStorage.getItem('authToken')
             };
             token = userInfo.token;
             console.log('🔧 Usando datos de UserIdentity:', userInfo);
@@ -518,12 +535,11 @@ async function inicializarSocket() {
             // ✅ ENVIAR AUTENTICACIÓN INMEDIATAMENTE DESPUÉS DE CONECTAR
             // Re-obtener datos más actualizados en caso de que hayan cambiado
             let currentUserInfo = userInfo;
-            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-                const userId = MAIRA.UserIdentity.getUserId();
-                const username = MAIRA.UserIdentity.getUsername();
+            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
+                const userData = MAIRA.UserIdentity.obtenerUsuario();
                 currentUserInfo = {
-                    id: userId,
-                    username: username
+                    id: userData.id,
+                    username: userData.nombre
                 };
             }
             

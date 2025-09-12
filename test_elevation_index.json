@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "description": "Índice temporal de tiles de elevación para test local",
+  "tiles": {
+    "centro_norte_tile_1065": {
+      "path": "centro_norte/centro_norte_tile_1065.tif",
+      "north": -34.0,
+      "south": -35.0,
+      "east": -58.0,
+      "west": -59.0,
+      "description": "Buenos Aires - Centro"
+    },
+    "centro_norte_tile_1142": {
+      "path": "centro_norte/centro_norte_tile_1142.tif",
+      "north": -34.5,
+      "south": -35.5,
+      "east": -57.5,
+      "west": -58.5,
+      "description": "La Plata"
+    },
+    "centro_norte_tile_1200": {
+      "path": "centro_norte/centro_norte_tile_1200.tif",
+      "north": -31.0,
+      "south": -32.0,
+      "east": -64.0,
+      "west": -65.0,
+      "description": "Córdoba"
+    },
+    "centro_norte_tile_1300": {
+      "path": "centro_norte/centro_norte_tile_1300.tif",
+      "north": -32.5,
+      "south": -33.5,
+      "east": -60.0,
+      "west": -61.0,
+      "description": "Rosario"
+    },
+    "centro_norte_tile_1400": {
+      "path": "centro_norte/centro_norte_tile_1400.tif",
+      "north": -32.5,
+      "south": -33.5,
+      "east": -68.5,
+      "west": -69.5,
+      "description": "Mendoza"
+    },
+    "centro_norte_tile_1500": {
+      "path": "centro_norte/centro_norte_tile_1500.tif",
+      "north": -24.5,
+      "south": -25.5,
+      "east": -65.0,
+      "west": -66.0,
+      "description": "Salta"
+    },
+    "centro_norte_tile_1600": {
+      "path": "centro_norte/centro_norte_tile_1600.tif",
+      "north": -37.5,
+      "south": -38.5,
+      "east": -57.0,
+      "west": -58.0,
+      "description": "Mar del Plata"
+    }
+  }
+}

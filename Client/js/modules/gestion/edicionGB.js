@@ -947,6 +947,11 @@ function guardarCambiosUnidadGB() {
                     forzarSincronizacionElementos();
                 }
             }, 500);
+            
+            // Actualizar la lista de elementos del calco activo
+            if (typeof window.actualizarElementosCalco === 'function') {
+                window.actualizarElementosCalco();
+            }
         }
 
         return enviado;
@@ -1318,10 +1323,15 @@ function guardarCambiosEquipoGB() {
         $('#modalEdicionGB').modal('hide');
 
         // Notificar éxito
-        window.MAIRA.Utils.mostrarNotificacion(
+        window.MAIRA.Utils.mostrarNotificación(
             'Cambios guardados correctamente',
             'success'
         );
+        
+        // Actualizar la lista de elementos del calco activo
+        if (typeof window.actualizarElementosCalco === 'function') {
+            window.actualizarElementosCalco();
+        }
 
         return true;
     } catch (error) {
@@ -1811,6 +1821,11 @@ function guardarCambiosMCC(elemento, tipo) {
         elemento.nombre = nuevoTexto;
     }
 
+    // Actualizar la lista de elementos del calco activo
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
+    }
+    
     cerrarPanelEdicion('panelEdicionMCC');
     console.log('Cambios MCC guardados');
 }
@@ -1915,6 +1930,11 @@ function guardarCambiosLinea() {
         } catch (e) {
             console.error("Error al eliminar textoAsociado:", e);
         }
+    }
+    
+    // Actualizar la lista de elementos del calco activo
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
     }
     
     cerrarPanelEdicion('panelEdicionLinea');

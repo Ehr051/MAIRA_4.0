@@ -27,18 +27,158 @@
     };
     /**
      * Definición de items para cada tipo de menú
-     * Incluye títulos, acciones, iconos y tooltips
+     * Sistema unificado para todos los modos y tipos de elementos
      */
     const MENU_ITEMS = {
+        // Menú para terreno básico
         terreno: [
             { title: 'Info Terreno', action: 'terrainInfo', icon: 'fas fa-info-circle', tooltip: 'Ver información del terreno' },
             { title: 'Marcar', action: 'toggleMark', icon: 'fas fa-flag', tooltip: 'Marcar/Desmarcar este hexágono' },
             { title: 'Cerrar', action: 'close', icon: 'fas fa-times', tooltip: 'Cerrar menú' }
         ],
+
+        // MODO PLANEAMIENTO
+        planeamiento: {
+            // Para elementos básicos (puntos, líneas, polígonos)
+            elemento: [
+                { title: 'Editar', action: 'editarElemento', icon: 'fas fa-edit', tooltip: 'Editar elemento' },
+                { title: 'Eliminar', action: 'eliminarElemento', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' },
+                { title: 'Propiedades', action: 'propiedadesElemento', icon: 'fas fa-cog', tooltip: 'Ver/editar propiedades' }
+            ],
+            // Para líneas de medición específicamente
+            lineaMedicion: [
+                { title: 'Editar', action: 'editarMedicion', icon: 'fas fa-edit', tooltip: 'Editar medición' },
+                { title: 'Eliminar', action: 'eliminarMedicion', icon: 'fas fa-trash-alt', tooltip: 'Eliminar medición' },
+                { title: 'Mostrar Perfil', action: 'mostrarPerfil', icon: 'fas fa-chart-line', tooltip: 'Mostrar perfil de elevación' },
+                { title: 'Propiedades', action: 'propiedadesMedicion', icon: 'fas fa-ruler', tooltip: 'Ver propiedades de medición' }
+            ],
+            // Para polígonos de área
+            poligonoArea: [
+                { title: 'Editar', action: 'editarPoligono', icon: 'fas fa-edit', tooltip: 'Editar polígono' },
+                { title: 'Eliminar', action: 'eliminarPoligono', icon: 'fas fa-trash-alt', tooltip: 'Eliminar polígono' },
+                { title: 'Calcular Área', action: 'calcularArea', icon: 'fas fa-calculator', tooltip: 'Calcular área' },
+                { title: 'Estadísticas', action: 'estadisticasArea', icon: 'fas fa-chart-bar', tooltip: 'Ver estadísticas del área' }
+            ],
+            // Para símbolos militares
+            simboloMilitar: [
+                { title: 'Editar', action: 'editarSimbolo', icon: 'fas fa-edit', tooltip: 'Editar símbolo' },
+                { title: 'Eliminar', action: 'eliminarSimbolo', icon: 'fas fa-trash-alt', tooltip: 'Eliminar símbolo' },
+                { title: 'Cambiar Tipo', action: 'cambiarTipoSimbolo', icon: 'fas fa-exchange-alt', tooltip: 'Cambiar tipo de símbolo' },
+                { title: 'Propiedades', action: 'propiedadesSimbolo', icon: 'fas fa-info-circle', tooltip: 'Ver/editar propiedades' },
+                { title: 'Duplicar', action: 'duplicarSimbolo', icon: 'fas fa-copy', tooltip: 'Duplicar símbolo' }
+            ]
+        },
+
+        // MODO JUEGO DE GUERRA (más complejo)
+        juegoGuerra: {
+            // Menú para terreno en juego de guerra
+            terreno: [
+                { title: 'Info Terreno', action: 'infoTerrenoJG', icon: 'fas fa-info-circle', tooltip: 'Ver información del terreno' },
+                { title: 'Marcar Objetivo', action: 'marcarObjetivo', icon: 'fas fa-bullseye', tooltip: 'Marcar como objetivo' },
+                { title: 'Mover Aquí', action: 'moverAqui', icon: 'fas fa-arrows-alt', tooltip: 'Mover unidad seleccionada aquí' },
+                { title: 'Cerrar', action: 'close', icon: 'fas fa-times', tooltip: 'Cerrar menú' }
+            ],
+            // Para unidades propias
+            unidadPropia: [
+                { title: 'Información', action: 'infoUnidad', icon: 'fas fa-info-circle', tooltip: 'Ver información de la unidad' },
+                { title: 'Mover', action: 'moverUnidad', icon: 'fas fa-arrows-alt', tooltip: 'Mover unidad' },
+                { title: 'Atacar', action: 'atacarCon', icon: 'fas fa-crosshairs', tooltip: 'Atacar con esta unidad' },
+                { title: 'Defender', action: 'defenderCon', icon: 'fas fa-shield-alt', tooltip: 'Posición defensiva' },
+                { title: 'Reagrupar', action: 'reagrupar', icon: 'fas fa-users', tooltip: 'Reagrupar unidad' },
+                { title: 'Órdenes', action: 'darOrdenes', icon: 'fas fa-list-ul', tooltip: 'Dar órdenes específicas' }
+            ],
+            // Para unidades enemigas
+            unidadEnemiga: [
+                { title: 'Información', action: 'infoEnemigo', icon: 'fas fa-info-circle', tooltip: 'Ver información disponible' },
+                { title: 'Atacar', action: 'atacarEnemigo', icon: 'fas fa-crosshairs', tooltip: 'Atacar esta unidad' },
+                { title: 'Observar', action: 'observarEnemigo', icon: 'fas fa-eye', tooltip: 'Mantener bajo observación' },
+                { title: 'Reportar', action: 'reportarEnemigo', icon: 'fas fa-exclamation-triangle', tooltip: 'Reportar contacto' }
+            ],
+            // Para elementos tácticos
+            elementoTactico: [
+                { title: 'Información', action: 'infoElemento', icon: 'fas fa-info-circle', tooltip: 'Ver información' },
+                { title: 'Editar', action: 'editarElemento', icon: 'fas fa-edit', tooltip: 'Editar elemento' },
+                { title: 'Eliminar', action: 'eliminarElemento', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' },
+                { title: 'Usar', action: 'usarElemento', icon: 'fas fa-hand-pointer', tooltip: 'Usar/activar elemento' }
+            ]
+        },
+
+        // MODO GESTIÓN DE BATALLA
+        gestionBatalla: {
+            // Para elementos/unidades en GB
+            elemento: [
+                { 
+                    title: 'Información',
+                    action: 'informacionGB',
+                    icon: 'fas fa-info-circle',
+                    tooltip: 'Ver información completa' 
+                },
+                { 
+                    title: 'Centrar',
+                    action: 'centrarGB',
+                    icon: 'fas fa-crosshairs',
+                    tooltip: 'Centrar en elemento'
+                },
+                { 
+                    title: 'Seguir',
+                    action: 'trackingGB',
+                    icon: 'fas fa-satellite',
+                    tooltip: 'Activar seguimiento'
+                },
+                { 
+                    title: 'Mensaje',
+                    action: 'enviarMensajeGB',
+                    icon: 'fas fa-envelope',
+                    tooltip: 'Enviar mensaje'
+                },
+                { 
+                    title: 'Editar',
+                    action: 'editarGB',
+                    icon: 'fas fa-edit',
+                    tooltip: 'Editar elemento' 
+                }
+            ],
+            // Para el mapa en GB
+            mapa: [
+                {
+                    title: 'Agregar',
+                    action: 'agregarElementoGB',
+                    icon: 'fas fa-plus',
+                    tooltip: 'Agregar nuevo elemento'
+                },
+                {
+                    title: 'Centrar',
+                    action: 'centrarMapaGB',
+                    icon: 'fas fa-compass',
+                    tooltip: 'Centrar mapa'
+                },
+                {
+                    title: 'Medir',
+                    action: 'medirDistanciaGB',
+                    icon: 'fas fa-ruler',
+                    tooltip: 'Medir distancia'
+                }
+            ]
+        },
+
+        // MODO CO (Comandante de Operaciones)
+        co: {
+            // Para elementos organizacionales
+            elementoOrganizacional: [
+                { title: 'Editar', action: 'editarCO', icon: 'fas fa-edit', tooltip: 'Editar elemento' },
+                { title: 'Eliminar', action: 'eliminarCO', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' },
+                { title: 'Información', action: 'informacionCO', icon: 'fas fa-info-circle', tooltip: 'Ver información' },
+                { title: 'Jerarquía', action: 'verJerarquia', icon: 'fas fa-sitemap', tooltip: 'Ver jerarquía organizacional' }
+            ]
+        },
+
+        // MODO PREPARACIÓN (fase preparatoria del juego)
         preparacion: [
             { title: 'Editar', action: 'edit', icon: 'fas fa-edit', tooltip: 'Editar elemento' },
             { title: 'Eliminar', action: 'delete', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' }
         ],
+
+        // MODO COMBATE (con submenús complejos para ingenieros)
         combate: {
             ingeniero: {
                 contramovilidad: [
@@ -53,44 +193,7 @@
                     { title: 'Volver', action: 'back', icon: 'fas fa-arrow-left', tooltip: 'Volver al menú anterior' }
                 ]
             }
-        },
-            gb: {
-                elemento: [
-                    { 
-                        title: 'Editar',
-                        action: 'editarGB',
-                        icon: 'fas fa-edit',
-                        tooltip: 'Editar elemento' 
-                    },
-                    { 
-                        title: 'Seguir',
-                        action: 'seguirGB',
-                        icon: 'fas fa-crosshairs',
-                        tooltip: 'Seguir elemento'
-                    },
-                    { 
-                        title: 'Chat',
-                        action: 'chatGB',
-                        icon: 'fas fa-comment',
-                        tooltip: 'Chat privado'
-                    }
-                ],
-                mapa: [
-                    {
-                        title: 'Agregar',
-                        action: 'agregarGB',
-                        icon: 'fas fa-plus',
-                        tooltip: 'Agregar elemento'
-                    },
-                    {
-                        title: 'Centrar',
-                        action: 'centrarGB',
-                        icon: 'fas fa-crosshairs',
-                        tooltip: 'Centrar mapa'
-                    }
-                ]
-            }
-        
+        }
     };
 
     const MiRadial = {
@@ -127,9 +230,8 @@
                 // Verificar si hay un elemento en la posición
                 const elemento = this.buscarElementoEnPosicion(e.latlng);
                 if (elemento) {
-                    window.elementoSeleccionado = elemento;
                     const point = map.latLngToContainerPoint(e.latlng);
-                    this.mostrarMenu(point.x, point.y, 'elemento');
+                    this.mostrarMenuContextualPara(elemento, point.x, point.y);
                     return;
                 }
                 
@@ -597,8 +699,158 @@ handleMenuClick: function(action, submenu) {
         this.hideMenu();
         return;
     }
-  
-            switch(action) {
+    
+    // Manejar acciones específicas de elementos
+    switch(action) {
+        // === ACCIONES PARA SÍMBOLOS MILITARES ===
+        case 'editarSimbolo':
+            if (window.elementoSeleccionado && typeof window.editarElementoSeleccionado === 'function') {
+                window.editarElementoSeleccionado();
+            }
+            break;
+        case 'eliminarSimbolo':
+            if (window.elementoSeleccionado && typeof window.eliminarElementoSeleccionado === 'function') {
+                window.eliminarElementoSeleccionado(window.elementoSeleccionado);
+                window.elementoSeleccionado = null;
+            }
+            break;
+        case 'cambiarTipoSimbolo':
+            if (window.elementoSeleccionado && typeof window.mostrarSelectorSimbolos === 'function') {
+                window.mostrarSelectorSimbolos(window.elementoSeleccionado);
+            }
+            break;
+        case 'propiedadesSimbolo':
+            if (window.elementoSeleccionado && typeof window.mostrarPropiedadesElemento === 'function') {
+                window.mostrarPropiedadesElemento(window.elementoSeleccionado);
+            }
+            break;
+        case 'duplicarSimbolo':
+            if (window.elementoSeleccionado && typeof window.duplicarElemento === 'function') {
+                window.duplicarElemento(window.elementoSeleccionado);
+            }
+            break;
+            
+        // === ACCIONES PARA MEDICIONES ===
+        case 'editarMedicion':
+            if (window.elementoSeleccionado && typeof window.editarLinea === 'function') {
+                window.editarLinea(window.elementoSeleccionado);
+            }
+            break;
+        case 'eliminarMedicion':
+            if (window.elementoSeleccionado && window.mapa) {
+                if (window.calcoActivo) {
+                    window.calcoActivo.removeLayer(window.elementoSeleccionado);
+                } else {
+                    window.mapa.removeLayer(window.elementoSeleccionado);
+                }
+                window.elementoSeleccionado = null;
+                if (typeof window.actualizarElementosCalco === 'function') {
+                    window.actualizarElementosCalco();
+                }
+            }
+            break;
+        case 'mostrarPerfil':
+            if (window.elementoSeleccionado && typeof window.mostrarPerfilElevacion === 'function') {
+                window.mostrarPerfilElevacion(window.elementoSeleccionado);
+            }
+            break;
+        case 'propiedadesMedicion':
+            if (window.elementoSeleccionado) {
+                const distancia = window.elementoSeleccionado.options.distancia || 
+                               this.calcularDistanciaLinea(window.elementoSeleccionado);
+                alert(`Distancia: ${distancia} metros`);
+            }
+            break;
+            
+        // === ACCIONES PARA POLÍGONOS DE ÁREA ===
+        case 'editarPoligono':
+            if (window.elementoSeleccionado && typeof window.editarPoligono === 'function') {
+                window.editarPoligono(window.elementoSeleccionado);
+            }
+            break;
+        case 'eliminarPoligono':
+            if (window.elementoSeleccionado && window.mapa) {
+                if (window.calcoActivo) {
+                    window.calcoActivo.removeLayer(window.elementoSeleccionado);
+                } else {
+                    window.mapa.removeLayer(window.elementoSeleccionado);
+                }
+                window.elementoSeleccionado = null;
+                if (typeof window.actualizarElementosCalco === 'function') {
+                    window.actualizarElementosCalco();
+                }
+            }
+            break;
+        case 'calcularArea':
+            if (window.elementoSeleccionado && typeof window.calcularAreaPoligono === 'function') {
+                const area = window.calcularAreaPoligono(window.elementoSeleccionado);
+                alert(`Área: ${area} metros cuadrados`);
+            }
+            break;
+        case 'estadisticasArea':
+            if (window.elementoSeleccionado && typeof window.mostrarEstadisticasArea === 'function') {
+                window.mostrarEstadisticasArea(window.elementoSeleccionado);
+            }
+            break;
+            
+        // === ACCIONES PARA ELEMENTOS TÁCTICOS ===
+        case 'editarElemento':
+            if (window.elementoSeleccionado && typeof window.editarElementoSeleccionado === 'function') {
+                window.editarElementoSeleccionado();
+            }
+            break;
+        case 'eliminarElemento':
+            if (window.elementoSeleccionado && typeof window.eliminarElementoSeleccionado === 'function') {
+                window.eliminarElementoSeleccionado(window.elementoSeleccionado);
+                window.elementoSeleccionado = null;
+            }
+            break;
+        case 'propiedadesElemento':
+            if (window.elementoSeleccionado && typeof window.mostrarPropiedadesElemento === 'function') {
+                window.mostrarPropiedadesElemento(window.elementoSeleccionado);
+            }
+            break;
+            
+        // === ACCIONES DE JUEGO DE GUERRA ===
+        case 'infoTerrenoJG':
+            if (this.selectedHex && typeof window.mostrarInfoTerrenoJG === 'function') {
+                window.mostrarInfoTerrenoJG(this.selectedHex);
+            }
+            break;
+        case 'marcarObjetivo':
+            if (this.selectedHex && typeof window.marcarObjetivo === 'function') {
+                window.marcarObjetivo(this.selectedHex);
+            }
+            break;
+        case 'moverAqui':
+            if (this.selectedHex && window.elementoSeleccionado && typeof window.moverUnidadA === 'function') {
+                window.moverUnidadA(window.elementoSeleccionado, this.selectedHex);
+            }
+            break;
+        case 'infoUnidad':
+            if (window.elementoSeleccionado && typeof window.mostrarInfoUnidad === 'function') {
+                window.mostrarInfoUnidad(window.elementoSeleccionado);
+            }
+            break;
+        case 'moverUnidad':
+            if (window.elementoSeleccionado && typeof window.iniciarMovimientoUnidad === 'function') {
+                window.iniciarMovimientoUnidad(window.elementoSeleccionado);
+            }
+            break;
+        case 'atacarCon':
+            if (window.elementoSeleccionado && typeof window.iniciarAtaque === 'function') {
+                window.iniciarAtaque(window.elementoSeleccionado);
+            }
+            break;
+        case 'defenderCon':
+            if (window.elementoSeleccionado && typeof window.establecerDefensa === 'function') {
+                window.establecerDefensa(window.elementoSeleccionado);
+            }
+            break;
+        case 'close':
+            break; // Solo cerrar el menú
+            
+        // === ACCIONES EXISTENTES (COMPATIBILIDAD) ===
                 case 'terrainInfo':
                     this.showTerrainInfo();
                     break;
@@ -637,6 +889,24 @@ handleMenuClick: function(action, submenu) {
             }
 
             this.hideMenu();
+        },
+
+        /**
+         * Calcula la distancia de una línea en metros
+         * @param {L.Polyline} linea - Línea a medir
+         * @returns {number} Distancia en metros
+         */
+        calcularDistanciaLinea: function(linea) {
+            if (!linea || !linea.getLatLngs) return 0;
+            
+            const puntos = linea.getLatLngs();
+            let distanciaTotal = 0;
+            
+            for (let i = 1; i < puntos.length; i++) {
+                distanciaTotal += puntos[i-1].distanceTo(puntos[i]);
+            }
+            
+            return Math.round(distanciaTotal);
         },
 
         /**
@@ -926,6 +1196,75 @@ processElevationInfo: async function (corners, popup) {
             
             console.log('[MiRadial] Elemento encontrado:', elementoEncontrado, 'distancia:', distanciaMinima);
             return elementoEncontrado;
+        },
+
+        /**
+         * Detecta automáticamente el tipo de elemento para mostrar el menú apropiado
+         * @param {Object} elemento - Elemento de Leaflet
+         * @returns {string} - Tipo de elemento detectado
+         */
+        detectarTipoElemento: function(elemento) {
+            if (!elemento) return 'terreno';
+            
+            // Símbolo militar (MilSymbol)
+            if (elemento.options && elemento.options.sidc) {
+                return 'simboloMilitar';
+            }
+            
+            // Medición (tiene propiedades de distancia)
+            if (elemento instanceof L.Polyline && 
+                (elemento.options.tipoElemento === 'lineaMedicion' || 
+                 elemento.options.distancia || 
+                 elemento.options.nombre && elemento.options.nombre.includes('Medición'))) {
+                return 'medicion';
+            }
+            
+            // Polígono de área
+            if (elemento instanceof L.Polygon && 
+                (elemento.options.tipoElemento === 'poligonoArea' || 
+                 elemento.options.area ||
+                 elemento.options.nombre && elemento.options.nombre.includes('Área'))) {
+                return 'poligonoArea';
+            }
+            
+            // Elemento táctico genérico
+            if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
+                return 'elementoTactico';
+            }
+            
+            // Marcador genérico
+            if (elemento instanceof L.Marker) {
+                return 'marcadorGenerico';
+            }
+            
+            return 'elemento';
+        },
+
+        /**
+         * Muestra el menú contextual apropiado basado en el elemento
+         * @param {Object} elemento - Elemento seleccionado
+         * @param {number} x - Coordenada X del clic
+         * @param {number} y - Coordenada Y del clic
+         */
+        mostrarMenuContextualPara: function(elemento, x, y) {
+            const tipoElemento = this.detectarTipoElemento(elemento);
+            const modo = this.faseJuego === 'gb' ? 'juegoGuerra' : 'planeamiento';
+            
+            console.log(`[MiRadial] Mostrando menú para tipo: ${tipoElemento}, modo: ${modo}`);
+            
+            // Obtener opciones del menú
+            let opciones = this.MENU_ITEMS[modo][tipoElemento] || this.MENU_ITEMS[modo]['elemento'] || [];
+            
+            if (opciones.length === 0) {
+                console.warn(`No hay opciones de menú para tipo: ${tipoElemento} en modo: ${modo}`);
+                return;
+            }
+            
+            // Guardar elemento seleccionado
+            window.elementoSeleccionado = elemento;
+            
+            // Mostrar menú
+            this.mostrarMenu(x, y, tipoElemento, opciones);
         },
 
         configurarModoGB: function() {

@@ -16,7 +16,20 @@
         "dev-https": "concurrently \"npm run start-py-https\" \"npm run start-js\"",
         "build:production": "npm run optimize:assets && npm run prepare:client",
         "optimize:assets": "echo 'Optimizing assets for production...'",
-        "prepare:client": "echo 'Preparing client files for static hosting...'"
+        "prepare:client": "echo 'Preparing client files for static hosting...'",
+        "test": "jest",
+        "test:unit": "jest tests/unit/",
+        "test:integration": "jest tests/integration/",
+        "test:e2e": "jest tests/e2e/",
+        "test:complete": "jest tests/e2e/test_complete_system.js",
+        "test:planeamiento": "jest tests/e2e/test_planeamiento_complete.js",
+        "test:gb": "jest tests/e2e/test_inicioGB_complete.js",
+        "test:simple": "jest tests/e2e/test_system_simplified.js",
+        "test:planeamiento-simple": "jest tests/e2e/test_planeamiento_simplified.js",
+        "test:gb-simple": "jest tests/e2e/test_gb_simplified.js",
+        "test:all-simple": "jest tests/e2e/test_system_simplified.js tests/e2e/test_planeamiento_simplified.js tests/e2e/test_gb_simplified.js",
+        "test:python": "python3 tests/unit/test_socket_backend.py",
+        "test:all": "./run_tests.sh"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "5.15.4",
@@ -80,15 +93,28 @@
     },
     "jest": {
         "testEnvironment": "jsdom",
-        "setupFiles": [
-            "<rootDir>/Client/js/Test/jest.setup.js"
+        "setupFilesAfterEnv": [
+            "<rootDir>/tests/setup.js"
         ],
         "moduleNameMapper": {
             "^@/(.*)$": "<rootDir>/Client/js/$1"
         },
         "transform": {
             "^.+\\.js$": "babel-jest"
-        }
+        },
+        "testMatch": [
+            "<rootDir>/tests/**/*.js"
+        ],
+        "testPathIgnorePatterns": [
+            "/node_modules/",
+            "/tests/setup.js"
+        ],
+        "collectCoverageFrom": [
+            "Client/js/**/*.js",
+            "!Client/js/Libs/**",
+            "!**/node_modules/**"
+        ],
+        "verbose": true
     },
     "babel": {
         "presets": [

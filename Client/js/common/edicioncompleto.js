@@ -954,6 +954,11 @@ function guardarCambiosUnidad() {
         }
         
         if (enviado) {
+            // Actualizar la lista de elementos del calco activo
+            if (typeof window.actualizarElementosCalco === 'function') {
+                window.actualizarElementosCalco();
+            }
+            
             // Notificar éxito
             if (window.MAIRA?.Utils?.mostrarNotificacion) {
                 window.MAIRA.Utils.mostrarNotificacion("Cambios guardados correctamente", "success");
@@ -1082,6 +1087,11 @@ function guardarCambiosEquipo() {
         console.log("Enviando equipo actualizado al servidor");
         const enviado = enviarElementoAlServidor(nuevoMarcador);
         console.log("Resultado de envío de equipo:", enviado);
+        
+        // Actualizar la lista de elementos del calco activo
+        if (typeof window.actualizarElementosCalco === 'function') {
+            window.actualizarElementosCalco();
+        }
         
         // Actualizar botón listo si es necesario
         window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
@@ -1405,6 +1415,11 @@ function guardarCambiosMCC(elemento, tipo) {
         // ✅ REFERENCIA BIDIRECCIONAL:
         elemento.textoMarcador.elementoPadre = elemento;
     }
+    
+    // Actualizar la lista de elementos del calco activo
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
+    }
 }
 
 
@@ -1508,6 +1523,11 @@ function guardarCambiosLinea() {
         } catch (e) {
             console.error("Error al eliminar textoAsociado:", e);
         }
+    }
+    
+    // Actualizar la lista de elementos del calco activo
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
     }
     
     cerrarPanelEdicion('panelEdicionLinea');

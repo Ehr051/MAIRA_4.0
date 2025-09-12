@@ -273,6 +273,11 @@ window.agregarMarcador = function(sidc, nombre) {
 
         // 7. Agregar al mapa y notificar
         window.calcoActivo.addLayer(marcador);
+        
+        // Actualizar lista de elementos del calco
+        if (typeof window.actualizarElementosCalco === 'function') {
+            window.actualizarElementosCalco();
+        }
 
         if (nombre === 'Punto Inicial' || nombre === 'PI') {
             agregarPuntoControl('PI');

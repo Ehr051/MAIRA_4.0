@@ -1,6 +1,28 @@
 // Variables globales
 let elementoMCCActual = null;
-var sidc = null; // o un valor por defecto apropiado
+let sidc = null; // o un valor por defecto apropiado
+
+function agregarTextoMCC(elemento, texto) {
+    let posicion = elemento instanceof L.Polyline ? 
+        elemento.getLatLngs()[Math.floor(elemento.getLatLngs().length / 2)] :
+        elemento.getBounds().getCenter();
+
+    let marker = L.marker(posicion, {
+        icon: L.divIcon({
+            className: 'texto-mcc',
+            html: `<div>${texto}</div>`,
+            iconSize: [100, 40]
+        }),
+        draggable: true
+    }).addTo(calcoActivo);
+    
+    // Actualizar lista de elementos del calco
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
+    }
+    
+    return marker;
+}
 
 
 

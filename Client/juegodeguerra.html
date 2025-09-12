@@ -225,9 +225,11 @@
             }
             
             // Inicializar HexGrid si existe
-            if (typeof HexGrid !== 'undefined') {
-                HexGrid.initialize();
+            if (typeof HexGrid !== 'undefined' && window.mapa) {
+                HexGrid.initialize(window.mapa);
                 console.log('✅ HexGrid inicializado');
+            } else if (typeof HexGrid !== 'undefined') {
+                console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
             }
             
             console.log('✅ Dependencias básicas cargadas');
@@ -335,6 +337,9 @@
     </div>
     <div class="version">Versión 1.4.1</div>
   </div>
+
+  <!-- Panel de Turnos (reubicado para no interferir con controles) -->
+  <div id="panelTurnos"></div>
 
   <div id="botones-principales">
     <div class="menu-btn">
@@ -1146,8 +1151,6 @@
           <button onclick="cerrarPanelEdicion('panelEdicionMCC')">Cerrar</button>
       </div>
     </div>
-    
-    <div id="panelTurnos"></div>
 
     <div id="calculoMarchaContainer" style="display: none;"></div>
     <div id="errorContainer" class="error-container" style="display: none;"></div>
