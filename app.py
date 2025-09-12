@@ -1639,8 +1639,14 @@ def handle_mensaje_chat(data):
         
         print(f"📨 Chat recibido - Usuario: {user_id}, Sala: {sala}, Mensaje: {mensaje[:50]}...")
         
-        if not user_id or not mensaje:
-            print("❌ Chat rechazado - Falta user_id o mensaje")
+        if not user_id:
+            print("❌ Chat rechazado - Falta user_id")
+            emit('errorChat', {'error': 'No autorizado'}, room=request.sid)
+            return
+            
+        if not mensaje or mensaje.strip() == '':
+            print("❌ Chat rechazado - Mensaje vacío")
+            emit('errorChat', {'error': 'El mensaje no puede estar vacío'}, room=request.sid)
             return
         
         username = obtener_username(user_id)

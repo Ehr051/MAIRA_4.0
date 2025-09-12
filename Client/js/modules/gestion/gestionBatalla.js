@@ -857,20 +857,24 @@ function configurarEventosChat() {
             });
         });
         
-        // Cerrar menús al hacer clic fuera de ellos (CON PROTECCIÓN)
+        // Cerrar menús al hacer clic fuera de ellos (CON PROTECCIÓN MEJORADA)
         document.addEventListener('click', function(event) {
-            // ✅ No cerrar si el clic es dentro de un menú o botón de menú
+            // ✅ EXCLUIR: No cerrar si el clic es dentro de menús principales o submenús
             if (event.target.closest('.menu') || 
+                event.target.closest('.submenu') ||
                 event.target.closest('[onclick*="toggleMenu"]') ||
                 event.target.closest('.dropdown-toggle') ||
-                event.target.closest('.menu-button')) {
-                return; // No cerrar menús si el clic es dentro
+                event.target.closest('.menu-button') ||
+                event.target.closest('#menuPrincipal') ||
+                event.target.closest('.herramientas-container') ||
+                event.target.closest('.menu-vertical')) {
+                return; // No cerrar menús si el clic es dentro de estructuras de menú
             }
             
-            // ✅ Solo cerrar menús si el clic es realmente afuera
+            // ✅ Solo cerrar menús GB específicos (no los menús principales de planeamiento)
             document.querySelectorAll('.menu.show').forEach(openMenu => {
-                // Verificar que el clic no sea dentro de este menú específico
-                if (!openMenu.contains(event.target)) {
+                // Verificar que no sea el menú principal y que el clic sea realmente afuera
+                if (!openMenu.id.includes('menu') && !openMenu.contains(event.target)) {
                     openMenu.classList.remove('show');
                 }
             });
@@ -8154,6 +8158,12 @@ function configurarEventosSocket() {
     socket.on('error', function(error) {
         console.error('Error de socket:', error);
         mostrarNotificacion("Error de socket: " + (error.mensaje || error), "error");
+    });
+    
+    // Evento de error específico para chat
+    socket.on('errorChat', function(error) {
+        console.error('Error de chat:', error);
+        mostrarNotificacion(error.error || "Error al enviar mensaje", "error");
     });
     
     // Eventos para mensajes
