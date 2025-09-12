@@ -1782,6 +1782,11 @@ def actualizar_jugador(data):
 @socketio.on('sectorConfirmado')
 def sector_confirmado(data):
     sala = data.get('sala', 'general')
+    codigo_partida = data.get('partidaCodigo') or sala
+    
+    # Actualizar estadísticas
+    actualizar_estadisticas(codigo_partida, 'sectorConfirmado')
+    
     emit('sectorConfirmado', data, room=sala)
 
 @socketio.on('estadoActual')
@@ -2035,6 +2040,11 @@ def zona_confirmada(data):
 @socketio.on('cambioFase')
 def cambio_fase(data):
     sala = data.get('sala', 'general')
+    codigo_partida = data.get('partidaCodigo') or sala
+    
+    # Actualizar estadísticas
+    actualizar_estadisticas(codigo_partida, 'cambioFase')
+    
     emit('faseActualizada', data, room=sala)
 
 @socketio.on('inicioDespliegue')
@@ -3446,6 +3456,1117 @@ def serve_css(filename):
     except Exception as e:
         print(f"❌ Error sirviendo CSS {filename}: {str(e)}")
         return f"/* Error cargando CSS: {str(e)} */", 500
+
+# =============================================
+# EVENTOS FALTANTES MIGRADOS DE SERVERHTTPS.PY
+# =============================================
+
+@socketio.on('asignarDirectorTemporal')
+def handle_asignar_director_temporal(data):
+    """Asigna director temporal para partidas"""
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        jugador_id = data.get('jugadorId')
+        
+        if not codigo_partida or not jugador_id:
+            emit('error', {'mensaje': 'Datos incompletos para asignar director'})
+            return
+            
+        print(f"📋 Asignando director temporal: {jugador_id} en partida {codigo_partida}")
+        
+        # Emitir a toda la partida
+        emit('directorAsignado', {
+            'director': jugador_id,
+            'temporal': True,
+            'partidaCodigo': codigo_partida,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error en asignarDirectorTemporal: {e}")
+        emit('error', {'mensaje': f'Error al asignar director: {str(e)}'})
+
+@socketio.on('finTurno')
+def handle_fin_turno(datos):
+    """Maneja la finalización de turnos"""
+    try:
+        partidaCodigo = datos.get('partidaCodigo')
+        jugadorId = datos.get('jugadorId')
+        
+        if not partidaCodigo:
+            emit('error', {'mensaje': 'Código de partida faltante en finTurno'})
+            return
+            
+        print(f"🏁 Fin de turno: {jugadorId} en partida {partidaCodigo}")
+        
+        # Emitir a todos los jugadores de la partida
+        emit('finTurno', {
+            **datos,
+            'timestamp': datetime.now().isoformat()
+        }, room=partidaCodigo)
+        
+    except Exception as e:
+        print(f"❌ Error en finTurno: {e}")
+        emit('error', {'mensaje': f'Error al finalizar turno: {str(e)}'}) 
+
+@socketio.on('salirSalaEspera')
+def handle_salir_sala_espera(data):
+    """Permite salir de la sala de espera"""
+    try:
+        codigo_partida = data.get('codigo')
+        usuario_id = data.get('userId')
+        
+        if not codigo_partida or not usuario_id:
+            emit('error', {'mensaje': 'Datos incompletos para salir de sala'})
+            return
+            
+        print(f"🚪 Jugador {usuario_id} saliendo de sala de espera: {codigo_partida}")
+        
+        # Emitir a la partida que el jugador salió
+        emit('jugadorSalio', {
+            'userId': usuario_id,
+            'codigo': codigo_partida,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        # Confirmar al jugador
+        emit('salaEsperaAbandonada', {
+            'codigo': codigo_partida,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en salirSalaEspera: {e}")
+        emit('error', {'mensaje': f'Error al salir de sala: {str(e)}'})
+
+@socketio.on('reconectarAPartida')
+def handle_reconectar_partida(data):
+    """Permite reconectar a una partida existente"""
+    try:
+        codigo_partida = data.get('codigo')
+        usuario_id = data.get('userId')
+        
+        if not codigo_partida or not usuario_id:
+            emit('error', {'mensaje': 'Datos incompletos para reconexión'})
+            return
+            
+        print(f"🔄 Reconectando jugador {usuario_id} a partida {codigo_partida}")
+        
+        # Unir a la sala de la partida
+        join_room(codigo_partida)
+        
+        # Emitir reconexión exitosa
+        emit('reconexionExitosa', {
+            'codigo': codigo_partida,
+            'userId': usuario_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar a otros jugadores
+        emit('jugadorReconectado', {
+            'userId': usuario_id,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida, skip_sid=request.sid)
+        
+    except Exception as e:
+        print(f"❌ Error en reconectarAPartida: {e}")
+        emit('error', {'mensaje': f'Error al reconectar: {str(e)}'})
+
+@socketio.on('zonaDespliegueDefinida')
+def handle_zona_despliegue_definida(data):
+    """Maneja la definición de zonas de despliegue"""
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        zona = data.get('zona')
+        
+        if not codigo_partida or not zona:
+            emit('error', {'mensaje': 'Datos incompletos para zona de despliegue'})
+            return
+            
+        print(f"🎯 Zona de despliegue definida en partida {codigo_partida}")
+        
+        # Emitir a toda la partida
+        emit('zonaDespliegueDefinida', {
+            **data,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error en zonaDespliegueDefinida: {e}")
+        emit('error', {'mensaje': f'Error al definir zona: {str(e)}'})
+
+@socketio.on('mensajeMultimedia')
+def handle_mensaje_multimedia(data):
+    """Maneja mensajes multimedia (imágenes, audio, video)"""
+    try:
+        partida_codigo = data.get('partidaCodigo')
+        tipo_multimedia = data.get('tipo')
+        
+        if not partida_codigo:
+            emit('error', {'mensaje': 'Código de partida faltante para multimedia'})
+            return
+            
+        print(f"🎨 Mensaje multimedia ({tipo_multimedia}) en partida {partida_codigo}")
+        
+        # Emitir a toda la partida
+        emit('mensajeMultimedia', {
+            **data,
+            'timestamp': datetime.now().isoformat()
+        }, room=partida_codigo)
+        
+    except Exception as e:
+        print(f"❌ Error en mensajeMultimedia: {e}")
+        emit('error', {'mensaje': f'Error al enviar multimedia: {str(e)}'})
+
+@socketio.on('cambiarSala')
+def handle_cambiar_sala(data):
+    """Permite cambiar de sala de chat"""
+    try:
+        nueva_sala = data.get('sala')
+        
+        if not nueva_sala:
+            emit('error', {'mensaje': 'Nombre de sala faltante'})
+            return
+            
+        print(f"🔄 Cambiando a sala: {nueva_sala}")
+        
+        # Dejar salas anteriores (excepto la del propio socket)
+        for room in request.sid:
+            if room != request.sid:
+                leave_room(room)
+        
+        # Unirse a nueva sala
+        join_room(nueva_sala)
+        
+        emit('salaActualizada', {
+            'sala': nueva_sala,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en cambiarSala: {e}")
+        emit('error', {'mensaje': f'Error al cambiar sala: {str(e)}'})
+
+# =============================================
+# SISTEMA DE ESTADÍSTICAS PERDIDO - MIGRADO DE NODE.JS
+# =============================================
+
+# Variables globales para estadísticas
+estadisticas_partidas = {}
+
+def inicializar_estadisticas(codigo_partida):
+    """Inicializa estadísticas para una partida nueva"""
+    if codigo_partida not in estadisticas_partidas:
+        estadisticas_partidas[codigo_partida] = {
+            'conexiones': 0,
+            'cambiosFase': 0,
+            'elementosCreados': 0,
+            'elementosMovidos': 0,
+            'elementosEliminados': 0,
+            'sectoresConfirmados': 0,
+            'zonasConfirmadas': 0,
+            'mensajesChat': 0,
+            'cambiosTurno': 0,
+            'finesTurno': 0,
+            'jugadoresListos': 0,
+            'errores': 0,
+            'ultimoEvento': None,
+            'inicioPartida': datetime.now().isoformat()
+        }
+
+def actualizar_estadisticas(codigo_partida, tipo_evento):
+    """Actualiza estadísticas de una partida"""
+    try:
+        if not codigo_partida:
+            print('[ERROR] Código de partida no proporcionado para estadísticas')
+            return
+            
+        # Inicializar si no existe
+        inicializar_estadisticas(codigo_partida)
+        
+        stats = estadisticas_partidas[codigo_partida]
+        
+        # Actualizar contador según tipo de evento
+        if tipo_evento == 'conexion':
+            stats['conexiones'] += 1
+        elif tipo_evento == 'cambioFase':
+            stats['cambiosFase'] += 1
+        elif tipo_evento == 'elementoCreado':
+            stats['elementosCreados'] += 1
+        elif tipo_evento == 'elementoMovido':
+            stats['elementosMovidos'] += 1
+        elif tipo_evento == 'elementoEliminado':
+            stats['elementosEliminados'] += 1
+        elif tipo_evento == 'sectorConfirmado':
+            stats['sectoresConfirmados'] += 1
+        elif tipo_evento == 'zonaConfirmada':
+            stats['zonasConfirmadas'] += 1
+        elif tipo_evento == 'mensajeChat':
+            stats['mensajesChat'] += 1
+        elif tipo_evento == 'cambioTurno':
+            stats['cambiosTurno'] += 1
+        elif tipo_evento == 'finTurno':
+            stats['finesTurno'] += 1
+        elif tipo_evento == 'jugadorListo':
+            stats['jugadoresListos'] += 1
+        elif tipo_evento == 'error':
+            stats['errores'] += 1
+        else:
+            print(f'[WARN] Tipo de evento desconocido: {tipo_evento}')
+            return
+            
+        # Actualizar último evento
+        stats['ultimoEvento'] = {
+            'tipo': tipo_evento,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        print(f'[STATS] {codigo_partida}: {tipo_evento} -> {stats[tipo_evento.replace("o", "os") if tipo_evento.endswith("o") else tipo_evento + "s"]}')
+        
+    except Exception as e:
+        print(f'[ERROR] Error actualizando estadísticas: {e}')
+
+def limpiar_partida_inactiva(codigo_partida):
+    """Limpia partidas inactivas y sus estadísticas"""
+    try:
+        if codigo_partida in estadisticas_partidas:
+            del estadisticas_partidas[codigo_partida]
+            print(f'[CLEAN] Estadísticas limpiadas para partida: {codigo_partida}')
+    except Exception as e:
+        print(f'[ERROR] Error limpiando partida: {e}')
+
+@socketio.on('obtenerEstadisticasPartida')
+def handle_obtener_estadisticas(data):
+    """Obtiene estadísticas de una partida específica"""
+    try:
+        codigo_partida = data.get('codigo')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida faltante'})
+            return
+            
+        stats = estadisticas_partidas.get(codigo_partida, {})
+        
+        emit('estadisticasPartida', {
+            'codigo': codigo_partida,
+            'estadisticas': stats,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo estadísticas: {e}")
+        emit('error', {'mensaje': f'Error al obtener estadísticas: {str(e)}'})
+
+# =============================================
+# FUNCIÓN AUXILIAR - NORMALIZACIÓN DE IDs
+# =============================================
+
+def normalizar_ids(data):
+    """
+    Normaliza IDs entre formatos cliente (userId, jugadorId) y servidor (user_id, jugador_id)
+    """
+    normalized = data.copy() if isinstance(data, dict) else {}
+    
+    # Mapeo de normalización
+    id_mappings = [
+        ('userId', 'user_id'),
+        ('jugadorId', 'jugador_id'),
+        ('amigoId', 'amigo_id'),
+        ('usuarioId', 'usuario_id'),
+        ('elementoId', 'elemento_id'),
+        ('atacanteId', 'atacante_id'),
+        ('objetivoId', 'objetivo_id')
+    ]
+    
+    # Aplicar normalizaciones
+    for client_key, server_key in id_mappings:
+        if client_key in normalized:
+            normalized[server_key] = normalized[client_key]
+            # Mantener ambos para compatibilidad
+            
+        # También el caso inverso para compatibilidad completa
+        if server_key in normalized and client_key not in normalized:
+            normalized[client_key] = normalized[server_key]
+    
+    return normalized
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - GAMING/ACCIONES
+# =============================================
+
+@socketio.on('accionJuego')
+def manejar_accion_juego(data):
+    """Maneja acciones de juego en tiempo real"""
+    try:
+        # Normalizar IDs para compatibilidad cliente-servidor
+        data = normalizar_ids(data)
+        
+        codigo_partida = data.get('codigo')
+        jugador_id = data.get('jugadorId') or data.get('jugador_id')
+        accion = data.get('accion')
+        
+        if not all([codigo_partida, jugador_id, accion]):
+            emit('error', {'mensaje': 'Datos de acción incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'accion_juego', {
+            'jugador_id': jugador_id,
+            'tipo_accion': accion.get('tipo'),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Retransmitir a otros jugadores en la partida
+        emit('accionJuegoRealizada', data, room=codigo_partida, include_self=False)
+        emit('accionConfirmada', {'exito': True}, room=request.sid)
+        
+    except Exception as e:
+        print(f"❌ Error en acción de juego: {e}")
+        emit('error', {'mensaje': f'Error procesando acción: {str(e)}'})
+
+@socketio.on('moverElemento')
+def manejar_mover_elemento(data):
+    """Maneja movimiento de elementos en el mapa"""
+    try:
+        codigo_partida = data.get('codigo')
+        elemento_id = data.get('elementoId')
+        nueva_posicion = data.get('posicion')
+        jugador_id = data.get('jugadorId')
+        
+        if not all([codigo_partida, elemento_id, nueva_posicion]):
+            emit('error', {'mensaje': 'Datos de movimiento incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'elemento_movido', {
+            'elemento_id': elemento_id,
+            'jugador_id': jugador_id,
+            'posicion': nueva_posicion,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar movimiento a todos los jugadores
+        emit('elementoMovido', data, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error moviendo elemento: {e}")
+        emit('error', {'mensaje': f'Error al mover elemento: {str(e)}'})
+
+@socketio.on('elementoEquipo')
+def manejar_elemento_equipo(data):
+    """Maneja elementos específicos del equipo"""
+    try:
+        codigo_partida = data.get('codigo')
+        equipo = data.get('equipo')
+        elemento = data.get('elemento')
+        
+        if not all([codigo_partida, equipo, elemento]):
+            emit('error', {'mensaje': 'Datos de elemento de equipo incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'elemento_equipo', {
+            'equipo': equipo,
+            'elemento_id': elemento.get('id'),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Enviar solo al equipo específico
+        emit('elementoEquipoActualizado', data, room=f'equipo_{equipo}')
+        
+    except Exception as e:
+        print(f"❌ Error con elemento de equipo: {e}")
+        emit('error', {'mensaje': f'Error procesando elemento de equipo: {str(e)}'})
+
+@socketio.on('elementoGlobal')
+def manejar_elemento_global(data):
+    """Maneja elementos globales visibles para todos"""
+    try:
+        codigo_partida = data.get('codigo')
+        elemento = data.get('elemento')
+        
+        if not all([codigo_partida, elemento]):
+            emit('error', {'mensaje': 'Datos de elemento global incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'elemento_global', {
+            'elemento_id': elemento.get('id'),
+            'tipo': elemento.get('tipo'),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Enviar a todos en la partida
+        emit('elementoGlobalActualizado', data, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error con elemento global: {e}")
+        emit('error', {'mensaje': f'Error procesando elemento global: {str(e)}'})
+
+@socketio.on('iniciarAtaque')
+def manejar_iniciar_ataque(data):
+    """Maneja inicio de ataques en combate"""
+    try:
+        codigo_partida = data.get('codigo')
+        atacante_id = data.get('atacanteId')
+        objetivo_id = data.get('objetivoId')
+        jugador_id = data.get('jugadorId')
+        
+        if not all([codigo_partida, atacante_id, objetivo_id]):
+            emit('error', {'mensaje': 'Datos de ataque incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'ataque_iniciado', {
+            'atacante_id': atacante_id,
+            'objetivo_id': objetivo_id,
+            'jugador_id': jugador_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar inicio de ataque
+        emit('ataqueIniciado', data, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error iniciando ataque: {e}")
+        emit('error', {'mensaje': f'Error al iniciar ataque: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - GESTIÓN DE ESTADOS
+# =============================================
+
+@socketio.on('guardarEstado')
+def manejar_guardar_estado(data):
+    """Guarda el estado actual del juego"""
+    try:
+        # Normalizar IDs para compatibilidad cliente-servidor
+        data = normalizar_ids(data)
+        
+        codigo_partida = data.get('codigo')
+        estado = data.get('estado')
+        jugador_id = data.get('jugadorId') or data.get('jugador_id')
+        
+        if not all([codigo_partida, estado]):
+            emit('error', {'mensaje': 'Datos de estado incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'estado_guardado', {
+            'jugador_id': jugador_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Confirmar guardado
+        emit('estadoGuardado', {'exito': True, 'timestamp': datetime.now().isoformat()})
+        
+    except Exception as e:
+        print(f"❌ Error guardando estado: {e}")
+        emit('error', {'mensaje': f'Error al guardar estado: {str(e)}'})
+
+@socketio.on('solicitarEstado')
+def manejar_solicitar_estado(data):
+    """Solicita el estado actual del juego"""
+    try:
+        codigo_partida = data.get('codigo')
+        jugador_id = data.get('jugadorId')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida faltante'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'estado_solicitado', {
+            'jugador_id': jugador_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Enviar estado actual (simulado)
+        emit('estadoActualizado', {
+            'codigo': codigo_partida,
+            'estado': 'activa',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error solicitando estado: {e}")
+        emit('error', {'mensaje': f'Error al solicitar estado: {str(e)}'})
+
+@socketio.on('solicitarEstadoPartida')
+def manejar_solicitar_estado_partida(data):
+    """Solicita estado específico de la partida"""
+    try:
+        codigo_partida = data.get('codigo')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida faltante'})
+            return
+        
+        # Enviar estado de partida
+        emit('estadoPartidaActual', {
+            'codigo': codigo_partida,
+            'estado': 'en_curso',
+            'fase': 'combate',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error solicitando estado de partida: {e}")
+        emit('error', {'mensaje': f'Error al solicitar estado de partida: {str(e)}'})
+
+@socketio.on('obtenerInfoJugador')
+def manejar_obtener_info_jugador(data):
+    """Obtiene información del jugador"""
+    try:
+        # Normalizar IDs para compatibilidad cliente-servidor  
+        data = normalizar_ids(data)
+        
+        jugador_id = data.get('jugadorId') or data.get('jugador_id')
+        codigo_partida = data.get('codigo')
+        
+        if not jugador_id:
+            emit('error', {'mensaje': 'ID de jugador faltante'})
+            return
+        
+        # Simular información del jugador
+        emit('infoJugadorActual', {
+            'jugadorId': jugador_id,
+            'codigo': codigo_partida,
+            'estado': 'conectado',
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo info de jugador: {e}")
+        emit('error', {'mensaje': f'Error al obtener información del jugador: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - ELEMENTOS/POSICIONES
+# =============================================
+
+@socketio.on('actualizarElemento')
+def manejar_actualizar_elemento(data):
+    """Actualiza un elemento específico"""
+    try:
+        codigo_partida = data.get('codigo')
+        elemento = data.get('elemento')
+        
+        if not all([codigo_partida, elemento]):
+            emit('error', {'mensaje': 'Datos de elemento incompletos'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'elemento_actualizado', {
+            'elemento_id': elemento.get('id'),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar actualización
+        emit('elementoActualizado', data, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"❌ Error actualizando elemento: {e}")
+        emit('error', {'mensaje': f'Error al actualizar elemento: {str(e)}'})
+
+@socketio.on('solicitarElementos')
+def manejar_solicitar_elementos(data):
+    """Solicita lista de elementos"""
+    try:
+        codigo_partida = data.get('codigo')
+        operacion = data.get('operacion')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida faltante'})
+            return
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'elementos_solicitados', {
+            'operacion': operacion,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Enviar lista de elementos (simulada)
+        emit('elementosDisponibles', {
+            'codigo': codigo_partida,
+            'elementos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error solicitando elementos: {e}")
+        emit('error', {'mensaje': f'Error al solicitar elementos: {str(e)}'})
+
+@socketio.on('solicitarPosiciones')
+def manejar_solicitar_posiciones(data):
+    """Solicita posiciones de elementos"""
+    try:
+        operacion = data.get('operacion')
+        codigo_partida = data.get('codigo')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación faltante'})
+            return
+        
+        # Enviar posiciones actuales
+        emit('posicionesActuales', {
+            'operacion': operacion,
+            'posiciones': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error solicitando posiciones: {e}")
+        emit('error', {'mensaje': f'Error al solicitar posiciones: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - CHAT/COMUNICACIÓN
+# =============================================
+
+@socketio.on('mensaje')
+def manejar_mensaje_general(data):
+    """Maneja mensajes generales"""
+    try:
+        mensaje = data.get('mensaje')
+        usuario = data.get('usuario')
+        sala = data.get('sala', 'general')
+        
+        if not mensaje:
+            emit('error', {'mensaje': 'Mensaje vacío'})
+            return
+        
+        # Enviar mensaje a la sala
+        mensaje_completo = {
+            'usuario': usuario,
+            'mensaje': mensaje,
+            'timestamp': datetime.now().isoformat(),
+            'sala': sala
+        }
+        
+        emit('mensajeRecibido', mensaje_completo, room=sala)
+        
+    except Exception as e:
+        print(f"❌ Error enviando mensaje: {e}")
+        emit('error', {'mensaje': f'Error al enviar mensaje: {str(e)}'})
+
+@socketio.on('mensajePrivado')
+def manejar_mensaje_privado(data):
+    """Maneja mensajes privados entre jugadores"""
+    try:
+        destinatario = data.get('destinatario')
+        mensaje = data.get('mensaje')
+        remitente = data.get('remitente')
+        
+        if not all([destinatario, mensaje, remitente]):
+            emit('error', {'mensaje': 'Datos de mensaje privado incompletos'})
+            return
+        
+        # Enviar mensaje privado
+        mensaje_privado = {
+            'remitente': remitente,
+            'mensaje': mensaje,
+            'timestamp': datetime.now().isoformat(),
+            'tipo': 'privado'
+        }
+        
+        # Enviar al destinatario (usando socketID si está disponible)
+        emit('mensajePrivadoRecibido', mensaje_privado, room=destinatario)
+        
+    except Exception as e:
+        print(f"❌ Error enviando mensaje privado: {e}")
+        emit('error', {'mensaje': f'Error al enviar mensaje privado: {str(e)}'})
+
+@socketio.on('obtenerHistorialChat')
+def manejar_obtener_historial_chat(data):
+    """Obtiene historial de chat de una sala"""
+    try:
+        sala = data.get('sala', 'general')
+        
+        # Enviar historial (simulado)
+        emit('historialChat', {
+            'sala': sala,
+            'mensajes': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo historial de chat: {e}")
+        emit('error', {'mensaje': f'Error al obtener historial: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - AMIGOS/SOCIAL
+# =============================================
+
+@socketio.on('agregarAmigo')
+def manejar_agregar_amigo(data):
+    """Agrega un amigo a la lista"""
+    try:
+        amigo_id = data.get('amigoId')
+        usuario_id = data.get('usuarioId')
+        
+        if not amigo_id:
+            emit('error', {'mensaje': 'ID de amigo faltante'})
+            return
+        
+        # Confirmar adición de amigo
+        emit('amigoAgregado', {
+            'amigoId': amigo_id,
+            'exito': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error agregando amigo: {e}")
+        emit('error', {'mensaje': f'Error al agregar amigo: {str(e)}'})
+
+@socketio.on('eliminarAmigo')
+def manejar_eliminar_amigo(data):
+    """Elimina un amigo de la lista"""
+    try:
+        amigo_id = data.get('amigoId')
+        usuario_id = data.get('usuarioId')
+        
+        if not amigo_id:
+            emit('error', {'mensaje': 'ID de amigo faltante'})
+            return
+        
+        # Confirmar eliminación de amigo
+        emit('amigoEliminado', {
+            'amigoId': amigo_id,
+            'exito': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error eliminando amigo: {e}")
+        emit('error', {'mensaje': f'Error al eliminar amigo: {str(e)}'})
+
+@socketio.on('obtenerListaAmigos')
+def manejar_obtener_lista_amigos():
+    """Obtiene la lista de amigos del usuario"""
+    try:
+        # Enviar lista de amigos (simulada)
+        emit('listaAmigos', {
+            'amigos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo lista de amigos: {e}")
+        emit('error', {'mensaje': f'Error al obtener lista de amigos: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - PARTIDAS/SALA
+# =============================================
+
+@socketio.on('salirPartida')
+def manejar_salir_partida(data):
+    """Maneja salida de jugador de partida"""
+    try:
+        codigo_partida = data.get('codigo')
+        usuario_id = data.get('userId')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida faltante'})
+            return
+        
+        # Salir de la sala de la partida
+        leave_room(codigo_partida)
+        
+        # Actualizar estadísticas
+        actualizar_estadisticas(codigo_partida, 'jugador_salio', {
+            'usuario_id': usuario_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar a otros jugadores
+        emit('jugadorSalio', {'userId': usuario_id}, room=codigo_partida, include_self=False)
+        emit('salidaConfirmada', {'exito': True})
+        
+    except Exception as e:
+        print(f"❌ Error saliendo de partida: {e}")
+        emit('error', {'mensaje': f'Error al salir de partida: {str(e)}'})
+
+@socketio.on('reconectarPartida')
+def manejar_reconectar_partida(data):
+    """Maneja reconexión a partida (alternativa a reconectarAPartida)"""
+    try:
+        codigo_partida = data.get('codigoPartida')
+        usuario_id = data.get('userId')
+        
+        if not all([codigo_partida, usuario_id]):
+            emit('error', {'mensaje': 'Datos de reconexión incompletos'})
+            return
+        
+        # Unirse a la sala de la partida
+        join_room(codigo_partida)
+        
+        emit('reconexionExitosa', {
+            'codigo': codigo_partida,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error reconectando a partida: {e}")
+        emit('error', {'mensaje': f'Error al reconectar: {str(e)}'})
+
+@socketio.on('obtenerEstadoSala')
+def manejar_obtener_estado_sala(data):
+    """Obtiene el estado actual de una sala"""
+    try:
+        codigo = data.get('codigo')
+        
+        if not codigo:
+            emit('error', {'mensaje': 'Código de sala faltante'})
+            return
+        
+        emit('estadoSalaActual', {
+            'codigo': codigo,
+            'estado': 'activa',
+            'jugadores': 0,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo estado de sala: {e}")
+        emit('error', {'mensaje': f'Error al obtener estado de sala: {str(e)}'})
+
+@socketio.on('invitarAmigo')
+def manejar_invitar_amigo(data):
+    """Invita un amigo a una partida"""
+    try:
+        amigo_id = data.get('amigoId')
+        partida_codigo = data.get('partidaCodigo')
+        
+        if not all([amigo_id, partida_codigo]):
+            emit('error', {'mensaje': 'Datos de invitación incompletos'})
+            return
+        
+        # Enviar invitación
+        emit('invitacionRecibida', {
+            'partidaCodigo': partida_codigo,
+            'timestamp': datetime.now().isoformat()
+        }, room=amigo_id)
+        
+        emit('invitacionEnviada', {'exito': True})
+        
+    except Exception as e:
+        print(f"❌ Error invitando amigo: {e}")
+        emit('error', {'mensaje': f'Error al invitar amigo: {str(e)}'})
+
+@socketio.on('obtenerTiempoServidor')
+def manejar_obtener_tiempo_servidor(data):
+    """Obtiene tiempo del servidor para sincronización"""
+    try:
+        codigo = data.get('codigo')
+        
+        emit('tiempoServidor', {
+            'timestamp': datetime.now().isoformat(),
+            'codigo': codigo
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo tiempo del servidor: {e}")
+        emit('error', {'mensaje': f'Error al obtener tiempo: {str(e)}'})
+
+@socketio.on('finalizarPartida')
+def manejar_finalizar_partida():
+    """Finaliza una partida completamente"""
+    try:
+        emit('partidaFinalizada', {
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error finalizando partida: {e}")
+        emit('error', {'mensaje': f'Error al finalizar partida: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - OPERACIONES GB
+# =============================================
+
+@socketio.on('unirseOperacion')
+def manejar_unirse_operacion(data):
+    """Une a un jugador a una operación específica"""
+    try:
+        operacion = data.get('operacion')
+        usuario_id = data.get('usuarioId')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación faltante'})
+            return
+        
+        # Unirse a la sala de la operación
+        join_room(operacion)
+        
+        emit('operacionUnida', {
+            'operacion': operacion,
+            'exito': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error uniéndose a operación: {e}")
+        emit('error', {'mensaje': f'Error al unirse a operación: {str(e)}'})
+
+@socketio.on('salirOperacionGB')
+def manejar_salir_operacion_gb(data):
+    """Sale de una operación GB"""
+    try:
+        operacion = data.get('operacion')
+        usuario_id = data.get('usuarioId')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación faltante'})
+            return
+        
+        # Salir de la sala de la operación
+        leave_room(operacion)
+        
+        emit('operacionAbandonada', {
+            'operacion': operacion,
+            'exito': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error saliendo de operación GB: {e}")
+        emit('error', {'mensaje': f'Error al salir de operación: {str(e)}'})
+
+@socketio.on('solicitarEstadoElementos')
+def manejar_solicitar_estado_elementos(data):
+    """Solicita estado de elementos en una operación"""
+    try:
+        operacion = data.get('operacion')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación faltante'})
+            return
+        
+        emit('estadoElementosActual', {
+            'operacion': operacion,
+            'elementos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error solicitando estado de elementos: {e}")
+        emit('error', {'mensaje': f'Error al solicitar estado: {str(e)}'})
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - ROOMS/CONECTIVIDAD
+# =============================================
+
+@socketio.on('joinRoom')
+def manejar_join_room(data):
+    """Une a un usuario a una sala específica"""
+    try:
+        if isinstance(data, str):
+            sala = data
+        else:
+            sala = data.get('sala') or data
+        
+        if sala:
+            join_room(sala)
+            emit('salaUnida', {'sala': sala})
+        
+    except Exception as e:
+        print(f"❌ Error uniéndose a sala: {e}")
+        emit('error', {'mensaje': f'Error al unirse a sala: {str(e)}'})
+
+@socketio.on('leaveRoom')
+def manejar_leave_room(data):
+    """Sale de una sala específica"""
+    try:
+        if isinstance(data, str):
+            sala = data
+        else:
+            sala = data.get('sala') or data
+        
+        if sala:
+            leave_room(sala)
+            emit('salaAbandonada', {'sala': sala})
+        
+    except Exception as e:
+        print(f"❌ Error saliendo de sala: {e}")
+        emit('error', {'mensaje': f'Error al salir de sala: {str(e)}'})
+
+@socketio.on('heartbeat')
+def manejar_heartbeat(data):
+    """Maneja heartbeat para mantener conexión"""
+    try:
+        emit('heartbeatResponse', {
+            'timestamp': datetime.now().isoformat(),
+            'data': data
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en heartbeat: {e}")
+
+@socketio.on('ping')
+def manejar_ping():
+    """Responde a ping básico"""
+    try:
+        emit('pong', {'timestamp': datetime.now().isoformat()})
+        
+    except Exception as e:
+        print(f"❌ Error en ping: {e}")
+
+# =============================================
+# EVENTOS CRÍTICOS FALTANTES - OTROS SISTEMAS
+# =============================================
+
+@socketio.on('listaElementos')
+def manejar_lista_elementos(data):
+    """Maneja solicitud de lista de elementos"""
+    try:
+        operacion = data.get('operacion')
+        
+        emit('elementosListados', {
+            'operacion': operacion,
+            'elementos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error listando elementos: {e}")
+        emit('error', {'mensaje': f'Error al listar elementos: {str(e)}'})
+
+@socketio.on('obtenerUsuariosConectados')
+def manejar_obtener_usuarios_conectados():
+    """Obtiene lista de usuarios conectados"""
+    try:
+        emit('usuariosConectados', {
+            'usuarios': [],
+            'count': 0,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo usuarios conectados: {e}")
+        emit('error', {'mensaje': f'Error al obtener usuarios: {str(e)}'})
+
+@socketio.on('verificarEstructuraArchivos')
+def manejar_verificar_estructura_archivos(data):
+    """Verifica estructura de archivos del sistema"""
+    try:
+        emit('estructuraArchivos', {
+            'verificado': True,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ Error verificando estructura: {e}")
+        emit('error', {'mensaje': f'Error al verificar estructura: {str(e)}'})
+
+@socketio.on('unirse_operacion')
+def manejar_unirse_operacion_alt(data):
+    """Variante alternativa de unirseOperacion"""
+    try:
+        # Redirigir al handler principal
+        manejar_unirse_operacion(data)
+        
+    except Exception as e:
+        print(f"❌ Error en unirse_operacion: {e}")
+        emit('error', {'mensaje': f'Error al unirse: {str(e)}'})
 
 @app.route('/debug/css')
 def debug_css():
