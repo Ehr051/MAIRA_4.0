@@ -144,6 +144,16 @@ function inicializarControles() {
     inicializarControlCoordenadasCursor();
     inicializarBotonPantallaCompleta();
     inicializarBotonesAyuda();
+    
+    // 🎯 INICIALIZAR MIRADIAL EN PLANEAMIENTO
+    if (window.MiRadial && window.mapa) {
+        console.log('🎯 Inicializando MiRadial en planeamiento...');
+        window.MiRadial.inicializar(window.mapa, 'planeamiento');
+        console.log('✅ MiRadial inicializado correctamente');
+    } else {
+        console.warn('⚠️ MiRadial o mapa no disponible para inicialización');
+    }
+    
     console.log('Controles inicializados con éxito');
 }
 
@@ -171,7 +181,7 @@ function inicializarMenus() {
         'apoyoCombateBtn': 'apoyoCombate',
         'logisticaSanidadBtn': 'logistica-sanidad',
         'logisticaMaterialBtn': 'logistica-material',
-        'mccGeneralesBtn': 'mcc-generales',
+        'mccGeneralesBtn': 'mccGeneralesBtn',
         'fuegosBtn': 'fuegos',
         'toeBtn': 'toe',
         'infanteriaArmamentoBtn': 'infanteria-armamento',
@@ -252,7 +262,7 @@ function isElementVisible(element) {
 // ✅ FUNCIÓN PARA CREAR MENÚS DINÁMICAMENTE:
 function crearMenuDinamico(menuId) {
     const menuDefiniciones = {
-        'mcc-generales': {
+        'mccGeneralesBtn': {
             titulo: 'MCC Generales',
             contenido: `
                 <div class="menu-seccion">

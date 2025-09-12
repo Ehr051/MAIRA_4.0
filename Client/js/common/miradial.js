@@ -944,28 +944,21 @@ handleMenuClick: function(action, submenu) {
          * Marca o desmarca un hexágono seleccionado
          */
         marcarHexagono: function() {
-            if (this.selectedHex && this.selectedHex.polygon && this.selectedHex.polygon._path) {
+            if (this.selectedHex && this.selectedHex.polygon) {
                 console.log('Toggle marcado de hexágono:', this.selectedHex);
                 const hexId = `${this.selectedHex.hex.q},${this.selectedHex.hex.r}`;
-                const svgElement = this.selectedHex.polygon._path;
-                
-                // ✅ Verificar que svgElement existe antes de manipular
-                if (!svgElement) {
-                    console.warn('⚠️ No se encontró elemento SVG para el hexágono');
-                    return;
-                }
                 
                 if (this.markedHexagons.has(hexId)) {
                     // Desmarcar el hexágono quitando la clase CSS `hex-marked`
+                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.remove('hex-marked');
                     this.markedHexagons.delete(hexId);
                 } else {
                     // Marcar el hexágono agregando la clase CSS `hex-marked`
+                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.add('hex-marked');
                     this.markedHexagons.add(hexId);
                 }
-            } else {
-                console.warn('⚠️ selectedHex o polygon._path no disponible');
             }
         },
 
@@ -1183,23 +1176,53 @@ processElevationInfo: async function (corners, popup) {
             const puntoClick = this.map.latLngToContainerPoint(latlng);
             const radioDeteccion = 20; // píxeles
             
-            if (window.calcoActivo) {
-                window.calcoActivo.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                        // Convertir posición del marcador a coordenadas de pantalla
-                        const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+            // 🔍 BUSCAR EN MÚLTIPLES CAPAS
+            const capasABuscar = [
+                window.calcoActivo,        // Elementos militares
+                window.grupoMedicion,      // Líneas de medición
+                window.elementosLayer,     // Otros elementos
+                window.polylineGroup,      // Polilíneas
+                window.polygonGroup        // Polígonos
+            ];
+            
+            capasABuscar.forEach(capa => {
+                if (capa && capa.eachLayer) {
+                    capa.eachLayer((layer) => {
+                        let distancia = Infinity;
                         
-                        // Calcular distancia en píxeles
-                        const distancia = puntoClick.distanceTo(puntoMarcador);
+                        if (layer instanceof L.Marker) {
+                            // Para marcadores: distancia al punto
+                            const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                            distancia = puntoClick.distanceTo(puntoMarcador);
+                        } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                            // Para polígonos/líneas: verificar si el punto está cerca
+                            try {
+                                const bounds = layer.getBounds();
+                                const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
+                                const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                                
+                                // Calcular distancia aproximada al centro del elemento
+                                const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
+                                const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
+                                const centro = { x: centroX, y: centroY };
+                                
+                                distancia = Math.sqrt(
+                                    Math.pow(puntoClick.x - centro.x, 2) + 
+                                    Math.pow(puntoClick.y - centro.y, 2)
+                                );
+                            } catch (e) {
+                                console.warn('[MiRadial] Error calculando distancia para elemento:', e);
+                            }
+                        }
                         
                         // Actualizar elemento más cercano si está dentro del radio
                         if (distancia < radioDeteccion && distancia < distanciaMinima) {
                             elementoEncontrado = layer;
                             distanciaMinima = distancia;
                         }
-                    }
-                });
-            }
+                    });
+                }
+            });
             
             console.log('[MiRadial] Elemento encontrado:', elementoEncontrado, 'distancia:', distanciaMinima);
             return elementoEncontrado;

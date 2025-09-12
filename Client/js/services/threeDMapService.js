@@ -500,6 +500,9 @@ function activarVista3D() {
                 flex: 1;
                 width: 100%;
                 height: 100%;
+                background: #87CEEB;
+                border: 2px solid #333;
+                min-height: 400px;
             `;
             container3D.appendChild(canvas3D);
             
@@ -514,12 +517,14 @@ function activarVista3D() {
         // Inicializar vista 3D
         threeDMapInstance.initialize('canvas3d').then(() => {
             console.log('✅ Vista 3D activada');
-            is3DActive = true;
             
-            // 🔧 DEBUG: Verificar container y renderer
-            console.log('🔍 DEBUG Container:', threeDMapInstance.container);
+            // 🔍 DEBUG: Mostrar información del container
+            const container = document.getElementById('canvas3d');
+            console.log('🔍 DEBUG Container:', container);
             console.log('🔍 DEBUG Renderer size:', threeDMapInstance.renderer.getSize(new THREE.Vector2()));
             console.log('🔍 DEBUG Camera position:', threeDMapInstance.camera.position);
+            
+            is3DActive = true;
             
             // Generar terreno básico si no hay datos
             const basicElevationData = generateBasicTerrain();
@@ -528,12 +533,10 @@ function activarVista3D() {
                 height: 1000
             });
             
-            // 🔧 Forzar render inicial
+            // 🔧 FORZAR RENDER INICIAL
             setTimeout(() => {
-                if (threeDMapInstance.renderer && threeDMapInstance.scene && threeDMapInstance.camera) {
-                    threeDMapInstance.renderer.render(threeDMapInstance.scene, threeDMapInstance.camera);
-                    console.log('🔧 Forzado render inicial');
-                }
+                console.log('🔧 Forzado render inicial');
+                threeDMapInstance.render();
             }, 100);
             
         }).catch(error => {
