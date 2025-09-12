@@ -3219,4 +3219,32 @@ window.MAIRA.CuadroOrganizacion.notificaciones = {
     obtenerIcono: function(tipo) { /* iconos por tipo */ },
     agregarEstilos: function() { /* CSS automático */ }
 };
+
+/**
+ * Función global para seleccionar elementos en CO
+ */
+function seleccionarElemento(elemento) {
+    console.log('🎯 CO: Seleccionando elemento:', elemento);
+    
+    // Deseleccionar elemento anterior
+    if (selectedElement && selectedElement !== elemento) {
+        if (selectedElement.classList) {
+            selectedElement.classList.remove('selected');
+        }
+    }
+    
+    // Seleccionar nuevo elemento
+    selectedElement = elemento;
+    window.elementoSeleccionado = elemento;
+    
+    if (elemento && elemento.classList) {
+        elemento.classList.add('selected');
+    }
+    
+    console.log('✅ CO: Elemento seleccionado correctamente');
+}
+
+// Exportar función globalmente para compatibilidad
+window.seleccionarElemento = seleccionarElemento;
+
 console.log('✅ CO.js v2.1.0 - Mejoras integradas');

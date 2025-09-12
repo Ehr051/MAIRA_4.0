@@ -8,6 +8,13 @@ var currentProtocol = window.location.protocol;
 // Variables globales para ser usadas en toda la aplicación
 var SERVER_URL, CLIENT_URL;
 
+// ⏱️ CONFIGURACIÓN DE TIMEOUTS (aumentados para servidores lentos)
+window.MAIRA_TIMEOUTS = {
+    connection: 30000,    // 30 segundos (antes: 10s)
+    response: 60000,      // 60 segundos (antes: 30s)  
+    socket: 120000        // 2 minutos (antes: 60s)
+};
+
 // Si estamos en un dominio ngrok, tunnel o Render, NO añadir puerto
 if (currentHost.includes('ngrok') || currentHost.includes('trycloudflare.com') || currentHost.includes('onrender.com')) {
     SERVER_URL = `${currentProtocol}//${currentHost}`;

@@ -642,9 +642,14 @@ function dibujarElemento(tipo, sidc = null,nombre = '') {
             elemento.setLatLngs(puntos);
         }
     }
-}
 
-function finalizarDibujo(e) {
+    function finalizarDibujo(e) {
+        // Para polígonos, necesitamos al menos 3 puntos
+        if (tipo === 'poligono' && puntos.length < 3) {
+            console.warn('⚠️ Se necesitan al menos 3 puntos para crear un polígono');
+            return; // No finalizamos si no hay suficientes puntos
+        }
+        
         mapa.off('click', agregarPunto);
         mapa.off('dblclick', finalizarDibujo);
 
@@ -715,15 +720,16 @@ function finalizarDibujo(e) {
     
 
         elemento.on('edit', function() {
-        if (this.textoMarcador) {
-            if (this instanceof L.Polyline) {
-                this.textoMarcador.setLatLng(this.getCenter());
-            } else if (this instanceof L.Polygon) {
-                this.textoMarcador.setLatLng(this.getBounds().getCenter());
+            if (this.textoMarcador) {
+                if (this instanceof L.Polyline) {
+                    this.textoMarcador.setLatLng(this.getCenter());
+                } else if (this instanceof L.Polygon) {
+                    this.textoMarcador.setLatLng(this.getBounds().getCenter());
+                }
             }
-        }
+        });
     }
-    )};
+}
     
 function createGridLayer(type, options) {
         switch(type) {
