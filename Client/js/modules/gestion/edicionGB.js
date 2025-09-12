@@ -835,7 +835,8 @@ function guardarCambiosUnidadGB() {
             jugadorId: jugadorElemento,
             usuarioId: jugadorElemento,
             usuario: usuarioActual,
-            isElementoMilitar: true
+            isElementoMilitar: true,
+            nombre: designacion // ✅ AÑADIDO: nombre para que aparezca en la lista
         });
         
         // Añadir el nuevo marcador al calco

@@ -47,7 +47,7 @@
   <!-- Three.js para visualización 3D -->
   <script src="/node_modules/three/build/three.min.js"></script>
   <!-- Three.js OrbitControls -->
-  <script src="/node_modules/three-orbitcontrols/OrbitControls.js"></script>
+  <script src="/node_modules/three/examples/js/controls/OrbitControls.js"></script>
   <!-- Pako.js para descompresión de TIF en tar.gz -->
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   
@@ -71,7 +71,6 @@
   <!-- Core y utilidades -->
   <script src="js/core/UserIdentity.js"></script>
   <script src="js/utils/sessionManager.js"></script>
-  <script src="js/utils/eventemitter.js"></script>
   
   <!-- Infraestructura -->
   <script src="js/infrastructure/terrainAdapter.js"></script>
@@ -93,7 +92,6 @@
   <script src="js/handlers/mobileOptimizationHandler.js"></script>
   <script src="js/handlers/mapInteractionHandler.js"></script>
   <script src="js/handlers/measurementHandler.js"></script>
-  <script src="js/handlers/DirectorManager.js"></script>
   
   <!-- Font Awesome Test & Fix -->
   <script src="js/common/fontAwesomeTest.js"></script>
@@ -955,6 +953,21 @@
 
 <!-- Contenedor para los detalles de la marcha -->
 
+<!-- Script de inicialización socket -->
+<script>
+// 🔌 INICIALIZAR SOCKET GLOBAL
+try {
+    if (typeof io !== 'undefined') {
+        window.socket = io();
+        console.log('✅ Socket global inicializado');
+    } else {
+        console.warn('⚠️ Socket.IO no disponible');
+    }
+} catch(e) {
+    console.warn('⚠️ Error inicializando socket:', e);
+}
+</script>
+
 <!-- Script de verificación de funcionalidad -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -973,16 +986,22 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         
         // 🎯 INICIALIZAR MENU RADIAL
-        if (typeof window.MiRadial !== 'undefined' && window.map) {
-            try {
-                window.MiRadial.init(window.map);
-                console.log('✅ Menú radial inicializado correctamente');
-            } catch(e) {
-                console.error('❌ Error inicializando menú radial:', e);
+        function initializarMenuRadial() {
+            if (typeof window.MiRadial !== 'undefined' && window.map) {
+                try {
+                    window.MiRadial.init(window.map);
+                    console.log('✅ Menú radial inicializado correctamente');
+                } catch(e) {
+                    console.error('❌ Error inicializando menú radial:', e);
+                }
+            } else {
+                console.warn('⚠️ Menú radial o mapa no disponible, reintentando en 1s...');
+                setTimeout(initializarMenuRadial, 1000);
             }
-        } else {
-            console.warn('⚠️ Menú radial o mapa no disponible');
         }
+        
+        // Inicializar con delay para asegurar que el mapa esté listo
+        setTimeout(initializarMenuRadial, 2000);
         
         let funcionesOK = 0;
         funcionesCriticas.forEach(func => {

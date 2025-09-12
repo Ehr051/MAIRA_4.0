@@ -910,7 +910,8 @@ function guardarCambiosUnidad() {
             dependencia: dependencia,
             magnitud: !esEquipoActual ? magnitud : undefined,
             equipo: equipoElemento,
-            jugador: jugadorElemento
+            jugador: jugadorElemento,
+            nombre: designacion // ✅ AÑADIDO: nombre para que aparezca en la lista
         });
         
         // Añadir el nuevo marcador al calco
@@ -1073,7 +1074,8 @@ function guardarCambiosEquipo() {
             designacion: designacion,
             dependencia: dependencia,
             equipoJugador: equipoElemento,
-            jugadorId: obtenerJugadorPropietario()
+            jugadorId: obtenerJugadorPropietario(),
+            nombre: designacion // ✅ AÑADIDO: nombre para que aparezca en la lista
         });
         
         // Añadir el nuevo marcador al calco
