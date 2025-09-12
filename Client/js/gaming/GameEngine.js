@@ -838,6 +838,7 @@ class TurnManager {
     }
 }
 
+/* ⚠️ FogOfWar movido a archivo dedicado FogOfWar.js para evitar conflictos
 class FogOfWar {
     constructor(options) {
         this.gameEngine = options.gameEngine;
@@ -869,6 +870,7 @@ class FogOfWar {
         handlers.forEach(handler => handler(data));
     }
 }
+*/
 
 class LogisticsSystem {
     constructor(options) {
