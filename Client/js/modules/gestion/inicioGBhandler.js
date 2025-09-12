@@ -100,18 +100,80 @@ function configurarEventos() {
 }
 
 /**
- * Carga datos iniciales de localStorage
+ * Actualiza la información del usuario en la interfaz (similar a iniciarpartida.js)
+ */
+function actualizarInfoUsuario() {
+    let currentUserId, currentUserName;
+    
+    // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        const userInfo = MAIRA.UserIdentity.getCurrentUser();
+        currentUserId = userInfo.id;
+        currentUserName = userInfo.username;
+        console.log('✅ Usuario obtenido desde UserIdentity:', userInfo);
+    } else {
+        // Fallback a localStorage
+        currentUserId = localStorage.getItem('userId');
+        currentUserName = localStorage.getItem('username');
+        console.log('⚠️ Usuario obtenido desde localStorage:', { currentUserId, currentUserName });
+    }
+    
+    // Actualizar elementos de la interfaz
+    const nombreElement = document.getElementById('nombreJugadorActual');
+    const idElement = document.getElementById('idJugadorActual');
+    
+    if (nombreElement && currentUserName) {
+        nombreElement.textContent = currentUserName;
+    }
+    
+    if (idElement && currentUserId) {
+        idElement.textContent = currentUserId;
+    }
+    
+    // También actualizar el campo del formulario si existe
+    const nombreUsuarioInput = document.getElementById('nombreUsuario');
+    if (nombreUsuarioInput && currentUserName) {
+        nombreUsuarioInput.value = currentUserName;
+    }
+    
+    // Actualizar variables globales para compatibilidad
+    if (currentUserId && currentUserName) {
+        usuarioInfo = {
+            id: currentUserId,
+            usuario: currentUserName,
+            username: currentUserName
+        };
+        
+        // Exponer globalmente para compatibilidad
+        window.userId = currentUserId;
+        window.userName = currentUserName;
+        
+        console.log('✅ Info de usuario actualizada en inicioGB:', usuarioInfo);
+    } else {
+        console.error('❌ No se pudo obtener información del usuario');
+        mostrarError('No se pudo obtener información del usuario. Por favor, inicia sesión nuevamente.');
+    }
+}
+
+/**
+ * Carga datos iniciales
  */
 function cargarDatosIniciales() {
-    // Intentar recuperar información de usuario
+    // Actualizar información del usuario usando el nuevo método
+    actualizarInfoUsuario();
+    
+    // Cargar datos adicionales de localStorage si los hay
     const usuarioGuardado = localStorage.getItem('gb_usuario_info');
     if (usuarioGuardado) {
         try {
-            usuarioInfo = JSON.parse(usuarioGuardado);
-            document.getElementById('idUsuarioActual').textContent = usuarioInfo.id;
-            document.getElementById('nombreUsuario').value = usuarioInfo.usuario || '';
+            const datosGuardados = JSON.parse(usuarioGuardado);
+            // Solo usar datos guardados si no tenemos información actual
+            if (!usuarioInfo && datosGuardados) {
+                usuarioInfo = datosGuardados;
+                console.log('ℹ️ Usando datos guardados de localStorage:', usuarioInfo);
+            }
         } catch (error) {
-            console.error('Error al cargar información del usuario:', error);
+            console.error('Error al cargar información guardada del usuario:', error);
         }
     }
 }
@@ -891,40 +953,109 @@ function unirseOperacionExistente() {
     }, 5000);
 }
 
-// Reemplaza la función iniciarConexion con esta versión mejorada
-function iniciarConexion() {
+// Función iniciarConexion mejorada siguiendo patrón de iniciarpartida.js
+async function iniciarConexion() {
     const serverURL = obtenerURLServidor();
+    console.log('🔗 Conectando al servidor desde inicioGB:', serverURL);
     
-    // Opciones de socket.io para mejorar la estabilidad de la conexión
-    socket = io(serverURL, {
-        reconnectionAttempts: 5,
-        timeout: 30000,
-        transports: ['polling'],  // Solo polling para Render
-        upgrade: false  // No intentar upgrade a websocket
-    });
-    
-    // Evento de conexión
-    socket.on('connect', function() {
-        console.log('Conectado al servidor. ID de socket:', socket.id);
+    try {
+        // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+        let userInfo = null;
+        let token = null;
         
-        // Llamar al nuevo handler
-        onSocketConectado(socket.id);
-        
-        // Resto del código existente...
-        if (operacionSeleccionada) {
-            socket.emit('unirse_operacion', {
-                operacion: operacionSeleccionada,
-                usuario: usuarioInfo
-            });
+        // Intentar obtener desde UserIdentity primero
+        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+            userInfo = MAIRA.UserIdentity.getCurrentUser();
+            token = MAIRA.UserIdentity.getToken();
+            console.log('✅ Usuario obtenido desde UserIdentity para conexión:', userInfo);
+        } else {
+            // Fallback a localStorage
+            userInfo = {
+                id: localStorage.getItem('userId'),
+                username: localStorage.getItem('username')
+            };
+            console.log('⚠️ Usuario obtenido desde localStorage para conexión:', userInfo);
         }
-    });
-    
-    // Evento de desconexión
-    socket.on('disconnect', function(reason) {
-        console.log('Desconectado del servidor. Razón:', reason);
-        mostrarMensajeSistema('Desconectado del servidor: ' + reason);
-        actualizarEstadoConexion(false);
-    });
+        
+        if (!userInfo.id || !userInfo.username) {
+            throw new Error('No se pudo obtener información del usuario para conectar');
+        }
+        
+        // ✅ Verificar que socket.io esté disponible
+        if (typeof io === 'undefined') {
+            throw new Error('Socket.IO no está disponible. Verifica que se haya cargado la librería.');
+        }
+        
+        // Opciones de socket.io para mejorar la estabilidad de la conexión
+        socket = io(serverURL, {
+            reconnectionAttempts: 5,
+            timeout: 30000,
+            transports: ['polling'],  // Solo polling para Render
+            upgrade: false,  // No intentar upgrade a websocket
+            forceNew: true,
+            auth: {
+                token: token,
+                userId: userInfo.id,
+                username: userInfo.username
+            }
+        });
+        
+        // Evento de conexión
+        socket.on('connect', function() {
+            console.log('✅ Conectado al servidor desde inicioGB. ID de socket:', socket.id);
+            
+            // ✅ ENVIAR LOGIN INMEDIATAMENTE DESPUÉS DE CONECTAR
+            socket.emit('login', { 
+                userId: userInfo.id, 
+                username: userInfo.username 
+            });
+            
+            // Llamar al handler personalizado
+            if (typeof onSocketConectado === 'function') {
+                onSocketConectado(socket.id);
+            }
+            
+            // Actualizar estado de conexión
+            actualizarEstadoConexion(true);
+            
+            // Si hay operación seleccionada, unirse
+            if (operacionSeleccionada) {
+                socket.emit('unirseOperacion', {
+                    operacion: operacionSeleccionada.nombre,
+                    usuario: usuarioInfo
+                });
+            }
+        });
+        
+        // ✅ LISTENER PARA RESPUESTA DE AUTENTICACIÓN
+        socket.on('loginResponse', function(response) {
+            if (response.success) {
+                console.log('✅ Login exitoso en inicioGB:', response);
+                // Actualizar usuario info si viene en la respuesta
+                if (response.user) {
+                    usuarioInfo = {
+                        id: response.user.id,
+                        usuario: response.user.username,
+                        username: response.user.username
+                    };
+                }
+            } else {
+                console.error('❌ Error en login inicioGB:', response.error);
+                mostrarError('Error de autenticación: ' + response.error);
+            }
+        });
+        
+        // ✅ LISTENER PARA CONFIRMACIÓN DE LOGIN (ALTERNATIVO)
+        socket.on('login_success', function(data) {
+            console.log('✅ Login confirmado en inicioGB:', data);
+        });
+        
+        // Evento de desconexión
+        socket.on('disconnect', function(reason) {
+            console.log('❌ Desconectado del servidor. Razón:', reason);
+            mostrarMensajeSistema('Desconectado del servidor: ' + reason);
+            actualizarEstadoConexion(false);
+        });
     
     // Evento de error
     socket.on('error', function(error) {
@@ -959,12 +1090,26 @@ function iniciarConexion() {
     
 
     
-    // AGREGAR: Ping periódico para mantener la conexión activa
-    setInterval(function() {
-        if (socket && socket.connected) {
-            socket.emit('ping');
-        }
-    }, 30000); // Cada 30 segundos
+        // AGREGAR: Ping periódico para mantener la conexión activa
+        setInterval(function() {
+            if (socket && socket.connected) {
+                socket.emit('ping');
+            }
+        }, 30000); // Cada 30 segundos
+        
+        // ✅ EXPONER SOCKET GLOBALMENTE PARA DEBUG
+        window.socket = socket;
+        
+    } catch (error) {
+        console.error('❌ Error al inicializar conexión en inicioGB:', error);
+        mostrarError('Error de conexión: ' + error.message);
+        
+        // Retry después de un tiempo
+        setTimeout(() => {
+            console.log('🔄 Reintentando conexión...');
+            iniciarConexion();
+        }, 5000);
+    }
 }
 
 /**
@@ -1036,10 +1181,55 @@ function onSocketConectado(socketId) {
     console.log('📡 Socket conectado en inicioGB:', socketId);
     
     // Actualizar estado de conexión (código existente)
-    actualizarEstadoConexion('Conectado');
+    actualizarEstadoConexion(true);
     
     // Inicializar MAIRAChat después de la conexión
     setTimeout(() => {
         inicializarMAIRAChatInicioGB();
     }, 2000); // Dar tiempo a que todo se estabilice
 }
+
+// =============================================
+// EXPORTACIONES GLOBALES (Siguiendo patrón de iniciarpartida.js)
+// =============================================
+
+// Funciones principales para compatibilidad global
+window.actualizarInfoUsuario = actualizarInfoUsuario;
+window.cargarDatosIniciales = cargarDatosIniciales;
+window.iniciarConexion = iniciarConexion;
+window.configurarEventos = configurarEventos;
+window.obtenerURLServidor = obtenerURLServidor;
+
+// Funciones de UI e interfaz
+window.mostrarError = mostrarError;
+window.mostrarMensajeSistema = mostrarMensajeSistema;
+window.actualizarListaOperaciones = actualizarListaOperaciones;
+window.actualizarListaUsuarios = actualizarListaUsuarios;
+window.mostrarDetallesOperacion = mostrarDetallesOperacion;
+window.actualizarEstadoConexion = actualizarEstadoConexion;
+
+// Funciones de operaciones
+window.crearNuevaOperacion = crearNuevaOperacion;
+window.unirseOperacionExistente = unirseOperacionExistente;
+window.generarId = generarId;
+
+// Funciones de preview SIDC
+window.inicializarPreviewSIDC = inicializarPreviewSIDC;
+window.crearCampoIdentidad = crearCampoIdentidad;
+window.crearCampoDimension = crearCampoDimension;
+window.crearCampoEstado = crearCampoEstado;
+window.cargarOpcionesArmas = cargarOpcionesArmas;
+window.cargarOpcionesBasicas = cargarOpcionesBasicas;
+
+// Funciones de chat y conexión
+window.inicializarMAIRAChatInicioGB = inicializarMAIRAChatInicioGB;
+window.onSocketConectado = onSocketConectado;
+
+// Variables globales para compatibilidad
+window.socket = socket;
+window.usuarioInfo = usuarioInfo;
+window.operacionesActivas = operacionesActivas;
+window.operacionSeleccionada = operacionSeleccionada;
+window.usuariosConectados = usuariosConectados;
+
+console.log('✅ inicioGBhandler.js: Funciones exportadas globalmente');
