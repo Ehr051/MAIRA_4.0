@@ -128,39 +128,29 @@ class ThreeDMapService {
     }
 
     async loadOrbitControls() {
-        return new Promise((resolve, reject) => {
-            // Verificar si ya está cargado
+        try {
+            // OrbitControls ahora se carga directamente en HTML
+            // Verificar disponibilidad global
             if (window.THREE && window.THREE.OrbitControls) {
-                resolve();
+                console.log('✅ OrbitControls disponible desde HTML');
                 return;
             }
-
-            // Usar script simple sin módulos ES6
-            const script = document.createElement('script');
-            // 🔧 FIX CRÍTICO: Usar CDN que funciona correctamente
-            script.src = 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js';
-            script.type = 'text/javascript';
-            script.onload = () => {
-                if (window.THREE && window.THREE.OrbitControls) {
-                    console.log('✅ OrbitControls cargado desde node_modules');
-                    resolve();
-                } else {
-                    console.warn('⚠️ OrbitControls no se pudo cargar correctamente');
-                    // Fallback: crear mock básico
-                    this.createOrbitControlsFallback();
-                    resolve();
-                }
-            };
             
-            script.onerror = () => {
-                console.warn('⚠️ Error cargando OrbitControls, creando fallback');
-                // Crear fallback básico
-                this.createOrbitControlsFallback();
-                resolve();
-            };
+            // Verificar si three-orbitcontrols está disponible globalmente
+            if (typeof OrbitControls !== 'undefined') {
+                window.THREE.OrbitControls = OrbitControls;
+                console.log('✅ OrbitControls configurado desde three-orbitcontrols');
+                return;
+            }
             
-            document.head.appendChild(script);
-        });
+            // Fallback si no está disponible
+            console.warn('⚠️ OrbitControls no disponible, creando fallback básico');
+            this.createOrbitControlsFallback();
+            
+        } catch (error) {
+            console.warn('⚠️ Error en loadOrbitControls:', error);
+            this.createOrbitControlsFallback();
+        }
     }
 
     /**
