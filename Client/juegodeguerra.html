@@ -64,6 +64,24 @@
   <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="/node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
   <script src="/node_modules/file-saver/dist/FileSaver.js"></script>
+  
+  <!-- 🗺️ PLUGINS MAPAS CRÍTICOS (faltantes) -->
+  <script src="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="/node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="/node_modules/proj4/dist/proj4.js"></script>
+  <script src="/node_modules/three/build/three.min.js"></script>
+  <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
+  
   <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
 
   <!-- =============================================
@@ -96,6 +114,11 @@
   
   <!-- 🗺️ SERVICIO 3D CRÍTICO -->
   <script src="js/services/threeDMapService.js"></script>
+  
+  <!-- 🔬 SERVICIOS ANÁLISIS FALTANTES -->
+  <script src="js/services/elevationProfileService.js"></script>
+  <script src="js/services/slopeAnalysisService.js"></script>
+  <script src="js/services/terrainAdapter.js"></script>
 
   <!-- 🎯 HANDLERS (archivos que existen) -->
   <script src="js/handlers/performanceOptimizer.js"></script>
@@ -116,7 +139,16 @@
   <!-- 🎨 FONT AWESOME TEST -->
   <script src="js/common/fontAwesomeTest.js"></script>
   
-  <!-- 💬 CHAT SYSTEM (CRÍTICO PARA MULTIPLAYER) -->
+  <!-- � FUNCIONALIDADES BASE CRÍTICAS (faltantes) -->
+  <script src="js/common/atajosP.js"></script>
+  <script src="js/common/dibujosMCCP.js"></script>
+  <script src="js/common/elementEditor.js"></script>
+  <script src="js/common/graficoMarcha.js"></script>
+  <script src="js/common/herramientasP.js"></script>
+  <script src="js/common/simbolosP.js"></script>
+  <script src="js/common/unidades.js"></script>
+  
+  <!-- �💬 CHAT SYSTEM (CRÍTICO PARA MULTIPLAYER) -->
   <script src="js/common/MAIRAChat.js"></script>
 
   <!-- 🧩 MODULES (archivos que existen) -->
