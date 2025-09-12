@@ -46,8 +46,8 @@
   
   <!-- Three.js para visualización 3D -->
   <script src="/node_modules/three/build/three.min.js"></script>
-  <!-- Three.js OrbitControls -->
-  <script src="/node_modules/three/examples/js/controls/OrbitControls.js"></script>
+  <!-- Three.js OrbitControls - Usando versión standalone -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/controls/OrbitControls.js"></script>
   <!-- Pako.js para descompresión de TIF en tar.gz -->
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   
@@ -987,9 +987,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 🎯 INICIALIZAR MENU RADIAL
         function initializarMenuRadial() {
-            if (typeof window.MiRadial !== 'undefined' && window.map) {
+            if (typeof window.MiRadial !== 'undefined' && window.mapa) {
                 try {
-                    window.MiRadial.init(window.map);
+                    window.MiRadial.init(window.mapa);
                     console.log('✅ Menú radial inicializado correctamente');
                 } catch(e) {
                     console.error('❌ Error inicializando menú radial:', e);
