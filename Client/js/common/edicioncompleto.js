@@ -916,6 +916,12 @@ function guardarCambiosUnidad() {
         // Añadir el nuevo marcador al calco
         nuevoMarcador.addTo(window.calcoActivo);
         
+        // ✅ ACTUALIZAR LISTA DE ELEMENTOS DEL CALCO
+        if (typeof window.actualizarElementosCalco === 'function') {
+            window.actualizarElementosCalco();
+            console.log('✅ Lista de elementos del calco actualizada después de crear marcador');
+        }
+        
         // Actualizar etiqueta
         actualizarEtiquetaUnidad(nuevoMarcador);
         

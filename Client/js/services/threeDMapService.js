@@ -137,14 +137,9 @@ class ThreeDMapService {
 
             // Usar script simple sin módulos ES6
             const script = document.createElement('script');
-            // Múltiples rutas de fallback para OrbitControls
-            const orbitControlsUrls = [
-                '/node_modules/three/examples/jsm/controls/OrbitControls.js',
-                '/node_modules/three/examples/js/controls/OrbitControls.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js'
-            ];
-            
-            script.src = orbitControlsUrls[0];
+            // 🔧 FIX CRÍTICO: Usar CDN que funciona correctamente
+            script.src = 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js';
+            script.type = 'text/javascript';
             script.onload = () => {
                 if (window.THREE && window.THREE.OrbitControls) {
                     console.log('✅ OrbitControls cargado desde node_modules');

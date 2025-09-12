@@ -970,6 +970,18 @@ document.addEventListener('DOMContentLoaded', function() {
             'obtenerJugadorPropietario'
         ];
         
+        // 🎯 INICIALIZAR MENU RADIAL
+        if (typeof window.MiRadial !== 'undefined' && window.map) {
+            try {
+                window.MiRadial.init(window.map);
+                console.log('✅ Menú radial inicializado correctamente');
+            } catch(e) {
+                console.error('❌ Error inicializando menú radial:', e);
+            }
+        } else {
+            console.warn('⚠️ Menú radial o mapa no disponible');
+        }
+        
         let funcionesOK = 0;
         funcionesCriticas.forEach(func => {
             if (typeof window[func] === 'function') {
