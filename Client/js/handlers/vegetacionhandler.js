@@ -468,40 +468,116 @@ class VegetacionHandler {
         }
     }
 
-    // 🔧 Función para extraer vegetación del tar.gz - IMPLEMENTACIÓN REAL
+    // 🔧 Función para extraer vegetación REAL del tar.gz - IMPLEMENTACIÓN CON PAKO.JS
     async extractVegetationFileFromTarGz(tarGzData, targetFilename) {
         try {
-            console.log(`🔍 Buscando vegetación ${targetFilename} en tar.gz de ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
+            console.log(`🔍 Extrayendo NDVI REAL ${targetFilename} de tar.gz de ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
             
-            // IMPLEMENTACIÓN TEMPORAL: Datos de prueba para vegetación
-            console.warn(`⚠️ Usando datos de prueba NDVI para ${targetFilename}`);
-            
-            // Crear datos de prueba para NDVI (valores entre -1 y 1)
-            const testTileSize = 512 * 512; // Tile de 512x512
-            const testData = new ArrayBuffer(testTileSize * 4); // 4 bytes por pixel
-            const view = new Float32Array(testData);
-            
-            // Llenar con datos NDVI de prueba
-            for (let i = 0; i < testTileSize; i++) {
-                // Simular NDVI con variación espacial
-                const x = i % 512;
-                const y = Math.floor(i / 512);
-                
-                // Patrón que simule vegetación densa en el centro, menos en bordes
-                const centerDistance = Math.sqrt((x - 256) ** 2 + (y - 256) ** 2);
-                const maxDistance = Math.sqrt(256 ** 2 + 256 ** 2);
-                const normalizedDistance = centerDistance / maxDistance;
-                
-                // NDVI: 1.0 = vegetación densa, 0.0 = sin vegetación, -1.0 = agua
-                const ndvi = 0.8 - (normalizedDistance * 0.9) + (Math.random() * 0.2 - 0.1);
-                view[i] = Math.max(-1, Math.min(1, ndvi));
+            // Cargar pako.js si no está disponible
+            if (typeof pako === 'undefined') {
+                console.log('📦 Cargando pako.js para descompresión NDVI...');
+                await this.loadScript('/node_modules/pako/dist/pako.min.js');
             }
             
-            console.log(`✅ Datos NDVI de prueba generados para ${targetFilename}: ${(testData.byteLength / 1024).toFixed(1)}KB`);
-            return testData;
+            // Descomprimir gzip usando pako
+            console.log('🔧 Descomprimiendo gzip vegetación...');
+            const tarData = pako.ungzip(new Uint8Array(tarGzData));
+            console.log(`✅ NDVI descomprimido: ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
+            
+            // Parsear tar para encontrar el archivo específico
+            const extractedFile = await this.extractVegetationFromTar(tarData, targetFilename);
+            
+            if (extractedFile) {
+                console.log(`✅ NDVI REAL extraído: ${targetFilename} (${(extractedFile.byteLength / 1024).toFixed(1)}KB)`);
+                return extractedFile;
+            } else {
+                throw new Error(`Archivo NDVI ${targetFilename} no encontrado en tar`);
+            }
             
         } catch (error) {
-            console.error(`❌ Error procesando vegetación tar.gz para ${targetFilename}:`, error);
+            console.error(`❌ Error extrayendo NDVI real ${targetFilename}:`, error);
+            
+            // Fallback: intentar interpretar como tar sin gzip
+            try {
+                console.log('🔄 Intentando NDVI como tar sin compresión...');
+                const extractedFile = await this.extractVegetationFromTar(new Uint8Array(tarGzData), targetFilename);
+                if (extractedFile) {
+                    console.log(`✅ NDVI REAL extraído (tar directo): ${targetFilename}`);
+                    return extractedFile;
+                }
+            } catch (fallbackError) {
+                console.error('❌ Fallback NDVI también falló:', fallbackError);
+            }
+            
+            return null;
+        }
+    }
+
+    // 🔧 Función para cargar script dinámicamente
+    async loadScript(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    // 🔧 Función para extraer archivo NDVI específico de datos TAR
+    async extractVegetationFromTar(tarData, targetFilename) {
+        try {
+            console.log(`🔍 Buscando NDVI ${targetFilename} en TAR de ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
+            
+            let offset = 0;
+            const tarBuffer = tarData.buffer || tarData;
+            
+            while (offset < tarBuffer.byteLength - 512) {
+                // Leer header TAR (512 bytes)
+                const header = new Uint8Array(tarBuffer, offset, 512);
+                
+                // NUL header indicates end
+                if (header[0] === 0) break;
+                
+                // Extraer nombre del archivo (primeros 100 bytes, null-terminated)
+                let filename = '';
+                for (let i = 0; i < 100 && header[i] !== 0; i++) {
+                    filename += String.fromCharCode(header[i]);
+                }
+                
+                // Extraer tamaño del archivo (bytes 124-135, octal)
+                let sizeStr = '';
+                for (let i = 124; i < 136 && header[i] !== 0 && header[i] !== 32; i++) {
+                    sizeStr += String.fromCharCode(header[i]);
+                }
+                
+                const fileSize = parseInt(sizeStr.trim(), 8) || 0;
+                
+                console.log(`📁 Encontrado NDVI en TAR: ${filename} (${fileSize} bytes)`);
+                
+                // Si es el archivo que buscamos
+                if (filename === targetFilename || filename.endsWith('/' + targetFilename)) {
+                    const dataOffset = offset + 512;
+                    const fileData = tarBuffer.slice(dataOffset, dataOffset + fileSize);
+                    console.log(`✅ Archivo NDVI real encontrado: ${filename} (${fileSize} bytes)`);
+                    return fileData;
+                }
+                
+                // Avanzar al siguiente archivo (512 bytes de header + tamaño del archivo, redondeado a 512)
+                const blockSize = Math.ceil((512 + fileSize) / 512) * 512;
+                offset += blockSize;
+            }
+            
+            console.warn(`⚠️ Archivo NDVI ${targetFilename} no encontrado en TAR`);
+            return null;
+            
+        } catch (error) {
+            console.error(`❌ Error parseando TAR NDVI:`, error);
             return null;
         }
     }

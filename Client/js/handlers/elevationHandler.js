@@ -232,39 +232,116 @@ async function extractTileFromManifestTarGz(tileInfo) {
   }
 }
 
-// 🔧 Función para extraer archivos de tar.gz - IMPLEMENTACIÓN REAL
+// 🔧 Función para extraer archivos REALES de tar.gz - IMPLEMENTACIÓN CON PAKO.JS
 async function extractFileFromTarGz(tarGzData, targetFilename) {
   try {
-    console.log(`🔍 Buscando ${targetFilename} en tar.gz de ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
+    console.log(`🔍 Extrayendo REAL ${targetFilename} de tar.gz de ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
     
-    // IMPLEMENTACIÓN TEMPORAL: Parsing básico de tar
-    // En producción se usaría una librería como pako.js + tar.js
-    
-    // Por ahora, retornamos datos de prueba válidos para que funcione
-    console.warn(`⚠️ Usando datos de prueba para ${targetFilename}`);
-    
-    // Crear un ArrayBuffer con datos de prueba (tile vacío pero válido)
-    const testTileSize = 1024 * 1024; // 1MB
-    const testData = new ArrayBuffer(testTileSize);
-    const view = new Uint8Array(testData);
-    
-    // Llenar con datos de prueba (patrón que simule elevación)
-    for (let i = 0; i < testTileSize; i += 4) {
-      // Simular elevación de ~500m con variación
-      const elevation = 500 + Math.sin(i / 10000) * 100;
-      const elevationInt = Math.floor(elevation);
-      
-      view[i] = elevationInt & 0xFF;
-      view[i + 1] = (elevationInt >> 8) & 0xFF;
-      view[i + 2] = (elevationInt >> 16) & 0xFF;
-      view[i + 3] = (elevationInt >> 24) & 0xFF;
+    // Cargar pako.js si no está disponible
+    if (typeof pako === 'undefined') {
+      console.log('📦 Cargando pako.js para descompresión...');
+      await loadScript('/node_modules/pako/dist/pako.min.js');
     }
     
-    console.log(`✅ Datos de prueba generados para ${targetFilename}: ${(testData.byteLength / 1024).toFixed(1)}KB`);
-    return testData;
+    // Descomprimir gzip usando pako
+    console.log('🔧 Descomprimiendo gzip...');
+    const tarData = pako.ungzip(new Uint8Array(tarGzData));
+    console.log(`✅ Descomprimido: ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
+    
+    // Parsear tar para encontrar el archivo específico
+    const extractedFile = await extractFromTar(tarData, targetFilename);
+    
+    if (extractedFile) {
+      console.log(`✅ TIF REAL extraído: ${targetFilename} (${(extractedFile.byteLength / 1024).toFixed(1)}KB)`);
+      return extractedFile;
+    } else {
+      throw new Error(`Archivo ${targetFilename} no encontrado en tar`);
+    }
     
   } catch (error) {
-    console.error(`❌ Error procesando tar.gz para ${targetFilename}:`, error);
+    console.error(`❌ Error extrayendo TIF real ${targetFilename}:`, error);
+    
+    // Fallback: intentar interpretar como tar sin gzip
+    try {
+      console.log('🔄 Intentando como tar sin compresión...');
+      const extractedFile = await extractFromTar(new Uint8Array(tarGzData), targetFilename);
+      if (extractedFile) {
+        console.log(`✅ TIF REAL extraído (tar directo): ${targetFilename}`);
+        return extractedFile;
+      }
+    } catch (fallbackError) {
+      console.error('❌ Fallback también falló:', fallbackError);
+    }
+    
+    return null;
+  }
+}
+
+// 🔧 Función para cargar script dinámicamente
+async function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+// 🔧 Función para extraer archivo específico de datos TAR
+async function extractFromTar(tarData, targetFilename) {
+  try {
+    console.log(`🔍 Buscando ${targetFilename} en TAR de ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
+    
+    let offset = 0;
+    const tarBuffer = tarData.buffer || tarData;
+    
+    while (offset < tarBuffer.byteLength - 512) {
+      // Leer header TAR (512 bytes)
+      const header = new Uint8Array(tarBuffer, offset, 512);
+      
+      // NUL header indicates end
+      if (header[0] === 0) break;
+      
+      // Extraer nombre del archivo (primeros 100 bytes, null-terminated)
+      let filename = '';
+      for (let i = 0; i < 100 && header[i] !== 0; i++) {
+        filename += String.fromCharCode(header[i]);
+      }
+      
+      // Extraer tamaño del archivo (bytes 124-135, octal)
+      let sizeStr = '';
+      for (let i = 124; i < 136 && header[i] !== 0 && header[i] !== 32; i++) {
+        sizeStr += String.fromCharCode(header[i]);
+      }
+      
+      const fileSize = parseInt(sizeStr.trim(), 8) || 0;
+      
+      console.log(`📁 Encontrado en TAR: ${filename} (${fileSize} bytes)`);
+      
+      // Si es el archivo que buscamos
+      if (filename === targetFilename || filename.endsWith('/' + targetFilename)) {
+        const dataOffset = offset + 512;
+        const fileData = tarBuffer.slice(dataOffset, dataOffset + fileSize);
+        console.log(`✅ Archivo TIF real encontrado: ${filename} (${fileSize} bytes)`);
+        return fileData;
+      }
+      
+      // Avanzar al siguiente archivo (512 bytes de header + tamaño del archivo, redondeado a 512)
+      const blockSize = Math.ceil((512 + fileSize) / 512) * 512;
+      offset += blockSize;
+    }
+    
+    console.warn(`⚠️ Archivo ${targetFilename} no encontrado en TAR`);
+    return null;
+    
+  } catch (error) {
+    console.error(`❌ Error parseando TAR:`, error);
     return null;
   }
 }
