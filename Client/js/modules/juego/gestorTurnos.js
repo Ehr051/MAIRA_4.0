@@ -881,7 +881,7 @@ class GestorTurnos extends GestorBase {
                 indicadorFase.className = `indicador-fase fase-${this.fase}`;
             }
             
-            // Ocultar botones de despliegue
+            // Ocultar botones de despliegue  
             const botonesDespliegue = document.querySelectorAll('.btn-despliegue');
             botonesDespliegue.forEach(btn => {
                 btn.style.display = 'none';
@@ -891,6 +891,20 @@ class GestorTurnos extends GestorBase {
             const controlesCombate = document.getElementById('controles-combate');
             if (controlesCombate) {
                 controlesCombate.style.display = 'block';
+            }
+            
+            // ✅ FIX CRÍTICO: Actualizar panel principal con gestorInterfaz
+            if (this.gestorJuego?.gestorInterfaz) {
+                const estadoActual = {
+                    fase: this.fase,
+                    subfase: this.subfase,
+                    turnoActual: this.turnoActual,
+                    jugadorActual: this.obtenerJugadorActual()
+                };
+                console.log('[GestorTurnos] Actualizando gestorInterfaz con estado:', estadoActual);
+                this.gestorJuego.gestorInterfaz.actualizarEstadoJuego(estadoActual);
+            } else {
+                console.warn('[GestorTurnos] gestorInterfaz no disponible para actualizar');
             }
             
             console.log('[GestorFases] Interfaz actualizada para fase:', this.fase);
@@ -923,6 +937,17 @@ class GestorTurnos extends GestorBase {
             botonesAccion.forEach(btn => {
                 btn.disabled = !esmiTurno;
             });
+            
+            // ✅ FIX: Actualizar también el panel principal via gestorInterfaz
+            if (this.gestorJuego?.gestorInterfaz) {
+                const estadoActual = {
+                    fase: this.fase,
+                    subfase: this.subfase,
+                    turnoActual: this.turnoActual,
+                    jugadorActual: jugadorActual
+                };
+                this.gestorJuego.gestorInterfaz.actualizarEstadoJuego(estadoActual);
+            }
             
             console.log('[GestorTurnos] Interfaz actualizada - Turno:', this.turnoActual, 'Jugador:', jugadorActual?.username);
             

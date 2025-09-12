@@ -4,9 +4,18 @@
 class GestorMapa extends GestorBase {
     constructor() {
         super();
-            // Verificar que el mapa global existe
+            // Verificar que el mapa global existe y está inicializado
             if (!window.mapa) {
+                console.error('[GestorMapa] window.mapa no existe');
                 throw new Error('El mapa debe estar inicializado antes de usar GestorMapa');
+            }
+            
+            // Verificar que el mapa tiene métodos básicos (está inicializado)
+            if (!window.mapa.getCenter || typeof window.mapa.getCenter !== 'function') {
+                console.error('[GestorMapa] window.mapa existe pero no está inicializado completamente');
+                console.log('[GestorMapa] Tipo de mapa:', typeof window.mapa);
+                console.log('[GestorMapa] Propiedades disponibles:', Object.keys(window.mapa || {}));
+                throw new Error('El mapa debe estar completamente inicializado antes de usar GestorMapa');
             }
             this.mapa = window.mapa;
             this.calcoGlobal = null;

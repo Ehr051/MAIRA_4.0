@@ -1176,32 +1176,79 @@ processElevationInfo: async function (corners, popup) {
             const puntoClick = this.map.latLngToContainerPoint(latlng);
             const radioDeteccion = 20; // píxeles
             
-            // 🔍 BUSCAR EN MÚLTIPLES CAPAS
-            const capasABuscar = [
-                window.calcoActivo,        // Elementos militares
-                window.grupoMedicion,      // Líneas de medición
-                window.elementosLayer,     // Otros elementos
-                window.polylineGroup,      // Polilíneas
-                window.polygonGroup        // Polígonos
-            ];
+            // 🔍 BUSCAR PRIORITARIAMENTE EN CALCO ACTIVO
+            let capasABuscar = [];
             
+            // PRIORIDAD 1: Calco activo (elementos del jugador actual)
+            if (window.calcoActivo && window.calcoActivo.eachLayer) {
+                capasABuscar.push(window.calcoActivo);
+            }
+            
+            // PRIORIDAD 2: Líneas de medición (si existen)
+            if (window.grupoMedicion && window.grupoMedicion.eachLayer) {
+                capasABuscar.push(window.grupoMedicion);
+            }
+            
+            // PRIORIDAD 3: Otros elementos solo si no hay nada en el calco activo
+            const otrasCapas = [
+                window.elementosLayer,
+                window.polylineGroup,
+                window.polygonGroup
+            ].filter(capa => capa && capa.eachLayer);
+            
+            // Buscar en capas prioritarias primero
             capasABuscar.forEach(capa => {
-                if (capa && capa.eachLayer) {
+                capa.eachLayer((layer) => {
+                    let distancia = Infinity;
+                    
+                    if (layer instanceof L.Marker) {
+                        // Para marcadores: distancia al punto
+                        const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                        distancia = puntoClick.distanceTo(puntoMarcador);
+                    } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                        // Para polígonos/líneas: verificar si el punto está cerca
+                        try {
+                            const bounds = layer.getBounds();
+                            const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
+                            const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                            
+                            // Calcular distancia aproximada al centro del elemento
+                            const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
+                            const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
+                            const centro = { x: centroX, y: centroY };
+                            
+                            distancia = Math.sqrt(
+                                Math.pow(puntoClick.x - centro.x, 2) + 
+                                Math.pow(puntoClick.y - centro.y, 2)
+                            );
+                        } catch (e) {
+                            console.warn('[MiRadial] Error calculando distancia para elemento:', e);
+                        }
+                    }
+                    
+                    // Actualizar elemento más cercano si está dentro del radio
+                    if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                        elementoEncontrado = layer;
+                        distanciaMinima = distancia;
+                    }
+                });
+            });
+            
+            // Si no encontramos nada en capas prioritarias, buscar en otras capas
+            if (!elementoEncontrado) {
+                otrasCapas.forEach(capa => {
                     capa.eachLayer((layer) => {
                         let distancia = Infinity;
                         
                         if (layer instanceof L.Marker) {
-                            // Para marcadores: distancia al punto
                             const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
                             distancia = puntoClick.distanceTo(puntoMarcador);
                         } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-                            // Para polígonos/líneas: verificar si el punto está cerca
                             try {
                                 const bounds = layer.getBounds();
                                 const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
                                 const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
                                 
-                                // Calcular distancia aproximada al centro del elemento
                                 const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
                                 const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
                                 const centro = { x: centroX, y: centroY };
@@ -1215,14 +1262,13 @@ processElevationInfo: async function (corners, popup) {
                             }
                         }
                         
-                        // Actualizar elemento más cercano si está dentro del radio
                         if (distancia < radioDeteccion && distancia < distanciaMinima) {
                             elementoEncontrado = layer;
                             distanciaMinima = distancia;
                         }
                     });
-                }
-            });
+                });
+            }
             
             console.log('[MiRadial] Elemento encontrado:', elementoEncontrado, 'distancia:', distanciaMinima);
             return elementoEncontrado;
@@ -1281,6 +1327,13 @@ processElevationInfo: async function (corners, popup) {
             const modo = this.faseJuego === 'gb' ? 'juegoGuerra' : 'planeamiento';
             
             console.log(`[MiRadial] Mostrando menú para tipo: ${tipoElemento}, modo: ${modo}`);
+            
+            // Verificar que existen las configuraciones del menú
+            if (!this.MENU_ITEMS || !this.MENU_ITEMS[modo]) {
+                console.error(`[MiRadial] ❌ Configuración de menú no encontrada para modo: ${modo}`);
+                console.log('[MiRadial] MENU_ITEMS disponibles:', Object.keys(this.MENU_ITEMS || {}));
+                return;
+            }
             
             // Obtener opciones del menú
             let opciones = this.MENU_ITEMS[modo][tipoElemento] || this.MENU_ITEMS[modo]['elemento'] || [];

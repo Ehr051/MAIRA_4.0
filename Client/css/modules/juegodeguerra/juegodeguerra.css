@@ -183,6 +183,41 @@ h1 {
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
 }
 
+/* Panel de estado del juego */
+.panel-juego {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.panel-juego .header {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 5px;
+}
+
+.panel-juego .fase-info,
+.panel-juego .subfase-info,
+.panel-juego .turno-info,
+.panel-juego .jugador-info {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.reloj-turno {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0;
+    color: #ffc107;
+}
+
 .panel-superior {
     padding: 10px;
     background: #f8f9fa;

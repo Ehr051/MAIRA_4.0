@@ -126,11 +126,27 @@ function obtenerIconoElemento(layer) {
 
 // Asegúrate de que esta función esté definida y se llame después de cualquier modificación en el calco
 function actualizarElementosCalco() {
+    // Buscar el nombre del calco activo
     let nombreCalcoActivo = Object.keys(calcos).find(key => calcos[key] === calcoActivo);
+    
     if (nombreCalcoActivo) {
+        console.log(`[calcosP] Actualizando elementos del calco: ${nombreCalcoActivo}`);
         actualizarElementosList(nombreCalcoActivo);
     } else {
-        console.warn('No se pudo determinar el calco activo para actualizar los elementos');
+        console.warn('[calcosP] No se pudo determinar el calco activo para actualizar los elementos');
+        console.log('[calcosP] calcoActivo actual:', calcoActivo);
+        console.log('[calcosP] Calcos disponibles:', Object.keys(calcos));
+        
+        // Intentar con el calco global como fallback
+        if (window.calcoGlobal && calcos['global'] === window.calcoGlobal) {
+            console.log('[calcosP] Usando calco global como fallback');
+            actualizarElementosList('global');
+        } else if (Object.keys(calcos).length > 0) {
+            // Usar el primer calco disponible como último recurso
+            const primerCalco = Object.keys(calcos)[0];
+            console.log(`[calcosP] Usando primer calco disponible como fallback: ${primerCalco}`);
+            actualizarElementosList(primerCalco);
+        }
     }
 }
 
