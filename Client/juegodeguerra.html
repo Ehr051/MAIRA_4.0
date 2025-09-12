@@ -24,6 +24,11 @@
   <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="/node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
   
   <!-- CSS Personalizados MAIRA -->
   <link rel="stylesheet" href="css/common/planeamiento.css">
@@ -32,7 +37,10 @@
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
   
-  <!-- 🚀 SCRIPTS JAVASCRIPT (Todos desde node_modules) -->
+  <!-- � CONFIGURACIÓN DE RED -->
+  <script src="js/common/networkConfig.js"></script>
+  
+  <!-- �🚀 SCRIPTS JAVASCRIPT (Todos desde node_modules) -->
   <!-- Core Libraries desde node_modules -->
   <script src="/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -85,12 +93,25 @@
   <script src="js/gaming/GameEngine.js"></script>
   <script src="js/gaming/AIDirector.js"></script>
   <script src="js/gaming/FogOfWar.js"></script>
+  
+  <!-- 🗺️ SERVICIO 3D CRÍTICO -->
+  <script src="js/services/threeDMapService.js"></script>
 
   <!-- 🎯 HANDLERS (archivos que existen) -->
   <script src="js/handlers/performanceOptimizer.js"></script>
   <script src="js/handlers/elevationHandler.js"></script>
+  <script src="js/handlers/vegetacionhandler.js"></script>
   <script src="js/handlers/dependency-manager.js"></script>
   <script src="js/handlers/EventBus.js"></script>
+  
+  <!-- 🔧 HANDLERS CRÍTICOS DE PLANEAMIENTO -->
+  <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/handlers/mobileOptimizationHandler.js"></script>
+  <script src="js/handlers/mapInteractionHandler.js"></script>
+  <script src="js/handlers/measurementHandler.js"></script>
+  <script src="js/handlers/DirectorManager.js"></script>
+  <script src="js/handlers/pendienteHandler.js"></script>
+  <script src="js/handlers/transitabilidadHandler.js"></script>
   
   <!-- 🎨 FONT AWESOME TEST -->
   <script src="js/common/fontAwesomeTest.js"></script>
@@ -115,6 +136,14 @@
   <script src="js/common/mapaP.js"></script>
   <script src="js/common/edicioncompleto.js"></script>
   <script src="js/common/panelMarcha.js"></script>
+  <script src="js/common/CalculoMarcha.js"></script>
+  <script src="js/common/miradial.js"></script>
+  
+  <!-- 📊 ÍNDICE Y PRUEBAS -->
+  <script src="js/common/indexP.js"></script>
+  <script src="js/Test/testPlaneamiento.js"></script>
+  <script src="js/Test/autoTest.js"></script>
+  <script src="js/Test/visualizadorTests.js"></script>
 
   <script>
     // 🚀 INICIALIZACIÓN DIRECTA JUEGO DE GUERRA
