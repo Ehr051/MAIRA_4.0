@@ -516,12 +516,25 @@ function activarVista3D() {
             console.log('✅ Vista 3D activada');
             is3DActive = true;
             
+            // 🔧 DEBUG: Verificar container y renderer
+            console.log('🔍 DEBUG Container:', threeDMapInstance.container);
+            console.log('🔍 DEBUG Renderer size:', threeDMapInstance.renderer.getSize(new THREE.Vector2()));
+            console.log('🔍 DEBUG Camera position:', threeDMapInstance.camera.position);
+            
             // Generar terreno básico si no hay datos
             const basicElevationData = generateBasicTerrain();
             threeDMapInstance.loadTerrain(basicElevationData, null, {
                 width: 1000,
                 height: 1000
             });
+            
+            // 🔧 Forzar render inicial
+            setTimeout(() => {
+                if (threeDMapInstance.renderer && threeDMapInstance.scene && threeDMapInstance.camera) {
+                    threeDMapInstance.renderer.render(threeDMapInstance.scene, threeDMapInstance.camera);
+                    console.log('🔧 Forzado render inicial');
+                }
+            }, 100);
             
         }).catch(error => {
             console.error('❌ Error activando vista 3D:', error);

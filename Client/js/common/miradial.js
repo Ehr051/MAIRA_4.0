@@ -944,21 +944,28 @@ handleMenuClick: function(action, submenu) {
          * Marca o desmarca un hexágono seleccionado
          */
         marcarHexagono: function() {
-            if (this.selectedHex && this.selectedHex.polygon) {
+            if (this.selectedHex && this.selectedHex.polygon && this.selectedHex.polygon._path) {
                 console.log('Toggle marcado de hexágono:', this.selectedHex);
                 const hexId = `${this.selectedHex.hex.q},${this.selectedHex.hex.r}`;
+                const svgElement = this.selectedHex.polygon._path;
+                
+                // ✅ Verificar que svgElement existe antes de manipular
+                if (!svgElement) {
+                    console.warn('⚠️ No se encontró elemento SVG para el hexágono');
+                    return;
+                }
                 
                 if (this.markedHexagons.has(hexId)) {
                     // Desmarcar el hexágono quitando la clase CSS `hex-marked`
-                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.remove('hex-marked');
                     this.markedHexagons.delete(hexId);
                 } else {
                     // Marcar el hexágono agregando la clase CSS `hex-marked`
-                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.add('hex-marked');
                     this.markedHexagons.add(hexId);
                 }
+            } else {
+                console.warn('⚠️ selectedHex o polygon._path no disponible');
             }
         },
 
