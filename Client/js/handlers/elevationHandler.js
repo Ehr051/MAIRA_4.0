@@ -3,6 +3,13 @@
 // 🎯 NUEVA ESTRATEGIA: Usar archivos tar.gz locales tanto en desarrollo como en Render
 const ELEVATION_LOCAL_BASE = 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
 
+// 🚀 BASE URL para GitHub Release v4.0 con datos reales
+const ELEVATION_HANDLERS_GITHUB_BASE = 'https://github.com/suportemaira/MAIRA-4.0/releases/download/v4.0';
+
+// Variables de estado del elevation handler - DECLARACIÓN TEMPRANA
+let elevationTileIndex;
+let elevationHandlerIndiceCargado = false;
+
 // 🔧 URLs de índices principales - ESTRATEGIA JSON LOCAL + TAR.GZ RELEASE
 const ELEVATION_INDEX_URLS = [
   // 🎯 SOLO JSON LOCAL: Para saber QUÉ buscar en el release
@@ -51,10 +58,7 @@ const ELEVATION_RELEASE_ASSETS = {
 const ELEVATION_TILES_FALLBACK_URLS = [ELEVATION_HANDLERS_GITHUB_BASE];// Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
 const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
 
-// Índice de tiles
-// Variables de estado específicas del elevation handler
-let elevationTileIndex;
-let elevationHandlerIndiceCargado = false;
+// Índice de tiles - variables ya declaradas arriba
 
 // 🚀 Cargar el índice desde archivos locales - COMPATIBLE LOCAL + RENDER
 const cargarIndiceElevationTiles = new Promise((resolve, reject) => {

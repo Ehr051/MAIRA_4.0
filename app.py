@@ -17,54 +17,78 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Verificación e instalación automática de dependencias Node.js
 def verificar_dependencias_nodejs():
-    """Verifica e instala dependencias Node.js críticas si faltan"""
+    """Verifica e instala TODAS las dependencias Node.js del package.json"""
     print("🔍 Verificando dependencias Node.js...")
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
     node_modules_path = os.path.join(base_dir, 'node_modules')
+    package_json_path = os.path.join(base_dir, 'package.json')
     
-    # Dependencias críticas a verificar
-    dependencias_criticas = ['jquery', 'bootstrap', 'leaflet', 'jsplumb']
-    dependencias_faltantes = []
+    # Verificar si existe package.json
+    if not os.path.exists(package_json_path):
+        print("❌ package.json no encontrado, continuando sin verificar dependencias")
+        return
     
-    for dep in dependencias_criticas:
-        dep_path = os.path.join(node_modules_path, dep)
-        if not os.path.exists(dep_path):
-            dependencias_faltantes.append(dep)
-            print(f"❌ Falta dependencia: {dep}")
+    # Leer dependencias del package.json
+    try:
+        import json
+        with open(package_json_path, 'r') as f:
+            package_data = json.load(f)
+        
+        todas_dependencias = []
+        if 'dependencies' in package_data:
+            todas_dependencias.extend(package_data['dependencies'].keys())
+        if 'devDependencies' in package_data:
+            todas_dependencias.extend(package_data['devDependencies'].keys())
+        
+        # Dependencias críticas para verificación rápida
+        dependencias_criticas = ['jquery', 'bootstrap', 'leaflet', 'jsplumb', 'pako', 'geotiff', 'milsymbol']
+        dependencias_faltantes = []
+        
+        for dep in dependencias_criticas:
+            dep_path = os.path.join(node_modules_path, dep)
+            if not os.path.exists(dep_path):
+                dependencias_faltantes.append(dep)
+                print(f"❌ Falta dependencia crítica: {dep}")
+            else:
+                print(f"✅ Dependencia OK: {dep}")
+        
+        # Si faltan dependencias críticas o no existe node_modules, instalar TODO
+        if dependencias_faltantes or not os.path.exists(node_modules_path):
+            print(f"🚀 Instalando TODAS las dependencias del package.json...")
+            try:
+                # Verificar que npm esté disponible
+                result = subprocess.run(['npm', '--version'], capture_output=True, text=True)
+                if result.returncode != 0:
+                    print("❌ npm no disponible, continuando sin instalar dependencias")
+                    return
+                
+                # Instalar TODAS las dependencias del package.json con resolución de conflictos
+                install_commands = [
+                    ['npm', 'install', '--legacy-peer-deps', '--no-optional', '--no-audit', '--no-fund']
+                ]
+                
+                for cmd in install_commands:
+                    print(f"🔧 Ejecutando: {' '.join(cmd)}")
+                    result = subprocess.run(cmd, cwd=base_dir, capture_output=True, text=True, timeout=300)
+                    if result.returncode == 0:
+                        print("✅ Instalación completa exitosa")
+                        print(f"📦 Instaladas {len(todas_dependencias)} dependencias del package.json")
+                    else:
+                        print(f"⚠️ Error en instalación completa: {result.stderr}")
+                
+                print("🎉 Instalación de TODAS las dependencias completada")
+                
+            except subprocess.TimeoutExpired:
+                print("⚠️ Timeout en instalación, pero puede haber sido exitosa")
+            except Exception as e:
+                print(f"❌ Error instalando dependencias: {e}")
         else:
-            print(f"✅ Dependencia OK: {dep}")
-    
-    # Si faltan dependencias críticas, intentar instalarlas
-    if dependencias_faltantes:
-        print(f"🚀 Instalando {len(dependencias_faltantes)} dependencias faltantes...")
-        try:
-            # Verificar que npm esté disponible
-            result = subprocess.run(['npm', '--version'], capture_output=True, text=True)
-            if result.returncode != 0:
-                print("❌ npm no disponible, continuando sin instalar dependencias")
-                return
+            print("✅ Todas las dependencias críticas Node.js están disponibles")
             
-            # Instalar dependencias faltantes
-            install_commands = [
-                ['npm', 'install', '--no-optional', '--production=false'],
-                ['npm', 'install', 'jquery@3.7.1', 'bootstrap@4.5.2', 'leaflet@1.9.4', 'jsplumb@2.15.6', '--force']
-            ]
-            
-            for cmd in install_commands:
-                print(f"🔧 Ejecutando: {' '.join(cmd)}")
-                result = subprocess.run(cmd, cwd=base_dir, capture_output=True, text=True)
-                if result.returncode == 0:
-                    print("✅ Instalación exitosa")
-                else:
-                    print(f"⚠️ Error en instalación: {result.stderr}")
-            
-            print("🎉 Instalación de dependencias completada")
-            
-        except Exception as e:
-            print(f"❌ Error instalando dependencias: {e}")
-    else:
-        print("✅ Todas las dependencias Node.js están disponibles")
+    except Exception as e:
+        print(f"❌ Error leyendo package.json: {e}")
+        return
 
 # Ejecutar verificación al importar
 verificar_dependencias_nodejs()

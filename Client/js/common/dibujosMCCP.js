@@ -1,6 +1,7 @@
 // Variables globales
 let elementoMCCActual = null;
-let sidc = null; // o un valor por defecto apropiado
+// sidc se declara como variable de módulo para evitar conflictos globales
+window.sidcDibujosMCCP = window.sidcDibujosMCCP || null;
 
 function agregarTextoMCC(elemento, texto) {
     let posicion = elemento instanceof L.Polyline ? 
