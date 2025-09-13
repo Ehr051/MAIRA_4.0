@@ -102,7 +102,7 @@ class DeploymentService {
     async calculateDeployment(elementData, deploymentType) {
         try {
             // Obtener datos militares del MilitaryDataService
-            const militaryData = await MilitaryDataService.loadData();
+            const militaryData = await window.militaryDataService.loadData();
             
             // Buscar unidad en los datos
             const unitData = militaryData.unidades.find(u => 

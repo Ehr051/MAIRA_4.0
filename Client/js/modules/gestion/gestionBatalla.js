@@ -454,6 +454,9 @@ function inicializarInterfaz() {
                 return false;
             }
             
+            // Actualizar información en el panel una vez cargada
+            actualizarInfoUsuarioPanel();
+            
             return true;
         } catch (error) {
             console.error("Error al cargar información desde localStorage:", error);
@@ -857,24 +860,20 @@ function configurarEventosChat() {
             });
         });
         
-        // Cerrar menús al hacer clic fuera de ellos (CON PROTECCIÓN MEJORADA)
+        // Cerrar menús al hacer clic fuera de ellos (CON PROTECCIÓN)
         document.addEventListener('click', function(event) {
-            // ✅ EXCLUIR: No cerrar si el clic es dentro de menús principales o submenús
+            // ✅ No cerrar si el clic es dentro de un menú o botón de menú
             if (event.target.closest('.menu') || 
-                event.target.closest('.submenu') ||
                 event.target.closest('[onclick*="toggleMenu"]') ||
                 event.target.closest('.dropdown-toggle') ||
-                event.target.closest('.menu-button') ||
-                event.target.closest('#menuPrincipal') ||
-                event.target.closest('.herramientas-container') ||
-                event.target.closest('.menu-vertical')) {
-                return; // No cerrar menús si el clic es dentro de estructuras de menú
+                event.target.closest('.menu-button')) {
+                return; // No cerrar menús si el clic es dentro
             }
             
-            // ✅ Solo cerrar menús GB específicos (no los menús principales de planeamiento)
+            // ✅ Solo cerrar menús si el clic es realmente afuera
             document.querySelectorAll('.menu.show').forEach(openMenu => {
-                // Verificar que no sea el menú principal y que el clic sea realmente afuera
-                if (!openMenu.id.includes('menu') && !openMenu.contains(event.target)) {
+                // Verificar que el clic no sea dentro de este menú específico
+                if (!openMenu.contains(event.target)) {
                     openMenu.classList.remove('show');
                 }
             });
@@ -3109,6 +3108,45 @@ function recibirMensajeChat(mensaje) {
             mostrarNotificacion("Error al crear el marcador", "error");
         }
     }
+    
+    /**
+     * Selecciona un elemento en el mapa para interacción
+     * @param {Object} marcador - Marcador de Leaflet seleccionado
+     */
+    function seleccionarElemento(marcador) {
+        try {
+            console.log("🎯 Elemento seleccionado:", marcador.elementData);
+            
+            // Limpiar selecciones anteriores
+            document.querySelectorAll('.marcador-seleccionado').forEach(el => {
+                el.classList.remove('marcador-seleccionado');
+            });
+            
+            // Marcar como seleccionado
+            if (marcador._icon) {
+                marcador._icon.classList.add('marcador-seleccionado');
+            }
+            
+            // Mostrar información en el panel lateral si está disponible
+            if (window.mostrarInformacionElemento && typeof window.mostrarInformacionElemento === 'function') {
+                window.mostrarInformacionElemento(marcador.elementData);
+            }
+            
+            // Mostrar MiRadial si está disponible y en modo correcto
+            if (window.MiRadial && window.MiRadial.mostrarMenuContextualPara) {
+                const tipoElemento = marcador.elementData?.tipo || 'elemento';
+                window.MiRadial.mostrarMenuContextualPara(tipoElemento, marcador.elementData, 'gb');
+            }
+            
+            console.log("✅ Elemento seleccionado correctamente");
+            
+        } catch (error) {
+            console.error("❌ Error al seleccionar elemento:", error);
+        }
+    }
+    
+    // Exponer función globalmente para compatibilidad
+    window.seleccionarElemento = seleccionarElemento;
     
     /**
      * Recibe un informe
@@ -8158,12 +8196,6 @@ function configurarEventosSocket() {
     socket.on('error', function(error) {
         console.error('Error de socket:', error);
         mostrarNotificacion("Error de socket: " + (error.mensaje || error), "error");
-    });
-    
-    // Evento de error específico para chat
-    socket.on('errorChat', function(error) {
-        console.error('Error de chat:', error);
-        mostrarNotificacion(error.error || "Error al enviar mensaje", "error");
     });
     
     // Eventos para mensajes

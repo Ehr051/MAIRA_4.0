@@ -232,6 +232,18 @@ function toggleMenu(menuId) {
     const esVisible = menu.classList.contains('show');
     console.log(`✅ Menú '${menuId}' ${esVisible ? 'mostrado' : 'ocultado'}`);
     
+    // DEBUG: Verificar si el menú se mantiene visible después de un tiempo
+    if (esVisible) {
+        setTimeout(() => {
+            const sigueCerrado = !menu.classList.contains('show');
+            if (sigueCerrado) {
+                console.warn(`⚠️ PROBLEMA: Menú '${menuId}' se cerró automáticamente después de 100ms`);
+            } else {
+                console.log(`✅ Menú '${menuId}' sigue abierto correctamente`);
+            }
+        }, 100);
+    }
+    
     return true;
 }
 

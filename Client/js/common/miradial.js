@@ -1329,14 +1329,14 @@ processElevationInfo: async function (corners, popup) {
             console.log(`[MiRadial] Mostrando menú para tipo: ${tipoElemento}, modo: ${modo}`);
             
             // Verificar que existen las configuraciones del menú
-            if (!this.MENU_ITEMS || !this.MENU_ITEMS[modo]) {
+            if (!MENU_ITEMS || !MENU_ITEMS[modo]) {
                 console.error(`[MiRadial] ❌ Configuración de menú no encontrada para modo: ${modo}`);
-                console.log('[MiRadial] MENU_ITEMS disponibles:', Object.keys(this.MENU_ITEMS || {}));
+                console.log('[MiRadial] MENU_ITEMS disponibles:', Object.keys(MENU_ITEMS || {}));
                 return;
             }
             
             // Obtener opciones del menú
-            let opciones = this.MENU_ITEMS[modo][tipoElemento] || this.MENU_ITEMS[modo]['elemento'] || [];
+            let opciones = MENU_ITEMS[modo][tipoElemento] || MENU_ITEMS[modo]['elemento'] || [];
             
             if (opciones.length === 0) {
                 console.warn(`No hay opciones de menú para tipo: ${tipoElemento} en modo: ${modo}`);

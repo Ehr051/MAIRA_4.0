@@ -2100,3 +2100,38 @@
 .btn-test:last-child {
   margin-bottom: 0;
 }
+
+/* Estilos para elementos seleccionados en el mapa */
+.marcador-seleccionado {
+  filter: drop-shadow(0 0 8px #0281a8) drop-shadow(0 0 16px #0281a8);
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+  z-index: 1000 !important;
+}
+
+.marcador-seleccionado::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px solid #0281a8;
+  border-radius: 50%;
+  animation: pulse-selection 2s infinite;
+}
+
+@keyframes pulse-selection {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
