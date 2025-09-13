@@ -36,9 +36,12 @@ class ThreeDMapService {
         }
 
         try {
-            // Verificar dependencias
+            // ✅ MIGRADO: Cargar Three.js como ES6 module
+            await this.loadThreeJS();
+            
+            // Verificar dependencias después de la carga
             if (typeof THREE === 'undefined') {
-                console.warn('⚠️ Three.js no está disponible. Cargue la librería primero.');
+                console.error('❌ Three.js no pudo cargarse correctamente.');
                 return false;
             }
 
@@ -173,6 +176,41 @@ class ThreeDMapService {
         } catch (error) {
             console.warn('⚠️ Error en loadOrbitControls:', error);
             return this.createOrbitControlsFallback();
+        }
+    }
+
+    /**
+     * ✅ NUEVO: Cargar Three.js como ES6 module para evitar deprecation warnings
+     */
+    async loadThreeJS() {
+        try {
+            // Si THREE ya está disponible, no recargar
+            if (typeof THREE !== 'undefined') {
+                console.log('✅ Three.js ya está disponible, reutilizando');
+                return;
+            }
+
+            // Método 1: Intentar cargar como ES6 module (recomendado)
+            try {
+                const THREE_MODULE = await import('/node_modules/three/build/three.module.js');
+                window.THREE = THREE_MODULE;
+                console.log('✅ Three.js cargado como ES6 module (sin deprecation warnings)');
+                return;
+            } catch (moduleError) {
+                console.warn('⚠️ No se pudo cargar Three.js como ES6 module:', moduleError.message);
+            }
+
+            // Método 2: Fallback a script tradicional (para compatibilidad)
+            try {
+                await this.loadScriptDynamically('/node_modules/three/build/three.min.js');
+                console.log('⚠️ Three.js cargado como script tradicional (deprecated)');
+            } catch (scriptError) {
+                console.error('❌ No se pudo cargar Three.js:', scriptError.message);
+                throw new Error('Three.js no está disponible');
+            }
+        } catch (error) {
+            console.error('❌ Error cargando Three.js:', error);
+            throw error;
         }
     }
 

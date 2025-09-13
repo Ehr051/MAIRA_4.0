@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA 4.0 - Estilo Command Modern Operations</title>
+    <style>
+        /* ===== ESTILO COMMAND MODERN OPERATIONS - INTERFAZ NAVAL/AÉREA PROFESIONAL ===== */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+            background: radial-gradient(ellipse at center, #0a1a2e 0%, #16213e 50%, #0f1419 100%);
+            color: #00ff41;
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 65, 0.05) 25%, rgba(0, 255, 65, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 65, 0.05) 75%, rgba(0, 255, 65, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 65, 0.05) 25%, rgba(0, 255, 65, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 65, 0.05) 75%, rgba(0, 255, 65, 0.05) 76%, transparent 77%, transparent);
+            background-size: 20px 20px;
+        }
+
+        /* BARRA SUPERIOR - Estilo C:MO */
+        .barra-comando {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, 
+                rgba(22, 33, 62, 0.95) 0%, 
+                rgba(15, 20, 25, 0.9) 100%);
+            border-bottom: 2px solid #00ff41;
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 12px;
+            box-shadow: 0 2px 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .indicador-sistema {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: auto;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff41;
+            animation: parpadeo 2s infinite;
+        }
+
+        .status-dot.warning { background: #ffaa00; }
+        .status-dot.critical { background: #ff4444; }
+
+        @keyframes parpadeo {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .tiempo-simulacion {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            padding: 8px 16px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #00ff41;
+            border-radius: 4px;
+        }
+
+        /* PANEL LATERAL IZQUIERDO - Controles de Sistema */
+        .panel-sistemas {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 100px;
+            width: 320px;
+            background: linear-gradient(180deg, 
+                rgba(15, 20, 25, 0.95) 0%, 
+                rgba(22, 33, 62, 0.9) 50%, 
+                rgba(15, 20, 25, 0.95) 100%);
+            border-right: 2px solid #00ff41;
+            backdrop-filter: blur(3px);
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .seccion-sistema {
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .header-seccion {
+            background: rgba(0, 255, 65, 0.1);
+            border-bottom: 1px solid #00ff41;
+            padding: 8px 15px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .header-seccion:hover {
+            background: rgba(0, 255, 65, 0.2);
+        }
+
+        .contenido-seccion {
+            padding: 10px 15px;
+            display: none;
+        }
+
+        .contenido-seccion.activo {
+            display: block;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            font-size: 11px;
+        }
+
+        .control-valor {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 2px 8px;
+            border-radius: 2px;
+            min-width: 60px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .boton-sistema {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 3px 0;
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 65, 0.1) 0%, 
+                rgba(0, 255, 65, 0.05) 100%);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: #00ff41;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .boton-sistema:hover {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .boton-sistema.activo {
+            background: rgba(0, 255, 65, 0.3);
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        /* ÁREA PRINCIPAL - DISPLAY RADAR */
+        .area-principal {
+            position: fixed;
+            left: 320px;
+            top: 60px;
+            right: 320px;
+            bottom: 100px;
+            background: 
+                radial-gradient(circle at center, rgba(0, 255, 65, 0.02) 0%, transparent 70%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 19px,
+                    rgba(0, 255, 65, 0.03) 20px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 19px,
+                    rgba(0, 255, 65, 0.03) 20px
+                );
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .radar-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border: 2px solid #00ff41;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+                rgba(0, 255, 65, 0.1) 0%, 
+                rgba(0, 255, 65, 0.05) 30%, 
+                transparent 50%);
+            position: relative;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 200px;
+            background: linear-gradient(to bottom, #00ff41, transparent);
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(0deg);
+            animation: radar-sweep 4s linear infinite;
+        }
+
+        @keyframes radar-sweep {
+            0% { transform: translate(-50%, -100%) rotate(0deg); }
+            100% { transform: translate(-50%, -100%) rotate(360deg); }
+        }
+
+        .radar-rings::before,
+        .radar-rings::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 50%;
+        }
+
+        .radar-rings::before {
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+        }
+
+        .radar-rings::after {
+            width: 300px;
+            height: 300px;
+            transform: translate(-50%, -50%);
+        }
+
+        .radar-cross {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            background: rgba(0, 255, 65, 0.3);
+            transform: translateX(-50%);
+        }
+
+        .radar-cross:nth-child(2) {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            transform: translateY(-50%);
+        }
+
+        /* CONTACTOS RADAR */
+        .contacto {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffaa00;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffaa00;
+            animation: contacto-parpadeo 1.5s infinite;
+        }
+
+        .contacto.hostil { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
+        .contacto.amigo { background: #00ff41; box-shadow: 0 0 10px #00ff41; }
+
+        @keyframes contacto-parpadeo {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.4; }
+        }
+
+        /* PANEL LATERAL DERECHO - Información de Contactos */
+        .panel-contactos {
+            position: fixed;
+            right: 0;
+            top: 60px;
+            bottom: 100px;
+            width: 320px;
+            background: linear-gradient(180deg, 
+                rgba(15, 20, 25, 0.95) 0%, 
+                rgba(22, 33, 62, 0.9) 50%, 
+                rgba(15, 20, 25, 0.95) 100%);
+            border-left: 2px solid #00ff41;
+            backdrop-filter: blur(3px);
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .lista-contactos {
+            padding: 10px;
+        }
+
+        .contacto-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            margin: 5px 0;
+            padding: 8px;
+            font-size: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .contacto-item:hover {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .contacto-item.seleccionado {
+            border-color: #00ff41;
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .contacto-id {
+            color: #ffaa00;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .contacto-datos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            font-family: monospace;
+        }
+
+        /* PANEL INFERIOR - Controles de Misión */
+        .panel-mision {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(0deg, 
+                rgba(22, 33, 62, 0.95) 0%, 
+                rgba(15, 20, 25, 0.9) 100%);
+            border-top: 2px solid #00ff41;
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 -2px 10px rgba(0, 255, 65, 0.3);
+        }
+
+        .grupo-controles {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .boton-mision {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 65, 0.1) 0%, 
+                rgba(0, 255, 65, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 65, 0.5);
+            color: #00ff41;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            min-width: 100px;
+        }
+
+        .boton-mision:hover {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: #00ff41;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .boton-mision.critico {
+            background: linear-gradient(135deg, 
+                rgba(255, 68, 68, 0.1) 0%, 
+                rgba(255, 68, 68, 0.05) 100%);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .boton-mision.critico:hover {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff6666;
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.4);
+        }
+
+        /* ESTADO DE MISIÓN */
+        .estado-mision {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .estado-principal {
+            color: #00ff41;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .estado-detalle {
+            color: rgba(0, 255, 65, 0.7);
+            font-size: 10px;
+            font-family: monospace;
+        }
+
+        /* EFECTOS DE ESCANEO */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff41, transparent);
+            animation: scan-vertical 3s linear infinite;
+        }
+
+        @keyframes scan-vertical {
+            0% { top: 0; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* SCROLLBAR ESTILO MILITAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 20, 25, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00ff41, rgba(0, 255, 65, 0.5));
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <!-- BARRA SUPERIOR -->
+    <div class="barra-comando">
+        <div class="indicador-sistema">
+            <div class="status-dot"></div>
+            <span>SISTEMA OPERATIVO</span>
+            <div class="status-dot warning"></div>
+            <span>RADAR ACTIVO</span>
+            <div class="status-dot critical"></div>
+            <span>AMENAZA DETECTADA</span>
+        </div>
+        
+        <div class="tiempo-simulacion">
+            <div>TIEMPO: 14:32:15Z</div>
+            <div style="font-size: 10px;">ACELERACIÓN: x1</div>
+        </div>
+    </div>
+
+    <!-- PANEL SISTEMAS -->
+    <div class="panel-sistemas">
+        <div class="seccion-sistema">
+            <div class="header-seccion" onclick="toggleSeccion(this)">🎯 SENSORES</div>
+            <div class="contenido-seccion activo">
+                <div class="control-item">
+                    <span>Radar Principal:</span>
+                    <div class="control-valor">ACTIVO</div>
+                </div>
+                <div class="control-item">
+                    <span>Alcance:</span>
+                    <div class="control-valor">200 NM</div>
+                </div>
+                <div class="control-item">
+                    <span>Precisión:</span>
+                    <div class="control-valor">85%</div>
+                </div>
+                <button class="boton-sistema activo">MODO BÚSQUEDA</button>
+                <button class="boton-sistema">MODO SEGUIMIENTO</button>
+                <button class="boton-sistema">MODO SILENCIOSO</button>
+            </div>
+        </div>
+
+        <div class="seccion-sistema">
+            <div class="header-seccion" onclick="toggleSeccion(this)">⚔️ ARMAMENTO</div>
+            <div class="contenido-seccion">
+                <div class="control-item">
+                    <span>Misiles A-A:</span>
+                    <div class="control-valor">12/16</div>
+                </div>
+                <div class="control-item">
+                    <span>Estado:</span>
+                    <div class="control-valor">LISTO</div>
+                </div>
+                <div class="control-item">
+                    <span>Sistema Fuego:</span>
+                    <div class="control-valor">AUTO</div>
+                </div>
+                <button class="boton-sistema">AUTORIZAR FUEGO</button>
+                <button class="boton-sistema">REGLAS COMPROMISO</button>
+                <button class="boton-sistema critico">EMERGENCY WEAPONS FREE</button>
+            </div>
+        </div>
+
+        <div class="seccion-sistema">
+            <div class="header-seccion" onclick="toggleSeccion(this)">🛡️ DEFENSAS</div>
+            <div class="contenido-seccion">
+                <div class="control-item">
+                    <span>ECM:</span>
+                    <div class="control-valor">ACTIVO</div>
+                </div>
+                <div class="control-item">
+                    <span>Chaff:</span>
+                    <div class="control-valor">45/50</div>
+                </div>
+                <button class="boton-sistema">CONTRAMEDIDAS AUTO</button>
+                <button class="boton-sistema">MANIOBRA EVASIVA</button>
+            </div>
+        </div>
+
+        <div class="seccion-sistema">
+            <div class="header-seccion" onclick="toggleSeccion(this)">📡 COMUNICACIONES</div>
+            <div class="contenido-seccion">
+                <div class="control-item">
+                    <span>Enlace de Datos:</span>
+                    <div class="control-valor">LINK-16</div>
+                </div>
+                <div class="control-item">
+                    <span>Estado:</span>
+                    <div class="control-valor">CIFRADO</div>
+                </div>
+                <button class="boton-sistema activo">CANAL TÁCTICO</button>
+                <button class="boton-sistema">CANAL COMANDO</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÁREA PRINCIPAL CON RADAR -->
+    <div class="area-principal">
+        <div class="scan-line"></div>
+        <div class="radar-display">
+            <div class="radar-rings"></div>
+            <div class="radar-cross"></div>
+            <div class="radar-cross"></div>
+            <div class="radar-sweep"></div>
+            
+            <!-- Contactos simulados -->
+            <div class="contacto amigo" style="top: 30%; left: 60%;"></div>
+            <div class="contacto hostil" style="top: 70%; left: 40%;"></div>
+            <div class="contacto" style="top: 45%; left: 80%;"></div>
+            <div class="contacto hostil" style="top: 60%; left: 25%;"></div>
+        </div>
+        
+        <div style="position: absolute; bottom: 20px; left: 20px; font-size: 12px; color: rgba(0, 255, 65, 0.7);">
+            RADAR SCOPE - RANGE: 200 NM - BEARING: TRUE
+        </div>
+    </div>
+
+    <!-- PANEL CONTACTOS -->
+    <div class="panel-contactos">
+        <div class="header-seccion">🎯 CONTACTOS DETECTADOS</div>
+        <div class="lista-contactos">
+            <div class="contacto-item seleccionado">
+                <div class="contacto-id">TGT-001 [HOSTIL]</div>
+                <div class="contacto-datos">
+                    <div>BRG: 285°</div>
+                    <div>RNG: 145 NM</div>
+                    <div>SPD: 450 KT</div>
+                    <div>ALT: 35000</div>
+                    <div>TYPE: FIGHTER</div>
+                    <div>CONF: 85%</div>
+                </div>
+            </div>
+
+            <div class="contacto-item">
+                <div class="contacto-id">TGT-002 [HOSTIL]</div>
+                <div class="contacto-datos">
+                    <div>BRG: 125°</div>
+                    <div>RNG: 89 NM</div>
+                    <div>SPD: 520 KT</div>
+                    <div>ALT: 28000</div>
+                    <div>TYPE: FIGHTER</div>
+                    <div>CONF: 92%</div>
+                </div>
+            </div>
+
+            <div class="contacto-item">
+                <div class="contacto-id">FRD-001 [AMIGO]</div>
+                <div class="contacto-datos">
+                    <div>BRG: 045°</div>
+                    <div>RNG: 23 NM</div>
+                    <div>SPD: 380 KT</div>
+                    <div>ALT: 25000</div>
+                    <div>TYPE: FIGHTER</div>
+                    <div>CONF: 100%</div>
+                </div>
+            </div>
+
+            <div class="contacto-item">
+                <div class="contacto-id">UNK-001 [DESCONOCIDO]</div>
+                <div class="contacto-datos">
+                    <div>BRG: 320°</div>
+                    <div>RNG: 178 NM</div>
+                    <div>SPD: 280 KT</div>
+                    <div>ALT: 15000</div>
+                    <div>TYPE: UNKNOWN</div>
+                    <div>CONF: 45%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL INFERIOR -->
+    <div class="panel-mision">
+        <div class="grupo-controles">
+            <button class="boton-mision">INICIAR MISIÓN</button>
+            <button class="boton-mision">ABORTAR MISIÓN</button>
+            <button class="boton-mision critico">ALERT SCRAMBLE</button>
+        </div>
+
+        <div class="estado-mision">
+            <div class="estado-principal">OPERACIÓN MAIRA</div>
+            <div class="estado-detalle">DEFENSA AÉREA - DEFCON 2</div>
+        </div>
+
+        <div class="grupo-controles">
+            <button class="boton-mision">PAUSA</button>
+            <button class="boton-mision">ACELERACIÓN</button>
+            <button class="boton-mision">SAVE STATE</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSeccion(elemento) {
+            const contenido = elemento.nextElementSibling;
+            const todosLosContenidos = document.querySelectorAll('.contenido-seccion');
+            
+            // Cerrar todas las secciones
+            todosLosContenidos.forEach(c => c.classList.remove('activo'));
+            
+            // Abrir la seleccionada
+            contenido.classList.add('activo');
+        }
+
+        // Efectos interactivos
+        document.querySelectorAll('.contacto-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.contacto-item').forEach(i => i.classList.remove('seleccionado'));
+                this.classList.add('seleccionado');
+            });
+        });
+
+        // Simulación de tiempo real
+        function actualizarTiempo() {
+            const ahora = new Date();
+            const tiempo = ahora.toISOString().substr(11, 8) + 'Z';
+            document.querySelector('.tiempo-simulacion div').textContent = `TIEMPO: ${tiempo}`;
+        }
+
+        setInterval(actualizarTiempo, 1000);
+
+        // Efectos de radar
+        document.querySelectorAll('.boton-sistema').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.parentElement.querySelector('.boton-sistema.activo')) {
+                    this.parentElement.querySelectorAll('.boton-sistema').forEach(b => b.classList.remove('activo'));
+                }
+                this.classList.add('activo');
+            });
+        });
+    </script>
+</body>
+</html>

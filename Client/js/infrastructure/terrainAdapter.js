@@ -1,6 +1,6 @@
-// terrainAdapter.js - Adaptado para manejar el nuevo sistema de tiles v3.0
+// terrainAdapter.js - Adaptado para manejar el nuevo sistema de tiles v4.0
 
-// URL base para GitHub Releases mini-tiles v3.0
+// URL base para GitHub Releases mini-tiles v4.0
 const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
 
     // URLs de fallback para GitHub Releases
@@ -35,8 +35,8 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
     // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
     'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
     
-    // 🔄 FALLBACK: GitHub Release v3.0 (Solo Altura - Legacy)
-    'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+    // 🔄 FALLBACK: GitHub Release v4.0 (Solo Altura - Legacy)
+    'https://github.com/Ehr051/MAIRA/releases/download/v4.0/master_mini_tiles_index.json',
     
     // � FALLBACKS ADICIONALES
     `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
@@ -137,8 +137,8 @@ async function cargarDatosElevacion(bounds) {
           // 🚀 PRIORIDAD 1: GitHub Release v4.0 directo
           `https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/${tile.provincia}/${tile.filename}`,
           
-          // 🔄 FALLBACK: GitHub Release v3.0 (Legacy)
-          `https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/${tile.provincia}/${tile.filename}`,
+          // 🔄 FALLBACK: GitHub Release v4.0 (Legacy)
+          `https://github.com/Ehr051/MAIRA/releases/download/v4.0/${tile.provincia}/${tile.filename}`,
           
           // 📦 FALLBACKS ADICIONALES 
           `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.provincia}/tiles/${tile.filename}`,

@@ -77,7 +77,7 @@ class PanelJuegoUnificado {
             this.actualizarTurno(event.detail);
         });
 
-        // Auto-ocultar al hacer clic fuera (PERO NO DENTRO DEL PANEL)
+        // Auto-ocultar al hacer clic fuera
         document.addEventListener('click', (event) => {
             if (this.panel.classList.contains('activo') && 
                 !this.panel.contains(event.target) && 
@@ -85,51 +85,12 @@ class PanelJuegoUnificado {
                 this.ocultar();
             }
         });
-
-        // Evitar que clicks dentro del panel lo cierren
-        this.panel.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
     }
 
     mostrar(estado = 'general') {
-        // Ocultar TODOS los otros paneles primero
-        this.ocultarOtrosPaneles();
-        
         this.estadoActual = estado;
         this.panel.classList.add('activo');
         this.actualizarContenido();
-    }
-
-    ocultarOtrosPaneles() {
-        // Lista de todos los paneles que deben ocultarse
-        const panelesToOcultar = [
-            'panelTurno',
-            'panelFase', 
-            'panelJuego',
-            'panelControl',
-            'panelCombate',
-            'panelLogistica',
-            'panelComandancia',
-            'menuRadial',
-            'panelHexagono',
-            'panelUnidad',
-            'panel-info',
-            'panel-orders'
-        ];
-
-        panelesToOcultar.forEach(panelId => {
-            const panel = document.getElementById(panelId);
-            if (panel) {
-                panel.classList.remove('activo', 'visible', 'mostrar');
-                panel.style.display = 'none';
-            }
-        });
-
-        // También cerrar cualquier menú radial activo
-        if (window.menuRadial && typeof window.menuRadial.ocultar === 'function') {
-            window.menuRadial.ocultar();
-        }
     }
 
     ocultar() {
@@ -220,13 +181,13 @@ class PanelJuegoUnificado {
             </div>
             
             <div class="botones-accion">
-                <button class="boton-accion" onclick="panelUnificado.pasarTurno()">
+                <button class="boton-accion" onclick="this.pasarTurno()">
                     <i class="fas fa-forward"></i> Pasar Turno
                 </button>
-                <button class="boton-accion" onclick="panelUnificado.extenderTiempo()">
+                <button class="boton-accion" onclick="this.extenderTiempo()">
                     <i class="fas fa-plus-circle"></i> +60 segundos
                 </button>
-                <button class="boton-accion peligro" onclick="panelUnificado.finalizarTurno()">
+                <button class="boton-accion peligro" onclick="this.finalizarTurno()">
                     <i class="fas fa-stop"></i> Finalizar Turno
                 </button>
                 <button class="boton-accion" onclick="panelUnificado.mostrar('general')">
@@ -255,7 +216,7 @@ class PanelJuegoUnificado {
             <div class="botones-accion">
                 ${fases.map(fase => `
                     <button class="boton-accion ${fase === faseActual ? 'activo' : ''}" 
-                            onclick="panelUnificado.cambiarFase('${fase}')"
+                            onclick="this.cambiarFase('${fase}')"
                             ${fase === faseActual ? 'disabled' : ''}>
                         <i class="fas fa-${this.getIconoFase(fase)}"></i> ${this.capitalizarFase(fase)}
                     </button>
@@ -430,8 +391,8 @@ class PanelJuegoUnificado {
 
     // Métodos de acción
     pasarTurno() {
-        if (window.gestorJuego?.gestorTurnos?.finalizarTurnoActual) {
-            window.gestorJuego.gestorTurnos.finalizarTurnoActual(false);
+        if (typeof window.gestorTurnos !== 'undefined') {
+            window.gestorTurnos.pasarTurno();
         } else {
             console.log('🎮 Pasar turno solicitado');
             // Emitir evento para otros sistemas
@@ -441,12 +402,7 @@ class PanelJuegoUnificado {
 
     finalizarTurno() {
         if (confirm('¿Estás seguro de que quieres finalizar este turno?')) {
-            if (window.gestorJuego?.gestorTurnos?.finalizarTurnoActual) {
-                window.gestorJuego.gestorTurnos.finalizarTurnoActual(true); // true = forzado
-            } else {
-                console.log('🎮 Finalizar turno forzado solicitado');
-                document.dispatchEvent(new CustomEvent('solicitarFinalizarTurno'));
-            }
+            this.pasarTurno();
         }
     }
 
@@ -593,7 +549,7 @@ class ControladorHUD {
     inicializarEventos() {
         // Tecla H para ocultar/mostrar HUD completo
         document.addEventListener('keydown', (event) => {
-            if (event.key && event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
+            if (event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
                 this.alternarHUD();
             }
         });

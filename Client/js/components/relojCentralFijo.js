@@ -51,9 +51,7 @@ class RelojCentralFijo {
                     </div>
                     <div class="timer-info">
                         <span class="tiempo-restante" id="tiempoRestante">05:00</span>
-                        <button class="btn-timer" id="btnTimer" onclick="relojCentral.toggleTimer()">
-                            <i class="fas fa-play"></i>
-                        </button>
+                        <!-- ✅ Botón play eliminado - tiempo controlado por gestor de turnos -->
                     </div>
                 </div>
             </div>
@@ -66,18 +64,19 @@ class RelojCentralFijo {
         const estilos = `
             .reloj-central-fijo {
                 position: fixed;
-                top: 60px;
+                bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
-                z-index: var(--z-reloj-central, 1500);
-                background: var(--bg-overlay-militar, rgba(0, 20, 40, 0.95));
-                border: var(--border-militar-thick, 2px solid #4a90e2);
-                border-radius: var(--radio-border-large, 12px);
-                box-shadow: var(--sombra-profunda, 0 4px 20px rgba(0, 0, 0, 0.6));
-                backdrop-filter: var(--blur-backdrop, blur(10px));
-                font-family: var(--font-family-mono, 'Courier New', monospace);
+                z-index: 900;
+                background: rgba(0, 20, 40, 0.9);
+                border: 2px solid #4a90e2;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(5px);
+                font-family: 'Courier New', monospace;
                 user-select: none;
-                transition: var(--transicion-normal, all 0.3s ease);
+                transition: all 0.3s ease;
+                /* ✅ Reposicionado abajo, z-index menor para no tapar menús */
             }
 
             .reloj-central-fijo:hover {
@@ -141,8 +140,9 @@ class RelojCentralFijo {
             .timer-info {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                min-width: 90px;
+                justify-content: center;
+                min-width: 70px;
+                /* ✅ Centrado sin botón */
             }
 
             .tiempo-restante {

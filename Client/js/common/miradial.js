@@ -1222,8 +1222,11 @@ processElevationInfo: async function (corners, popup) {
                     
                     if (layer instanceof L.Marker) {
                         // Para marcadores: distancia al punto
-                        const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
-                        distancia = puntoClick.distanceTo(puntoMarcador);
+                        const latLng = layer.getLatLng();
+                        if (latLng && latLng.lat !== undefined && latLng.lng !== undefined) {
+                            const puntoMarcador = this.map.latLngToContainerPoint(latLng);
+                            distancia = puntoClick.distanceTo(puntoMarcador);
+                        }
                     } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
                         // Para polígonos/líneas: verificar si el punto está cerca
                         try {

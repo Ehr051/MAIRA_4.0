@@ -241,13 +241,24 @@ def index():
 
 @app.route('/<path:path>')
 def serve_static(path):
+    print(f"🔍 DEBUG: Solicitud para archivo: {path}")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"🔍 DEBUG: Base directory: {base_dir}")
+    
     try:
         # Intentar servir desde Client/ primero para archivos HTML
         if path.endswith('.html'):
+            client_path = os.path.join(base_dir, 'Client', path)
+            print(f"🔍 DEBUG: Buscando HTML en: {client_path}")
+            print(f"🔍 DEBUG: ¿Existe archivo?: {os.path.exists(client_path)}")
             return send_from_directory('Client', path)
         # Para otros archivos, intentar desde la raíz
+        full_path = os.path.join(base_dir, path)
+        print(f"🔍 DEBUG: Buscando archivo en: {full_path}")
+        print(f"🔍 DEBUG: ¿Existe archivo?: {os.path.exists(full_path)}")
         return send_from_directory('.', path)
-    except:
+    except Exception as e:
+        print(f"❌ DEBUG: Error sirviendo {path}: {e}")
         # Si falla, servir index.html desde Client/
         return send_from_directory('Client', 'index.html')
 
