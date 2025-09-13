@@ -147,9 +147,31 @@ function inicializarControles() {
     
     // 🎯 INICIALIZAR MIRADIAL EN PLANEAMIENTO
     if (window.MiRadial && window.mapa) {
-        console.log('🎯 Inicializando MiRadial en planeamiento...');
-        window.MiRadial.inicializar(window.mapa, 'planeamiento');
-        console.log('✅ MiRadial inicializado correctamente');
+            console.log('🎯 Inicializando MiRadial en planeamiento...');
+    
+    // Función para intentar inicializar MiRadial
+    const intentarInicializarMiRadial = (reintentos = 0) => {
+        if (window.MiRadial && typeof window.MiRadial.init === 'function' && window.mapa) {
+            try {
+                window.MiRadial.init(window.mapa, 'planeamiento');
+                console.log('✅ MiRadial inicializado correctamente');
+                return true;
+            } catch (error) {
+                console.error('❌ Error inicializando MiRadial:', error);
+                return false;
+            }
+        } else {
+            if (reintentos < 5) {
+                console.log(`🔄 MiRadial o mapa no disponible, reintentando... (${reintentos + 1}/5)`);
+                setTimeout(() => intentarInicializarMiRadial(reintentos + 1), 200);
+            } else {
+                console.error('❌ MiRadial no se pudo inicializar después de 5 intentos');
+            }
+            return false;
+        }
+    };
+    
+    intentarInicializarMiRadial();
     } else {
         console.warn('⚠️ MiRadial o mapa no disponible para inicialización');
     }

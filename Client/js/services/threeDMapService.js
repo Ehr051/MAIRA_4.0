@@ -140,6 +140,12 @@ class ThreeDMapService {
 
     async loadOrbitControls() {
         try {
+            // Verificar si ya existe OrbitControls
+            if (window.OrbitControls && typeof window.OrbitControls === 'function') {
+                console.log('✅ OrbitControls ya cargado, reutilizando');
+                return window.OrbitControls;
+            }
+            
             // Método 1: Cargar nuestro OrbitControls personalizado de Libs
             try {
                 await this.loadScriptDynamically('../../Libs/three-controls/OrbitControls.js');
@@ -630,7 +636,11 @@ function activarVista3D() {
             // 🔧 FORZAR RENDER INICIAL
             setTimeout(() => {
                 console.log('🔧 Forzado render inicial');
-                threeDMapInstance.render();
+                if (threeDMapInstance && threeDMapInstance.renderer && threeDMapInstance.scene && threeDMapInstance.camera) {
+                    threeDMapInstance.renderer.render(threeDMapInstance.scene, threeDMapInstance.camera);
+                } else {
+                    console.warn('⚠️ No se puede hacer render: instancia incompleta');
+                }
             }, 100);
             
         }).catch(error => {
