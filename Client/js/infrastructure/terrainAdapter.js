@@ -1,4 +1,18 @@
-// terrainAdapter.js - Adaptado para manejar el nuevo sistema de tiles v3.0
+// terrainAdapter.js - Adaptado   // Lista de URLs corregidas - LOCAL PRIMERO, LUEGO REMOTE
+  const urls = [
+    // 🚀 PRIORIDAD 1: Archivo Local (más rápido y confiable)
+    '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+    
+    // 🔄 FALLBACK 1: Ruta local alternativa
+    './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+    
+    // 🌐 FALLBACK 2: GitHub Releases (si existe el release)
+    'https://github.com/Ehr051/MAIRA-4.0/raw/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+    
+    // ⚠️ FALLBACKS ADICIONALES (deprecated pero mantenidos por compatibilidad)
+    `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
+    ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
+  ];
 
 // URL base para GitHub Releases mini-tiles v3.0
 const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';

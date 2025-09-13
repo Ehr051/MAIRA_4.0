@@ -3,8 +3,8 @@
  */
 
 L.Pattern = L.Class.extend({
-	// L.Mixin.Events is deprecated
-	includes: [L.Evented.prototype || L.Mixin.Events],
+	// Usando L.Evented para compatibilidad con Leaflet moderno
+	includes: [L.Evented.prototype],
 
 	options: {
 		x: 0,
