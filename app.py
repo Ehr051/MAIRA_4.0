@@ -241,17 +241,13 @@ def index():
 
 @app.route('/<path:path>')
 def serve_static(path):
-    print(f"🔍 Solicitado: {path}")
     try:
         # Intentar servir desde Client/ primero para archivos HTML
         if path.endswith('.html'):
-            print(f"📄 Sirviendo HTML desde Client/: {path}")
             return send_from_directory('Client', path)
         # Para otros archivos, intentar desde la raíz
-        print(f"📁 Sirviendo desde raíz: {path}")
         return send_from_directory('.', path)
-    except Exception as e:
-        print(f"❌ Error sirviendo {path}: {e}")
+    except:
         # Si falla, servir index.html desde Client/
         return send_from_directory('Client', 'index.html')
 

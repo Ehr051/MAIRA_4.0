@@ -1,0 +1,253 @@
+/**
+ * VARIABLES CSS CORE - MAIRA 4.0
+ * ================================
+ * Sistema unificado de variables para toda la aplicación
+ */
+
+:root {
+  /* ============================================
+     COLORES MILITARES ESTANDARIZADOS
+     ============================================ */
+  
+  /* Paleta Base Militar */
+  --color-militar-principal: #0a192f;
+  --color-militar-secundario: #112240;
+  --color-militar-terciario: #1e3a5f;
+  --color-militar-fondo: #0f1419;
+  
+  /* Colores de Acento */
+  --color-militar-acento: #64ffda;
+  --color-militar-acento-hover: #5aa3f0;
+  --color-militar-dorado: #ffd700;
+  --color-militar-verde: #00ff88;
+  --color-militar-azul: #4a90e2;
+  
+  /* Colores de Estado */
+  --color-militar-rojo: #ff4444;
+  --color-militar-amarillo: #ffeb3b;
+  --color-militar-naranja: #ff9800;
+  --color-militar-violeta: #9c27b0;
+  
+  /* Colores de Texto */
+  --color-militar-texto: #e6f1ff;
+  --color-militar-texto-secondary: #a0c4ff;
+  --color-militar-texto-muted: #64748b;
+  --color-militar-texto-dark: #1e293b;
+
+  /* ============================================
+     JERARQUÍA Z-INDEX OFICIAL
+     ============================================ */
+  
+  /* Nivel Sistema */
+  --z-loading: 9999;
+  --z-system-critical: 9000;
+  --z-modal-overlay: 8000;
+  
+  /* Nivel Navegación */
+  --z-menu-principal: 2000;
+  --z-menu-secundario: 1900;
+  --z-dropdown: 1800;
+  
+  /* Nivel UI Fija */
+  --z-reloj-central: 1500;
+  --z-indicadores-fijos: 1400;
+  --z-notifications: 1300;
+  
+  /* Nivel HUBs y Paneles */
+  --z-hub-estado: 1100;
+  --z-hub-unidad: 1050;
+  --z-hub-comandos: 1000;
+  --z-panel-unificado: 1000;
+  --z-tooltip: 950;
+  
+  /* Nivel Controles Mapa */
+  --z-controles-zoom: 800;
+  --z-indicador-zoom: 700;
+  --z-overlay-mapa: 600;
+  --z-controles-mapa: 500;
+  
+  /* Nivel Elementos Juego */
+  --z-unidades-militares: 300;
+  --z-elementos-mapa: 200;
+  --z-grid-coordenadas: 100;
+  
+  /* Nivel Base */
+  --z-mapa-base: 50;
+  --z-terrain-background: 1;
+
+  /* ============================================
+     TRANSICIONES Y ANIMACIONES
+     ============================================ */
+  
+  --transicion-instant: all 0.1s ease;
+  --transicion-rapida: all 0.2s ease;
+  --transicion-normal: all 0.3s ease;
+  --transicion-suave: all 0.5s ease;
+  --transicion-lenta: all 0.8s ease;
+  
+  /* Curvas de Animación */
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  
+  /* Duraciones específicas */
+  --duration-tooltip: 0.15s;
+  --duration-button: 0.2s;
+  --duration-panel: 0.3s;
+  --duration-modal: 0.4s;
+  --duration-page: 0.6s;
+
+  /* ============================================
+     SOMBRAS Y EFECTOS
+     ============================================ */
+  
+  /* Sombras Militares */
+  --sombra-militar: 0 4px 20px rgba(100, 255, 218, 0.3);
+  --sombra-militar-intensa: 0 6px 25px rgba(74, 144, 226, 0.4);
+  --sombra-profunda: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --sombra-sutil: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  /* Sombras de Texto */
+  --text-shadow-glow: 0 0 10px currentColor;
+  --text-shadow-militar: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  
+  /* Filtros */
+  --blur-backdrop: blur(10px);
+  --blur-glass: blur(15px);
+  --brightness-hover: brightness(1.1);
+  --saturate-hover: saturate(1.2);
+
+  /* ============================================
+     BORDES Y GEOMETRÍA
+     ============================================ */
+  
+  /* Radios de Borde */
+  --radio-border-small: 4px;
+  --radio-border: 8px;
+  --radio-border-large: 12px;
+  --radio-border-xl: 16px;
+  --radio-circular: 50%;
+  
+  /* Bordes Militares */
+  --border-militar: 1px solid var(--color-militar-acento);
+  --border-militar-thick: 2px solid var(--color-militar-acento);
+  --border-militar-hover: 1px solid var(--color-militar-acento-hover);
+  --border-success: 1px solid var(--color-militar-verde);
+  --border-warning: 1px solid var(--color-militar-amarillo);
+  --border-danger: 1px solid var(--color-militar-rojo);
+  
+  /* Espaciado */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* ============================================
+     TIPOGRAFÍA
+     ============================================ */
+  
+  /* Familias de Fuentes */
+  --font-family-primary: 'Roboto', 'Arial', sans-serif;
+  --font-family-secondary: 'Open Sans', 'Helvetica', sans-serif;
+  --font-family-mono: 'Courier New', 'Monaco', monospace;
+  --font-family-display: 'Oswald', 'Impact', sans-serif;
+  
+  /* Tamaños de Fuente */
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 24px;
+  --font-size-display: 32px;
+  
+  /* Pesos de Fuente */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+  
+  /* Alturas de Línea */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+  --line-height-loose: 1.8;
+
+  /* ============================================
+     BREAKPOINTS RESPONSIVE
+     ============================================ */
+  
+  --breakpoint-xs: 320px;   /* Mobile pequeño */
+  --breakpoint-sm: 576px;   /* Mobile */
+  --breakpoint-md: 768px;   /* Tablet */
+  --breakpoint-lg: 992px;   /* Desktop pequeño */
+  --breakpoint-xl: 1200px;  /* Desktop */
+  --breakpoint-xxl: 1400px; /* Desktop grande */
+
+  /* ============================================
+     COMPONENTES ESPECÍFICOS
+     ============================================ */
+  
+  /* Dimensiones Panel */
+  --panel-width-sm: 280px;
+  --panel-width-md: 320px;
+  --panel-width-lg: 400px;
+  --panel-header-height: 60px;
+  
+  /* Dimensiones Botón */
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+  
+  /* Dimensiones Input */
+  --input-height: 40px;
+  --input-border-radius: 6px;
+  
+  /* Grid Sistema */
+  --grid-gap: 16px;
+  --grid-gap-sm: 8px;
+  --grid-gap-lg: 24px;
+
+  /* ============================================
+     ESTADOS Y VARIACIONES
+     ============================================ */
+  
+  /* Opacidades */
+  --opacity-disabled: 0.4;
+  --opacity-muted: 0.6;
+  --opacity-hover: 0.8;
+  --opacity-active: 0.9;
+  
+  /* Backgrounds con Opacidad */
+  --bg-overlay-light: rgba(255, 255, 255, 0.1);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.3);
+  --bg-overlay-militar: rgba(10, 25, 47, 0.95);
+  --bg-glass: rgba(17, 34, 64, 0.8);
+  
+  /* Estados de Validación */
+  --color-success: var(--color-militar-verde);
+  --color-warning: var(--color-militar-amarillo);
+  --color-error: var(--color-militar-rojo);
+  --color-info: var(--color-militar-azul);
+
+  /* ============================================
+     CONFIGURACIÓN DE MAPA
+     ============================================ */
+  
+  /* Zoom Levels */
+  --zoom-estrategico-min: 1;
+  --zoom-estrategico-max: 8;
+  --zoom-operacional-min: 9;
+  --zoom-operacional-max: 13;
+  --zoom-tactico-min: 14;
+  --zoom-tactico-max: 18;
+  
+  /* Colores de Grid */
+  --grid-color-primary: rgba(100, 255, 218, 0.3);
+  --grid-color-secondary: rgba(74, 144, 226, 0.2);
+  --grid-color-tertiary: rgba(255, 215, 0, 0.1);
+}

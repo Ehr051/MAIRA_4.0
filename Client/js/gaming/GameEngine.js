@@ -99,6 +99,12 @@ class GameEngine {
                     currentState.session.timeLimit = configuracion.duracionPartida * 60000; // minutos a ms
                 }
                 
+                if (configuracion.duracionTurno) {
+                    // Convertir minutos a milisegundos para el timeLimit del turno
+                    currentState.session.timeLimit = configuracion.duracionTurno * 60000;
+                    console.log('⏱️ Duración de turno configurada:', configuracion.duracionTurno, 'minutos =', currentState.session.timeLimit, 'ms');
+                }
+                
                 if (configuracion.jugadores) {
                     configuracion.jugadores.forEach((jugador, index) => {
                         if (index === 0) {
@@ -206,12 +212,17 @@ class GameEngine {
         console.log('📦 Cargando componentes del motor...');
         
         // Turn Manager (inspirado en Combat Mission WEGO)
+        const currentState = this.gameState.get('current');
+        const turnDuration = currentState?.session?.timeLimit || 120000; // usar configuración o 2 minutos por defecto
+        
         this.turnManager = new TurnManager({
             gameEngine: this,
             turnType: 'simultaneous', // simultaneous (WEGO) o sequential (IGO-UGO)
-            turnDuration: 120000, // 2 minutos por turno
+            turnDuration: turnDuration,
             phaseSystem: true
         });
+        
+        console.log('⏱️ TurnManager inicializado con duración:', turnDuration, 'ms');
         
         // AI Director (inspirado en Command: Modern Operations)
         this.aiDirector = new AIDirector({

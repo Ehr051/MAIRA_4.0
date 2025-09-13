@@ -220,13 +220,13 @@ class PanelJuegoUnificado {
             </div>
             
             <div class="botones-accion">
-                <button class="boton-accion" onclick="this.pasarTurno()">
+                <button class="boton-accion" onclick="panelUnificado.pasarTurno()">
                     <i class="fas fa-forward"></i> Pasar Turno
                 </button>
-                <button class="boton-accion" onclick="this.extenderTiempo()">
+                <button class="boton-accion" onclick="panelUnificado.extenderTiempo()">
                     <i class="fas fa-plus-circle"></i> +60 segundos
                 </button>
-                <button class="boton-accion peligro" onclick="this.finalizarTurno()">
+                <button class="boton-accion peligro" onclick="panelUnificado.finalizarTurno()">
                     <i class="fas fa-stop"></i> Finalizar Turno
                 </button>
                 <button class="boton-accion" onclick="panelUnificado.mostrar('general')">
@@ -255,7 +255,7 @@ class PanelJuegoUnificado {
             <div class="botones-accion">
                 ${fases.map(fase => `
                     <button class="boton-accion ${fase === faseActual ? 'activo' : ''}" 
-                            onclick="this.cambiarFase('${fase}')"
+                            onclick="panelUnificado.cambiarFase('${fase}')"
                             ${fase === faseActual ? 'disabled' : ''}>
                         <i class="fas fa-${this.getIconoFase(fase)}"></i> ${this.capitalizarFase(fase)}
                     </button>
@@ -430,8 +430,8 @@ class PanelJuegoUnificado {
 
     // Métodos de acción
     pasarTurno() {
-        if (typeof window.gestorTurnos !== 'undefined') {
-            window.gestorTurnos.pasarTurno();
+        if (window.gestorJuego?.gestorTurnos?.finalizarTurnoActual) {
+            window.gestorJuego.gestorTurnos.finalizarTurnoActual(false);
         } else {
             console.log('🎮 Pasar turno solicitado');
             // Emitir evento para otros sistemas
@@ -441,7 +441,12 @@ class PanelJuegoUnificado {
 
     finalizarTurno() {
         if (confirm('¿Estás seguro de que quieres finalizar este turno?')) {
-            this.pasarTurno();
+            if (window.gestorJuego?.gestorTurnos?.finalizarTurnoActual) {
+                window.gestorJuego.gestorTurnos.finalizarTurnoActual(true); // true = forzado
+            } else {
+                console.log('🎮 Finalizar turno forzado solicitado');
+                document.dispatchEvent(new CustomEvent('solicitarFinalizarTurno'));
+            }
         }
     }
 
@@ -588,7 +593,7 @@ class ControladorHUD {
     inicializarEventos() {
         // Tecla H para ocultar/mostrar HUD completo
         document.addEventListener('keydown', (event) => {
-            if (event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
+            if (event.key && event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
                 this.alternarHUD();
             }
         });

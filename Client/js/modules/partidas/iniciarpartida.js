@@ -497,50 +497,54 @@ function iniciarJuego(data) {
 
 
 async function inicializarSocket() {
-    // Verificar que SERVER_URL esté disponible
+    // ✅ CORREGIR: Usar la variable correcta
     const serverUrl = window.SERVER_URL || 'http://localhost:5000';
     console.log('Conectando al servidor:', serverUrl);
     
     try {
-        // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
-        let userInfo = null;
-        let token = null;
-        
-        // Intentar obtener desde UserIdentity primero
-        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
-            const userData = MAIRA.UserIdentity.obtenerUsuario();
-            userInfo = {
-                id: userData.id,
-                username: userData.nombre,
-                token: localStorage.getItem('authToken')
-            };
-            token = userInfo.token;
-            console.log('🔧 Usando datos de UserIdentity:', userInfo);
-        } else {
-            // Fallback a localStorage
-            userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
-            token = userInfo.token || localStorage.getItem('authToken');
-            console.log('🔧 Usando datos de localStorage:', userInfo);
-        }
-        
-        // ✅ Verificar que socket.io esté disponible
+        // ✅ Verificar que socket.io esté disponible PRIMERO
         if (typeof io === 'undefined') {
             console.error('❌ Socket.IO no está disponible. Verifique que el script se esté cargando correctamente.');
             mostrarError('Error de conexión: Socket.IO no disponible');
-            return;
+            return false; // ✅ RETURN FALSE para indicar falla
         }
         
-        socket = io(SERVER_URL, {
-            transports: ['polling'],  // Solo polling para Render
+        // ✅ OBTENER DATOS DEL USUARIO CON FALLBACK ROBUSTO
+        let userInfo = {
+            id: userId || generateUserId(),
+            username: userName || 'Usuario'
+        };
+        
+        // Intentar mejorar con UserIdentity si está disponible
+        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
+            const userData = MAIRA.UserIdentity.obtenerUsuario();
+            userInfo = {
+                id: userData.id || userInfo.id,
+                username: userData.nombre || userInfo.username
+            };
+            console.log('🔧 Datos mejorados con UserIdentity:', userInfo);
+        } else {
+            console.log('🔧 Usando datos básicos:', userInfo);
+        }
+        
+        // ✅ CONFIGURACIÓN SIMPLIFICADA Y ROBUSTA
+        const socketConfig = {
+            transports: ['websocket', 'polling'], // ✅ Permitir ambos transportes
             timeout: 30000,
             forceNew: true,
-            upgrade: false,  // No intentar upgrade a websocket
-            auth: {
-                token: token,
+            upgrade: true // ✅ Permitir upgrade para mejor rendimiento
+        };
+        
+        // ✅ Solo agregar auth si tenemos datos válidos
+        if (userInfo.id && userInfo.id !== 'undefined') {
+            socketConfig.auth = {
                 userId: userInfo.id,
                 username: userInfo.username
-            }
-        });
+            };
+        }
+        
+        // ✅ USAR LA VARIABLE CORRECTA
+        socket = io(serverUrl, socketConfig);
 
         socket.on('connect', function() {
             console.log('Conectado al servidor');
