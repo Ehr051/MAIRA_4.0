@@ -1187,9 +1187,10 @@ processElevationInfo: async function (corners, popup) {
             let elementoEncontrado = null;
             let distanciaMinima = Infinity;
             
-            if (!this.map) return null;
+            if (!this.map || !latlng) return null;
             
             const puntoClick = this.map.latLngToContainerPoint(latlng);
+            if (!puntoClick) return null;
             const radioDeteccion = 20; // píxeles
             
             // 🔍 BUSCAR PRIORITARIAMENTE EN CALCO ACTIVO

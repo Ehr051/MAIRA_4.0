@@ -477,7 +477,13 @@ function inicializarBotonesHerramientas() {
 function inicializarBotonesCalcos() {
     var nuevoCalcoBtn = document.getElementById('nuevoCalcoBtn');
     if (nuevoCalcoBtn) {
-        nuevoCalcoBtn.addEventListener('click', crearNuevoCalco);
+        nuevoCalcoBtn.addEventListener('click', function() {
+            if (typeof crearNuevoCalco === 'function') {
+                crearNuevoCalco();
+            } else {
+                console.error('crearNuevoCalco no está disponible');
+            }
+        });
     } else {
         console.warn('Botón de nuevo calco no encontrado');
     }
