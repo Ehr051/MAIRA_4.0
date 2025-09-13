@@ -917,6 +917,9 @@ function guardarCambiosUnidad() {
         // Añadir el nuevo marcador al calco
         nuevoMarcador.addTo(window.calcoActivo);
         
+        // ✅ CONFIGURAR EVENTOS DEL NUEVO MARCADOR (CRÍTICO para selección)
+        configurarEventosNuevoMarcador(nuevoMarcador);
+        
         // ✅ ACTUALIZAR LISTA DE ELEMENTOS DEL CALCO
         if (typeof window.actualizarElementosCalco === 'function') {
             window.actualizarElementosCalco();
@@ -1080,6 +1083,9 @@ function guardarCambiosEquipo() {
         
         // Añadir el nuevo marcador al calco
         nuevoMarcador.addTo(window.calcoActivo);
+        
+        // ✅ CONFIGURAR EVENTOS DEL NUEVO MARCADOR (CRÍTICO para selección)
+        configurarEventosNuevoMarcador(nuevoMarcador);
         
         // Actualizar etiqueta
         actualizarEtiquetaEquipo(nuevoMarcador);
@@ -2153,10 +2159,70 @@ window.esUnidad = esUnidad;
 window.editarElementoSeleccionadoOriginal = editarElementoSeleccionado;
 
 // AGREGAR al final del archivo:
+/**
+ * ✅ CONFIGURAR EVENTOS PARA MARCADORES RECIÉN CREADOS/EDITADOS
+ * Soluciona el problema de elementos no seleccionables después de editar
+ */
+function configurarEventosNuevoMarcador(marcador) {
+    console.log('🔧 Configurando eventos para marcador:', marcador.options);
+    
+    // Click simple para seleccionar
+    marcador.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        console.log('🎯 Click en marcador editado:', this.options);
+        
+        // Actualizar elemento seleccionado globalmente
+        window.elementoSeleccionado = this;
+        elementoSeleccionado = this;
+        
+        // Disparar evento de selección
+        if (typeof seleccionarElemento === 'function') {
+            seleccionarElemento(this);
+        } else if (typeof seleccionarElementoGB === 'function') {
+            seleccionarElementoGB(this);
+        }
+        
+        // Mostrar panel unificado con info del elemento
+        if (window.panelJuegoUnificado) {
+            window.panelJuegoUnificado.mostrarInfoElemento(this);
+        }
+    });
+    
+    // Doble click para editar
+    marcador.on('dblclick', function(e) {
+        L.DomEvent.stopPropagation(e);
+        console.log('✏️ Doble click en marcador editado - reabriendo edición');
+        editarElementoSeleccionado();
+    });
+    
+    // Click derecho para menú radial
+    marcador.on('contextmenu', function(e) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        window.elementoSeleccionado = this;
+        elementoSeleccionado = this;
+        
+        // Mostrar menú radial si está disponible
+        if (window.MiRadial) {
+            window.MiRadial.mostrarMenu(
+                e.originalEvent.pageX,
+                e.originalEvent.pageY,
+                'elemento'
+            );
+        } else if (window.menuRadial && typeof window.menuRadial.mostrar === 'function') {
+            window.menuRadial.mostrar(e.originalEvent.pageX, e.originalEvent.pageY);
+        }
+    });
+    
+    console.log('✅ Eventos configurados correctamente para marcador editado');
+}
+
 window.MAIRA = window.MAIRA || {};
 window.MAIRA.EdicionCompleto = {
     verificarElementos: verificarElementosAntesDeEnviarListo,
     validarDatos: validarDatosElemento,
     aplicarRelleno: aplicarRelleno,
-    obtenerPatronRelleno: obtenerPatronRelleno
+    obtenerPatronRelleno: obtenerPatronRelleno,
+    configurarEventosNuevoMarcador: configurarEventosNuevoMarcador
 };

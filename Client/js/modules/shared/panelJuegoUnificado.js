@@ -77,7 +77,7 @@ class PanelJuegoUnificado {
             this.actualizarTurno(event.detail);
         });
 
-        // Auto-ocultar al hacer clic fuera
+        // Auto-ocultar al hacer clic fuera (PERO NO DENTRO DEL PANEL)
         document.addEventListener('click', (event) => {
             if (this.panel.classList.contains('activo') && 
                 !this.panel.contains(event.target) && 
@@ -85,12 +85,51 @@ class PanelJuegoUnificado {
                 this.ocultar();
             }
         });
+
+        // Evitar que clicks dentro del panel lo cierren
+        this.panel.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
     }
 
     mostrar(estado = 'general') {
+        // Ocultar TODOS los otros paneles primero
+        this.ocultarOtrosPaneles();
+        
         this.estadoActual = estado;
         this.panel.classList.add('activo');
         this.actualizarContenido();
+    }
+
+    ocultarOtrosPaneles() {
+        // Lista de todos los paneles que deben ocultarse
+        const panelesToOcultar = [
+            'panelTurno',
+            'panelFase', 
+            'panelJuego',
+            'panelControl',
+            'panelCombate',
+            'panelLogistica',
+            'panelComandancia',
+            'menuRadial',
+            'panelHexagono',
+            'panelUnidad',
+            'panel-info',
+            'panel-orders'
+        ];
+
+        panelesToOcultar.forEach(panelId => {
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.classList.remove('activo', 'visible', 'mostrar');
+                panel.style.display = 'none';
+            }
+        });
+
+        // También cerrar cualquier menú radial activo
+        if (window.menuRadial && typeof window.menuRadial.ocultar === 'function') {
+            window.menuRadial.ocultar();
+        }
     }
 
     ocultar() {
