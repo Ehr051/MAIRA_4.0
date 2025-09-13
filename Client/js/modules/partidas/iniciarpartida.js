@@ -839,16 +839,22 @@ function crearPartida(e) {
         iniciarJuegoLocal(configuracion);
     } else {
         console.log('🚀 Enviando crear partida al servidor...');
-        socket.emit('crearPartida', { configuracion });
+        const socketToUse = window.socket || socket;
+        socketToUse.emit('crearPartida', { configuracion });
     }
 }
 
 function crearPartidaOnline() {
     console.log('🎮 Creando partida online...');
     
+    // Usar socket global si está disponible
+    const socketToUse = window.socket || socket;
+    
     // Verificar conexión de socket
-    if (!socket || !socket.connected) {
+    if (!socketToUse || !socketToUse.connected) {
         console.error('❌ Socket no conectado');
+        console.log('Debug - window.socket:', window.socket ? '✅ existe' : '❌ null');
+        console.log('Debug - socket local:', socket ? '✅ existe' : '❌ null');
         alert('Error: No hay conexión con el servidor. Inténtalo de nuevo.');
         return;
     }
@@ -939,21 +945,21 @@ function crearPartidaOnline() {
     }, 10000);
     
     // Limpiar timeout cuando llegue respuesta
-    const originalPartidaCreada = socket._callbacks?.$partidaCreada?.[0] || socket._events?.partidaCreada;
-    socket.once('partidaCreada', function(datosPartida) {
+    const originalPartidaCreada = socketToUse._callbacks?.$partidaCreada?.[0] || socketToUse._events?.partidaCreada;
+    socketToUse.once('partidaCreada', function(datosPartida) {
         clearTimeout(timeoutId);
         console.log('✅ Respuesta recibida, timeout cancelado');
         if (originalPartidaCreada) originalPartidaCreada(datosPartida);
     });
     
-    socket.once('errorCrearPartida', function(error) {
+    socketToUse.once('errorCrearPartida', function(error) {
         clearTimeout(timeoutId);
         console.log('❌ Error recibido, timeout cancelado');
     });
     
     // Emitir evento para crear partida
     console.log('📤 Emitiendo evento crearPartida...');
-    socket.emit('crearPartida', { configuracion });
+    socketToUse.emit('crearPartida', { configuracion });
     console.log('📤 Evento emitido, esperando respuesta...');
 }
 

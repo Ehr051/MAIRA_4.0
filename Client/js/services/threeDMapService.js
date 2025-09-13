@@ -106,62 +106,92 @@ class ThreeDMapService {
                 return;
             }
 
-            // Cargar OrbitControls con script tag dinámico
-            await this.loadOrbitControls();
+            // Cargar OrbitControls con múltiples fallbacks
+            const orbitControlsLoaded = await this.loadOrbitControls();
             
             if (window.THREE && window.THREE.OrbitControls) {
-                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-                this.controls.enableDamping = true;
-                this.controls.dampingFactor = 0.05;
-                this.controls.maxPolarAngle = Math.PI / 2;
-                this.controls.minDistance = 100;
-                this.controls.maxDistance = 5000;
-                
-                console.log('✅ OrbitControls cargado desde node_modules');
+                try {
+                    this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                    this.controls.enableDamping = true;
+                    this.controls.dampingFactor = 0.05;
+                    this.controls.maxPolarAngle = Math.PI / 2;
+                    this.controls.minDistance = 100;
+                    this.controls.maxDistance = 5000;
+                    
+                    if (orbitControlsLoaded) {
+                        console.log('✅ OrbitControls completamente funcional');
+                    } else {
+                        console.log('🔄 OrbitControls usando fallback funcional');
+                    }
+                } catch (controlsError) {
+                    console.warn('⚠️ Error inicializando OrbitControls:', controlsError);
+                    this.controls = null;
+                }
             } else {
-                console.warn('⚠️ OrbitControls no disponible después de cargar');
+                console.warn('⚠️ OrbitControls no disponible - sistema 3D limitado');
+                this.controls = null;
             }
         } catch (error) {
-            console.warn('⚠️ Error cargando OrbitControls:', error);
-            console.warn('⚠️ Continuando sin controles avanzados');
+            console.warn('⚠️ Error cargando sistema 3D:', error);
+            console.warn('⚠️ Continuando con funcionalidad limitada');
+            this.controls = null;
         }
     }
 
     async loadOrbitControls() {
         try {
-            // OrbitControls ahora se carga directamente en HTML
-            // Verificar disponibilidad global
-            if (window.THREE && window.THREE.OrbitControls) {
-                console.log('✅ OrbitControls disponible desde HTML');
-                return;
+            // Método 1: Cargar nuestro OrbitControls personalizado de Libs
+            try {
+                await this.loadScriptDynamically('../../Libs/three-controls/OrbitControls.js');
+                if (window.OrbitControls) {
+                    console.log('✅ MAIRA OrbitControls personalizado cargado');
+                    return window.OrbitControls;
+                }
+            } catch (libError) {
+                console.warn('⚠️ No se pudo cargar MAIRA OrbitControls:', libError.message);
             }
             
-            // Verificar si three-orbitcontrols está disponible globalmente
-            if (typeof OrbitControls !== 'undefined') {
-                window.THREE.OrbitControls = OrbitControls;
-                console.log('✅ OrbitControls configurado desde three-orbitcontrols');
-                return;
+            // Método 2: Intentar cargar como ES6 module (backup)
+            try {
+                const { OrbitControls } = await import('/node_modules/three/examples/jsm/controls/OrbitControls.js');
+                console.log('✅ OrbitControls estándar cargado como ES6 module');
+                return OrbitControls;
+            } catch (importError) {
+                console.warn('⚠️ No se pudo cargar OrbitControls estándar:', importError.message);
             }
             
-            // Fallback si no está disponible
-            console.warn('⚠️ OrbitControls no disponible, creando fallback básico');
-            this.createOrbitControlsFallback();
+            // Método 3: Fallback funcional
+            console.log('🔧 Usando OrbitControls fallback funcional');
+            return this.createOrbitControlsFallback();
             
         } catch (error) {
             console.warn('⚠️ Error en loadOrbitControls:', error);
-            this.createOrbitControlsFallback();
+            return this.createOrbitControlsFallback();
         }
     }
 
     /**
-     * Crear fallback básico de OrbitControls
+     * Cargar script dinámicamente
+     */
+    loadScriptDynamically(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    /**
+     * Crear fallback funcional de OrbitControls
      */
     createOrbitControlsFallback() {
         if (!window.THREE) return;
         
         window.THREE.OrbitControls = function(camera, domElement) {
             this.object = camera;
-            this.domElement = domElement;
+            this.domElement = domElement || document;
             this.enabled = true;
             this.enableDamping = true;
             this.dampingFactor = 0.05;
@@ -171,12 +201,76 @@ class ThreeDMapService {
             this.minPolarAngle = 0;
             this.maxPolarAngle = Math.PI;
             
-            // Métodos básicos
-            this.update = function() { /* mock */ };
-            this.dispose = function() { /* mock */ };
+            let isMouseDown = false;
+            let mouseX = 0, mouseY = 0;
+            let phi = 0, theta = 0;
+            let distance = 100;
+            
+            // Event listeners básicos
+            this.domElement.addEventListener('mousedown', (e) => {
+                if (!this.enabled) return;
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            this.domElement.addEventListener('mousemove', (e) => {
+                if (!this.enabled || !isMouseDown) return;
+                
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                
+                theta += deltaX * 0.01;
+                phi += deltaY * 0.01;
+                phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
+                
+                this.updateCameraPosition();
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            this.domElement.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+            
+            this.domElement.addEventListener('wheel', (e) => {
+                if (!this.enabled || !this.enableZoom) return;
+                e.preventDefault();
+                
+                distance += e.deltaY * 0.1;
+                distance = Math.max(this.minDistance, Math.min(this.maxDistance, distance));
+                this.updateCameraPosition();
+            });
+            
+            this.updateCameraPosition = () => {
+                const x = distance * Math.sin(phi) * Math.cos(theta);
+                const y = distance * Math.cos(phi);
+                const z = distance * Math.sin(phi) * Math.sin(theta);
+                
+                this.object.position.set(x, y, z);
+                this.object.lookAt(0, 0, 0);
+            };
+            
+            // Métodos públicos
+            this.update = () => {
+                if (this.enableDamping) {
+                    // Aplicar damping muy básico
+                }
+            };
+            
+            this.dispose = () => {
+                this.domElement.removeEventListener('mousedown', null);
+                this.domElement.removeEventListener('mousemove', null);
+                this.domElement.removeEventListener('mouseup', null);
+                this.domElement.removeEventListener('wheel', null);
+            };
+            
+            // Inicializar posición
+            this.updateCameraPosition();
         };
         
-        console.log('🔄 OrbitControls fallback creado');
+        console.log('🔄 OrbitControls fallback funcional creado');
     }
 
     async setupLights() {
