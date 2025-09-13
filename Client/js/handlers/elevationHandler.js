@@ -14,10 +14,15 @@ let elevationHandlerIndiceCargado = false;
 const ELEVATION_INDEX_URLS = [
   // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
     // 🚀 PRIORIDAD 1: Proxy Flask confirmado funcionando (v4.0)
-    '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index_v2.json',
+      
+  // 🔄 FALLBACK: GitHub Release v2.0  
+  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json',
   
-  // 🔄 FALLBACK: GitHub v2.0 (Sin datos de elevación)
-  './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
+    // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
+  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
+  
+  // 🔄 FALLBACK: GitHub Release v3.0
+  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
   
   // � FALLBACK: Directo desde assets de MAIRA-4.0
 

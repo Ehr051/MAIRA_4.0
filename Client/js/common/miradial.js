@@ -732,8 +732,8 @@ handleMenuClick: function(action, submenu) {
             
         // === ACCIONES PARA MEDICIONES ===
         case 'editarMedicion':
-            if (window.elementoSeleccionado && typeof window.editarLinea === 'function') {
-                window.editarLinea(window.elementoSeleccionado);
+            if (window.elementoSeleccionado && typeof window.editarElementoSeleccionado === 'function') {
+                window.editarElementoSeleccionado();
             }
             break;
         case 'eliminarMedicion':
