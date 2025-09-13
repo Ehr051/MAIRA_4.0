@@ -30,8 +30,15 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
     return response.json();
   };
   
-  // Lista de URLs para intentar
+  // Lista de URLs para intentar - SOLO GITHUB RELEASES v4.0
   const urls = [
+    // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
+    'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
+    
+    // 🔄 FALLBACK: GitHub Release v3.0 (Solo Altura - Legacy)
+    'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+    
+    // � FALLBACKS ADICIONALES
     `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
     ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
   ];
@@ -125,12 +132,19 @@ async function cargarDatosElevacion(bounds) {
       // Primero intentar extraer el tile si es necesario
       await extractTileIfNeeded(tile);
       
-        // URLs a intentar en orden de preferencia
+        // URLs a intentar en orden de preferencia - SOLO GITHUB RELEASES v4.0
         const urlsToTry = [
-          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/tiles/${tile.filename}`,
-          `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
-          `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`,
-          `https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tile.provincia}/${tile.filename}`
+          // 🚀 PRIORIDAD 1: GitHub Release v4.0 directo
+          `https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/${tile.provincia}/${tile.filename}`,
+          
+          // 🔄 FALLBACK: GitHub Release v3.0 (Legacy)
+          `https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/${tile.provincia}/${tile.filename}`,
+          
+          // 📦 FALLBACKS ADICIONALES 
+          `https://github.com/Ehr051/MAIRA-4.0/releases/download/tiles-data/${tile.provincia}/tiles/${tile.filename}`,
+          
+          // 🌐 ÚLTIMA OPCIÓN: CDN Remoto
+          `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/tiles/${tile.provincia}/${tile.filename}`
         ];      // Intentar cargar desde cada URL
       for (const url of urlsToTry) {
         try {

@@ -255,14 +255,110 @@ window.MAIRATilesChecker = {
         }
         
         console.log('\n📋 DETALLES COMPLETOS:', results);
+    },
+    
+    // 🚀 NUEVO: Verificar endpoints específicos de Flask
+    async checkGitHubReleasesV4() {
+        console.log('\n🔍 VERIFICANDO GITHUB RELEASES v4.0 (Altura + Vegetación)');
+        
+        const releaseEndpoints = [
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/maira_altimetria_tiles.tar.gz',
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/maira_vegetacion_tiles.tar.gz',
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/centro/',
+            'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/vegetacion/'
+        ];
+        
+        const results = {};
+        
+        for (const endpoint of releaseEndpoints) {
+            try {
+                console.log(`� Probando GitHub Release v4.0: ${endpoint}`);
+                const response = await fetch(endpoint, { method: 'HEAD' }); // Solo verificar existencia
+                results[endpoint] = {
+                    status: response.status,
+                    ok: response.ok,
+                    contentType: response.headers.get('content-type'),
+                    responseTime: Date.now()
+                };
+                
+                if (response.ok) {
+                    console.log(`✅ Release v4.0 accesible: ${endpoint}`);
+                } else {
+                    console.log(`⚠️ Release v4.0 no accesible (${response.status}): ${endpoint}`);
+                }
+                
+            } catch (error) {
+                results[endpoint] = {
+                    error: error.message,
+                    accessible: false
+                };
+                console.error(`❌ Error en GitHub Release v4.0 ${endpoint}:`, error.message);
+            }
+        }
+        
+        console.log('📊 RESULTADOS GITHUB RELEASES v4.0:', results);
+        return results;
+    },
+    
+    // 🚀 NUEVO: Analizar problemas críticos
+    analyzeCriticalIssues(results) {
+        const issues = [];
+        
+        // Verificar acceso local
+        if (results.localAltimetria) {
+            const altOk = Object.values(results.localAltimetria).some(r => r.accessible);
+            if (!altOk) issues.push('ALTIMETRÍA LOCAL NO ACCESIBLE');
+        }
+        
+        if (results.localVegetacion) {
+            const vegOk = Object.values(results.localVegetacion).some(r => r.accessible);
+            if (!vegOk) issues.push('VEGETACIÓN LOCAL NO ACCESIBLE');
+        }
+        
+        // Verificar GitHub
+        if (results.githubReleases) {
+            const githubOk = Object.values(results.githubReleases).some(r => r.accessible);
+            if (!githubOk) issues.push('GITHUB RELEASES NO ACCESIBLE');
+        }
+        
+        // Verificar red
+        if (results.networkAccess) {
+            const networkOk = Object.values(results.networkAccess).some(r => r.accessible);
+            if (!networkOk) issues.push('SIN CONECTIVIDAD DE RED');
+        }
+        
+        return issues;
     }
 };
 
-// Auto-ejecutar después de 5 segundos
-setTimeout(() => {
+// 🚀 AUTO-EJECUTAR INMEDIATAMENTE + DIAGNÓSTICO MEJORADO v4.1
+setTimeout(async () => {
     if (document.readyState === 'complete') {
-        window.MAIRATilesChecker.checkAllTileSources();
+        console.log('🔥 EJECUTANDO DIAGNÓSTICO AUTOMÁTICO DE TILES v4.1');
+        
+        // Ejecutar checker completo
+        const results = await window.MAIRATilesChecker.checkAllTileSources();
+        
+        // Hacer diagnóstico adicional de GitHub Releases v4.0
+        await window.MAIRATilesChecker.checkGitHubReleasesV4();
+        
+        // Notificar al usuario si hay problemas críticos
+        const criticalIssues = window.MAIRATilesChecker.analyzeCriticalIssues(results);
+        if (criticalIssues.length > 0) {
+            console.warn('🚨 PROBLEMAS CRÍTICOS DETECTADOS EN TILES:', criticalIssues);
+            
+            // Si existe una función de notificación, usarla
+            if (window.mostrarNotificacion) {
+                window.mostrarNotificacion(
+                    `⚠️ Detectados ${criticalIssues.length} problemas críticos en el sistema de tiles. Ver consola para detalles.`, 
+                    'warning'
+                );
+            }
+        } else {
+            console.log('✅ SISTEMA DE TILES FUNCIONANDO CORRECTAMENTE');
+        }
     }
-}, 5000);
+}, 3000); // Reducir a 3 segundos para diagnóstico más rápido
 
 console.log('🔍 MAIRA Tiles Checker cargado. Ejecutar: window.MAIRATilesChecker.checkAllTileSources()');

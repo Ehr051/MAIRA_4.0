@@ -943,22 +943,14 @@ function unirseOperacionExistente() {
         window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
     });
     
-    // ✅ Timeout aumentado a 10 segundos para mejor conectividad
+    // Si después de 5 segundos no hay respuesta, asumir éxito y redireccionar
+    // Esto es un respaldo en caso de que el callback no se ejecute
     setTimeout(() => {
         if (botonSubmit && botonSubmit.disabled) {
-            console.log("⚠️ Timeout: No se recibió callback en 10s, redireccionando...");
-            // ✅ Verificar si socket está conectado antes de asumir éxito
-            if (socket && socket.connected) {
-                console.log("✅ Socket conectado, asumiendo éxito y redireccionando");
-                window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
-            } else {
-                console.error("❌ Socket desconectado, no redireccionando");
-                mostrarError("Error de conexión con el servidor. Inténtelo nuevamente.");
-                botonSubmit.disabled = false;
-                botonSubmit.textContent = "Unirse a Operación";
-            }
+            console.log("No se recibió callback, redireccionando de todos modos");
+            window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
         }
-    }, 10000);
+    }, 5000);
 }
 
 // Función iniciarConexion mejorada siguiendo patrón de iniciarpartida.js

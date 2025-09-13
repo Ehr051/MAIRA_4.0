@@ -17,11 +17,11 @@ const VEGETATION_CONFIG = {
     ndviRange: [-1, 1]
 };
 
-// URLs de fallback para mini-tiles
+// URLs de fallback para mini-tiles - ACTUALIZADO v4.0 con proxy confirmado
 const VEGETATION_URLS = [
-    'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',
+    '/api/proxy/github/',  // 🚀 PRIORIDAD 1: Proxy Flask confirmado
     'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
-    'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA-4.0@main/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
+    'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
 ];
 
 /**

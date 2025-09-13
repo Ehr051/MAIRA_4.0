@@ -63,11 +63,10 @@ const HexGrid = {
                     if (!this.grid.has(hexKey)) {
                         const corners = this.getHexCorners(hexCenter);
                         const polygon = L.polygon(corners, {
-                            fillColor: 'transparent', // ✅ NO color por defecto
-                            color: '#040404bd', // Borde como CSS
+                            
                             weight: 1,
                             opacity: 0.5,
-                            fillOpacity: 0, // ✅ Sin relleno
+                            fillOpacity: 1,
                             className: 'hex-cell'
                         }).addTo(this.hexLayer);
 

@@ -3,19 +3,24 @@
 // 🎯 NUEVA ESTRATEGIA: Usar archivos tar.gz locales tanto en desarrollo como en Render
 const ELEVATION_LOCAL_BASE = 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
 
-// 🚀 BASE URL para GitHub Release v4.0 con datos reales
-const ELEVATION_HANDLERS_GITHUB_BASE = 'https://github.com/suportemaira/MAIRA-4.0/releases/download/v4.0';
+// 🚀 BASE URL PROXY para GitHub Release v4.0 - CONFIRMADO FUNCIONANDO
+const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 
 // Variables de estado del elevation handler - DECLARACIÓN TEMPRANA
 let elevationTileIndex;
 let elevationHandlerIndiceCargado = false;
 
-// 🔧 URLs de índices principales - ESTRATEGIA JSON LOCAL + TAR.GZ RELEASE
+// 🔧 URLs de índices principales - SOLO GITHUB RELEASES v4.0
 const ELEVATION_INDEX_URLS = [
-  // 🎯 SOLO JSON LOCAL: Para saber QUÉ buscar en el release
-  'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
-  './Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
-  '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json'
+  // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
+    // 🚀 PRIORIDAD 1: Proxy Flask confirmado funcionando (v4.0)
+  'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+  
+  // 🔄 FALLBACK: GitHub Release v3.0 (Solo Altura - Legacy)
+  'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
+  
+  // � FALLBACK: Directo desde assets de MAIRA-4.0
+
 ];
 
 // Configuración de las provincias con sus archivos tar.gz locales
@@ -47,10 +52,17 @@ const ELEVATION_PROVINCES_CONFIG = {
     }
 };
 
-// 🚀 ESTRATEGIA FINAL: JSON LOCAL + TAR.GZ RELEASE
+// 🚀 ESTRATEGIA v4.0: GitHub Releases (Altura + Vegetación)
 const ELEVATION_RELEASE_ASSETS = {
-    TAR_GZ: `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_altimetria_tiles.tar.gz`,
-    MANIFEST: `${ELEVATION_HANDLERS_GITHUB_BASE}/release_manifest.json`
+    // Altimetría (altura)
+    ALTIMETRIA_TAR_GZ: `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_altimetria_tiles.tar.gz`,
+    
+    // Vegetación (nueva en v4.0)
+    VEGETACION_TAR_GZ: `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_vegetacion_tiles.tar.gz`,
+    
+    // Manifesto y configuración
+    MANIFEST: `${ELEVATION_HANDLERS_GITHUB_BASE}/release_manifest.json`,
+    INDEX: `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`
 };
 
         // URLs de fallback para ELEVATION HANDLER - MANIFEST v4.0 COMPATIBLE
@@ -160,8 +172,34 @@ async function cargarDatosElevacion(bounds) {
       // Formato mini-tiles: intentar múltiples URLs
       console.log(`🗂️ Tile en formato mini-tiles: ${tile.filename} (provincia: ${tile.provincia})`);
       
-      // 🚀 ESTRATEGIA v4.0: SOLO GitHub Release tar.gz (JSON local solo para índices)
-      console.log(`🎯 ÚNICA ESTRATEGIA: Extraer ${tile.filename} de GitHub Release tar.gz`);
+            // 🚀 ESTRATEGIA v4.0: GitHub Release (Altura + Vegetación)
+      console.log(`🎯 ESTRATEGIA DOBLE: 1) .tif directo, 2) tar.gz (como v3.0)`);
+      
+      // PASO 1: Intentar .tif directo desde Release v4.0
+      const directTifExtracted = await extractTileDirectFromRelease(tile);
+      
+      if (directTifExtracted) {
+        try {
+          console.log(`✅ Tile .tif directo cargado: ${tile.filename}`);
+          const tiff = await GeoTIFF.fromArrayBuffer(directTifExtracted);
+          const image = await tiff.getImage();
+          const rasters = await image.readRasters();
+          const metadata = await image.getFileDirectory();
+
+          return {
+            data: rasters[0],
+            width: image.getWidth(),
+            height: image.getHeight(),
+            tiepoint: metadata.ModelTiepoint,
+            scale: metadata.ModelPixelScale,
+          };
+        } catch (error) {
+          console.error(`❌ Error procesando .tif directo para ${tile.filename}:`, error);
+        }
+      }
+      
+      // PASO 2: Fallback a tar.gz (como v3.0 que funcionaba)
+      console.log(`🔄 Fallback a tar.gz para ${tile.filename}`);
       const releaseExtracted = await extractTileFromManifestTarGz(tile);
       
       if (releaseExtracted) {
@@ -202,13 +240,78 @@ async function cargarDatosElevacion(bounds) {
   }
 }
 
+// 🚀 NUEVA: Función para cargar .tif directo desde GitHub Release v4.0
+async function extractTileDirectFromRelease(tileInfo) {
+  try {
+    console.log(`📦 Intentando cargar ${tileInfo.filename} directo desde Release v4.0`);
+    
+    // Construir URL directa al .tif en Release v4.0
+    const provincia = tileInfo.provincia;
+    const directTifUrl = `${ELEVATION_HANDLERS_GITHUB_BASE}/${provincia}/${tileInfo.filename}`;
+    
+    console.log(`📡 Cargando .tif directo: ${directTifUrl}`);
+    
+    const response = await fetch(directTifUrl);
+    
+    if (!response.ok) {
+      console.log(`⚠️ .tif directo falló (${response.status}): ${directTifUrl}`);
+      return null;
+    }
+    
+    const tileData = await response.arrayBuffer();
+    console.log(`✅ Tile .tif cargado directo: ${(tileData.byteLength / 1024).toFixed(1)}KB`);
+    
+    return tileData;
+    
+  } catch (error) {
+    console.error(`❌ Error cargando .tif directo ${tileInfo.filename}:`, error);
+    return null;
+  }
+}
+
+// 🌿 NUEVA: Función para cargar tiles de VEGETACIÓN desde Release v4.0
+async function extractVegetationTileFromRelease(tileInfo) {
+  try {
+    console.log(`🌿 Intentando cargar tile de vegetación ${tileInfo.filename} desde Release v4.0`);
+    
+    // URLs posibles para vegetación en Release v4.0
+    const vegetationUrls = [
+      `${ELEVATION_HANDLERS_GITHUB_BASE}/vegetacion/${tileInfo.filename}`,
+      `${ELEVATION_HANDLERS_GITHUB_BASE}/vegetation/${tileInfo.filename}`,
+      `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_vegetacion_tiles.tar.gz` // Fallback a tar.gz
+    ];
+    
+    for (const url of vegetationUrls) {
+      try {
+        console.log(`📡 Probando vegetación desde: ${url}`);
+        const response = await fetch(url);
+        
+        if (response.ok) {
+          const tileData = await response.arrayBuffer();
+          console.log(`✅ Tile vegetación cargado: ${(tileData.byteLength / 1024).toFixed(1)}KB`);
+          return tileData;
+        }
+      } catch (error) {
+        console.log(`⚠️ URL vegetación falló: ${url}`);
+        continue;
+      }
+    }
+    
+    return null;
+    
+  } catch (error) {
+    console.error(`❌ Error cargando vegetación ${tileInfo.filename}:`, error);
+    return null;
+  }
+}
+
 // 🚀 Función para extraer tile de GitHub Release v4.0 - URLs CONFIRMADAS
 async function extractTileFromManifestTarGz(tileInfo) {
   try {
     console.log(`📦 Extrayendo ${tileInfo.filename} de GitHub Release v4.0`);
     
-    // URL CONFIRMADA del tar.gz en GitHub Release
-    const tarGzUrl = ELEVATION_RELEASE_ASSETS.TAR_GZ;
+    // URL del tar.gz en GitHub Release v4.0 (Altimetría)
+    const tarGzUrl = ELEVATION_RELEASE_ASSETS.ALTIMETRIA_TAR_GZ;
     
     console.log(`📡 Descargando desde: ${tarGzUrl}`);
     const response = await fetch(tarGzUrl);

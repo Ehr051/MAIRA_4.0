@@ -8,8 +8,9 @@ import string
 import time
 import traceback
 import subprocess
+import requests
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, send_from_directory, send_file
+from flask import Flask, request, jsonify, send_from_directory, send_file, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -298,7 +299,141 @@ def serve_node_modules(filename):
         else:
             return f"/* Error loading {filename}: {e} */", 500, {'Content-Type': 'text/css'}
 
-# 🔍 RUTA DE DEBUG: Verificar estado de node_modules
+# �️ CRÍTICO: Rutas específicas para tiles de altimetría locales
+@app.route('/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/<path:filename>')
+def serve_altimetria_tiles(filename):
+    """Servir tiles de altimetría locales con headers optimizados"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiles_dir = os.path.join(base_dir, 'Client', 'Libs', 'datos_argentina', 'Altimetria_Mini_Tiles')
+        
+        print(f"🗺️ Sirviendo tile altimetría: {filename}")
+        print(f"🗺️ Desde directorio: {tiles_dir}")
+        
+        if not os.path.exists(tiles_dir):
+            print(f"❌ Directorio de tiles no encontrado: {tiles_dir}")
+            return jsonify({'error': 'Tiles directory not found'}), 404
+        
+        file_path = os.path.join(tiles_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"❌ Archivo de tile no encontrado: {file_path}")
+            return jsonify({'error': f'Tile file not found: {filename}'}), 404
+        
+        response = send_from_directory(tiles_dir, filename)
+        
+        # Headers optimizados para tiles
+        if filename.endswith('.json'):
+            response.headers['Content-Type'] = 'application/json; charset=utf-8'
+        elif filename.endswith('.tar.gz'):
+            response.headers['Content-Type'] = 'application/gzip'
+        elif filename.endswith('.tiff') or filename.endswith('.tif'):
+            response.headers['Content-Type'] = 'image/tiff'
+        
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache por 1 hora
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        
+        print(f"✅ Tile servido exitosamente: {filename}")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error sirviendo tile altimetría {filename}: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/<path:filename>')
+def serve_vegetacion_tiles(filename):
+    """Servir tiles de vegetación locales con headers optimizados"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiles_dir = os.path.join(base_dir, 'Client', 'Libs', 'datos_argentina', 'Vegetacion_Mini_Tiles')
+        
+        print(f"🌿 Sirviendo tile vegetación: {filename}")
+        print(f"🌿 Desde directorio: {tiles_dir}")
+        
+        if not os.path.exists(tiles_dir):
+            print(f"❌ Directorio de tiles vegetación no encontrado: {tiles_dir}")
+            return jsonify({'error': 'Vegetation tiles directory not found'}), 404
+        
+        file_path = os.path.join(tiles_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"❌ Archivo de tile vegetación no encontrado: {file_path}")
+            return jsonify({'error': f'Vegetation tile file not found: {filename}'}), 404
+        
+        response = send_from_directory(tiles_dir, filename)
+        
+        # Headers optimizados para tiles de vegetación
+        if filename.endswith('.json'):
+            response.headers['Content-Type'] = 'application/json; charset=utf-8'
+        elif filename.endswith('.tar.gz'):
+            response.headers['Content-Type'] = 'application/gzip'
+        elif filename.endswith('.tiff') or filename.endswith('.tif'):
+            response.headers['Content-Type'] = 'image/tiff'
+        
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache por 1 hora
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        
+        print(f"✅ Tile vegetación servido exitosamente: {filename}")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error sirviendo tile vegetación {filename}: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# 📊 ENDPOINT: Diagnóstico completo de tiles
+@app.route('/api/tiles/diagnostic')
+def tiles_diagnostic():
+    """Endpoint para diagnosticar el estado completo del sistema de tiles"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Verificar directorios
+        altimetria_dir = os.path.join(base_dir, 'Client', 'Libs', 'datos_argentina', 'Altimetria_Mini_Tiles')
+        vegetacion_dir = os.path.join(base_dir, 'Client', 'Libs', 'datos_argentina', 'Vegetacion_Mini_Tiles')
+        
+        diagnostic = {
+            'timestamp': datetime.now().isoformat(),
+            'base_directory': base_dir,
+            'altimetria': {
+                'directory': altimetria_dir,
+                'exists': os.path.exists(altimetria_dir),
+                'files': []
+            },
+            'vegetacion': {
+                'directory': vegetacion_dir,
+                'exists': os.path.exists(vegetacion_dir),
+                'files': []
+            }
+        }
+        
+        # Listar archivos de altimetría
+        if os.path.exists(altimetria_dir):
+            for item in os.listdir(altimetria_dir):
+                item_path = os.path.join(altimetria_dir, item)
+                diagnostic['altimetria']['files'].append({
+                    'name': item,
+                    'is_directory': os.path.isdir(item_path),
+                    'size': os.path.getsize(item_path) if os.path.isfile(item_path) else None
+                })
+        
+        # Listar archivos de vegetación
+        if os.path.exists(vegetacion_dir):
+            for item in os.listdir(vegetacion_dir):
+                item_path = os.path.join(vegetacion_dir, item)
+                diagnostic['vegetacion']['files'].append({
+                    'name': item,
+                    'is_directory': os.path.isdir(item_path),
+                    'size': os.path.getsize(item_path) if os.path.isfile(item_path) else None
+                })
+        
+        return jsonify(diagnostic)
+        
+    except Exception as e:
+        print(f"❌ Error en diagnóstico de tiles: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# �🔍 RUTA DE DEBUG: Verificar estado de node_modules
 @app.route('/debug/node_modules')
 def debug_node_modules_status():
     """Endpoint para diagnosticar el estado de node_modules en el servidor"""
@@ -1639,14 +1774,8 @@ def handle_mensaje_chat(data):
         
         print(f"📨 Chat recibido - Usuario: {user_id}, Sala: {sala}, Mensaje: {mensaje[:50]}...")
         
-        if not user_id:
-            print("❌ Chat rechazado - Falta user_id")
-            emit('errorChat', {'error': 'No autorizado'}, room=request.sid)
-            return
-            
-        if not mensaje or mensaje.strip() == '':
-            print("❌ Chat rechazado - Mensaje vacío")
-            emit('errorChat', {'error': 'El mensaje no puede estar vacío'}, room=request.sid)
+        if not user_id or not mensaje:
+            print("❌ Chat rechazado - Falta user_id o mensaje")
             return
         
         username = obtener_username(user_id)
@@ -4615,6 +4744,55 @@ def debug_css():
         'css_files': css_files,
         'total_files': len(css_files)
     }
+
+# 🧪 RUTA ESPECÍFICA PARA TEST DE TILES
+@app.route('/test_tiles_v4.html')
+def serve_test_tiles():
+    """Servir página de test de tiles v4.0"""
+    return send_from_directory('.', 'test_tiles_v4.html')
+
+# 🚀 PROXY PARA GITHUB RELEASES v4.0 - SOLUCIÓN CORS
+@app.route('/api/github-proxy/<path:asset_name>')
+def github_proxy(asset_name):
+    """Proxy para descargar assets de GitHub Release v4.0 sin problemas de CORS"""
+    try:
+        # URL base del release v4.0
+        base_url = 'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/'
+        github_url = f"{base_url}{asset_name}"
+        
+        print(f"🔄 Proxy descargando: {github_url}")
+        
+        # Headers para simular navegador
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        }
+        
+        # Descargar desde GitHub
+        response = requests.get(github_url, headers=headers, timeout=30)
+        
+        if not response.ok:
+            print(f"❌ Error descargando {asset_name}: {response.status_code}")
+            return jsonify({'error': f'GitHub returned {response.status_code}'}), response.status_code
+        
+        # Determinar content-type
+        content_type = 'application/octet-stream'
+        if asset_name.endswith('.json'):
+            content_type = 'application/json'
+        elif asset_name.endswith('.tar.gz'):
+            content_type = 'application/gzip'
+        
+        # Crear response Flask con headers CORS
+        flask_response = Response(response.content, content_type=content_type)
+        flask_response.headers['Access-Control-Allow-Origin'] = '*'
+        flask_response.headers['Cache-Control'] = 'public, max-age=3600'
+        
+        print(f"✅ Proxy sirvió: {asset_name} ({content_type})")
+        return flask_response
+        
+    except Exception as e:
+        print(f"❌ Error en GitHub proxy para {asset_name}: {e}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -23,22 +23,22 @@ if (document.readyState === 'loading') {
 function inicializarAplicacion() {
     console.log('🚀 Ejecutando inicialización de iniciarpartida');
     
-    // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (COHERENCIA CON inicioGB)
-    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-        const userInfo = MAIRA.UserIdentity.getCurrentUser();
-        userId = userInfo.id;
-        userName = userInfo.username;
+    // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
+    const userData = MAIRA.UserIdentity.obtenerUsuario();
+    
+    if (userData && userData.id) {
+        userId = userData.id;
+        userName = userData.nombre;
         
         // Sincronizar con localStorage
         localStorage.setItem('userId', userId);
         localStorage.setItem('username', userName);
         
-        console.log('✅ Usuario obtenido desde UserIdentity:', userInfo);
+        console.log('📊 Usuario cargado desde UserIdentity:', { id: userId, nombre: userName });
     } else {
         // Fallback a localStorage
         userId = localStorage.getItem('userId');
         userName = localStorage.getItem('username');
-        console.log('⚠️ Usuario obtenido desde localStorage:', { userId, userName });
     }
     
     if (!userId || !userName) {

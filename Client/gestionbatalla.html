@@ -73,18 +73,32 @@
   <!-- 🏗️ CORE DEPENDENCIES -->
   <script src="js/core/LoggerService.js"></script>
   <script src="js/core/ConfigManager.js"></script>
-
+  <script src="js/config/GameConfiguration.js"></script>
   <script src="js/common/EventBus.js"></script>
   <script src="js/common/BaseComponent.js"></script>
 
   <!-- 🔧 UTILS -->
-
+  <script src="js/utils/coordinates.js"></script>
   <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/utils/validationUtils.js"></script>
+  <script src="js/utils/performance.js"></script>
+  <script src="js/utils/UIUtils.js"></script>
+  <script src="js/utils/utilsGB.js"></script>
 
-
+  <!-- 🏛️ INFRASTRUCTURE -->
+  <script src="js/infrastructure/ApiClient.js"></script>
+  <script src="js/infrastructure/GameStateManager.js"></script>
+  <script src="js/infrastructure/SocketManager.js"></script>
 
   <!-- 🔄 SERVICES -->
-
+  <script src="js/services/operationalService.js"></script>
+  <script src="js/services/GeolocationService.js"></script>
+  <script src="js/services/GameService.js"></script>
+  <script src="js/services/UnitService.js"></script>
+  <script src="js/services/TimeService.js"></script>
+  <script src="js/services/MilSymbolService.js"></script>
+  <script src="js/services/TerrainService.js"></script>
+  <script src="js/services/FileService.js"></script>
   <script src="js/services/threeDMapService.js"></script>
 
   <!-- 🌐 COMMON -->
@@ -102,9 +116,14 @@
   <script src="js/common/graficoMarcha.js"></script>
   <script src="js/utils/calcosP.js"></script>
   <script src="js/common/unidades.js"></script>
-
+  <script src="js/common/partidas.js"></script>
 
   <!-- 🎯 HANDLERS -->
+  <script src="js/handlers/unitHandler.js"></script>
+  <script src="js/handlers/mapHandler.js"></script>
+  <script src="js/handlers/interfaceHandler.js"></script>
+  <script src="js/handlers/gameHandler.js"></script>
+  <script src="js/handlers/drawHandler.js"></script>
   <script src="js/handlers/measurementHandler.js"></script>
   <script src="js/handlers/pendienteHandler.js"></script>
   <script src="js/handlers/transitabilidadHandler.js"></script>
@@ -115,7 +134,7 @@
   <script src="js/modules/gestion/informesGB.js"></script>
   <script src="js/modules/gestion/elementosGB.js"></script>
   <script src="js/modules/gestion/gestionBatalla.js"></script>
-
+  <script src="js/gaming/AIDirector.js"></script>
 
   <script>
     // 🚀 INICIALIZACIÓN DIRECTA GESTIÓN BATALLA
@@ -793,7 +812,7 @@
       <div id="botones-secundarios">
         <button id="btnDeshacer" onclick="deshacer()" disabled><i class="fas fa-undo-alt"></i></button>
         <button id="btnRehacer" onclick="rehacer()" disabled><i class="fas fa-redo-alt"></i></button>
-        <!-- ✅ BOTÓN PANEL ELIMINADO - usar toggle-panel-btn que se mueve con el panel -->
+        <button id="boton-panel" class="boton-panel"><i class="fas fa-chevron-left"></i></button>
         <button id="btnVolver" class="boton-volver"><i class="fas fa-arrow-left"></i></button>
         <!-- BOTÓN DE TEST ORIGINAL COMENTADO - REEMPLAZADO POR SISTEMA UNIFICADO -->
         <!-- <button id="btnTest" class="boton-test" onclick="mostrarMenuTest()" title="Herramientas de Test"><i class="fas fa-bug"></i></button> -->
