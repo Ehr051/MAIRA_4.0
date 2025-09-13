@@ -308,22 +308,15 @@ class MobileOptimizationHandler {
      * Previene el scroll elástico en iOS
      */
     prevenirScrollElastico() {
-        if (document.body) {
-            document.body.addEventListener('touchmove', (e) => {
-                // Prevenir scroll solo si no es un elemento scrolleable
-                const target = e.target;
-                const esScrolleable = target.scrollHeight > target.clientHeight;
-                
-                if (!esScrolleable) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-        } else {
-            // Si body no está disponible, esperar a que esté listo
-            document.addEventListener('DOMContentLoaded', () => {
-                this.prevenirScrollElastico();
-            });
-        }
+        document.body.addEventListener('touchmove', (e) => {
+            // Prevenir scroll solo si no es un elemento scrolleable
+            const target = e.target;
+            const esScrolleable = target.scrollHeight > target.clientHeight;
+            
+            if (!esScrolleable) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     }
 
     /**

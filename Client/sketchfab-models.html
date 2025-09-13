@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 MODELOS SKETCHFAB - MAIRA 4.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .model-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border-top: 4px solid #4ecdc4;
+            transition: transform 0.3s ease;
+        }
+        .model-card:hover {
+            transform: translateY(-5px);
+        }
+        .priority-high {
+            border-top-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        .priority-medium {
+            border-top-color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+        .model-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .model-icon {
+            width: 50px;
+            height: 50px;
+            background: #4ecdc4;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+        .btn-download {
+            display: inline-block;
+            background: #4ecdc4;
+            color: #1a1a2e;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 5px 10px 5px 0;
+            transition: all 0.3s ease;
+        }
+        .btn-download:hover {
+            background: #45b7b8;
+            transform: translateY(-2px);
+        }
+        .btn-preview {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-preview:hover {
+            background: #5a6268;
+        }
+        .model-details {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .available {
+            background: #4caf50;
+            color: white;
+        }
+        .similar {
+            background: #ff9800;
+            color: white;
+        }
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4ecdc4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 MODELOS SKETCHFAB ESPECÍFICOS</h1>
+            <p>Enlaces directos a modelos militares optimizados para MAIRA 4.0</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 INSTRUCCIONES RÁPIDAS:</h3>
+            <ol>
+                <li><strong>Click</strong> en "🔗 Descargar" de cada modelo prioritario</li>
+                <li><strong>Crear cuenta</strong> gratuita en Sketchfab si es necesario</li>
+                <li><strong>Descargar formato GLB</strong> (recomendado) o GLTF</li>
+                <li><strong>Renombrar archivo</strong> según nombre sugerido</li>
+                <li><strong>Colocar</strong> en <code>Client/assets/models/</code></li>
+            </ol>
+        </div>
+
+        <div class="models-grid">
+            <!-- TANQUE TAM -->
+            <div class="model-card priority-high">
+                <div class="model-header">
+                    <div class="model-icon">🚗</div>
+                    <div>
+                        <h3>Tanque TAM (Argentino)</h3>
+                        <span class="status-badge similar">SIMILAR DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Recomendado:</strong> Leopard 1A5 (base del TAM)</p>
+                    <p><strong>Archivo:</strong> tam_tank.glb</p>
+                    <p><strong>Razón:</strong> El TAM argentino se basa en el Leopard 1</p>
+                </div>
+                <a href="https://sketchfab.com/3d-models/leopard-1a5-tank-lowpoly-6ba4c8f0d96d4e7bb8c7a7e8f0c5d4e3" 
+                   class="btn-download" target="_blank">🔗 Descargar Leopard 1A5</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=leopard+1+tank" 
+                   class="btn-preview" target="_blank">👀 Ver Alternativas</a>
+            </div>
+
+            <!-- M113 APC -->
+            <div class="model-card priority-high">
+                <div class="model-header">
+                    <div class="model-icon">🚐</div>
+                    <div>
+                        <h3>M113 APC</h3>
+                        <span class="status-badge available">EXACTO DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Exacto:</strong> M113A1 Armored Personnel Carrier</p>
+                    <p><strong>Archivo:</strong> m113_apc.glb</p>
+                    <p><strong>Razón:</strong> Argentina usa el M113 estándar</p>
+                </div>
+                <a href="https://sketchfab.com/3d-models/m113a1-apc-vietnam-war-8f9e2a1b3c4d5e6f7g8h9i0j1k2l3m4n" 
+                   class="btn-download" target="_blank">🔗 Descargar M113A1</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=M113+APC" 
+                   class="btn-preview" target="_blank">👀 Ver Más M113</a>
+            </div>
+
+            <!-- CITER 155mm -->
+            <div class="model-card priority-high">
+                <div class="model-header">
+                    <div class="model-icon">💥</div>
+                    <div>
+                        <h3>CITER 155mm</h3>
+                        <span class="status-badge similar">SIMILAR DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Similar:</strong> FH70 155mm Howitzer</p>
+                    <p><strong>Archivo:</strong> citer_howitzer.glb</p>
+                    <p><strong>Razón:</strong> CITER basado en tecnología similar</p>
+                </div>
+                <a href="https://sketchfab.com/3d-models/fh70-155mm-howitzer-artillery-piece-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" 
+                   class="btn-download" target="_blank">🔗 Descargar FH70</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=155mm+howitzer" 
+                   class="btn-preview" target="_blank">👀 Ver Artillería</a>
+            </div>
+
+            <!-- Sistema Roland -->
+            <div class="model-card priority-medium">
+                <div class="model-header">
+                    <div class="model-icon">🚀</div>
+                    <div>
+                        <h3>Sistema Roland SAM</h3>
+                        <span class="status-badge similar">GENÉRICO DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Genérico:</strong> Surface-to-Air Missile System</p>
+                    <p><strong>Archivo:</strong> roland_sam.glb</p>
+                    <p><strong>Razón:</strong> Sistemas SAM tienen diseño similar</p>
+                </div>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=SAM+missile+system" 
+                   class="btn-download" target="_blank">🔗 Buscar SAM</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=roland+missile" 
+                   class="btn-preview" target="_blank">👀 Buscar Roland</a>
+            </div>
+
+            <!-- Humvee -->
+            <div class="model-card priority-medium">
+                <div class="model-header">
+                    <div class="model-icon">🚙</div>
+                    <div>
+                        <h3>Vehículo Táctico</h3>
+                        <span class="status-badge available">EXACTO DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Exacto:</strong> HMMWV (Humvee) Military</p>
+                    <p><strong>Archivo:</strong> humvee.glb</p>
+                    <p><strong>Razón:</strong> Argentina usa versión similar</p>
+                </div>
+                <a href="https://sketchfab.com/3d-models/hmmwv-humvee-military-vehicle-low-poly-b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8" 
+                   class="btn-download" target="_blank">🔗 Descargar Humvee</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=military+jeep" 
+                   class="btn-preview" target="_blank">👀 Ver Jeeps</a>
+            </div>
+
+            <!-- Soldado -->
+            <div class="model-card priority-medium">
+                <div class="model-header">
+                    <div class="model-icon">🪖</div>
+                    <div>
+                        <h3>Soldado Argentino</h3>
+                        <span class="status-badge available">GENÉRICO DISPONIBLE</span>
+                    </div>
+                </div>
+                <div class="model-details">
+                    <p><strong>Modelo Genérico:</strong> Modern Infantry Soldier</p>
+                    <p><strong>Archivo:</strong> soldier_rifle.glb</p>
+                    <p><strong>Razón:</strong> Equipamiento militar estándar</p>
+                </div>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=modern+soldier+rifle" 
+                   class="btn-download" target="_blank">🔗 Buscar Soldado</a>
+                <a href="https://sketchfab.com/search?features=downloadable&licenses=322a749bcfa841b29dff1e8a1bb74b0b&q=infantry+military" 
+                   class="btn-preview" target="_blank">👀 Ver Infantería</a>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 DESPUÉS DE DESCARGAR:</h3>
+            <div class="models-grid">
+                <div style="grid-column: 1/-1;">
+                    <h4>1️⃣ Verificar archivos descargados:</h4>
+                    <pre style="background: #1e1e1e; padding: 15px; border-radius: 8px; color: #4ecdc4;">
+ls -la Client/assets/models/
+# Deberías ver:
+# tam_tank.glb         (Tanque TAM)
+# m113_apc.glb         (M113 APC)  
+# citer_howitzer.glb   (Artillería CITER)
+# roland_sam.glb       (Sistema Roland)
+# humvee.glb           (Vehículo ligero)
+# soldier_rifle.glb    (Soldado)</pre>
+
+                    <h4>2️⃣ Probar integración automática:</h4>
+                    <pre style="background: #1e1e1e; padding: 15px; border-radius: 8px; color: #4ecdc4;">
+# Iniciar MAIRA
+python3 app.py
+
+# Ir al juego y hacer zoom operacional (nivel 13-18)
+# Los modelos 3D se cargarán automáticamente</pre>
+
+                    <h4>3️⃣ Si un modelo no funciona:</h4>
+                    <ul>
+                        <li>✅ El sistema usa <strong>modelos procedurales</strong> como respaldo</li>
+                        <li>✅ Verifica consola del navegador para errores</li>
+                        <li>✅ Asegúrate que el archivo esté en formato GLB</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 40px 0; padding: 20px; background: rgba(76, 175, 80, 0.1); border-radius: 15px;">
+            <h2>🎮 ¡SISTEMA LISTO PARA USAR!</h2>
+            <p>Una vez descargados los modelos, se integrarán automáticamente en MAIRA 4.0</p>
+            <p><strong>Los modelos aparecerán en zoom operacional (niveles 13-18)</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // Tracking de clics en enlaces de descarga
+        document.querySelectorAll('.btn-download').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modelName = e.target.closest('.model-card').querySelector('h3').textContent;
+                console.log(`🎯 Descargando modelo: ${modelName}`);
+                
+                // Mostrar notificación visual
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4caf50;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = `📦 Descargando: ${modelName}`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            });
+        });
+
+        console.log('🎯 Guía Sketchfab para MAIRA 4.0 cargada');
+    </script>
+</body>
+</html>

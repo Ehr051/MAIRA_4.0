@@ -14,9 +14,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <!-- 🎨 ESTILOS CSS (Local node_modules) -->
-  <!-- Variables CSS Core MAIRA 4.0 -->
-  <link rel="stylesheet" href="css/core/variables.css">
-  
   <!-- Font Awesome Local -->
   <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   
@@ -35,7 +32,7 @@
   
   <!-- CSS Personalizados MAIRA -->
   <link rel="stylesheet" href="css/common/planeamiento.css">
-  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <link rel="stylesheet" href="css/hexgrid.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/sistemaZoomMultiNivel.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
@@ -85,7 +82,7 @@
   <script src="/node_modules/proj4/dist/proj4.js"></script>
   <script src="/node_modules/three/build/three.min.js"></script>
   <!-- Three.js OrbitControls -->
-  <script src="/node_modules/three-orbitcontrols/OrbitControls.js"></script>
+  <script src="/node_modules/three/examples/js/controls/OrbitControls.js"></script>
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
   
@@ -117,13 +114,7 @@
   <!-- 🎯 PANEL UNIFICADO (Reemplaza paneles separados) -->
   <script src="js/modules/shared/panelJuegoUnificado.js"></script>
   
-  <!-- � RELOJ CENTRAL FIJO (Reemplaza indicadores dispersos) -->
-  <script src="js/components/relojCentralFijo.js"></script>
-  
-  <!-- 🔗 INTEGRACIÓN SISTEMA HUB (Conecta componentes) -->
-  <script src="js/components/integracionSistemaHub.js"></script>
-  
-  <!-- �🔍 SISTEMA ZOOM MULTI-NIVEL (Total War Style) -->
+  <!-- 🔍 SISTEMA ZOOM MULTI-NIVEL (Total War Style) -->
   <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
 
   <!-- 🎮 GAMING (archivos que existen) -->
@@ -389,12 +380,58 @@
     <div class="nivel-zoom">Zoom: 6</div>
   </div>
   
-  <!-- ✅ CONTROLES MINIMIZADOS - Se integrarán en el sistema HUB -->
+  <!-- Controles de Fase del Juego -->
+  <div id="controlesJuego" style="position: fixed; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
+    <button id="btnFinalizarPreparacion" 
+            onclick="window.gestorJuego?.gestorTurnos?.marcarJugadorListo()"
+            style="padding: 10px 15px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
+      ✅ Finalizar Preparación
+    </button>
+    
+    <button id="btnFinalizarTurno" 
+            onclick="window.gestorJuego?.gestorTurnos?.finalizarTurno()"
+            style="padding: 10px 15px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
+      ⏭️ Finalizar Turno
+    </button>
+    
+    <button id="btnForzarCombate" 
+            onclick="forzarInicioCombate()"
+            style="padding: 10px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+      ⚔️ Forzar Combate (DEBUG)
+    </button>
+  </div>
   
-  <!-- ✅ INDICADORES DISPERSOS REMOVIDOS - Reemplazados por Reloj Central Fijo -->
+  <!-- Indicadores de Estado del Juego -->
+  <div id="indicador-turno" style="position: fixed; top: 80px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
+    Turno 1 - Iniciando...
+  </div>
+  
+  <div id="timer-turno" style="position: fixed; top: 115px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
+    05:00
+  </div>
 
   <!-- Botones de prueba (temporal) -->
-  <!-- ✅ BOTONES DE PRUEBA REMOVIDOS - Se integrarán en HUBs -->
+  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; flex-direction: column;">
+    <button onclick="simularElementoEjemplo()" 
+            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🎯 Probar Panel Info
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('estrategico')" 
+            style="padding: 8px 12px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      📐 Zoom Estratégico
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('tactico')" 
+            style="padding: 8px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🎯 Zoom Táctico
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('operacional')" 
+            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🔧 Zoom Operacional
+    </button>
+    <button onclick="forzarInicioCombate()" 
+            style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      ⚔️ INICIAR COMBATE
+    </button>
   </div>
 
   <div id="botones-principales">

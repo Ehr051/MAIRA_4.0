@@ -39,15 +39,13 @@ class GestorJuego extends GestorBase {
             // Asegurarse de que tengamos valores por defecto para todo
             const configCompleta = {
                 modoJuego: 'local',
-                duracionTurno: 5, // 5 minutos por defecto (será convertido a segundos luego)
+                duracionTurno: 300,
                 jugadores: [],
                 urlServidor: SERVER_URL,
                 centro: [-34.9964963, -64.9672817],
                 zoom: 4,
                 ...configuracion // Los valores proporcionados sobrescribirán los default
             };
-            
-            console.log('⏱️ Configuración completa con duracionTurno:', configCompleta.duracionTurno, 'minutos');
 
             // Inicializar GestorCarga primero
             await this.gestorCarga.inicializar();
@@ -152,10 +150,7 @@ async inicializarGestores(config) {
             gestor: 'GestorTurnos',
             configExtra: {
                 jugadores: config.jugadores,
-                // Convertir minutos a segundos si es necesario
-                duracionTurno: (config.duracionTurno && config.duracionTurno < 60) ? 
-                    config.duracionTurno * 60 : // Si es menor a 60, asumimos que está en minutos
-                    config.duracionTurno || 300  // Si es mayor a 60, asumimos que está en segundos
+                duracionTurno: config.duracionTurno || 300
             }
         },
         { 

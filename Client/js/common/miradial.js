@@ -426,8 +426,7 @@
             const radius = 80;
             const innerRadius = 30;
             path.setAttribute("d", this.describeArc(100, 100, innerRadius, radius, startAngle, endAngle));
-            const menuStyle = MENU_STYLES[tipo] || MENU_STYLES.terreno; // fallback a terreno
-            path.setAttribute("fill", menuStyle.normal);
+            path.setAttribute("fill", MENU_STYLES[tipo].normal);
 
             // Crear contenedor para el ícono
             const textPoint = this.polarToCartesian(100, 100, 55, (startAngle + endAngle) / 2);
@@ -459,13 +458,11 @@
             });
 
             g.addEventListener("mouseover", () => {
-                const menuStyle = MENU_STYLES[tipo] || MENU_STYLES.terreno; // fallback a terreno
-                path.setAttribute("fill", menuStyle.hover);
+                path.setAttribute("fill", MENU_STYLES[tipo].hover);
             });
 
             g.addEventListener("mouseout", () => {
-                const menuStyle = MENU_STYLES[tipo] || MENU_STYLES.terreno; // fallback a terreno
-                path.setAttribute("fill", menuStyle.normal);
+                path.setAttribute("fill", MENU_STYLES[tipo].normal);
             });
 
             return g;
@@ -1222,11 +1219,8 @@ processElevationInfo: async function (corners, popup) {
                     
                     if (layer instanceof L.Marker) {
                         // Para marcadores: distancia al punto
-                        const latLng = layer.getLatLng();
-                        if (latLng && latLng.lat !== undefined && latLng.lng !== undefined) {
-                            const puntoMarcador = this.map.latLngToContainerPoint(latLng);
-                            distancia = puntoClick.distanceTo(puntoMarcador);
-                        }
+                        const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                        distancia = puntoClick.distanceTo(puntoMarcador);
                     } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
                         // Para polígonos/líneas: verificar si el punto está cerca
                         try {
@@ -1263,11 +1257,8 @@ processElevationInfo: async function (corners, popup) {
                         let distancia = Infinity;
                         
                         if (layer instanceof L.Marker) {
-                            const latLng = layer.getLatLng();
-                            if (latLng && latLng.lat !== undefined && latLng.lng !== undefined) {
-                                const puntoMarcador = this.map.latLngToContainerPoint(latLng);
-                                distancia = puntoClick.distanceTo(puntoMarcador);
-                            }
+                            const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                            distancia = puntoClick.distanceTo(puntoMarcador);
                         } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
                             try {
                                 const bounds = layer.getBounds();

@@ -14,10 +14,10 @@ let elevationHandlerIndiceCargado = false;
 const ELEVATION_INDEX_URLS = [
   // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
     // 🚀 PRIORIDAD 1: Proxy Flask confirmado funcionando (v4.0)
-  'https://github.com/Ehr051/MAIRA/releases/download/v4.0/master_mini_tiles_index.json',
+  'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
   
-  // 🔄 FALLBACK: GitHub Release v4.0 (Solo Altura - Legacy)
-  'https://github.com/Ehr051/MAIRA/releases/download/v4.0/master_mini_tiles_index.json',
+  // 🔄 FALLBACK: GitHub Release v3.0 (Solo Altura - Legacy)
+  'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
   
   // � FALLBACK: Directo desde assets de MAIRA-4.0
 
@@ -173,25 +173,7 @@ async function cargarDatosElevacion(bounds) {
       console.log(`🗂️ Tile en formato mini-tiles: ${tile.filename} (provincia: ${tile.provincia})`);
       
             // 🚀 ESTRATEGIA v4.0: GitHub Release (Altura + Vegetación)
-      console.log(`🎯 ESTRATEGIA DOBLE: 1) .tif directo, 2) tar.gz (como v4.0)`);
-      
-      const results = await Promise.allSettled([
-        fetch(tifUrl),
-        fetch(tarUrl)
-      ]);
-      
-      // PASO 1: Intentar .tif directo (más eficiente)
-      if (results[0].status === 'fulfilled' && results[0].value.ok) {
-        console.log(`✅ Cargando archivo directo: ${tifUrl}`);
-        const response = results[0].value;
-        const data = await response.arrayBuffer();
-        return { 
-          data: new Uint8Array(data), 
-          format: 'tif' 
-        };
-      }
-      
-      // PASO 2: Fallback a tar.gz (como v4.0 que funcionaba)
+      console.log(`🎯 ESTRATEGIA DOBLE: 1) .tif directo, 2) tar.gz (como v3.0)`);
       
       // PASO 1: Intentar .tif directo desde Release v4.0
       const directTifExtracted = await extractTileDirectFromRelease(tile);

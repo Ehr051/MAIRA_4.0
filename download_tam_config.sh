@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# 🇦🇷 DESCARGA ESPECÍFICA TAM - MAIRA 4.0
+# =======================================
+# Configuración optimizada para TAM argentino
+
+echo "🇦🇷 DESCARGA TAM ARGENTINO - Configuración Óptima"
+echo "================================================"
+
+# Crear directorio si no existe
+mkdir -p Client/assets/models
+cd Client/assets/models
+
+echo "📁 Directorio: $(pwd)"
+echo ""
+
+echo "🎯 CONFIGURACIÓN RECOMENDADA PARA TAM:"
+echo "====================================="
+echo ""
+echo "📦 FORMATO RECOMENDADO:"
+echo "   ✅ GLB (Binary glTF)"
+echo "   ✅ Texturas: 1k (1024x1024)"
+echo "   ✅ Tamaño: ~16MB"
+echo ""
+echo "🔧 RAZONES TÉCNICAS:"
+echo "   • GLB = Todo en un archivo (geometría + texturas)"
+echo "   • 1k texturas = Suficiente para zoom operacional"
+echo "   • 16MB = Carga rápida en web"
+echo "   • Compatible con Three.js"
+echo ""
+
+echo "📋 PASOS DE DESCARGA:"
+echo "==================="
+echo "1️⃣  En Sketchfab, seleccionar modelo TAM"
+echo "2️⃣  Click en 'Download'"
+echo "3️⃣  Elegir: 'GLB - 16MB - Texture size: 1k'"
+echo "4️⃣  Descargar archivo"
+echo "5️⃣  Renombrar a: 'tam_tank.glb'"
+echo "6️⃣  Colocar en: Client/assets/models/"
+echo ""
+
+echo "✅ VERIFICACIÓN POST-DESCARGA:"
+echo "============================="
+echo "Ejecutar estos comandos después de descargar:"
+echo ""
+echo "# Verificar tamaño del archivo"
+echo "ls -lh tam_tank.glb"
+echo ""
+echo "# Debería mostrar algo como:"
+echo "# -rw-r--r-- 1 user user 16M sep 13 14:30 tam_tank.glb"
+echo ""
+echo "# Verificar que es GLB válido"
+echo "file tam_tank.glb"
+echo ""
+echo "# Debería mostrar:"
+echo "# tam_tank.glb: data"
+echo ""
+
+echo "🎮 INTEGRACIÓN AUTOMÁTICA:"
+echo "========================="
+echo "Una vez descargado el TAM, el sistema automáticamente:"
+echo ""
+echo "✅ Detectará elementos 'Tanque TAM' en el mapa"
+echo "✅ Cargará tam_tank.glb en zoom operacional (13-18)"
+echo "✅ Aplicará escala 1.0 (tamaño real)"
+echo "✅ Posicionará según coordenadas del elemento"
+echo "✅ Mostrará detalles al hacer click"
+echo ""
+
+echo "🔄 RESPALDO AUTOMÁTICO:"
+echo "======================"
+echo "Si tam_tank.glb no se encuentra o falla:"
+echo "✅ Sistema crea modelo procedural TAM automáticamente"
+echo "✅ Geometría básica con colores militares argentinos"
+echo "✅ Casco 2.2x0.8x1.1, torre 1.2x0.6x0.8, cañón 105mm"
+echo ""
+
+echo "📊 COMPARACIÓN DE OPCIONES SKETCHFAB:"
+echo "===================================="
+printf "%-10s %-8s %-10s %-15s %-10s\n" "FORMATO" "TAMAÑO" "TEXTURAS" "COMPATIBILIDAD" "RECOMENDADO"
+echo "------------------------------------------------------------"
+printf "%-10s %-8s %-10s %-15s %-10s\n" "OBJ" "17MB" "Separadas" "Complicado" "❌"
+printf "%-10s %-8s %-10s %-15s %-10s\n" "USDZ" "12MB" "1k" "Solo Apple" "❌"
+printf "%-10s %-8s %-10s %-15s %-10s\n" "GLTF" "16MB" "1k" "Múltiples arch." "⚠️"
+printf "%-10s %-8s %-10s %-15s %-10s\n" "GLB 2k" "21MB" "2k" "Muy pesado" "⚠️"
+printf "%-10s %-8s %-10s %-15s %-10s\n" "GLB 1k" "16MB" "1k" "Perfecto" "✅"
+echo ""
+
+echo "🚀 PRÓXIMO PASO:"
+echo "==============="
+echo "1. Ir a Sketchfab"
+echo "2. Buscar modelo TAM encontrado"
+echo "3. Descargar GLB 1k (16MB)"
+echo "4. Renombrar a tam_tank.glb"
+echo "5. Colocar en Client/assets/models/"
+echo "6. ¡Listo para usar en MAIRA!"
+echo ""
+
+echo "🎯 COMANDO DE VERIFICACIÓN FINAL:"
+echo "================================"
+echo "ls -la Client/assets/models/tam_tank.glb && echo '✅ TAM listo para integrar!'"

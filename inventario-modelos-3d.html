@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Modelos 3D - MAIRA 4.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .category {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+        
+        .category-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4ecdc4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .model-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .model-available {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4caf50;
+        }
+        
+        .model-missing {
+            background: rgba(244, 67, 54, 0.2);
+            border-left: 4px solid #f44336;
+        }
+        
+        .model-procedural {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+        }
+        
+        .model-name {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        
+        .model-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-available { background: #4caf50; color: white; }
+        .status-missing { background: #f44336; color: white; }
+        .status-procedural { background: #ffc107; color: black; }
+        
+        .file-size {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 10px;
+        }
+        
+        .recommendations {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #333;
+            margin-top: 20px;
+        }
+        
+        .recommendation-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        
+        .priority-high { border-left: 4px solid #f44336; }
+        .priority-medium { border-left: 4px solid #ffc107; }
+        .priority-low { border-left: 4px solid #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-cubes"></i> Inventario de Modelos 3D - MAIRA 4.0</h1>
+        <p>Estado actual de modelos GLB para el sistema de formaciones militares</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number">18</div>
+            <div>Modelos Disponibles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div>Modelos Faltantes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">15</div>
+            <div>Procedurales</div>
+        </div>
+    </div>
+
+    <div class="inventory-grid">
+        <!-- TANQUES Y BLINDADOS -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-chess-rook"></i>
+                Tanques y Blindados
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">TAM Tank</div>
+                <div class="file-size">16.1 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">TAM 2C Tank</div>
+                <div class="file-size">19.8 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">M113 APC</div>
+                <div class="file-size">7.7 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">VCTP IFV</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+
+        <!-- ARTILLERÍA -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-crosshairs"></i>
+                Artillería y Morteros
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Artillery Cannon</div>
+                <div class="file-size">1.1 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Artillery Howitzer</div>
+                <div class="file-size">1.6 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Mortar 81mm</div>
+                <div class="file-size">9.7 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">CITER 155mm</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+
+        <!-- VEHÍCULOS TÁCTICOS -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-truck"></i>
+                Vehículos Tácticos
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Command Vehicle</div>
+                <div class="file-size">157.5 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">HUMVEE</div>
+                <div class="file-size">2.1 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Military Jeep</div>
+                <div class="file-size">66.3 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">UNIMOG Truck</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+
+        <!-- LOGÍSTICA -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-boxes"></i>
+                Logística y Apoyo
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Supply Truck</div>
+                <div class="file-size">1.9 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Logistics Truck</div>
+                <div class="file-size">2.4 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Ambulance</div>
+                <div class="file-size">4.3 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Fuel Truck</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+
+        <!-- INFANTERÍA -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-running"></i>
+                Infantería Especializada
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Soldier Rifle</div>
+                <div class="file-size">3.2 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Soldier Engineer</div>
+                <div class="file-size">10.2 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Soldier Antitank</div>
+                <div class="file-size">2.8 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Soldier Mountain</div>
+                <div class="file-size">9.5 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Soldier Desert</div>
+                <div class="file-size">9.8 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Soldier Machine Gunner</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Soldier Sniper</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Soldier Navy (Serva)</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+
+        <!-- ESTRUCTURAS -->
+        <div class="category">
+            <div class="category-title">
+                <i class="fas fa-campground"></i>
+                Estructuras e Instalaciones
+            </div>
+            <div class="model-item model-available">
+                <i class="fas fa-check-circle"></i>
+                <div class="model-name">Command Tent</div>
+                <div class="file-size">5.3 MB</div>
+                <div class="model-status status-available">GLB</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Bunker</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Foxhole</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+            <div class="model-item model-missing">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="model-name">Observation Post</div>
+                <div class="model-status status-missing">Falta</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="recommendations">
+        <div class="category-title">
+            <i class="fas fa-lightbulb"></i>
+            Recomendaciones para Completar el Arsenal
+        </div>
+        
+        <div class="recommendation-item priority-high">
+            <i class="fas fa-exclamation-circle"></i>
+            <div style="margin-left: 15px;">
+                <strong>PRIORIDAD ALTA:</strong> Soldier Machine Gunner, Soldier Sniper - Esenciales para formaciones de infantería completas
+            </div>
+        </div>
+        
+        <div class="recommendation-item priority-medium">
+            <i class="fas fa-search"></i>
+            <div style="margin-left: 15px;">
+                <strong>BUSCAR EN SKETCHFAB:</strong> "military sniper", "machine gunner", "SAW gunner", "LMG soldier"
+            </div>
+        </div>
+        
+        <div class="recommendation-item priority-medium">
+            <i class="fas fa-robot"></i>
+            <div style="margin-left: 15px;">
+                <strong>CREAR CON TRIPO AI:</strong> Usa fotos de referencia del Ejército Argentino para generar modelos específicos
+            </div>
+        </div>
+        
+        <div class="recommendation-item priority-low">
+            <i class="fas fa-info-circle"></i>
+            <div style="margin-left: 15px;">
+                <strong>BACKUP PROCEDURAL:</strong> El sistema tiene respaldos procedurales para todos los modelos faltantes
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animación de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const items = document.querySelectorAll('.model-item, .category, .stat-card');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -38,7 +38,7 @@ function inicializarAplicacion() {
     }
     
     // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
-    const userData = MAIRA.UserIdentity.getUserData();
+    const userData = MAIRA.UserIdentity.obtenerUsuario();
     
     if (userData && userData.id) {
         userId = userData.id;
@@ -497,54 +497,50 @@ function iniciarJuego(data) {
 
 
 async function inicializarSocket() {
-    // ✅ CORREGIR: Usar la variable correcta
+    // Verificar que SERVER_URL esté disponible
     const serverUrl = window.SERVER_URL || 'http://localhost:5000';
     console.log('Conectando al servidor:', serverUrl);
     
     try {
-        // ✅ Verificar que socket.io esté disponible PRIMERO
-        if (typeof io === 'undefined') {
-            console.error('❌ Socket.IO no está disponible. Verifique que el script se esté cargando correctamente.');
-            mostrarError('Error de conexión: Socket.IO no disponible');
-            return false; // ✅ RETURN FALSE para indicar falla
-        }
+        // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+        let userInfo = null;
+        let token = null;
         
-        // ✅ OBTENER DATOS DEL USUARIO CON FALLBACK ROBUSTO
-        let userInfo = {
-            id: userId || generateUserId(),
-            username: userName || 'Usuario'
-        };
-        
-        // Intentar mejorar con UserIdentity si está disponible
+        // Intentar obtener desde UserIdentity primero
         if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
             const userData = MAIRA.UserIdentity.obtenerUsuario();
             userInfo = {
-                id: userData.id || userInfo.id,
-                username: userData.nombre || userInfo.username
+                id: userData.id,
+                username: userData.nombre,
+                token: localStorage.getItem('authToken')
             };
-            console.log('🔧 Datos mejorados con UserIdentity:', userInfo);
+            token = userInfo.token;
+            console.log('🔧 Usando datos de UserIdentity:', userInfo);
         } else {
-            console.log('🔧 Usando datos básicos:', userInfo);
+            // Fallback a localStorage
+            userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+            token = userInfo.token || localStorage.getItem('authToken');
+            console.log('🔧 Usando datos de localStorage:', userInfo);
         }
         
-        // ✅ CONFIGURACIÓN SIMPLIFICADA Y ROBUSTA
-        const socketConfig = {
-            transports: ['websocket', 'polling'], // ✅ Permitir ambos transportes
+        // ✅ Verificar que socket.io esté disponible
+        if (typeof io === 'undefined') {
+            console.error('❌ Socket.IO no está disponible. Verifique que el script se esté cargando correctamente.');
+            mostrarError('Error de conexión: Socket.IO no disponible');
+            return;
+        }
+        
+        socket = io(SERVER_URL, {
+            transports: ['polling'],  // Solo polling para Render
             timeout: 30000,
             forceNew: true,
-            upgrade: true // ✅ Permitir upgrade para mejor rendimiento
-        };
-        
-        // ✅ Solo agregar auth si tenemos datos válidos
-        if (userInfo.id && userInfo.id !== 'undefined') {
-            socketConfig.auth = {
+            upgrade: false,  // No intentar upgrade a websocket
+            auth: {
+                token: token,
                 userId: userInfo.id,
                 username: userInfo.username
-            };
-        }
-        
-        // ✅ USAR LA VARIABLE CORRECTA
-        socket = io(serverUrl, socketConfig);
+            }
+        });
 
         socket.on('connect', function() {
             console.log('Conectado al servidor');
@@ -843,22 +839,16 @@ function crearPartida(e) {
         iniciarJuegoLocal(configuracion);
     } else {
         console.log('🚀 Enviando crear partida al servidor...');
-        const socketToUse = window.socket || socket;
-        socketToUse.emit('crearPartida', { configuracion });
+        socket.emit('crearPartida', { configuracion });
     }
 }
 
 function crearPartidaOnline() {
     console.log('🎮 Creando partida online...');
     
-    // Usar socket global si está disponible
-    const socketToUse = window.socket || socket;
-    
     // Verificar conexión de socket
-    if (!socketToUse || !socketToUse.connected) {
+    if (!socket || !socket.connected) {
         console.error('❌ Socket no conectado');
-        console.log('Debug - window.socket:', window.socket ? '✅ existe' : '❌ null');
-        console.log('Debug - socket local:', socket ? '✅ existe' : '❌ null');
         alert('Error: No hay conexión con el servidor. Inténtalo de nuevo.');
         return;
     }
@@ -949,21 +939,21 @@ function crearPartidaOnline() {
     }, 10000);
     
     // Limpiar timeout cuando llegue respuesta
-    const originalPartidaCreada = socketToUse._callbacks?.$partidaCreada?.[0] || socketToUse._events?.partidaCreada;
-    socketToUse.once('partidaCreada', function(datosPartida) {
+    const originalPartidaCreada = socket._callbacks?.$partidaCreada?.[0] || socket._events?.partidaCreada;
+    socket.once('partidaCreada', function(datosPartida) {
         clearTimeout(timeoutId);
         console.log('✅ Respuesta recibida, timeout cancelado');
         if (originalPartidaCreada) originalPartidaCreada(datosPartida);
     });
     
-    socketToUse.once('errorCrearPartida', function(error) {
+    socket.once('errorCrearPartida', function(error) {
         clearTimeout(timeoutId);
         console.log('❌ Error recibido, timeout cancelado');
     });
     
     // Emitir evento para crear partida
     console.log('📤 Emitiendo evento crearPartida...');
-    socketToUse.emit('crearPartida', { configuracion });
+    socket.emit('crearPartida', { configuracion });
     console.log('📤 Evento emitido, esperando respuesta...');
 }
 

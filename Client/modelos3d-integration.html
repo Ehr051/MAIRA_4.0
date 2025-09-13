@@ -1,0 +1,192 @@
+<!-- SCRIPTS MODELOS 3D - MAIRA 4.0 -->
+<!-- Incluir estos scripts en el HTML principal ANTES del sistemaZoomMultiNivel.js -->
+
+<!-- Three.js (si no está ya incluido) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<!-- Sistemas de Modelos 3D -->
+<script src="js/modules/gaming/modelos3DManager.js"></script>
+<script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
+
+<!-- Sistema Zoom Multi-Nivel (ya existente, ahora con integración 3D) -->
+<script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
+
+<!-- CSS para los elementos 3D -->
+<style>
+.marcador-3d {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.marcador-3d:hover {
+    transform: scale(1.1);
+}
+
+.contenedor-modelo-3d {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.contenedor-modelo-3d:hover {
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+}
+
+.canvas-modelo-3d {
+    transition: all 0.3s ease;
+}
+
+.etiqueta-elemento-3d {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.indicadores-estado i {
+    font-size: 12px;
+    margin: 0 2px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.panel-elemento-3d {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    border: 2px solid #4ecdc4;
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    color: white;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.header-elemento {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.header-elemento i {
+    color: #4ecdc4;
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.header-elemento h3 {
+    margin: 0;
+    flex-grow: 1;
+    color: #4ecdc4;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    color: #ff6b6b;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.btn-cerrar:hover {
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.info-elemento p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.info-elemento strong {
+    color: #4ecdc4;
+}
+
+.acciones-elemento {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.acciones-elemento button {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(78, 205, 196, 0.2);
+    border: 1px solid #4ecdc4;
+    color: #4ecdc4;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.acciones-elemento button:hover {
+    background: rgba(78, 205, 196, 0.3);
+    transform: translateY(-1px);
+}
+</style>
+
+<!-- INICIALIZACIÓN -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificar que todos los sistemas estén cargados
+    if (window.modelos3DManager && window.elementoModelo3DMapper) {
+        console.log('✅ Sistemas de Modelos 3D inicializados correctamente');
+        
+        // El sistemaZoomMultiNivel automáticamente detectará y usará estos sistemas
+        console.log('🎮 Sistema 3D integrado con zoom multi-nivel');
+        
+        // Datos de ejemplo para probar
+        if (window.sistemaZoomMultiNivel) {
+            // Agregar algunos elementos de prueba
+            const elementosPrueba = [
+                {
+                    id: 'tam-001',
+                    nombre: 'TAM Mediano #001',
+                    tipo: 'Tanque TAM',
+                    posicion: { lat: -34.6118, lng: -58.3960 },  // Buenos Aires
+                    estado: { operacional: true, dañado: false }
+                },
+                {
+                    id: 'm113-001', 
+                    nombre: 'M113 APC #001',
+                    tipo: 'M113',
+                    posicion: { lat: -34.6138, lng: -58.3970 },
+                    estado: { operacional: true, movimiento: true }
+                },
+                {
+                    id: 'citer-001',
+                    nombre: 'CITER 155mm #001', 
+                    tipo: 'CITER 155',
+                    posicion: { lat: -34.6098, lng: -58.3950 },
+                    estado: { operacional: true, dañado: false }
+                }
+            ];
+            
+            // Agregar elementos al sistema (solo para pruebas)
+            // window.sistemaZoomMultiNivel.agregarElementos(elementosPrueba);
+        }
+    } else {
+        console.warn('⚠️ Algunos sistemas de Modelos 3D no se cargaron correctamente');
+    }
+});
+</script>
