@@ -38,7 +38,7 @@ function inicializarAplicacion() {
     }
     
     // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
-    const userData = MAIRA.UserIdentity.obtenerUsuario();
+    const userData = MAIRA.UserIdentity.getUserData();
     
     if (userData && userData.id) {
         userId = userData.id;
