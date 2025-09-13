@@ -194,7 +194,7 @@ class GestorTurnos extends GestorBase {
     configurarEventos() {
         if (this.socket) {
             this.socket.on('cambioTurno', (datos) => this.manejarCambioTurnoRemoto(datos));
-            this.socket.on('jugadorListoDespliegue', (datos) => this.manejarJugadorListo(datos));
+            this.socket.on('jugadorListoDespliegue', (datos) => this.manejarJugadorListoDespliegue(datos));
             this.socket.on('iniciarCombate', (datos) => this.manejarInicioCombate(datos));
             this.socket.on('finTurno', (datos) => this.manejarFinTurnoRemoto(datos));
         }
@@ -817,7 +817,12 @@ class GestorTurnos extends GestorBase {
             }
             
             // 3. Actualizar interfaz
-            this.actualizarInterfazFase();
+            if (this.gestorJuego?.gestorInterfaz?.actualizarInterfazFase) {
+                this.gestorJuego.gestorInterfaz.actualizarInterfazFase({
+                    nuevaFase: 'combate',
+                    nuevaSubfase: 'movimiento'
+                });
+            }
             
             // 4. Emitir al servidor
             if (this.gestorJuego?.gestorComunicacion?.socket) {

@@ -79,9 +79,10 @@
 /* Estilos para las unidades en hexágonos */
 /* Estilo para hexágonos con elementos seleccionados */
 .hex-with-element {
-    fill: #3498db !important;
+    fill: none !important;
     stroke: #2980b9 !important;
-    stroke-width: 10px !important;
+    stroke-width: 3px !important;
+    fill-opacity: 0 !important;
 }
 
 /* Estilos para el panel de información del terreno */

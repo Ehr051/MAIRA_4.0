@@ -272,27 +272,46 @@ class GestorInterfaz extends GestorBase {
     }
 
     actualizarInterfazFase(datos) {
+        // Permitir llamada con string simple para fase
+        if (typeof datos === 'string') {
+            datos = { nuevaFase: datos, nuevaSubfase: datos === 'combate' ? 'turno' : 'despliegue' };
+        }
+        
         // Actualizar estado interno
         this.fase = datos.nuevaFase;
         this.subfase = datos.nuevaSubfase;
+        
+        console.log(`🎮 [GestorInterfaz] Actualizando interfaz para fase: ${this.fase}/${this.subfase}`);
     
         // Actualizar mensajes según la fase y rol
-        if (!this.gestorJuego?.gestorFases?.esDirector(window.userId)) {
-            let mensaje = '';
-            switch (this.subfase) {
-                case 'definicion_sector':
-                    mensaje = 'El director está definiendo el sector de juego';
-                    break;
-                case 'definicion_zonas':
-                    mensaje = 'El director está definiendo las zonas de despliegue';
-                    break;
-                case 'despliegue':
-                    mensaje = 'Fase de despliegue - Despliega tus unidades en tu zona asignada';
-                    break;
-                case 'combate':
-                    mensaje = 'Fase de combate iniciada';
-                    break;
-            }
+        let mensaje = '';
+        switch (this.fase) {
+            case 'preparacion':
+                switch (this.subfase) {
+                    case 'definicion_sector':
+                        mensaje = 'El director está definiendo el sector de juego';
+                        break;
+                    case 'definicion_zonas':
+                        mensaje = 'El director está definiendo las zonas de despliegue';
+                        break;
+                    case 'despliegue':
+                        mensaje = 'Fase de despliegue - Despliega tus unidades en tu zona asignada';
+                        break;
+                }
+                break;
+            case 'combate':
+                mensaje = '⚔️ ¡Fase de combate iniciada! Comenzando turnos de juego';
+                // Ocultar botón de "Finalizar Preparación" si existe
+                const btnPrep = document.getElementById('btnFinalizarPreparacion');
+                if (btnPrep) btnPrep.style.display = 'none';
+                
+                // Mostrar elementos de combate
+                const btnTurno = document.getElementById('btnFinalizarTurno');
+                if (btnTurno) btnTurno.style.display = 'block';
+                break;
+        }
+        
+        if (mensaje) {
             this.mostrarMensaje(mensaje);
         }
     
@@ -301,11 +320,22 @@ class GestorInterfaz extends GestorBase {
             fase: this.fase,
             subfase: this.subfase
         });
+        
         // Force complete interface update
         this.actualizarInterfazCompleta();
+        
+        // Actualizar botones de control del juego
+        if (typeof window.actualizarBotonesControlJuego === 'function') {
+            window.actualizarBotonesControlJuego(this.fase, this.subfase);
+        }
     
         // Notify other managers
         this.emisorEventos.emit('faseCambiada', datos);
+        
+        // También emitir evento DOM para compatibilidad
+        document.dispatchEvent(new CustomEvent('faseCambiada', {
+            detail: { nuevaFase: this.fase, nuevaSubfase: this.subfase }
+        }));
     }
 
 

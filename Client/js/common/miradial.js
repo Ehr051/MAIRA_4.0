@@ -828,8 +828,24 @@ handleMenuClick: function(action, submenu) {
             }
             break;
         case 'infoUnidad':
-            if (window.elementoSeleccionado && typeof window.mostrarInfoUnidad === 'function') {
-                window.mostrarInfoUnidad(window.elementoSeleccionado);
+            // Usar el nuevo panel unificado para mostrar información
+            if (window.elementoSeleccionado) {
+                if (window.mostrarInformacionElemento) {
+                    window.mostrarInformacionElemento(window.elementoSeleccionado);
+                } else if (typeof window.mostrarInfoUnidad === 'function') {
+                    // Fallback al sistema anterior
+                    window.mostrarInfoUnidad(window.elementoSeleccionado);
+                }
+            }
+            break;
+        case 'infoElemento':
+            // Manejo genérico para cualquier elemento
+            if (window.elementoSeleccionado) {
+                if (window.mostrarInformacionElemento) {
+                    window.mostrarInformacionElemento(window.elementoSeleccionado);
+                } else {
+                    console.warn('Panel unificado no disponible para mostrar información');
+                }
             }
             break;
         case 'moverUnidad':

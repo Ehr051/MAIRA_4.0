@@ -183,62 +183,24 @@ h1 {
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
 }
 
-/* Panel de estado del juego */
-.panel-juego {
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
+/* 🔥 ELIMINADOS: .panel-juego, .panel-superior, .panel-turno 
+   REEMPLAZADOS por #panelJuegoUnificado arriba */
 
-.panel-juego .header {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    padding-bottom: 5px;
-}
-
-.panel-juego .fase-info,
-.panel-juego .subfase-info,
-.panel-juego .turno-info,
-.panel-juego .jugador-info {
-    margin: 5px 0;
-    font-size: 14px;
-}
-
+/* Información específica del reloj de turno (ahora dentro del panel unificado) */
 .reloj-turno {
     font-size: 18px;
     font-weight: bold;
     text-align: center;
-    margin: 10px 0;
+    margin: 8px 0;
     color: #ffc107;
+    text-shadow: 0 0 4px rgba(255,193,7,0.5);
 }
 
-.panel-superior {
-    padding: 10px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    /* 🔧 FIX: Asegurar z-index para evitar superposición */
-    z-index: 1050;
-    position: relative;
-}
-
+/* Info de jugador dentro del panel unificado */
 .info-jugador {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: bold;
-}
-
-.panel-turno {
-    padding: 10px;
-    background: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    /* 🔧 FIX: Asegurar z-index para paneles de turno */
-    z-index: 1040;
-    position: relative;
+    font-size: 14px;
 }
 
 .contenedor-botones {
@@ -331,28 +293,115 @@ h1 {
     100% { opacity: 0; transform: translateY(-20px); }
 }
 
-/* Estilos para el panel de turnos */
+/* 🎯 PANEL UNIFICADO DINÁMICO - Reemplaza todos los paneles de estado */
+#panelJuegoUnificado {
+    background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(30,30,30,0.95));
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 15px 20px;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    min-width: 300px;
+    max-width: 400px;
+    z-index: 800;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+/* Estados del panel unificado */
+#panelJuegoUnificado.estado-turnos { border-color: #ffc107; }
+#panelJuegoUnificado.estado-fase { border-color: #17a2b8; }
+#panelJuegoUnificado.estado-subfase { border-color: #28a745; }
+#panelJuegoUnificado.estado-jugador { border-color: #dc3545; }
+
+/* Header dinámico del panel */
+.panel-header {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Contenido dinámico */
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Estilos para equipos */
 .equipo-azul {
-    color: #0077ff;
-    text-shadow: 0 0 2px rgba(0,119,255,0.5);
+    color: #4dabf7;
+    text-shadow: 0 0 3px rgba(77,171,247,0.6);
+    font-weight: bold;
 }
 
 .equipo-rojo {
-    color: #ff3333;
-    text-shadow: 0 0 2px rgba(255,51,51,0.5);
+    color: #ff6b6b;
+    text-shadow: 0 0 3px rgba(255,107,107,0.6);
+    font-weight: bold;
 }
 
-#panelTurnos {
-    background-color: rgba(0,0,0,0.8);
-    border-radius: 5px;
-    padding: 10px 15px;
-    position: fixed;
-    top: 10px;
-    right: 300px; /* Alejado de los botones principales */
-    z-index: 900; /* Menor prioridad que menús */
-    font-family: 'Arial', sans-serif;
+/* 🎯 BOTONES DENTRO DEL PANEL UNIFICADO */
+.panel-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.panel-botones.horizontal {
+    flex-direction: row;
+}
+
+.contador-turnos {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #aaa;
+    text-align: center;
+}
+
+.boton-accion {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+.boton-accion:hover {
+    background: linear-gradient(135deg, #0056b3, #003d82);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+.boton-accion:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.6;
+}
+
+.boton-finalizar {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+.boton-finalizar:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
 }
 
 #tiempoRestante {
@@ -371,4 +420,502 @@ h1 {
 .tiempo-urgente {
     animation: parpadeo 1s infinite;
     color: #ff3333;
+}
+
+/* ================================
+   HUD MILITAR PROFESIONAL - ESTILO JUEGOS AAA
+   Sistema unificado ocultable como Command Ops/Steel Beasts
+   ================================ */
+
+.panel-unificado {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 280px;
+    max-height: calc(100vh - 20px);
+    background: linear-gradient(145deg, 
+        rgba(15, 25, 35, 0.95), 
+        rgba(25, 35, 45, 0.92)
+    );
+    color: #e8e8e8;
+    border-radius: 4px;
+    box-shadow: 
+        0 0 20px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    border: 1px solid rgba(100, 120, 140, 0.3);
+    backdrop-filter: blur(5px);
+    font-family: 'Courier New', monospace;
+}
+
+/* Estados del panel - Transiciones profesionales */
+.panel-unificado.oculto {
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.panel-unificado.minimizado {
+    transform: translateX(calc(100% - 30px));
+    opacity: 0.8;
+}
+
+.panel-unificado.activo {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modo HUD completo oculto */
+body.hud-oculto .panel-unificado,
+body.hud-oculto .btn-mostrar-panel {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    transform: translateX(100%) !important;
+}
+
+/* Indicador de HUD oculto */
+body.hud-oculto::after {
+    content: "HUD OCULTO - Presiona H para mostrar";
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #90a4ae;
+    padding: 5px 15px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    z-index: 1000;
+    animation: fadeInOut 4s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.8; }
+}
+
+/* Ocultación de otros elementos de UI en modo HUD oculto */
+body.hud-oculto #botones-principales,
+body.hud-oculto .menu-btn,
+body.hud-oculto .leaflet-control-container {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Mantener solo controles esenciales del mapa visible */
+body.hud-oculto .leaflet-control-zoom {
+    opacity: 0.3 !important;
+    visibility: visible !important;
+}
+
+body.hud-oculto .leaflet-control-zoom:hover {
+    opacity: 1 !important;
+}
+
+/* Transiciones suaves para todos los controles */
+#botones-principales,
+.panel-unificado,
+.btn-mostrar-panel,
+.hud-toggle {
+    transition: all 0.3s ease;
+}
+
+/* Cursor personalizado en modo HUD oculto */
+body.hud-oculto {
+    cursor: crosshair;
+}
+
+/* Mejoras de contraste para mejor legibilidad */
+.panel-unificado .info-value {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.panel-unificado .header .titulo {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* Estado activo para botones de control */
+.hud-toggle.activo,
+.btn-mostrar-panel.activo {
+    background: linear-gradient(145deg, 
+        rgba(76, 175, 80, 0.9), 
+        rgba(56, 142, 60, 0.8)
+    );
+    color: white;
+    border-color: rgba(76, 175, 80, 0.6);
+}
+
+@keyframes slideInMilitary {
+    from { 
+        transform: translateX(100%) rotateY(15deg); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0) rotateY(0deg); 
+        opacity: 1; 
+    }
+}
+
+.panel-unificado .header {
+    background: linear-gradient(135deg, 
+        rgba(40, 60, 80, 0.9), 
+        rgba(60, 80, 100, 0.8)
+    );
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(100, 120, 140, 0.4);
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-unificado .header .titulo {
+    color: #90a4ae;
+    font-size: 10px;
+}
+
+.panel-unificado .header .controles {
+    display: flex;
+    gap: 4px;
+}
+
+.panel-unificado .header .control-btn {
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    color: #90a4ae;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.panel-unificado .header .control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.panel-unificado .contenido {
+    padding: 8px;
+    overflow-y: auto;
+    max-height: calc(100vh - 60px);
+    font-size: 11px;
+}
+
+.panel-unificado .seccion {
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(100, 120, 140, 0.2);
+    padding-bottom: 6px;
+}
+
+.panel-unificado .seccion:last-child {
+    border-bottom: none;
+}
+
+.panel-unificado .seccion-titulo {
+    color: #64b5f6;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.panel-unificado .info-item {
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.panel-unificado .info-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.panel-unificado .info-label {
+    font-weight: 400;
+    opacity: 0.9;
+    font-size: 10px;
+    color: #b0bec5;
+}
+
+.panel-unificado .info-value {
+    font-weight: 600;
+    color: #81c784;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+}
+
+.panel-unificado .botones-accion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-unificado .boton-accion {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.panel-unificado .boton-accion:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+}
+
+.panel-unificado .boton-accion.peligro {
+    background: linear-gradient(145deg, 
+        rgba(220, 53, 69, 0.9), 
+        rgba(200, 35, 51, 0.8)
+    );
+}
+
+/* Estilos específicos para información de elementos */
+.info-elemento-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(20, 30, 40, 0.8);
+    border-radius: 4px;
+    border-left: 3px solid #4caf50;
+}
+
+.elemento-icono {
+    font-size: 24px;
+    color: #90a4ae;
+}
+
+.elemento-estado {
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+}
+
+.elemento-estado.operacional {
+    background: rgba(76, 175, 80, 0.3);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.elemento-estado.dañado {
+    background: rgba(255, 193, 7, 0.3);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+.elemento-estado.critico {
+    background: rgba(244, 67, 54, 0.3);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.5);
+}
+
+/* Barras de recursos */
+.barra-recurso {
+    margin-bottom: 12px;
+}
+
+.recurso-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #90a4ae;
+    margin-bottom: 4px;
+}
+
+.barra-progreso {
+    position: relative;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(100, 120, 140, 0.3);
+}
+
+.barra-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #66bb6a);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.barra-recurso.combustible .barra-fill {
+    background: linear-gradient(90deg, #2196f3, #42a5f5);
+}
+
+.barra-recurso.municion .barra-fill {
+    background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
+
+.barra-recurso.personal .barra-fill {
+    background: linear-gradient(90deg, #9c27b0, #ba68c8);
+}
+
+.barra-recurso.moral .barra-fill {
+    background: linear-gradient(90deg, #e91e63, #f06292);
+}
+
+.barra-valor {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    font-family: 'Courier New', monospace;
+}
+
+/* Estados críticos */
+.info-value.critico {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.info-value.moderado {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+.info-value.normal {
+    color: #4caf50;
+}
+
+/* Animaciones para barras de recursos bajas */
+.barra-fill[style*="width: 1"], 
+.barra-fill[style*="width: 2"], 
+.barra-fill[style*="width: 3"], 
+.barra-fill[style*="width: 4"], 
+.barra-fill[style*="width: 5"] {
+    animation: parpadeoUrgente 1s ease-in-out infinite alternate;
+    background: linear-gradient(90deg, #f44336, #ef5350) !important;
+}
+
+@keyframes parpadeoUrgente {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+.panel-unificado .boton-accion.peligro:hover {
+    background: linear-gradient(145deg, 
+        rgba(200, 35, 51, 0.9), 
+        rgba(180, 25, 41, 0.8)
+    );
+    transform: translateY(-1px);
+}
+
+.panel-unificado .estado-turno {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.panel-unificado .reloj-turno {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #ffd700;
+    margin: 15px 0;
+}
+
+/* Control HUD Flotante - Estilo Militar */
+.btn-mostrar-panel {
+    position: fixed;
+    top: 10px;
+    right: 300px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(145deg, 
+        rgba(40, 60, 80, 0.9), 
+        rgba(60, 80, 100, 0.8)
+    );
+    color: #90a4ae;
+    border: 1px solid rgba(100, 120, 140, 0.4);
+    border-radius: 3px;
+    cursor: pointer;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(3px);
+    font-family: 'Courier New', monospace;
+}
+
+.btn-mostrar-panel:hover {
+    background: linear-gradient(145deg, 
+        rgba(60, 80, 100, 0.9), 
+        rgba(80, 100, 120, 0.8)
+    );
+    color: white;
+    border-color: rgba(100, 120, 140, 0.6);
+}
+
+/* Control de HUD completo */
+.hud-toggle {
+    position: fixed;
+    top: 10px;
+    right: 50px;
+    width: 80px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #90a4ae;
+    border: 1px solid rgba(100, 120, 140, 0.3);
+    border-radius: 2px;
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace;
+}
+
+.hud-toggle:hover {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
+.hud-toggle.hud-oculto-activo {
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border-color: rgba(220, 53, 69, 0.6);
 }

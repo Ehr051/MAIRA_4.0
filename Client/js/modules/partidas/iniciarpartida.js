@@ -20,8 +20,22 @@ if (document.readyState === 'loading') {
     inicializarAplicacion();
 }
 
+// Función auxiliar para generar ID de usuario
+function generateUserId() {
+    return Math.floor(Math.random() * 10000) + 1;
+}
+
 function inicializarAplicacion() {
     console.log('🚀 Ejecutando inicialización de iniciarpartida');
+    
+    // Verificar si MAIRA.UserIdentity está disponible
+    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
+        console.warn('⚠️ MAIRA.UserIdentity no disponible, usando datos de localStorage');
+        userId = localStorage.getItem('userId') || generateUserId();
+        userName = localStorage.getItem('username') || 'Usuario';
+        console.log('📝 Usuario fallback:', { userId, userName });
+        return;
+    }
     
     // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
     const userData = MAIRA.UserIdentity.obtenerUsuario();
@@ -724,7 +738,7 @@ async function inicializarSocket() {
 
 function manejarConexion() {
     console.log('Conectado al servidor');
-    socket.emit('login', { userId, username: userName });
+    socket.emit('login', { user_id: userId, username: userName });
 
     // Solicitar listas después de conectarse al servidor
     console.log('Solicitando listas después de conectarse');

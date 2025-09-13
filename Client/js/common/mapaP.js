@@ -251,6 +251,21 @@ function inicializarMapa() {
     calcoActivo = L.layerGroup().addTo(mapa);
     calcos['Calco1'] = calcoActivo;
     
+    // 🔍 INICIALIZAR SISTEMA ZOOM MULTI-NIVEL (Total War Style)
+    if (typeof window.inicializarSistemaZoom === 'function') {
+        window.inicializarSistemaZoom(mapa);
+        console.log('🔍 Sistema Zoom Multi-Nivel inicializado');
+        
+        // Crear elementos de prueba después de un pequeño delay
+        setTimeout(() => {
+            if (typeof window.crearElementosPrueba === 'function') {
+                window.crearElementosPrueba();
+            }
+        }, 1000);
+    } else {
+        console.warn('⚠️ Sistema Zoom Multi-Nivel no disponible');
+    }
+    
     // Asegúrate de que esta función esté definida en calcos.js
     if (typeof agregarCalcoALista === 'function') {
         agregarCalcoALista('Calco1');

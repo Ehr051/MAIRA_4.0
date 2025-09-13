@@ -66,7 +66,7 @@ const HexGrid = {
                             
                             weight: 1,
                             opacity: 0.5,
-                            fillOpacity: 1,
+                            fillOpacity: 0,
                             className: 'hex-cell'
                         }).addTo(this.hexLayer);
 

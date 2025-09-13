@@ -1,0 +1,349 @@
+/**
+ * ESTILOS SISTEMA ZOOM MULTI-NIVEL - MAIRA 4.0
+ * =============================================
+ * Total War Style: Estandartes → Unidades → Elementos 3D
+ */
+
+/* ===========================================
+   NIVEL ESTRATÉGICO - ESTANDARTES
+   =========================================== */
+
+.estandarte-militar {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+.estandarte-contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: ondularBandera 3s ease-in-out infinite;
+}
+
+.bandera {
+    width: 40px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.bandera.azul {
+    background: linear-gradient(145deg, #1976d2, #42a5f5);
+    color: white;
+}
+
+.bandera.rojo {
+    background: linear-gradient(145deg, #d32f2f, #f44336);
+    color: white;
+}
+
+.bandera.verde {
+    background: linear-gradient(145deg, #388e3c, #4caf50);
+    color: white;
+}
+
+.bandera::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 20px;
+    background: rgba(101, 67, 33, 0.8);
+    border-radius: 1px;
+}
+
+.nombre-unidad {
+    margin-top: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fuerza-numerica {
+    margin-top: 2px;
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 8px;
+    font-weight: bold;
+}
+
+@keyframes ondularBandera {
+    0%, 100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+}
+
+/* ===========================================
+   NIVEL TÁCTICO - UNIDADES
+   =========================================== */
+
+.unidad-tactica {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.unidad-tactica:hover {
+    transform: scale(1.1);
+}
+
+.unidad-contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.icono-unidad {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    background: linear-gradient(145deg, #37474f, #546e7a);
+    color: white;
+}
+
+.unidad-contenedor.operacional .icono-unidad {
+    background: linear-gradient(145deg, #2e7d32, #4caf50);
+}
+
+.unidad-contenedor.dañado .icono-unidad {
+    background: linear-gradient(145deg, #f57c00, #ff9800);
+}
+
+.unidad-contenedor.critico .icono-unidad {
+    background: linear-gradient(145deg, #c62828, #f44336);
+    animation: parpadeoUrgente 1s ease-in-out infinite alternate;
+}
+
+.barra-estado {
+    width: 30px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 2px;
+    margin-top: 2px;
+    overflow: hidden;
+}
+
+.barra-vida {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #66bb6a);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.etiqueta-unidad {
+    margin-top: 3px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 8px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ===========================================
+   NIVEL OPERACIONAL - ELEMENTOS 3D
+   =========================================== */
+
+.elemento-3d {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.elemento-3d:hover {
+    transform: scale(1.15);
+}
+
+.modelo-3d {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sombra-elemento {
+    position: absolute;
+    bottom: -2px;
+    width: 24px;
+    height: 6px;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.4), transparent);
+    border-radius: 50%;
+}
+
+.modelo {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    background: linear-gradient(145deg, #455a64, #607d8b);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.modelo-3d.tanque .modelo {
+    background: linear-gradient(145deg, #37474f, #546e7a);
+}
+
+.modelo-3d.mecanizado .modelo {
+    background: linear-gradient(145deg, #5d4037, #8d6e63);
+}
+
+.modelo-3d.artilleria .modelo {
+    background: linear-gradient(145deg, #1b5e20, #4caf50);
+}
+
+.modelo-3d.infanteria .modelo {
+    background: linear-gradient(145deg, #0d47a1, #2196f3);
+}
+
+.modelo-3d.operacional .modelo {
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+}
+
+.modelo-3d.dañado .modelo {
+    box-shadow: 0 0 6px rgba(255, 152, 0, 0.5);
+}
+
+.modelo-3d.critico .modelo {
+    box-shadow: 0 0 6px rgba(244, 67, 54, 0.5);
+    animation: parpadeoUrgente 1.5s ease-in-out infinite alternate;
+}
+
+.indicadores {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.alerta {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6px;
+    color: white;
+    animation: parpadeoAlerta 2s ease-in-out infinite;
+}
+
+.alerta.combustible {
+    background: #2196f3;
+}
+
+.alerta.municion {
+    background: #ff9800;
+}
+
+.alerta.daños {
+    background: #f44336;
+}
+
+@keyframes parpadeoAlerta {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* ===========================================
+   TRANSICIONES ENTRE NIVELES
+   =========================================== */
+
+.leaflet-zoom-animated .estandarte-militar,
+.leaflet-zoom-animated .unidad-tactica,
+.leaflet-zoom-animated .elemento-3d {
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Efecto fade-in cuando aparecen elementos */
+.estandarte-militar,
+.unidad-tactica, 
+.elemento-3d {
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from { 
+        opacity: 0; 
+        transform: scale(0.8); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1); 
+    }
+}
+
+/* ===========================================
+   INDICADOR DE NIVEL ACTUAL
+   =========================================== */
+
+.indicador-nivel-zoom {
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    z-index: 1000;
+    border-left: 3px solid #4caf50;
+    transition: all 0.3s ease;
+}
+
+.indicador-nivel-zoom.estrategico {
+    border-left-color: #2196f3;
+}
+
+.indicador-nivel-zoom.tactico {
+    border-left-color: #ff9800;
+}
+
+.indicador-nivel-zoom.operacional {
+    border-left-color: #4caf50;
+}
+
+/* ===========================================
+   RESPONSIVE - MOBILE
+   =========================================== */
+
+@media (max-width: 768px) {
+    .estandarte-contenedor {
+        transform: scale(0.8);
+    }
+    
+    .unidad-contenedor {
+        transform: scale(0.9);
+    }
+    
+    .modelo-3d {
+        transform: scale(0.85);
+    }
+}

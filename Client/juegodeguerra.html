@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/hexgrid.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
+  <link rel="stylesheet" href="css/modules/juegodeguerra/sistemaZoomMultiNivel.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
   
@@ -108,7 +109,13 @@
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/militaryDataService.js"></script>
   <script src="js/services/DeploymentService.js"></script>
-  <script src="js/services/PanelIntegration.js"></script>
+  <!-- ❌ PanelIntegration.js ELIMINADO - Reemplazado por panelJuegoUnificado.js -->
+  
+  <!-- 🎯 PANEL UNIFICADO (Reemplaza paneles separados) -->
+  <script src="js/modules/shared/panelJuegoUnificado.js"></script>
+  
+  <!-- 🔍 SISTEMA ZOOM MULTI-NIVEL (Total War Style) -->
+  <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
 
   <!-- 🎮 GAMING (archivos que existen) -->
   <script src="js/gaming/GameEngine.js"></script>
@@ -193,6 +200,7 @@
     // 🚀 INICIALIZACIÓN DIRECTA JUEGO DE GUERRA
     async function initializeJuegoDeguerra() {
         console.log('🚀 MAIRA 4.0 - Iniciando Juego de Guerra (Modo Directo)...');
+        console.log('🎯 Panel Unificado + Sistema Zoom Multi-Nivel (Total War Style)');
         
         // Verificar dependencias críticas
         if (typeof $ === 'undefined') {
@@ -350,8 +358,81 @@
     <div class="version">Versión 1.4.1</div>
   </div>
 
-  <!-- Panel de Turnos (reubicado para no interferir con controles) -->
-  <div id="panelTurnos"></div>
+  <!-- Panel Unificado Dinámico para Estados del Juego -->
+  <div id="panelJuegoUnificado" class="panel-unificado"></div>
+  
+  <!-- Controles HUD Militares -->
+  <button id="btnMostrarPanel" class="btn-mostrar-panel mostrar-panel" 
+          onclick="panelUnificado?.alternar('general')" 
+          title="Panel de Estado - ESC para cerrar">
+    <i class="fas fa-info-circle"></i>
+  </button>
+  
+  <button class="hud-toggle" 
+          onclick="controladorHUD?.alternarHUD()" 
+          title="Ocultar/Mostrar HUD completo - Tecla H">
+    HUD
+  </button>
+  
+  <!-- Indicador de nivel de zoom actual -->
+  <div id="indicadorNivelZoom" class="indicador-nivel-zoom estrategico">
+    <div class="nivel-texto">ESTRATÉGICO</div>
+    <div class="nivel-zoom">Zoom: 6</div>
+  </div>
+  
+  <!-- Controles de Fase del Juego -->
+  <div id="controlesJuego" style="position: fixed; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
+    <button id="btnFinalizarPreparacion" 
+            onclick="window.gestorJuego?.gestorTurnos?.marcarJugadorListo()"
+            style="padding: 10px 15px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
+      ✅ Finalizar Preparación
+    </button>
+    
+    <button id="btnFinalizarTurno" 
+            onclick="window.gestorJuego?.gestorTurnos?.finalizarTurno()"
+            style="padding: 10px 15px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
+      ⏭️ Finalizar Turno
+    </button>
+    
+    <button id="btnForzarCombate" 
+            onclick="forzarInicioCombate()"
+            style="padding: 10px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+      ⚔️ Forzar Combate (DEBUG)
+    </button>
+  </div>
+  
+  <!-- Indicadores de Estado del Juego -->
+  <div id="indicador-turno" style="position: fixed; top: 80px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
+    Turno 1 - Iniciando...
+  </div>
+  
+  <div id="timer-turno" style="position: fixed; top: 115px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
+    05:00
+  </div>
+
+  <!-- Botones de prueba (temporal) -->
+  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; flex-direction: column;">
+    <button onclick="simularElementoEjemplo()" 
+            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🎯 Probar Panel Info
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('estrategico')" 
+            style="padding: 8px 12px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      📐 Zoom Estratégico
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('tactico')" 
+            style="padding: 8px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🎯 Zoom Táctico
+    </button>
+    <button onclick="sistemaZoom?.forzarNivel('operacional')" 
+            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      🔧 Zoom Operacional
+    </button>
+    <button onclick="forzarInicioCombate()" 
+            style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+      ⚔️ INICIAR COMBATE
+    </button>
+  </div>
 
   <div id="botones-principales">
     <div class="menu-btn">
@@ -1296,6 +1377,73 @@
         }
       }
     }
+    
+    // Funciones de debug y utilidad para el juego
+    function forzarInicioCombate() {
+      console.log('🔥 Forzando inicio de combate...');
+      
+      if (window.gestorJuego?.gestorComunicacion?.socket) {
+        window.gestorJuego.gestorComunicacion.socket.emit('iniciarCombate', {
+          partidaCodigo: window.codigoPartida,
+          timestamp: new Date().toISOString()
+        });
+      } else if (window.gestorJuego?.gestorFases) {
+        // Modo local
+        window.gestorJuego.gestorFases.fase = 'combate';
+        window.gestorJuego.gestorFases.subfase = 'turno';
+        window.gestorJuego.gestorFases.actualizarBotonesFase();
+        if (window.gestorJuego.gestorInterfaz) {
+          window.gestorJuego.gestorInterfaz.actualizarInterfazFase('combate');
+        }
+      }
+    }
+    
+    function debugJuego() {
+      console.log('🐛 Estado del juego:');
+      console.log('- gestorJuego:', window.gestorJuego);
+      console.log('- gestorFases:', window.gestorJuego?.gestorFases);
+      console.log('- gestorTurnos:', window.gestorJuego?.gestorTurnos);
+      console.log('- gestorInterfaz:', window.gestorJuego?.gestorInterfaz);
+      console.log('- codigoPartida:', window.codigoPartida);
+      console.log('- fase actual:', window.gestorJuego?.gestorFases?.fase);
+      console.log('- subfase actual:', window.gestorJuego?.gestorFases?.subfase);
+      console.log('- socket conectado:', window.gestorJuego?.gestorComunicacion?.socket?.connected);
+    }
+    
+    // Mostrar/ocultar botones según la fase
+    function actualizarBotonesControlJuego(fase, subfase) {
+      const btnPrep = document.getElementById('btnFinalizarPreparacion');
+      const btnTurno = document.getElementById('btnFinalizarTurno');
+      
+      if (fase === 'preparacion' && subfase === 'despliegue') {
+        if (btnPrep) btnPrep.style.display = 'block';
+        if (btnTurno) btnTurno.style.display = 'none';
+      } else if (fase === 'combate') {
+        if (btnPrep) btnPrep.style.display = 'none';
+        if (btnTurno) btnTurno.style.display = 'block';
+      } else {
+        if (btnPrep) btnPrep.style.display = 'none';
+        if (btnTurno) btnTurno.style.display = 'none';
+      }
+    }
+    
+    // Escuchar cambios de fase cuando se inicialice el DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      // Escuchar eventos de cambio de fase
+      document.addEventListener('faseCambiada', (event) => {
+        const { nuevaFase, nuevaSubfase } = event.detail;
+        actualizarBotonesControlJuego(nuevaFase, nuevaSubfase);
+      });
+      
+      // Verificar estado inicial después de que se cargue todo
+      setTimeout(() => {
+        if (window.gestorJuego?.gestorFases) {
+          const fase = window.gestorJuego.gestorFases.fase;
+          const subfase = window.gestorJuego.gestorFases.subfase;
+          actualizarBotonesControlJuego(fase, subfase);
+        }
+      }, 2000);
+    });
   </script>
 </body>
 </html>

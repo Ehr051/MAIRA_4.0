@@ -740,11 +740,18 @@ configurarEventosSocket() {
 
     socket.on('combateIniciado', (data) => {
         console.log('Recibido evento combateIniciado:', data);
-        if (data.partidaCodigo === window.codigoPartida) {
+        const partidaCodigo = data.partidaCodigo || data.partida_codigo;
+        if (partidaCodigo === window.codigoPartida) {
+            console.log('🚀 Combate iniciado - Cambiando a fase combate');
             this.fase = 'combate';
             this.subfase = 'turno';
             this.gestorJuego?.gestorTurnos?.inicializarTurnos();
             this.actualizarBotonesFase();
+            
+            // Actualizar UI
+            if (this.gestorJuego?.gestorInterfaz) {
+                this.gestorJuego.gestorInterfaz.actualizarInterfazFase('combate');
+            }
         }
     });
 }

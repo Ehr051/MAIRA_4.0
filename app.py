@@ -196,8 +196,21 @@ def get_db_connection():
         print(f"🔗 Intentando conexión local: {user}@{host}:{port}/{database}")
         
         if not password:
-            print("⚠️ DB_PASSWORD no está configurado para conexión local")
-            return None
+            print("⚠️ DB_PASSWORD no está configurado - intentando sin password para desarrollo")
+            # En lugar de fallar, intentar conectar sin password (desarrollo local)
+            try:
+                conn = psycopg2.connect(
+                    host=host,
+                    database=database,
+                    user=user,
+                    port=port,
+                    cursor_factory=RealDictCursor
+                )
+                print("✅ Conexión exitosa sin password (desarrollo)")
+                return conn
+            except:
+                print("❌ Falló conexión sin password - DATABASE_URL requerido para producción")
+                return None
             
         conn = psycopg2.connect(
             host=host,
@@ -228,13 +241,17 @@ def index():
 
 @app.route('/<path:path>')
 def serve_static(path):
+    print(f"🔍 Solicitado: {path}")
     try:
         # Intentar servir desde Client/ primero para archivos HTML
         if path.endswith('.html'):
+            print(f"📄 Sirviendo HTML desde Client/: {path}")
             return send_from_directory('Client', path)
         # Para otros archivos, intentar desde la raíz
+        print(f"📁 Sirviendo desde raíz: {path}")
         return send_from_directory('.', path)
-    except:
+    except Exception as e:
+        print(f"❌ Error sirviendo {path}: {e}")
         # Si falla, servir index.html desde Client/
         return send_from_directory('Client', 'index.html')
 
