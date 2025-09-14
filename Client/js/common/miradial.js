@@ -23,6 +23,14 @@
         mapa: {
             normal: 'rgba(0, 128, 255, 0.8)',   // azul
             hover: 'rgba(64, 160, 255, 0.9)'    // azul más claro
+        },
+        simboloMilitar: {
+            normal: 'rgba(0, 100, 0, 0.8)',     // verde militar
+            hover: 'rgba(0, 150, 0, 0.9)'       // verde más claro
+        },
+        elementoTactico: {
+            normal: 'rgba(100, 0, 100, 0.8)',   // púrpura táctico
+            hover: 'rgba(150, 0, 150, 0.9)'     // púrpura más claro
         }
     };
     /**
@@ -438,7 +446,10 @@
             const radius = 80;
             const innerRadius = 30;
             path.setAttribute("d", this.describeArc(100, 100, innerRadius, radius, startAngle, endAngle));
-            path.setAttribute("fill", MENU_STYLES[tipo].normal);
+            
+            // Validar que el tipo existe en MENU_STYLES
+            const estilo = MENU_STYLES[tipo] || MENU_STYLES.elemento;
+            path.setAttribute("fill", estilo.normal);
 
             // Crear contenedor para el ícono
             const textPoint = this.polarToCartesian(100, 100, 55, (startAngle + endAngle) / 2);
@@ -470,11 +481,11 @@
             });
 
             g.addEventListener("mouseover", () => {
-                path.setAttribute("fill", MENU_STYLES[tipo].hover);
+                path.setAttribute("fill", estilo.hover);
             });
 
             g.addEventListener("mouseout", () => {
-                path.setAttribute("fill", MENU_STYLES[tipo].normal);
+                path.setAttribute("fill", estilo.normal);
             });
 
             return g;
@@ -972,21 +983,31 @@ handleMenuClick: function(action, submenu) {
          * Marca o desmarca un hexágono seleccionado
          */
         marcarHexagono: function() {
-            if (this.selectedHex && this.selectedHex.polygon) {
+            if (this.selectedHex && this.selectedHex.polygon && this.selectedHex.polygon._path) {
                 console.log('Toggle marcado de hexágono:', this.selectedHex);
                 const hexId = `${this.selectedHex.hex.q},${this.selectedHex.hex.r}`;
+                const svgElement = this.selectedHex.polygon._path;
+                
+                if (!svgElement.classList) {
+                    console.warn('⚠️ Elemento SVG sin classList:', svgElement);
+                    return;
+                }
                 
                 if (this.markedHexagons.has(hexId)) {
                     // Desmarcar el hexágono quitando la clase CSS `hex-marked`
-                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.remove('hex-marked');
                     this.markedHexagons.delete(hexId);
                 } else {
                     // Marcar el hexágono agregando la clase CSS `hex-marked`
-                    const svgElement = this.selectedHex.polygon._path;
                     svgElement.classList.add('hex-marked');
                     this.markedHexagons.add(hexId);
                 }
+            } else {
+                console.warn('⚠️ No se puede marcar hexágono - elementos faltantes:', {
+                    selectedHex: !!this.selectedHex,
+                    polygon: !!(this.selectedHex && this.selectedHex.polygon),
+                    path: !!(this.selectedHex && this.selectedHex.polygon && this.selectedHex.polygon._path)
+                });
             }
         },
 
@@ -1119,7 +1140,10 @@ processElevationInfo: async function (corners, popup) {
         highlightHex: function(polygon) {
             // Remover clases previas antes de aplicar nuevos estilos
             if (this.previousHighlight) {
-                this.previousHighlight.getElement().classList.remove('hex-with-element', 'hex-selected', 'hex-marked');
+                const element = this.previousHighlight.getElement();
+                if (element && element.classList) {
+                    element.classList.remove('hex-with-element', 'hex-selected', 'hex-marked');
+                }
                 this.previousHighlight.setStyle({
                     color: '#666',
                     weight: 1,
@@ -1139,15 +1163,21 @@ processElevationInfo: async function (corners, popup) {
             if (window.elementoSeleccionado && window.HexGrid) {
                 const hexagonAtElement = window.HexGrid.getHexagonAt(window.elementoSeleccionado.getLatLng());
                 if (hexagonAtElement && hexagonAtElement.polygon === polygon) {
-                    svgElement.classList.add('hex-with-element'); // Hexágono con elemento
-                    console.log('Clase "hex-with-element" aplicada al hexágono con elemento seleccionado');
+                    if (svgElement.classList) {
+                        svgElement.classList.add('hex-with-element'); // Hexágono con elemento
+                        console.log('Clase "hex-with-element" aplicada al hexágono con elemento seleccionado');
+                    }
                 } else {
-                    svgElement.classList.add('hex-selected'); // Hexágono seleccionado pero vacío
-                    console.log('Clase "hex-selected" aplicada al hexágono vacío');
+                    if (svgElement.classList) {
+                        svgElement.classList.add('hex-selected'); // Hexágono seleccionado pero vacío
+                        console.log('Clase "hex-selected" aplicada al hexágono vacío');
+                    }
                 }
             } else {
-                svgElement.classList.add('hex-selected'); // Hexágono seleccionado sin elemento
-                console.log('Clase "hex-selected" aplicada (no hay elemento seleccionado)');
+                if (svgElement.classList) {
+                    svgElement.classList.add('hex-selected'); // Hexágono seleccionado sin elemento
+                    console.log('Clase "hex-selected" aplicada (no hay elemento seleccionado)');
+                }
             }
         
             // Guardar el hexágono actual como el resaltado

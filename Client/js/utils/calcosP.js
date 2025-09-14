@@ -1332,5 +1332,9 @@ window.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
+// 🌍 EXPORTAR FUNCIONES AL SCOPE GLOBAL
+window.cargarCalco = cargarCalco;
+window.guardarCalco = guardarCalco;
+
 
 

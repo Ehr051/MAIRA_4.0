@@ -1088,6 +1088,12 @@ class GestorTurnos extends GestorBase {
             return window.userId;
         }
     }
+
+    // ✅ ALIAS para compatibilidad con HTML: finalizarTurno()
+    finalizarTurno(forzado = false) {
+        console.log('[GestorTurnos] 🔗 Alias finalizarTurno() llamando a finalizarTurnoActual()');
+        return this.finalizarTurnoActual(forzado);
+    }
 }
 
 // Exportar la clase
