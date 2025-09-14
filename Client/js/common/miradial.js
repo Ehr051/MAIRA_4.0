@@ -346,31 +346,57 @@
             e.originalEvent.stopPropagation();
             
             const latlng = e.latlng;
+            const point = this.map.latLngToContainerPoint(latlng);
             
-            // Verificar si hay un elemento seleccionado
+            // ✅ PRIORIDAD 1: Verificar si hay un elemento en la posición del clic
+            const elementoEnPosicion = this.buscarElementoEnPosicion(latlng);
+            if (elementoEnPosicion) {
+                console.log('🎯 MiRadial: Elemento encontrado en posición, mostrando menú');
+                // Seleccionar el elemento encontrado
+                if (typeof window.seleccionarElemento === 'function') {
+                    window.seleccionarElemento(elementoEnPosicion);
+                } else {
+                    window.elementoSeleccionado = elementoEnPosicion;
+                }
+                // Mostrar menú de elemento
+                this.mostrarMenu(point.x, point.y, 'elemento');
+                return;
+            }
+            
+            // PRIORIDAD 2: Verificar si hay un elemento ya seleccionado
             if (window.elementoSeleccionado) {
                 const bounds = this.getElementBounds(window.elementoSeleccionado);
                 if (bounds && this.isPointInBounds(latlng, bounds)) {
                     // El elemento ya está seleccionado, solo mostrar el menú
-                    const point = this.map.latLngToContainerPoint(latlng);
+                    console.log('🎯 MiRadial: Elemento seleccionado en posición, mostrando menú');
                     this.mostrarMenu(point.x, point.y, 'elemento');
                     return;
                 } else {
                     // Si el clic no fue en el elemento seleccionado, deseleccionar
-                    deseleccionarElemento(window.elementoSeleccionado);
+                    if (typeof window.deseleccionarElemento === 'function') {
+                        window.deseleccionarElemento(window.elementoSeleccionado);
+                    } else {
+                        window.elementoSeleccionado = null;
+                    }
                 }
             }
         
-            // Si no hay elemento seleccionado, verificar hexágono
+            // PRIORIDAD 3: Si no hay elemento, verificar hexágono o mostrar menú de terreno
+            console.log('🎯 MiRadial: No hay elemento, verificando hexágono');
             const hexagono = window.HexGrid?.getHexagonAt(latlng);
             if (hexagono) {
                 this.selectedHex = hexagono;
-                const point = this.map.latLngToContainerPoint(latlng);
+                console.log('🎯 MiRadial: Hexágono encontrado, mostrando menú de terreno');
                 this.mostrarMenu(point.x, point.y, 'terreno');
                 
                 if (this.selectedHex.polygon) {
                     this.highlightHex(this.selectedHex.polygon);
                 }
+            } else {
+                // Fallback: mostrar menú de terreno general incluso sin hexágono
+                console.log('🎯 MiRadial: Sin hexágono, mostrando menú de terreno general');
+                this.selectedHex = { latlng: latlng }; // Crear hexágono virtual
+                this.mostrarMenu(point.x, point.y, 'terreno');
             }
         },
 

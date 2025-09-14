@@ -343,18 +343,33 @@ function habilitarDobleClicEnElementos() {
             });
 
             layer.off('dblclick').on('dblclick', function(e) {
-                L.DomEvent.stopPropagation(e);
-                L.DomEvent.preventDefault(e);
-                console.log('🎯 Doble click en elemento - abriendo edición');
-                // Seleccionar primero
-                if (typeof window.seleccionarElemento === 'function') {
-                    window.seleccionarElemento(this);
+                // ✅ COORDINACIÓN CON MENU RADIAL
+                // Solo interceptar si hay una herramienta de edición activa
+                // Si no, permitir que MiRadial maneje el evento
+                if (window.herramientaActiva && window.herramientaActiva !== 'selector') {
+                    L.DomEvent.stopPropagation(e);
+                    L.DomEvent.preventDefault(e);
+                    console.log('🎯 Doble click en elemento - abriendo edición (herramienta activa)');
+                    // Seleccionar primero
+                    if (typeof window.seleccionarElemento === 'function') {
+                        window.seleccionarElemento(this);
+                    } else {
+                        window.elementoSeleccionado = this;
+                    }
+                    // Luego editar
+                    if (typeof window.editarElementoSeleccionado === 'function') {
+                        window.editarElementoSeleccionado();
+                    }
                 } else {
-                    window.elementoSeleccionado = this;
-                }
-                // Luego editar
-                if (typeof window.editarElementoSeleccionado === 'function') {
-                    window.editarElementoSeleccionado();
+                    // No interceptar - permitir que MiRadial maneje el evento
+                    console.log('🎯 Doble click en elemento - delegando a MiRadial');
+                    // Solo seleccionar el elemento, no bloquear el evento
+                    if (typeof window.seleccionarElemento === 'function') {
+                        window.seleccionarElemento(this);
+                    } else {
+                        window.elementoSeleccionado = this;
+                    }
+                    // NO usar stopPropagation/preventDefault para permitir MiRadial
                 }
             });
 
