@@ -449,6 +449,89 @@ mostrarControlesZonas() {
     }
 }
 
+// ✅ MÉTODO FALTANTE: actualizarInterfazCombate()
+actualizarInterfazCombate(estado) {
+    console.log('[GestorInterfaz] 🎯 Actualizando interfaz para fase de combate:', estado);
+    
+    try {
+        // 1. Ocultar controles de preparación
+        this.ocultarControlesPreparacion();
+        
+        // 2. Mostrar controles de combate
+        this.mostrarControlesCombate(estado);
+        
+        // 3. Actualizar panel de estado con turno
+        this.actualizarPanelEstadoCombate(estado);
+        
+        // 4. Actualizar menú radial para combate
+        if (window.MiRadial && window.MiRadial.setFaseJuego) {
+            console.log('[GestorInterfaz] 🎯 Actualizando MiRadial para fase combate');
+            window.MiRadial.setFaseJuego('combate');
+        } else {
+            console.warn('[GestorInterfaz] ⚠️ MiRadial no disponible para actualizar fase');
+        }
+        
+        // 5. Mostrar mensaje de inicio de combate
+        const jugadorActual = estado.jugadorActual?.nombre || estado.jugadorActual?.username || 'Desconocido';
+        const turno = estado.turnoActual || 1;
+        this.mostrarMensaje(`⚔️ Combate iniciado - Turno ${turno}: ${jugadorActual}`, 'success');
+        
+        console.log('[GestorInterfaz] ✅ Interfaz de combate actualizada correctamente');
+        
+    } catch (error) {
+        console.error('[GestorInterfaz] ❌ Error actualizando interfaz de combate:', error);
+    }
+}
+
+// Método auxiliar para ocultar controles de preparación
+ocultarControlesPreparacion() {
+    const elementosPreparacion = [
+        '#btnFinalizarPreparacion',
+        '#controles-despliegue', 
+        '#panel-fases',
+        '.botones-confirmacion-zona',
+        '.botones-confirmacion-sector'
+    ];
+    
+    elementosPreparacion.forEach(selector => {
+        const elementos = document.querySelectorAll(selector);
+        elementos.forEach(elem => elem.style.display = 'none');
+    });
+}
+
+// Método auxiliar para mostrar controles de combate
+mostrarControlesCombate(estado) {
+    const btnTurno = document.getElementById('btnFinalizarTurno');
+    if (btnTurno) {
+        btnTurno.style.display = 'block';
+        // Habilitar/deshabilitar según si es el turno del jugador
+        const esmiTurno = estado.jugadorActual?.id === window.userId;
+        btnTurno.disabled = !esmiTurno;
+    }
+    
+    // Mostrar panel de estado de combate
+    const estadoCombate = document.getElementById('estado-combate');
+    if (estadoCombate) {
+        estadoCombate.style.display = 'block';
+    }
+}
+
+// Método auxiliar para actualizar panel de estado en combate
+actualizarPanelEstadoCombate(estado) {
+    const panelEstado = document.getElementById('estado-juego');
+    if (!panelEstado) return;
+
+    const jugadorActual = estado.jugadorActual?.nombre || estado.jugadorActual?.username || 'Desconocido';
+    const turno = estado.turnoActual || 1;
+    
+    panelEstado.innerHTML = `
+        <div class="fase-info">Fase: ${estado.fase}</div>
+        <div class="subfase-info">Subfase: ${estado.subfase || 'movimiento'}</div>
+        <div class="turno-info">Turno: ${turno}</div>
+        <div class="jugador-info">Jugador: ${jugadorActual}</div>
+    `;
+}
+
 limpiarInterfazPostZona() {
     // Eliminar paneles de confirmación
     const confirmaciones = document.querySelectorAll(

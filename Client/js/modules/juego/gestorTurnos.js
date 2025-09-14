@@ -810,6 +810,17 @@ class GestorTurnos extends GestorBase {
             this.turnoActual = 1;
             this.jugadorActualIndex = 0;
             
+            // ✅ DEBUG: Verificar estado después de inicializar
+            console.log('[GestorFases] 🔍 Estado después de inicializar combate:', {
+                fase: this.fase,
+                subfase: this.subfase,
+                turnoActual: this.turnoActual,
+                jugadorActualIndex: this.jugadorActualIndex,
+                totalJugadores: this.jugadores?.length,
+                jugadores: this.jugadores?.map(j => ({ id: j.id, nombre: j.nombre })),
+                jugadorActual: this.obtenerJugadorActual()
+            });
+            
             // 2. Notificar a gestorFases el cambio de fase
             if (this.gestorJuego?.gestorFases?.cambiarFase) {
                 console.log('[GestorFases] Notificando cambio a fase de combate');
