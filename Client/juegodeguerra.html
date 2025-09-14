@@ -454,7 +454,7 @@
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
-        <a href="#" id="btn3DView"><i class="fas fa-cube"></i> Vista 3D</a>
+        <!-- <a href="#" id="btn3DView"><i class="fas fa-cube"></i> Vista 3D</a> TEMPORALMENTE DESHABILITADO - Conflictos de inicialización -->
       </div>
     </div>
     <div class="menu-btn">
@@ -1291,28 +1291,29 @@
     </div>
   </main>
 
-  <!-- ✅ Inicialización controlada - mapaP.js ya maneja el mapa -->
+  <!-- ✅ Inicialización SIMPLE y LIMPIA -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 MAIRA 4.0 - Control post-inicialización');
+        console.log('🚀 MAIRA 4.0 - Juego de Guerra (Modo Limpio)');
         
-        // Limpiar elementos automáticos después de que mapaP.js se ejecute
+        // Solo verificar que el sistema esté limpio después de la inicialización
         setTimeout(function() {
-            // Verificar que no haya elementos pre-insertados
-            if (typeof window.elementosEnJuego !== 'undefined') {
-                console.log('🧹 Limpiando elementos preexistentes automáticos');
-                window.elementosEnJuego = [];
+            console.log('🧹 Sistema iniciado limpio - Sin elementos automáticos');
+            
+            // Verificar estado del mapa
+            if (typeof window.mapa !== 'undefined') {
+                console.log('✅ Mapa principal inicializado:', window.mapa.getCenter());
+            } else {
+                console.warn('⚠️ Mapa no encontrado');
             }
             
-            // Deshabilitar elementos de prueba si existen
-            if (typeof window.sistemaZoom !== 'undefined' && window.sistemaZoom.elementos) {
-                console.log('🧹 Limpiando elementos de prueba del sistema zoom');
-                window.sistemaZoom.elementos = [];
-                window.sistemaZoom.actualizarMapa();
+            // Verificar funcionalidades básicas
+            if (typeof window.sistemaZoom !== 'undefined') {
+                console.log('✅ Sistema de zoom disponible');
             }
             
-            console.log('✅ Limpieza de elementos automáticos completada');
-        }, 1500); // Después de que mapaP.js termine sus elementos de prueba
+            console.log('✅ MAIRA 4.0 listo para usar');
+        }, 2000);
     });
   </script>
 </body>

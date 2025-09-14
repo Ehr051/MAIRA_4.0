@@ -681,8 +681,12 @@ window.simularElementoEjemplo = () => {
     window.mostrarInformacionElemento(elementoEjemplo);
 };
 
-// Función para poblar mapa con elementos de prueba
+// ⏸️ FUNCIÓN DESHABILITADA - No crear elementos automáticamente
 window.crearElementosPrueba = () => {
+    console.log('⏸️ Creación de elementos de prueba DESHABILITADA - Juego iniciará limpio');
+    return;
+    
+    /*
     if (!window.sistemaZoom) {
         console.warn('⚠️ Sistema de zoom no inicializado aún');
         return;
@@ -744,6 +748,7 @@ window.crearElementosPrueba = () => {
     });
     
     console.log('🎮 Elementos de prueba creados:', elementosPrueba.length);
+    */
 };
 
 // Exportar para uso como módulo
