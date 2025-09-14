@@ -223,6 +223,11 @@ class GestorInterfaz extends GestorBase {
     actualizarEstadoJuego(estado) {
         if (!this.contenedores.panelEstado) return;
         
+        // 🎨 ACTUALIZAR SISTEMA DE PANELES UNIFICADO
+        if (window.sistemaPaneles) {
+            window.sistemaPaneles.actualizarEstado(estado);
+        }
+        
         let infoJugador = '';
         if (estado.fase === 'preparacion') {
             if (estado.subfase === 'definicion_sector' || estado.subfase === 'definicion_zonas') {

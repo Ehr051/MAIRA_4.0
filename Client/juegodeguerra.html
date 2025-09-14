@@ -38,6 +38,9 @@
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
   
+  <!-- Sistema de Paneles Unificado -->
+  <link rel="stylesheet" href="css/modules/sistema-paneles-unificado.css">
+  
   <!-- � CONFIGURACIÓN DE RED -->
   <script src="js/common/networkConfig.js"></script>
   
@@ -180,6 +183,9 @@
   <script src="js/modules/juego/gestorMapa.js"></script>
   <script src="js/modules/juego/gestorEstado.js"></script>
   <script src="js/modules/juego/gestorInterfaz.js"></script>
+  
+  <!-- Sistema de Paneles Unificado -->
+  <script src="js/modules/juego/sistemaPanelesUnificado.js"></script>
 
   <!-- 🌐 COMMON (archivos necesarios) -->
   <!-- 🔍 CALCOS Y SÍMBOLOS CRÍTICOS -->
@@ -251,6 +257,18 @@
                 console.log('✅ HexGrid inicializado');
             } else if (typeof HexGrid !== 'undefined') {
                 console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
+            }
+            
+            // 🎯 INICIALIZAR MENU RADIAL
+            if (typeof window.MiRadial !== 'undefined' && window.mapa) {
+                try {
+                    window.MiRadial.init(window.mapa);
+                    console.log('✅ Menú radial inicializado correctamente');
+                } catch(e) {
+                    console.error('❌ Error inicializando menú radial:', e);
+                }
+            } else {
+                console.warn('⚠️ Menú radial o mapa no disponible para inicialización');
             }
             
             console.log('✅ Dependencias básicas cargadas');
@@ -359,21 +377,7 @@
     <div class="version">Versión 1.4.1</div>
   </div>
 
-  <!-- Panel Unificado Dinámico para Estados del Juego -->
-  <div id="panelJuegoUnificado" class="panel-unificado"></div>
-  
-  <!-- Controles HUD Militares -->
-  <button id="btnMostrarPanel" class="btn-mostrar-panel mostrar-panel" 
-          onclick="panelUnificado?.alternar('general')" 
-          title="Panel de Estado - ESC para cerrar">
-    <i class="fas fa-info-circle"></i>
-  </button>
-  
-  <button class="hud-toggle" 
-          onclick="controladorHUD?.alternarHUD()" 
-          title="Ocultar/Mostrar HUD completo - Tecla H">
-    HUD
-  </button>
+  <!-- Paneles obsoletos eliminados - Reemplazados por Sistema de Paneles Unificado -->
   
   <!-- Indicador de nivel de zoom actual -->
   <div id="indicadorNivelZoom" class="indicador-nivel-zoom estrategico">
@@ -383,23 +387,7 @@
   
   <!-- Controles de Fase del Juego -->
   <div id="controlesJuego" style="position: fixed; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
-    <button id="btnFinalizarPreparacion" 
-            onclick="window.gestorJuego?.gestorTurnos?.marcarJugadorListo()"
-            style="padding: 10px 15px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
-      ✅ Finalizar Preparación
-    </button>
-    
-    <button id="btnFinalizarTurno" 
-            onclick="window.gestorJuego?.gestorTurnos?.finalizarTurno()"
-            style="padding: 10px 15px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: none;">
-      ⏭️ Finalizar Turno
-    </button>
-    
-    <button id="btnForzarCombate" 
-            onclick="forzarInicioCombate()"
-            style="padding: 10px 15px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
-      ⚔️ Forzar Combate (DEBUG)
-    </button>
+    <!-- Botones de control movidos al Sistema de Paneles Unificado -->
   </div>
   
   <!-- Indicadores de Estado del Juego -->
@@ -411,29 +399,7 @@
     05:00
   </div>
 
-  <!-- Botones de prueba (temporal) -->
-  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; display: flex; gap: 10px; flex-direction: column;">
-    <button onclick="simularElementoEjemplo()" 
-            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-      🎯 Probar Panel Info
-    </button>
-    <button onclick="sistemaZoom?.forzarNivel('estrategico')" 
-            style="padding: 8px 12px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-      📐 Zoom Estratégico
-    </button>
-    <button onclick="sistemaZoom?.forzarNivel('tactico')" 
-            style="padding: 8px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-      🎯 Zoom Táctico
-    </button>
-    <button onclick="sistemaZoom?.forzarNivel('operacional')" 
-            style="padding: 8px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-      🔧 Zoom Operacional
-    </button>
-    <button onclick="forzarInicioCombate()" 
-            style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-      ⚔️ INICIAR COMBATE
-    </button>
-  </div>
+  <!-- Botones de prueba eliminados - Funcionalidad integrada en Sistema de Paneles -->
 
   <div id="botones-principales">
     <div class="menu-btn">
