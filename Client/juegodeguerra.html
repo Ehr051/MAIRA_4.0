@@ -1291,38 +1291,28 @@
     </div>
   </main>
 
-  <!-- ✅ Inicialización Simple y Directa -->
+  <!-- ✅ Inicialización controlada - mapaP.js ya maneja el mapa -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 MAIRA 4.0 - Iniciando Juego de Guerra Simple');
+        console.log('🚀 MAIRA 4.0 - Control post-inicialización');
         
-        // Verificar que no haya elementos pre-insertados
-        if (typeof window.elementosEnJuego !== 'undefined') {
-            console.log('🧹 Limpiando elementos preexistentes');
-            window.elementosEnJuego = [];
-        }
-        
-        // Usar el inicializador si está disponible
-        if (typeof InicializadorJuegoGuerra !== 'undefined') {
-            const inicializador = new InicializadorJuegoGuerra();
-            inicializador.inicializar().then(function(exito) {
-                if (exito) {
-                    console.log('✅ Sistema inicializado correctamente');
-                } else {
-                    console.warn('⚠️ Problema en inicialización');
-                    // Fallback a inicialización básica del mapa
-                    if (typeof inicializarMapaBasico === 'function') {
-                        inicializarMapaBasico();
-                    }
-                }
-            });
-        } else {
-            console.warn('⚠️ InicializadorJuegoGuerra no disponible, usando inicialización básica');
-            // Inicialización mínima si no hay otros sistemas
-            if (typeof inicializarMapaBasico === 'function') {
-                inicializarMapaBasico();
+        // Limpiar elementos automáticos después de que mapaP.js se ejecute
+        setTimeout(function() {
+            // Verificar que no haya elementos pre-insertados
+            if (typeof window.elementosEnJuego !== 'undefined') {
+                console.log('🧹 Limpiando elementos preexistentes automáticos');
+                window.elementosEnJuego = [];
             }
-        }
+            
+            // Deshabilitar elementos de prueba si existen
+            if (typeof window.sistemaZoom !== 'undefined' && window.sistemaZoom.elementos) {
+                console.log('🧹 Limpiando elementos de prueba del sistema zoom');
+                window.sistemaZoom.elementos = [];
+                window.sistemaZoom.actualizarMapa();
+            }
+            
+            console.log('✅ Limpieza de elementos automáticos completada');
+        }, 1500); // Después de que mapaP.js termine sus elementos de prueba
     });
   </script>
 </body>
