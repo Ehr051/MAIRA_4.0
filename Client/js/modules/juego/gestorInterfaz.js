@@ -883,6 +883,67 @@ actualizarListaUnidadesDisponibles() {
         }
     }
 
+    /**
+     * MÉTODOS FALTANTES - Integración con Panel Unificado
+     * ===================================================
+     */
+    
+    actualizarPanelFase(datos) {
+        // Método llamado por gestorJuego para actualizar la fase
+        console.log('[GestorInterfaz] Actualizando panel de fase:', datos);
+        
+        try {
+            // Si existe el panel unificado, usarlo
+            if (window.panelUnificado) {
+                window.panelUnificado.actualizarFase(datos);
+            }
+            
+            // Actualizar también el estado general
+            this.actualizarEstadoJuego({
+                fase: datos.fase || datos.faseActual,
+                subfase: datos.subfase,
+                tiempoRestante: datos.tiempoRestante,
+                descripcion: datos.descripcion
+            });
+            
+            // Emitir evento para otros sistemas
+            document.dispatchEvent(new CustomEvent('cambioFase', {
+                detail: datos
+            }));
+            
+        } catch (error) {
+            console.error('[GestorInterfaz] Error actualizando panel de fase:', error);
+        }
+    }
+
+    actualizarPanelTurno(datos) {
+        // Método llamado por gestorJuego para actualizar el turno
+        console.log('[GestorInterfaz] Actualizando panel de turno:', datos);
+        
+        try {
+            // Si existe el panel unificado, usarlo
+            if (window.panelUnificado) {
+                window.panelUnificado.actualizarTurno(datos);
+            }
+            
+            // Actualizar también el estado general
+            this.actualizarEstadoJuego({
+                turno: datos.turno || datos.turnoActual,
+                jugadorActivo: datos.jugador || datos.jugadorActual,
+                fase: datos.fase,
+                tiempoRestante: datos.tiempoRestante
+            });
+            
+            // Emitir evento para otros sistemas
+            document.dispatchEvent(new CustomEvent('cambioTurno', {
+                detail: datos
+            }));
+            
+        } catch (error) {
+            console.error('[GestorInterfaz] Error actualizando panel de turno:', error);
+        }
+    }
+
     destruir() {
         Object.values(this.contenedores).forEach(contenedor => {
             if (contenedor && contenedor.parentNode) {

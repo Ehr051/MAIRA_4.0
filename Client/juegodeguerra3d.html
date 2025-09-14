@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
   <link rel="stylesheet" href="css/modules/juegodeguerra/sistemaZoomMultiNivel.css">
+  <link rel="stylesheet" href="css/modules/sistema-paneles-unificado.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
   
@@ -1497,6 +1498,15 @@
     
     // Escuchar cambios de fase cuando se inicialice el DOM
     document.addEventListener('DOMContentLoaded', () => {
+      // 🎮 INICIALIZAR PANEL UNIFICADO
+      console.log('🎮 Inicializando Panel Juego Unificado (Vista 3D)...');
+      if (typeof PanelJuegoUnificado !== 'undefined') {
+        window.panelUnificado = new PanelJuegoUnificado();
+        console.log('✅ Panel Unificado 3D inicializado correctamente');
+      } else {
+        console.warn('⚠️ PanelJuegoUnificado no disponible en vista 3D');
+      }
+      
       // Escuchar eventos de cambio de fase
       document.addEventListener('faseCambiada', (event) => {
         const { nuevaFase, nuevaSubfase } = event.detail;
