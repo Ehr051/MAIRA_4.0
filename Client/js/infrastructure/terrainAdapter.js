@@ -1,10 +1,23 @@
-// terrainAdapter.js - Adaptado   // Lista de URLs corregidas - LOCAL PRIMERO, LUEGO REMOTE
-  const urls = [
-      // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
-  
-  // 🔄 FALLBACK: GitHub Release v3.0
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
+// terrainAdapter.js - Adaptador para datos de terreno
+
+// CONSTANTES DEFINIDAS PRIMERO
+// URL base para GitHub Releases mini-tiles v3.0
+const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
+
+// URLs de fallback para GitHub Releases (corregido: MAIRA_4.0 con underscore)
+const MINI_TILES_FALLBACK_URLS = [
+    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/',
+    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/',
+    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/'
+];
+
+// Lista de URLs corregidas - LOCAL PRIMERO, LUEGO REMOTE
+const urls = [
+    // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
+    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
+    
+    // 🔄 FALLBACK: GitHub Release v3.0
+    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
     
     // 🌐 FALLBACK 2: GitHub Releases (si existe el release)
     'https://github.com/Ehr051/MAIRA-4.0/raw/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
@@ -12,17 +25,7 @@
     // ⚠️ FALLBACKS ADICIONALES (deprecated pero mantenidos por compatibilidad)
     `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
     ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
-  ];
-
-// URL base para GitHub Releases mini-tiles v3.0
-const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
-
-    // URLs de fallback para GitHub Releases (corregido: MAIRA_4.0 con underscore)
-    const MINI_TILES_FALLBACK_URLS = [
-        'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/',
-        'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/',
-        'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/'
-    ];
+];
 
 // Ruta para tiles clásicos (legacy)
 const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';

@@ -370,6 +370,22 @@ class ThreeDMapService {
         animate();
     }
 
+    /**
+     * Renderizar un frame manualmente
+     */
+    render() {
+        if (!this.renderer || !this.scene || !this.camera) {
+            console.warn('Sistema 3D no inicializado completamente para renderizar');
+            return;
+        }
+        
+        if (this.controls) {
+            this.controls.update();
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+    }
+
     onWindowResize() {
         if (!this.container || !this.camera || !this.renderer) return;
 

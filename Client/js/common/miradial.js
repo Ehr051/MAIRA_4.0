@@ -217,7 +217,11 @@
                 return;
             }
             
-
+            // Validar que es una instancia de Leaflet
+            if (!map.on || typeof map.on !== 'function') {
+                console.error('El objeto map no es una instancia válida de Leaflet:', map);
+                return;
+            }
 
             this.map = map;
             this.setFaseJuego('preparacion');
@@ -252,6 +256,14 @@
             this.initStyles();
             console.log('MiRadial inicializado');
             
+        },
+
+        /**
+         * Alias para init - compatibilidad con código existente
+         */
+        inicializar: function(map, modo) {
+            console.log('🎯 MiRadial.inicializar llamado con:', map, modo);
+            return this.init(map);
         },
 
         /**

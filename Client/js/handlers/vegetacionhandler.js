@@ -590,6 +590,7 @@ if (typeof window !== 'undefined') {
     // Inicializar automáticamente
     if (!window.vegetationHandler) {
         window.vegetationHandler = new VegetacionHandler();
+        window.vegetacionHandler = window.vegetationHandler; // Alias en español para compatibilidad
         console.log('🌿 VegetationHandler inicializado automáticamente');
     }
 }
