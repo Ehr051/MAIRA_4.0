@@ -44,18 +44,12 @@
   <script src="/node_modules/proj4/dist/proj4.js"></script>
   <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
   
-  <!-- Three.js para visualización 3D -->
-  <script src="/node_modules/three/build/three.min.js"></script>
-  <!-- Three.js OrbitControls versión compatible con navegador -->
-  <script src="/node_modules/three/examples/js/controls/OrbitControls.js"></script>
+  <!-- Three.js para visualización 3D - Versión local independiente -->
+  <script src="/Libs/three-js/three.min.js"></script>
+  <!-- Three.js OrbitControls versión compatible MAIRA -->
+  <script src="/Libs/three-js/OrbitControls.js"></script>
   
-  <!-- Fallback CDN para Three.js si node_modules falla -->
-  <script>
-    if (typeof THREE === 'undefined') {
-      console.log('⚠️ Cargando Three.js desde CDN como fallback...');
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
-    }
-  </script>
+  <!-- Three.js cargado desde /Libs/three-js/ - Sin dependencias externas -->
   <!-- Pako.js para descompresión de TIF en tar.gz -->
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   
