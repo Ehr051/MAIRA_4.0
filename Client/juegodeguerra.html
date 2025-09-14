@@ -359,116 +359,8 @@
   <!-- 🚀 INICIALIZADORES EXTERNOS (JavaScript limpio) -->
   <script src="js/modules/gaming/inicializadorJuegoGuerra.js"></script>
   <script src="js/modules/gaming/gestorDetectorGestos.js"></script>
-                await window.gestorJuego.inicializar(configuracionPartida);
-                console.log('✅ GestorJuego inicializado');
-            }
-            
-            // Inicializar HexGrid si existe
-            if (typeof HexGrid !== 'undefined' && window.mapa) {
-                HexGrid.initialize(window.mapa);
-                console.log('✅ HexGrid inicializado');
-            } else if (typeof HexGrid !== 'undefined') {
-                console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
-            }
-            
-            // 🎯 INICIALIZAR MENU RADIAL
-            if (typeof window.MiRadial !== 'undefined' && window.mapa) {
-                try {
-                    window.MiRadial.init(window.mapa);
-                    console.log('✅ Menú radial inicializado correctamente');
-                } catch(e) {
-                    console.error('❌ Error inicializando menú radial:', e);
-                }
-            } else {
-                console.warn('⚠️ Menú radial o mapa no disponible para inicialización');
-            }
-            
-            console.log('✅ Dependencias básicas cargadas');
-            console.log('🎮 JUEGO DE GUERRA inicializado correctamente');
-            
-            window.JuegoDeGuerraInitialized = true;
-            
-        } catch (error) {
-            console.error('❌ Error en inicialización:', error);
-            mostrarErrorInicializacion(error.message);
-        }
-    }
-    
-    function obtenerConfiguracionPartida() {
-        // Obtener parámetros de URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const codigoPartida = urlParams.get('codigo');
-        
-        let configuracion = {
-            modoJuego: 'local',
-            duracionTurno: 300,
-            jugadores: [],
-            centro: [-34.9964963, -64.9672817],
-            zoom: 4
-        };
-        
-        if (codigoPartida) {
-            // Partida online
-            configuracion.modoJuego = 'online';
-            configuracion.codigoPartida = codigoPartida;
-            console.log('🌐 Partida online detectada:', codigoPartida);
-        } else {
-            // Partida local - obtener configuración del localStorage
-            const configLocal = localStorage.getItem('configuracionPartidaLocal');
-            if (configLocal) {
-                try {
-                    const parsedConfig = JSON.parse(configLocal);
-                    configuracion = { ...configuracion, ...parsedConfig };
-                    console.log('� Partida local detectada');
-                } catch (error) {
-                    console.warn('⚠️ Error leyendo configuración local:', error);
-                }
-            }
-        }
-        
-        return configuracion;
-    }
-    
-    function mostrarErrorInicializacion(mensaje) {
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #dc3545;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            z-index: 9999;
-        `;
-        errorDiv.innerHTML = `
-            <h3>Error de Inicialización</h3>
-            <p>${mensaje}</p>
-            <button onclick="window.location.href='iniciarpartida.html'" style="margin-top: 10px; padding: 8px 16px;">
-                Volver a Iniciar Partida
-            </button>
-        `;
-        document.body.appendChild(errorDiv);
-    }
-    
-    // ✅ INICIALIZACIÓN UNIFICADA - Solo un punto de entrada
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.JuegoDeGuerraInitialized) {
-            console.log('⚠️ Juego ya inicializado, evitando duplicación');
-            return;
-        }
-        
-        console.log('� Iniciando MAIRA 4.0 - Juego de Guerra');
-        initializeJuegoDeguerra();
-    });
-  </script>
- 
- <!-- Scripts de tiles externos y GitHub Releases -->
- <!-- Archivos movidos a tools/static-debug ya no necesarios en producción -->
- 
- <!-- MediaPipe para control por gestos -->
+
+  <!-- MediaPipe para control por gestos -->
  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
  
  <!-- Control por gestos MAIRA -->
@@ -1399,37 +1291,39 @@
     </div>
   </main>
 
-  <!-- ❌ INICIALIZADOR MODULAR DESHABILITADO PARA EVITAR CONFLICTOS -->
+  <!-- ✅ Inicialización Simple y Directa -->
   <script>
-    // ESTE INICIALIZADOR HA SIDO DESHABILITADO - CONFLICTO CON INICIALIZACIÓN PRINCIPAL
-    /*
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('⚔️ MAIRA 4.0 - Inicialización Juego de Guerra');
-      
-      // Inicializar sistemas modulares
-      setTimeout(async function() {
-        try {
-          // 1. Inicializar Sistema de Juego de Guerra
-          if (typeof inicializarSistemaJuegoGuerra === 'function') {
-            window.sistemaJG = inicializarSistemaJuegoGuerra();
-            console.log('✅ Sistema de Juego de Guerra inicializado');
-          }
-          
-          // 2. Integrar con sistemas de paneles existentes
-          integrarSistemasPaneles();
-          
-          // 3. Configurar eventos específicos del juego
-          configurarEventosJuego();
-          
-        } catch (error) {
-          console.error('❌ Error en inicialización modular del juego:', error);
+        console.log('🚀 MAIRA 4.0 - Iniciando Juego de Guerra Simple');
+        
+        // Verificar que no haya elementos pre-insertados
+        if (typeof window.elementosEnJuego !== 'undefined') {
+            console.log('🧹 Limpiando elementos preexistentes');
+            window.elementosEnJuego = [];
         }
-      }, 1000);
+        
+        // Usar el inicializador si está disponible
+        if (typeof InicializadorJuegoGuerra !== 'undefined') {
+            const inicializador = new InicializadorJuegoGuerra();
+            inicializador.inicializar().then(function(exito) {
+                if (exito) {
+                    console.log('✅ Sistema inicializado correctamente');
+                } else {
+                    console.warn('⚠️ Problema en inicialización');
+                    // Fallback a inicialización básica del mapa
+                    if (typeof inicializarMapaBasico === 'function') {
+                        inicializarMapaBasico();
+                    }
+                }
+            });
+        } else {
+            console.warn('⚠️ InicializadorJuegoGuerra no disponible, usando inicialización básica');
+            // Inicialización mínima si no hay otros sistemas
+            if (typeof inicializarMapaBasico === 'function') {
+                inicializarMapaBasico();
+            }
+        }
     });
-    */
-
-    // ✅ TODO EL JAVASCRIPT HA SIDO MOVIDO A ARCHIVOS EXTERNOS
-    // Ver: inicializadorJuegoGuerra.js, gestorDetectorGestos.js, detectorZoom3D.js
   </script>
 </body>
 </html>

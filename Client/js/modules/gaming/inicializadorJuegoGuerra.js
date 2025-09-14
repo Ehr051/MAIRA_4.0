@@ -72,14 +72,14 @@ class InicializadorJuegoGuerra {
                 return JSON.parse(config);
             }
             
-            // Configuración por defecto
+            // Configuración por defecto - Argentina
             return {
                 modo: 'juego_guerra',
                 jugadores: 2,
                 escenario: 'default',
                 duracionTurno: 300000, // 5 minutos
-                mapaCentro: [40.7128, -74.0060], // NYC por defecto
-                zoomInicial: 10
+                mapaCentro: [-34.6037, -58.3816], // Buenos Aires, Argentina
+                zoomInicial: 13
             };
             
         } catch (error) {
@@ -89,8 +89,8 @@ class InicializadorJuegoGuerra {
                 jugadores: 2,
                 escenario: 'default',
                 duracionTurno: 300000,
-                mapaCentro: [40.7128, -74.0060],
-                zoomInicial: 10
+                mapaCentro: [-34.6037, -58.3816], // Buenos Aires, Argentina
+                zoomInicial: 13
             };
         }
     }
