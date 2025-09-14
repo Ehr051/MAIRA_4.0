@@ -1,0 +1,11 @@
+Model Information:
+* title:	M113
+* source:	https://sketchfab.com/3d-models/m113-7fe132c071584049b51d3569726021a0
+* author:	arc4de (https://sketchfab.com/arc4de)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "M113" (https://sketchfab.com/3d-models/m113-7fe132c071584049b51d3569726021a0) by arc4de (https://sketchfab.com/arc4de) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

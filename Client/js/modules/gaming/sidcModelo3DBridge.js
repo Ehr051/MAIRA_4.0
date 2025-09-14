@@ -10,9 +10,12 @@ class SIDCModelo3DBridge {
         this.categoriasSIDC = this.definirCategoriasSIDC();
         this.metadatosMilitares = this.cargarMetadatosMilitares();
         this.sistemaJerarquico = null;
+        this.modelos3DManager = null;
+        this.elementoMapper = null;
         
         console.log('🌉 SIDC-Modelo3D Bridge inicializado');
         this.integrarSistemaJerarquico();
+        this.integrarManagers();
     }
 
     /**
@@ -25,6 +28,37 @@ class SIDCModelo3DBridge {
         } else {
             // Esperar a que se cargue
             setTimeout(() => this.integrarSistemaJerarquico(), 1000);
+        }
+    }
+
+    /**
+     * INTEGRAR CON MANAGERS
+     */
+    integrarManagers() {
+        // Integrar con Modelos3DManager
+        if (window.modelos3DManager) {
+            this.modelos3DManager = window.modelos3DManager;
+            console.log('🔗 Bridge integrado con Modelos3DManager');
+        } else {
+            setTimeout(() => {
+                if (window.modelos3DManager) {
+                    this.modelos3DManager = window.modelos3DManager;
+                    console.log('🔗 Bridge integrado con Modelos3DManager (delayed)');
+                }
+            }, 1000);
+        }
+
+        // Integrar con ElementoMapper
+        if (window.elementoModelo3DMapper) {
+            this.elementoMapper = window.elementoModelo3DMapper;
+            console.log('🔗 Bridge integrado con ElementoMapper');
+        } else {
+            setTimeout(() => {
+                if (window.elementoModelo3DMapper) {
+                    this.elementoMapper = window.elementoModelo3DMapper;
+                    console.log('🔗 Bridge integrado con ElementoMapper (delayed)');
+                }
+            }, 1000);
         }
     }
 
@@ -352,6 +386,64 @@ class SIDCModelo3DBridge {
         }
 
         return Object.keys(this.modelos3DManager.catalogo);
+    }
+
+    /**
+     * CREAR MAPEO SIDC - FUNCIÓN FALTANTE
+     */
+    crearMapeoSIDC() {
+        return {
+            // Caballería Blindada
+            'S*G*UCDM--': { modelo: 'tam_tank', tipo: 'vehiculo', categoria: 'Blindada' },
+            'S*G*UCDC--': { modelo: 'sk105', tipo: 'vehiculo', categoria: 'Blindada' },
+            
+            // Infantería
+            'S*G*UCFR--': { modelo: 'vehiculo_mecanizado', tipo: 'vehiculo', categoria: 'Mecanizada' },
+            'S*G*UI----': { modelo: 'soldier_rifle', tipo: 'personal', categoria: 'Infantería' },
+            
+            // Artillería
+            'S*G*UCA---': { modelo: 'artillery_unit', tipo: 'vehiculo', categoria: 'Artillería' },
+            
+            // Genéricos
+            'S*G*UE----': { modelo: 'generic_unit', tipo: 'generico', categoria: 'Unidad' }
+        };
+    }
+
+    /**
+     * DEFINIR CATEGORÍAS SIDC - FUNCIÓN FALTANTE
+     */
+    definirCategoriasSIDC() {
+        return {
+            'LAND_UNIT': {
+                'CAVALRY': ['S*G*UCD---', 'S*G*UCDM--', 'S*G*UCDC--'],
+                'INFANTRY': ['S*G*UI----', 'S*G*UCFR--'],
+                'ARTILLERY': ['S*G*UCA---'],
+                'ENGINEER': ['S*G*UCE---'],
+                'LOGISTICS': ['S*G*UCS---']
+            }
+        };
+    }
+
+    /**
+     * CARGAR METADATOS MILITARES - FUNCIÓN FALTANTE
+     */
+    cargarMetadatosMilitares() {
+        return {
+            escalas: {
+                'TEAM': { tamaño: 4, simbolo: '••' },
+                'SQUAD': { tamaño: 8, simbolo: '•••' },
+                'PLATOON': { tamaño: 32, simbolo: '||||' },
+                'COMPANY': { tamaño: 100, simbolo: '|' },
+                'BATTALION': { tamaño: 400, simbolo: '||' },
+                'REGIMENT': { tamaño: 2000, simbolo: '|||' }
+            },
+            afiliaciones: {
+                'FRIENDLY': { color: '#0080FF', prefijo: 'S*F*' },
+                'HOSTILE': { color: '#FF0000', prefijo: 'S*H*' },
+                'NEUTRAL': { color: '#00FF00', prefijo: 'S*N*' },
+                'UNKNOWN': { color: '#FFFF00', prefijo: 'S*U*' }
+            }
+        };
     }
 
     /**

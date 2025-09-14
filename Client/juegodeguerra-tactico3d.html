@@ -341,6 +341,169 @@
             font-weight: bold;
         }
 
+        /* === CONTROLES DE FASES === */
+        .controles-fase {
+            margin-bottom: 15px;
+        }
+
+        .btn-fase {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 3px 0;
+            background: linear-gradient(135deg, #2d5a87, #1e3d5c);
+            color: white;
+            border: 1px solid #4a90c2;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-fase:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4a90c2, #2d5a87);
+            box-shadow: 0 2px 8px rgba(74, 144, 194, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-fase:disabled {
+            background: #444;
+            color: #888;
+            border-color: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-fase:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(74, 144, 194, 0.2);
+        }
+
+        .botones-confirmacion {
+            display: flex;
+            gap: 5px;
+            margin: 5px 0 10px 0;
+        }
+
+        .btn-confirmar, .btn-cancelar {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-confirmar {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            border: 1px solid #28a745;
+        }
+
+        .btn-confirmar:hover {
+            background: linear-gradient(135deg, #34ce57, #28a745);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-cancelar:hover {
+            background: linear-gradient(135deg, #e4606d, #dc3545);
+            transform: translateY(-1px);
+        }
+
+        .btn-finalizar-turno {
+            background: linear-gradient(135deg, #fd7e14, #e55a00);
+            border-color: #fd7e14;
+            font-weight: bold;
+        }
+
+        .btn-finalizar-turno:hover {
+            background: linear-gradient(135deg, #ff922b, #fd7e14);
+        }
+
+        #infoJugadorActual, #infoTurnoCombate {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .reloj-combate {
+            margin-top: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        .estado-despliegues {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+
+        .jugador-despliegue {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .jugador-despliegue:last-child {
+            border-bottom: none;
+        }
+
+        .estado-confirmado {
+            color: #28a745;
+        }
+
+        .estado-pendiente {
+            color: #ffc107;
+        }
+
+        .secuencia-turnos {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+
+        .turno-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .turno-item:last-child {
+            border-bottom: none;
+        }
+
+        .turno-activo {
+            background: rgba(255, 193, 7, 0.2);
+            border-radius: 3px;
+            padding: 3px 5px;
+            font-weight: bold;
+        }
+
+        .turno-completado {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+
         /* === RESPONSIVE === */
         @media (max-width: 1200px) {
             .panel-control {
@@ -396,6 +559,56 @@
                         <button class="btn-control" onclick="toggleWireframe()">🕸️ Wire</button>
                         <button class="btn-control" onclick="toggleLuces()">💡 Luz</button>
                         <button class="btn-control" onclick="capturarPantalla()">📸 Foto</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Control de Fases -->
+            <div class="panel-section">
+                <div class="panel-header">🎮 Control de Fases</div>
+                <div class="panel-content">
+                    <!-- Fase Preparación -->
+                    <div id="controlesPeparacion" class="controles-fase">
+                        <button class="btn-fase" id="btnDefinirSector">📍 Definir Sector</button>
+                        <div class="botones-confirmacion" id="confirmacionSector" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarSector()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarSector()">❌ Cancelar</button>
+                        </div>
+                        
+                        <button class="btn-fase" id="btnDefinirZonaRoja" disabled>🚫 Definir Zona Roja</button>
+                        <div class="botones-confirmacion" id="confirmacionZonaRoja" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarZonaRoja()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarZonaRoja()">❌ Cancelar</button>
+                        </div>
+                        
+                        <button class="btn-fase" id="btnDefinirZonaAzul" disabled>🔵 Definir Zona Azul</button>
+                        <div class="botones-confirmacion" id="confirmacionZonaAzul" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarZonaAzul()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarZonaAzul()">❌ Cancelar</button>
+                        </div>
+                    </div>
+
+                    <!-- Fase Despliegue -->
+                    <div id="controlesDespliegue" class="controles-fase" style="display: none;">
+                        <div id="infoJugadorActual">
+                            <strong>Despliegue jugador: <span id="nombreJugadorDespliegue">-</span></strong>
+                        </div>
+                        <button class="btn-fase" id="btnFinalizarDespliegue" disabled>🎯 Finalizar Despliegue</button>
+                        <div class="estado-despliegues" id="estadoDespliegues">
+                            <!-- Se poblará dinámicamente con el estado de cada jugador -->
+                        </div>
+                    </div>
+
+                    <!-- Fase Combate -->
+                    <div id="controlesCombate" class="controles-fase" style="display: none;">
+                        <div id="infoTurnoCombate">
+                            <strong>Turno: <span id="nombreJugadorCombate">-</span></strong>
+                            <div class="reloj-combate">⏱️ <span id="tiempoTurnoCombate">05:00</span></div>
+                        </div>
+                        <button class="btn-fase btn-finalizar-turno" id="btnFinalizarTurno">⏭️ Finalizar Turno</button>
+                        <div class="secuencia-turnos" id="secuenciaTurnos">
+                            <!-- Se poblará con la secuencia de turnos -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -557,6 +770,7 @@
                 this.coordenadasActuales = { lat: 0, lng: 0 };
                 
                 this.init();
+                this.inicializarControlFases();
                 this.iniciarIntegracionMAIRA();
             }
 
@@ -1484,6 +1698,262 @@
                 document.getElementById('unidadesNeutrales').textContent = neutrales;
             }
 
+            // =====================================================
+            // 🎮 SISTEMA DE CONTROL DE FASES COMPLETO
+            // =====================================================
+
+            inicializarControlFases() {
+                // Configurar eventos de los botones de fase
+                this.configurarEventosFases();
+                this.actualizarPanelFases();
+                
+                // Datos de ejemplo para pruebas
+                this.jugadores = [
+                    { id: 'jugador1', nombre: 'Comandante Azul', equipo: 'azul', desplegado: false },
+                    { id: 'jugador2', nombre: 'Comandante Rojo', equipo: 'rojo', desplegado: false }
+                ];
+                
+                this.jugadorActualIndex = 0;
+                this.tiempoTurno = 300; // 5 minutos por turno
+                this.temporizadorActivo = false;
+            }
+
+            configurarEventosFases() {
+                // Fase Preparación
+                document.getElementById('btnDefinirSector').addEventListener('click', this.iniciarDefinicionSector.bind(this));
+                document.getElementById('btnDefinirZonaRoja').addEventListener('click', this.iniciarDefinicionZonaRoja.bind(this));
+                document.getElementById('btnDefinirZonaAzul').addEventListener('click', this.iniciarDefinicionZonaAzul.bind(this));
+                
+                // Fase Despliegue
+                document.getElementById('btnFinalizarDespliegue').addEventListener('click', this.confirmarDespliegueJugador.bind(this));
+                
+                // Fase Combate
+                document.getElementById('btnFinalizarTurno').addEventListener('click', this.finalizarTurnoActual.bind(this));
+            }
+
+            actualizarPanelFases() {
+                // Ocultar todos los paneles de fase
+                document.getElementById('controlesPeparacion').style.display = 'none';
+                document.getElementById('controlesDespliegue').style.display = 'none';
+                document.getElementById('controlesCombate').style.display = 'none';
+                
+                // Mostrar panel según fase actual
+                switch(this.fase) {
+                    case 'preparacion':
+                        document.getElementById('controlesPeparacion').style.display = 'block';
+                        this.actualizarPanelPreparacion();
+                        break;
+                    case 'despliegue':
+                        document.getElementById('controlesDespliegue').style.display = 'block';
+                        this.actualizarPanelDespliegue();
+                        break;
+                    case 'combate':
+                        document.getElementById('controlesCombate').style.display = 'block';
+                        this.actualizarPanelCombate();
+                        break;
+                }
+                
+                // Actualizar indicador de fase
+                document.getElementById('faseActual').textContent = this.fase.toUpperCase();
+            }
+
+            // FASE PREPARACIÓN
+            iniciarDefinicionSector() {
+                console.log('📍 Iniciando definición de sector');
+                this.subfase = 'definicion_sector';
+                
+                // Mostrar botones de confirmación
+                document.getElementById('confirmacionSector').style.display = 'block';
+                document.getElementById('btnDefinirSector').disabled = true;
+                
+                // Activar modo de dibujo en el mapa
+                this.activarModoDefinicion('sector');
+            }
+
+            iniciarDefinicionZonaRoja() {
+                console.log('🚫 Iniciando definición de zona roja');
+                this.subfase = 'definicion_zona_roja';
+                
+                document.getElementById('confirmacionZonaRoja').style.display = 'block';
+                document.getElementById('btnDefinirZonaRoja').disabled = true;
+                
+                this.activarModoDefinicion('zona_roja');
+            }
+
+            iniciarDefinicionZonaAzul() {
+                console.log('🔵 Iniciando definición de zona azul');
+                this.subfase = 'definicion_zona_azul';
+                
+                document.getElementById('confirmacionZonaAzul').style.display = 'block';
+                document.getElementById('btnDefinirZonaAzul').disabled = true;
+                
+                this.activarModoDefinicion('zona_azul');
+            }
+
+            activarModoDefinicion(tipo) {
+                // Cambiar cursor y habilitar herramientas de dibujo
+                this.renderer.domElement.style.cursor = 'crosshair';
+                
+                // Aquí se integraría con las herramientas de dibujo del mapa
+                console.log(`🖊️ Modo de definición activado: ${tipo}`);
+            }
+
+            actualizarPanelPreparacion() {
+                // Habilitar botones según progreso
+                const sectorDefinido = this.subfase !== 'definicion_sector';
+                const zonaRojaDefinida = this.zonaRojaConfirmada || false;
+                const zonaAzulDefinida = this.zonaAzulConfirmada || false;
+                
+                document.getElementById('btnDefinirZonaRoja').disabled = !sectorDefinido;
+                document.getElementById('btnDefinirZonaAzul').disabled = !zonaRojaDefinida;
+                
+                if (sectorDefinido && zonaRojaDefinida && zonaAzulDefinida) {
+                    this.avanzarADespliegue();
+                }
+            }
+
+            // FASE DESPLIEGUE
+            avanzarADespliegue() {
+                console.log('🎯 Avanzando a fase de despliegue');
+                this.fase = 'despliegue';
+                this.jugadorActualIndex = 0;
+                this.actualizarPanelFases();
+            }
+
+            actualizarPanelDespliegue() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                
+                document.getElementById('nombreJugadorDespliegue').textContent = jugadorActual.nombre;
+                
+                // Actualizar estado de despliegues
+                const estadoDespliegues = document.getElementById('estadoDespliegues');
+                estadoDespliegues.innerHTML = this.jugadores.map(jugador => `
+                    <div class="jugador-despliegue">
+                        <span>${jugador.nombre}</span>
+                        <span class="${jugador.desplegado ? 'estado-confirmado' : 'estado-pendiente'}">
+                            ${jugador.desplegado ? '✅ Confirmado' : '⏳ Pendiente'}
+                        </span>
+                    </div>
+                `).join('');
+                
+                // Habilitar botón si hay unidades desplegadas
+                const tieneDesplegadas = this.contarUnidadesDesplegadas(jugadorActual.id) > 0;
+                document.getElementById('btnFinalizarDespliegue').disabled = !tieneDesplegadas;
+            }
+
+            confirmarDespliegueJugador() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                console.log(`✅ Confirmando despliegue de ${jugadorActual.nombre}`);
+                
+                jugadorActual.desplegado = true;
+                
+                // Pasar al siguiente jugador
+                this.jugadorActualIndex++;
+                
+                if (this.jugadorActualIndex >= this.jugadores.length) {
+                    // Todos confirmaron, pasar a combate
+                    this.avanzarACombate();
+                } else {
+                    // Siguiente jugador
+                    this.actualizarPanelDespliegue();
+                }
+            }
+
+            // FASE COMBATE
+            avanzarACombate() {
+                console.log('🔥 Avanzando a fase de combate');
+                this.fase = 'combate';
+                this.jugadorActualIndex = 0;
+                this.iniciarTemporizador();
+                this.actualizarPanelFases();
+            }
+
+            actualizarPanelCombate() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                
+                document.getElementById('nombreJugadorCombate').textContent = jugadorActual.nombre;
+                
+                // Actualizar secuencia de turnos
+                const secuenciaTurnos = document.getElementById('secuenciaTurnos');
+                secuenciaTurnos.innerHTML = this.jugadores.map((jugador, index) => `
+                    <div class="turno-item ${index === this.jugadorActualIndex ? 'turno-activo' : ''}">
+                        <span>${jugador.nombre}</span>
+                        <span>${index === this.jugadorActualIndex ? '▶️ Activo' : index < this.jugadorActualIndex ? '✅ Completado' : '⏳ Esperando'}</span>
+                    </div>
+                `).join('');
+            }
+
+            iniciarTemporizador() {
+                this.tiempoRestante = this.tiempoTurno;
+                this.temporizadorActivo = true;
+                
+                this.intervalTimer = setInterval(() => {
+                    if (this.temporizadorActivo && this.tiempoRestante > 0) {
+                        this.tiempoRestante--;
+                        this.actualizarRelojCombate();
+                        
+                        if (this.tiempoRestante === 0) {
+                            this.finalizarTurnoAutomatico();
+                        }
+                    }
+                }, 1000);
+            }
+
+            actualizarRelojCombate() {
+                const minutos = Math.floor(this.tiempoRestante / 60);
+                const segundos = this.tiempoRestante % 60;
+                const tiempo = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                
+                document.getElementById('tiempoTurnoCombate').textContent = tiempo;
+                
+                // Cambiar color si queda poco tiempo
+                const elemento = document.getElementById('tiempoTurnoCombate');
+                if (this.tiempoRestante <= 30) {
+                    elemento.style.color = '#dc3545';
+                } else if (this.tiempoRestante <= 60) {
+                    elemento.style.color = '#ffc107';
+                } else {
+                    elemento.style.color = '#ffc107';
+                }
+            }
+
+            finalizarTurnoActual() {
+                console.log('⏭️ Finalizando turno manualmente');
+                this.finalizarTurno();
+            }
+
+            finalizarTurnoAutomatico() {
+                console.log('⏰ Finalizando turno por tiempo agotado');
+                this.finalizarTurno();
+            }
+
+            finalizarTurno() {
+                this.temporizadorActivo = false;
+                
+                // Pasar al siguiente jugador
+                this.jugadorActualIndex = (this.jugadorActualIndex + 1) % this.jugadores.length;
+                
+                // Reiniciar temporizador
+                this.tiempoRestante = this.tiempoTurno;
+                this.temporizadorActivo = true;
+                
+                // Actualizar panel
+                this.actualizarPanelCombate();
+                
+                console.log(`🔄 Turno pasado a: ${this.jugadores[this.jugadorActualIndex].nombre}`);
+            }
+
+            contarUnidadesDesplegadas(jugadorId) {
+                // Contar unidades desplegadas por el jugador
+                let count = 0;
+                this.unidades.forEach(unidad => {
+                    if (unidad.jugadorId === jugadorId && unidad.desplegada) {
+                        count++;
+                    }
+                });
+                return count;
+            }
+
             cambiarVista(vista) {
                 // Actualizar botones
                 document.querySelectorAll('.btn-control').forEach(btn => btn.classList.remove('active'));
@@ -2041,6 +2511,75 @@
                         juegoGuerra3D.crearRepresentacion3D(juegoGuerra3D.unidadesSIDC[juegoGuerra3D.unidadesSIDC.length - 1]);
                     }
                 });
+            }
+        }
+
+        // =====================================================
+        // 🎮 FUNCIONES GLOBALES DE CONTROL DE FASES
+        // =====================================================
+
+        function confirmarSector() {
+            if (juegoGuerra3D) {
+                console.log('✅ Sector confirmado');
+                juegoGuerra3D.sectorConfirmado = true;
+                document.getElementById('confirmacionSector').style.display = 'none';
+                document.getElementById('btnDefinirZonaRoja').disabled = false;
+                document.getElementById('btnDefinirSector').textContent = '✅ Sector Definido';
+                document.getElementById('btnDefinirSector').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarSector() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de sector cancelada');
+                document.getElementById('confirmacionSector').style.display = 'none';
+                document.getElementById('btnDefinirSector').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+            }
+        }
+
+        function confirmarZonaRoja() {
+            if (juegoGuerra3D) {
+                console.log('✅ Zona roja confirmada');
+                juegoGuerra3D.zonaRojaConfirmada = true;
+                document.getElementById('confirmacionZonaRoja').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').disabled = false;
+                document.getElementById('btnDefinirZonaRoja').textContent = '✅ Zona Roja Definida';
+                document.getElementById('btnDefinirZonaRoja').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarZonaRoja() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de zona roja cancelada');
+                document.getElementById('confirmacionZonaRoja').style.display = 'none';
+                document.getElementById('btnDefinirZonaRoja').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+            }
+        }
+
+        function confirmarZonaAzul() {
+            if (juegoGuerra3D) {
+                console.log('✅ Zona azul confirmada');
+                juegoGuerra3D.zonaAzulConfirmada = true;
+                document.getElementById('confirmacionZonaAzul').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').textContent = '✅ Zona Azul Definida';
+                document.getElementById('btnDefinirZonaAzul').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarZonaAzul() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de zona azul cancelada');
+                document.getElementById('confirmacionZonaAzul').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
             }
         }
 

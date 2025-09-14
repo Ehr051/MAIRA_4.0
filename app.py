@@ -264,6 +264,7 @@ def serve_static(path):
 
 # ✅ CRÍTICO: Rutas específicas para modelos 3D
 @app.route('/Client/assets/models/<path:filename>')
+@app.route('/assets/models/<path:filename>')  # Ruta adicional sin Client/
 def serve_models(filename):
     """Servir archivos de modelos 3D GLB/GLTF con content-type correcto"""
     try:

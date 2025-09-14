@@ -190,15 +190,29 @@ class GLTFParser {
         const parser = this;
         const json = this.json;
         
+        console.log('🔄 Iniciando carga de componentes GLTF...');
+        
+        // Cargar recursos independientes en paralelo
         Promise.all([
             this.loadImages(),
-            this.loadTextures(),
+            this.loadTextures(), 
             this.loadMaterials(),
-            this.loadMeshes(),
-            this.loadCameras(),
-            this.loadNodes(),
-            this.loadScenes()
-        ]).then(function() {
+            this.loadCameras()
+        ]).then(() => {
+            // Cargar meshes primero
+            return this.loadMeshes();
+        }).then(() => {
+            // Luego cargar nodos (que dependen de meshes)
+            return Promise.all([
+                this.loadNodes(),
+                this.loadScenes()
+            ]);
+        }).then(function() {
+            console.log('✅ Todos los componentes GLTF cargados');
+            console.log('📊 Materiales cargados:', parser.materials?.length || 0);
+            console.log('📊 Meshes cargados:', parser.meshes?.length || 0);
+            console.log('📊 Nodos cargados:', parser.nodes?.length || 0);
+            
             const scenes = parser.scenes;
             const scene = scenes[json.scene || 0];
             const animations = parser.animations;
@@ -215,7 +229,10 @@ class GLTFParser {
             };
 
             onLoad(result);
-        }).catch(onError);
+        }).catch(function(error) {
+            console.error('❌ Error en carga GLTF:', error);
+            onError(error);
+        });
     }
 
     async loadImages() {
@@ -313,6 +330,7 @@ class GLTFParser {
     async loadMeshes() {
         const json = this.json;
         const meshes = json.meshes || [];
+        console.log(`🔄 Cargando ${meshes.length} meshes...`);
         
         for (let i = 0; i < meshes.length; i++) {
             const meshSpec = meshes[i];
@@ -320,22 +338,35 @@ class GLTFParser {
             
             if (meshSpec.name !== undefined) {
                 group.name = meshSpec.name;
+                console.log(`📦 Procesando mesh: ${meshSpec.name}`);
             }
             
             const primitives = meshSpec.primitives || [];
+            console.log(`  📊 Primitivos: ${primitives.length}`);
             
             for (let j = 0; j < primitives.length; j++) {
                 const primitive = primitives[j];
-                const geometry = await this.loadGeometry(primitive);
-                const material = primitive.material !== undefined ? 
-                    this.materials[primitive.material] : new THREE.MeshStandardMaterial();
-                
-                const mesh = new THREE.Mesh(geometry, material);
-                group.add(mesh);
+                try {
+                    const geometry = await this.loadGeometry(primitive);
+                    const material = primitive.material !== undefined ? 
+                        this.materials[primitive.material] : new THREE.MeshStandardMaterial();
+                    
+                    console.log(`  ✅ Geometría cargada - Vértices: ${geometry.attributes.position?.count || 0}`);
+                    console.log(`  🎨 Material: ${material ? 'OK' : 'UNDEFINED'}`);
+                    
+                    const mesh = new THREE.Mesh(geometry, material);
+                    group.add(mesh);
+                    console.log(`  ➕ Mesh agregado al grupo`);
+                } catch (error) {
+                    console.error(`  ❌ Error cargando primitivo ${j}:`, error);
+                }
             }
             
             this.meshes[i] = group;
+            console.log(`✅ Mesh completo guardado en índice ${i}`);
         }
+        
+        console.log(`🏁 Carga de meshes completada. Total: ${this.meshes.length}`);
     }
 
     async loadGeometry(primitive) {
@@ -467,14 +498,34 @@ class GLTFParser {
             
             // Agregar mesh si existe
             if (nodeSpec.mesh !== undefined) {
-                const mesh = this.meshes[nodeSpec.mesh];
-                node.add(mesh);
+                const meshIndex = nodeSpec.mesh;
+                if (meshIndex < this.meshes.length && this.meshes[meshIndex]) {
+                    const mesh = this.meshes[meshIndex];
+                    if (mesh && mesh.isObject3D) {
+                        node.add(mesh);
+                        console.log(`  ✅ Mesh ${meshIndex} agregado al nodo`);
+                    } else {
+                        console.warn(`⚠️ Mesh ${meshIndex} existe pero no es Object3D válido`);
+                    }
+                } else {
+                    console.warn(`⚠️ Mesh ${meshIndex} no encontrado (disponibles: ${this.meshes.length})`);
+                }
             }
             
             // Agregar cámara si existe
             if (nodeSpec.camera !== undefined) {
-                const camera = this.cameras[nodeSpec.camera];
-                node.add(camera);
+                const cameraIndex = nodeSpec.camera;
+                if (cameraIndex < this.cameras.length && this.cameras[cameraIndex]) {
+                    const camera = this.cameras[cameraIndex];
+                    if (camera && camera.isObject3D) {
+                        node.add(camera);
+                        console.log(`  ✅ Cámara ${cameraIndex} agregada al nodo`);
+                    } else {
+                        console.warn(`⚠️ Cámara ${cameraIndex} existe pero no es Object3D válida`);
+                    }
+                } else {
+                    console.warn(`⚠️ Cámara ${cameraIndex} no encontrada (disponibles: ${this.cameras.length})`);
+                }
             }
             
             this.nodes[i] = node;

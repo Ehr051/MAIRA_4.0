@@ -10,6 +10,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Estilos CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-draw/dist/leaflet.draw.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -18,10 +20,7 @@
   <link rel="stylesheet" href="/node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-measure/dist/leaflet-measure.css" />
   <link rel="stylesheet" href="/node_modules/leaflet-easybutton/src/easy-button.css" />
-  <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-  <!-- Fallback FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   
@@ -46,6 +45,13 @@
   
   <!-- Three.js para visualización 3D - Versión local independiente -->
   <script src="/Client/Libs/three/three.min.js"></script>
+  <!-- Three.js GLTFLoader para modelos 3D -->
+  <script src="/Client/Libs/three/GLTFLoader.js"></script>
+  
+  <!-- Módulos MAIRA 4.0 -->
+  <script src="js/modules/sistema3d.js"></script>
+  <script src="js/modules/paneles.js"></script>
+  <script src="js/modules/planeamiento.js"></script>
   <!-- Three.js OrbitControls versión compatible MAIRA -->
   <script src="/Client/Libs/three/OrbitControlsBrowser.js"></script>
   
@@ -83,6 +89,7 @@
   <script src="js/services/slopeAnalysisService.js"></script>
   <script src="js/services/elevationProfileService.js"></script>
   <script src="js/services/threeDMapService.js"></script>
+  <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
   
   <!-- Handlers de terreno -->
   <!-- <script src="js/workers/elevation.worker.js"></script> --> <!-- Workers se cargan dinámicamente -->
@@ -95,9 +102,7 @@
   <script src="js/handlers/mapInteractionHandler.js"></script>
   <script src="js/handlers/measurementHandler.js"></script>
   
-  <!-- Font Awesome Test & Fix -->
-  <script src="js/common/fontAwesomeTest.js"></script>
-  
+
   <!-- Element Editor - FUNCIÓN CRÍTICA PARA EDICIÓN - MOVIDO A edicioncompleto.js -->
   <script src="js/handlers/performanceOptimizer.js"></script>
   <script src="js/handlers/EventBus.js"></script>
@@ -981,97 +986,49 @@ try {
 }
 </script>
 
-<!-- Script de verificación de funcionalidad -->
+<!-- Script de inicialización modular -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🧪 VERIFICACIÓN DE FUNCIONALIDAD RESTAURADA');
+    console.log('🚀 MAIRA 4.0 - Inicialización modular');
     
-    // Esperar un poco para que todos los scripts se carguen
-    setTimeout(function() {
-        console.log('📋 Verificando funciones críticas:');
-        
-        const funcionesCriticas = [
-            'medirDistancia',
-            'toggleMenu', 
-            'seleccionarElemento',
-            'finalizarMedicion',
-            'obtenerJugadorPropietario'
-        ];
-        
-        // 🎯 INICIALIZAR MENU RADIAL
-        function initializarMenuRadial() {
-            if (typeof window.MiRadial !== 'undefined' && window.map) {
-                try {
-                    window.MiRadial.init(window.map);
-                    console.log('✅ Menú radial inicializado correctamente');
-                } catch(e) {
-                    console.error('❌ Error inicializando menú radial:', e);
-                }
-            } else {
-                console.warn('⚠️ Menú radial o mapa no disponible, reintentando en 1s...');
-                setTimeout(initializarMenuRadial, 1000);
+    // Inicializar sistemas modulares
+    setTimeout(async function() {
+        try {
+            // 1. Inicializar Sistema de Planeamiento
+            if (typeof inicializarSistemaPlaneamiento === 'function') {
+                window.sistemaPl = inicializarSistemaPlaneamiento();
+                console.log('✅ Sistema de Planeamiento inicializado');
             }
-        }
-        
-        // Inicializar con delay para asegurar que el mapa esté listo
-        setTimeout(initializarMenuRadial, 2000);
-        
-        let funcionesOK = 0;
-        funcionesCriticas.forEach(func => {
-            if (typeof window[func] === 'function') {
-                console.log(`✅ ${func} - OK`);
-                funcionesOK++;
-            } else {
-                console.log(`❌ ${func} - FALTA`);
-            }
-        });
-        
-        console.log(`📊 Funciones disponibles: ${funcionesOK}/${funcionesCriticas.length}`);
-        
-        // Verificar objetos globales
-        console.log('📋 Verificando objetos globales:');
-        console.log('- MAIRA.UserIdentity:', typeof window.MAIRA?.UserIdentity);
-        console.log('- mapa:', typeof window.mapa);
-        
-        // Verificar elemento de medición
-        const medicionElement = document.getElementById('medicionDistancia');
-        console.log('- #medicionDistancia:', medicionElement ? 'Encontrado' : 'NO ENCONTRADO');
-        
-        // Test específico para planeamiento
-        console.log('🎯 Test específico de planeamiento:');
-        const esModoPlaneamiento = window.location.pathname.includes('planeamiento') || 
-                                 document.title.includes('Planeamiento');
-        console.log('- Modo planeamiento detectado:', esModoPlaneamiento);
-        
-        if (typeof window.obtenerJugadorPropietario === 'function') {
-            const jugador = window.obtenerJugadorPropietario();
-            console.log('- Jugador propietario:', jugador);
-        }
-        
-        // Verificar herramientas refactorizadas
-        console.log('🔧 Verificando herramientas refactorizadas:');
-        console.log('- measurementHandler:', typeof window.measurementHandler);
-        console.log('- toolsInitializer:', typeof window.toolsInitializer);
-        
-        if (funcionesOK === funcionesCriticas.length && esModoPlaneamiento) {
-            console.log('🎉 TODAS LAS FUNCIONES CRÍTICAS RESTAURADAS PARA PLANEAMIENTO');
-            console.log('✅ Sistema listo para editar elementos sin validaciones innecesarias');
             
-            // Inicializar PlaneamientoManager
-            if (typeof PlaneamientoManager !== 'undefined') {
-                window.planeamientoManager = new PlaneamientoManager();
-                window.planeamientoManager.inicializar();
-                console.log('✅ PlaneamientoManager inicializado correctamente');
-            } else {
-                console.error('❌ PlaneamientoManager no está disponible');
+            // 2. Inicializar Sistema 3D
+            if (typeof inicializarSistema3D === 'function') {
+                // La vista 3D se inicializará cuando se active
+                console.log('✅ Sistema 3D disponible');
             }
-        } else {
-            console.log('⚠️ Algunas funciones aún faltan o contexto incorrecto');
+            
+            // 3. Configurar eventos específicos de planeamiento
+            configurarEventosPlaneamiento();
+            
+            // 4. Verificar funcionalidades críticas heredadas
+            verificarFuncionalidadesCriticas();
+            
+        } catch (error) {
+            console.error('❌ Error en inicialización modular:', error);
         }
-        
-    }, 2000);
+    }, 1000);
+});
 
-    // 🤚 DETECTOR DE GESTOS - Event Listener
+function configurarEventosPlaneamiento() {
+    // Vista 3D
+    const btnVista3D = document.getElementById('btnVista3D');
+    if (btnVista3D) {
+        btnVista3D.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleVista3DModular();
+        });
+    }
+
+    // Detector de gestos
     const btnControlGestos = document.getElementById('btnControlGestos');
     if (btnControlGestos) {
         btnControlGestos.addEventListener('click', function(e) {
@@ -1079,71 +1036,195 @@ document.addEventListener('DOMContentLoaded', function() {
             descargarDetectorGestos();
         });
     }
+    
+    console.log('✅ Eventos de planeamiento configurados');
+}
 
-    async function descargarDetectorGestos() {
-        const btnControlGestos = document.getElementById('btnControlGestos');
+function verificarFuncionalidadesCriticas() {
+    const funcionesCriticas = [
+        'medirDistancia',
+        'toggleMenu', 
+        'seleccionarElemento',
+        'finalizarMedicion',
+        'obtenerJugadorPropietario'
+    ];
+    
+    let funcionesOK = 0;
+    funcionesCriticas.forEach(func => {
+        if (typeof window[func] === 'function') {
+            funcionesOK++;
+        }
+    });
+    
+    console.log(`📊 Funciones heredadas: ${funcionesOK}/${funcionesCriticas.length}`);
+    
+    // Inicializar menú radial
+    if (typeof window.MiRadial !== 'undefined' && window.map) {
+        setTimeout(() => {
+            try {
+                window.MiRadial.init(window.map);
+                console.log('✅ Menú radial inicializado');
+            } catch(e) {
+                console.warn('⚠️ Error menú radial:', e);
+            }
+        }, 2000);
+    }
+}
+
+async function toggleVista3DModular() {
+    try {
+        if (!window.sistema3D) {
+            console.log('🎮 Inicializando Vista 3D modular...');
+            
+            // Crear contenedor flotante para la vista 3D
+            let container = document.getElementById('vista3DContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'vista3DContainer';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    width: 400px;
+                    height: 320px;
+                    background: #001133;
+                    border: 2px solid #00ff00;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 20px rgba(0,255,0,0.3);
+                `;
+                
+                container.innerHTML = `
+                    <div style="padding: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace;">🎮 Vista 3D</h4>
+                            <button onclick="cerrarVista3DModular()" style="background: rgba(255,0,0,0.2); border: 1px solid #ff6666; color: #ff6666; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✕</button>
+                        </div>
+                        <canvas id="canvas-3d-flotante" width="380" height="260" style="border-radius: 4px; background: #000;"></canvas>
+                    </div>
+                `;
+                
+                document.body.appendChild(container);
+            }
+            
+            // Inicializar sistema 3D modular
+            await inicializarSistema3D('canvas-3d-flotante', {
+                iluminacion: {
+                    ambiente: { intensidad: 1.2 },
+                    direccional: { intensidad: 1.5 }
+                }
+            });
+            
+            // Cargar algunos modelos de ejemplo
+            try {
+                // Cargar formación táctica completa para planeamiento
+                await window.sistema3D.cargarFormacionTactica();
+                
+                // Configurar navegación para planeamiento
+                window.sistema3D.configurarNavegacionTactica();
+                
+                console.log('✅ Vista 3D modular activada con formación táctica completa');
+            } catch (error) {
+                console.warn('⚠️ Error cargando formación táctica, usando placeholders básicos');
+                
+                // Fallback a modelos básicos
+                const modelosBasicos = [
+                    { id: 'tam_tank', posicion: { x: 0, y: 0, z: 0 } },
+                    { id: 'sk105', posicion: { x: 5, y: 0, z: 0 } },
+                    { id: 'm113', posicion: { x: -5, y: 0, z: 0 } }
+                ];
+                
+                await window.sistema3D.cargarFormacion(modelosBasicos);
+                console.log('✅ Vista 3D con modelos básicos activada');
+            }
+            
+        } else {
+            // Ya está activa, cerrar
+            cerrarVista3DModular();
+        }
         
-        try {
-            // Mostrar mensaje de confirmación
-            const confirmacion = confirm(
-                '🤚 MAIRA Detector de Gestos\n\n' +
-                '¿Deseas descargar e instalar el detector de gestos en tu PC?\n\n' +
-                '✅ Control por gestos para cualquier programa\n' +
-                '✅ Mesa de proyección interactiva\n' +
-                '✅ Integración con MAIRA Web\n\n' +
-                'Se descargará un archivo ZIP con instalador automático.'
+    } catch (error) {
+        console.error('❌ Error en vista 3D modular:', error);
+        alert(`❌ Error activando vista 3D: ${error.message}`);
+    }
+}
+
+window.cerrarVista3DModular = function() {
+    const container = document.getElementById('vista3DContainer');
+    if (container) {
+        container.remove();
+    }
+    
+    if (window.sistema3D) {
+        window.sistema3D.limpiarEscena();
+        window.sistema3D = null;
+    }
+    
+    const btnVista3D = document.getElementById('btnVista3D');
+    if (btnVista3D) {
+        btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Vista 3D';
+    }
+    
+    console.log('🔒 Vista 3D modular cerrada');
+};
+
+async function descargarDetectorGestos() {
+    const btnControlGestos = document.getElementById('btnControlGestos');
+    
+    try {
+        const confirmacion = confirm(
+            '🤚 MAIRA Detector de Gestos\n\n' +
+            '¿Deseas descargar e instalar el detector de gestos en tu PC?\n\n' +
+            '✅ Control por gestos para cualquier programa\n' +
+            '✅ Mesa de proyección interactiva\n' +
+            '✅ Integración con MAIRA Web\n\n' +
+            'Se descargará un archivo ZIP con instalador automático.'
+        );
+        
+        if (!confirmacion) return;
+        
+        const mensajeOriginal = btnControlGestos.innerHTML;
+        btnControlGestos.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Descargando...';
+        btnControlGestos.disabled = true;
+        
+        const response = await fetch('/api/download-gesture-detector');
+        
+        if (!response.ok) {
+            throw new Error(`Error en descarga: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'MAIRA_Detector_Gestos.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        setTimeout(() => {
+            alert(
+                '📦 ¡Descarga completada!\n\n' +
+                '📋 Próximos pasos:\n' +
+                '1. Busca el archivo "MAIRA_Detector_Gestos.zip" en Descargas\n' +
+                '2. Extrae el archivo ZIP\n' +
+                '3. Ejecuta "maira_gestos.py" (doble click)\n' +
+                '4. Sigue las instrucciones en pantalla\n\n' +
+                '💡 El detector funcionará con MAIRA y cualquier otro programa.'
             );
-            
-            if (!confirmacion) return;
-            
-            // Mostrar indicador de descarga
-            const mensajeOriginal = btnControlGestos.innerHTML;
-            btnControlGestos.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Descargando...';
-            btnControlGestos.disabled = true;
-            
-            // Realizar descarga
-            const response = await fetch('/api/download-gesture-detector');
-            
-            if (!response.ok) {
-                throw new Error(`Error en descarga: ${response.status}`);
-            }
-            
-            // Crear blob y descargar archivo
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'MAIRA_Detector_Gestos.zip';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            // Mostrar instrucciones
-            setTimeout(() => {
-                alert(
-                    '📦 ¡Descarga completada!\n\n' +
-                    '📋 Próximos pasos:\n' +
-                    '1. Busca el archivo "MAIRA_Detector_Gestos.zip" en Descargas\n' +
-                    '2. Extrae el archivo ZIP\n' +
-                    '3. Ejecuta "maira_gestos.py" (doble click)\n' +
-                    '4. Sigue las instrucciones en pantalla\n\n' +
-                    '💡 El detector funcionará con MAIRA y cualquier otro programa.'
-                );
-            }, 500);
-            
-        } catch (error) {
-            console.error('Error descargando detector de gestos:', error);
-            alert('❌ Error al descargar el detector de gestos.\nVerifica tu conexión e intenta nuevamente.');
-        } finally {
-            // Restaurar botón
-            if (btnControlGestos) {
-                btnControlGestos.innerHTML = mensajeOriginal;
-                btnControlGestos.disabled = false;
-            }
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error descargando detector de gestos:', error);
+        alert('❌ Error al descargar el detector de gestos.\nVerifica tu conexión e intenta nuevamente.');
+    } finally {
+        if (btnControlGestos) {
+            btnControlGestos.innerHTML = mensajeOriginal;
+            btnControlGestos.disabled = false;
         }
     }
-});
+}
 </script>
 
 </main>
