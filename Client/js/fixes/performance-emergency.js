@@ -65,6 +65,9 @@ function setupMemoryOptimization() {
 function setupIntelligentCache() {
     console.log('💾 Configurando cache inteligente...');
     
+    // ⚠️ TEMPORALMENTE DESHABILITADO - Causaba errores CORS masivos
+    console.log('🔧 Service Worker deshabilitado temporalmente');
+    /*
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(registration => {
@@ -74,6 +77,7 @@ function setupIntelligentCache() {
                 console.warn('⚠️ Service Worker no disponible:', error);
             });
     }
+    */
 }
 
 // 5. Inicialización automática

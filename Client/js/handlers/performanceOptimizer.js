@@ -248,6 +248,9 @@ class PerformanceOptimizer {
      * Configurar service worker
      */
     configurarServiceWorker() {
+        // ⚠️ TEMPORALMENTE DESHABILITADO - Causaba errores CORS masivos
+        console.log('🔧 Service Worker deshabilitado temporalmente');
+        /*
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(registration => {
@@ -257,6 +260,7 @@ class PerformanceOptimizer {
                     console.warn('⚠️ Error registrando Service Worker:', error);
                 });
         }
+        */
     }
     
     /**

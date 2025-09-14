@@ -85,6 +85,8 @@
   <script src="/node_modules/proj4/dist/proj4.js"></script>
   <!-- Three.js para visualización 3D - Versión local independiente -->
   <script src="/Client/Libs/three/three.min.js"></script>
+  <!-- Three.js GLTFLoader para modelos 3D -->
+  <script src="/Client/Libs/three/GLTFLoader.js"></script>
   <!-- Three.js OrbitControls versión compatible MAIRA -->
   <script src="/Client/Libs/three/OrbitControlsBrowser.js"></script>
   <script src="/node_modules/pako/dist/pako.min.js"></script>
@@ -148,6 +150,7 @@
   <script src="js/handlers/vegetacionhandler.js"></script>
   <script src="js/handlers/dependency-manager.js"></script>
   <script src="js/handlers/EventBus.js"></script>
+  <script src="js/handlers/searchHandler.js"></script>
   
   <!-- 🔧 HANDLERS CRÍTICOS DE PLANEAMIENTO -->
   <script src="js/utils/geometryUtils.js"></script>
@@ -195,6 +198,15 @@
   
   <!-- Sistema de Paneles Unificado -->
   <script src="js/modules/juego/sistemaPanelesUnificado.js"></script>
+  
+  <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
+  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  
+  <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
+  <script src="js/modules/sistema3d.js"></script>
+  <script src="js/modules/paneles.js"></script>
+  <script src="js/modules/planeamiento.js"></script>
+  <script src="js/modules/juegodeguerra.js"></script>
 
   <!-- 🌐 COMMON (archivos necesarios) -->
   <!-- 🔍 CALCOS Y SÍMBOLOS CRÍTICOS -->
@@ -350,15 +362,15 @@
         document.body.appendChild(errorDiv);
     }
     
-    // Inicializar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', initializeJuegoDeguerra);
-    
-    // Backup: También inicializar cuando window esté completamente cargado
-    window.addEventListener('load', () => {
-        if (!window.JuegoDeGuerraInitialized) {
-            console.log('🔄 Inicialización backup desde window.load');
-            initializeJuegoDeguerra();
+    // ✅ INICIALIZACIÓN UNIFICADA - Solo un punto de entrada
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.JuegoDeGuerraInitialized) {
+            console.log('⚠️ Juego ya inicializado, evitando duplicación');
+            return;
         }
+        
+        console.log('� Iniciando MAIRA 4.0 - Juego de Guerra');
+        initializeJuegoDeguerra();
     });
   </script>
  
@@ -1276,18 +1288,34 @@
     </div>
   </main>
 
-  <!-- Script para Control por Gestos -->
+  <!-- ❌ INICIALIZADOR MODULAR DESHABILITADO PARA EVITAR CONFLICTOS -->
   <script>
+    // ESTE INICIALIZADOR HA SIDO DESHABILITADO - CONFLICTO CON INICIALIZACIÓN PRINCIPAL
+    /*
     document.addEventListener('DOMContentLoaded', function() {
-      const btnControlGestos = document.getElementById('btnControlGestos');
+      console.log('⚔️ MAIRA 4.0 - Inicialización Juego de Guerra');
       
-      if (btnControlGestos) {
-        btnControlGestos.addEventListener('click', function(e) {
-          e.preventDefault();
-          descargarDetectorGestos();
-        });
-      }
+      // Inicializar sistemas modulares
+      setTimeout(async function() {
+        try {
+          // 1. Inicializar Sistema de Juego de Guerra
+          if (typeof inicializarSistemaJuegoGuerra === 'function') {
+            window.sistemaJG = inicializarSistemaJuegoGuerra();
+            console.log('✅ Sistema de Juego de Guerra inicializado');
+          }
+          
+          // 2. Integrar con sistemas de paneles existentes
+          integrarSistemasPaneles();
+          
+          // 3. Configurar eventos específicos del juego
+          configurarEventosJuego();
+          
+        } catch (error) {
+          console.error('❌ Error en inicialización modular del juego:', error);
+        }
+      }, 1000);
     });
+    */
 
     async function descargarDetectorGestos() {
       const btnControlGestos = document.getElementById('btnControlGestos');
@@ -1462,8 +1490,8 @@
       }
     }
     
-    // Escuchar cambios de fase cuando se inicialice el DOM
-    document.addEventListener('DOMContentLoaded', () => {
+    // ✅ CONFIGURACIÓN DE EVENTOS - MOVIDO A INICIALIZACIÓN PRINCIPAL
+    function configurarEventosJuegoPrincipal() {
       // 🎯 CONFIGURAR BOTÓN VISTA 3D
       const btn3D = document.getElementById('btn3DView');
       if (btn3D) {
@@ -1488,32 +1516,100 @@
         }
       }, 2000);
       
-      // 🎯 INICIALIZAR SISTEMA DE PANELES UNIFICADO
+      // 🎯 INICIALIZAR SISTEMAS MODULARES
       setTimeout(() => {
         try {
-          console.log('🚀 Inicializando Sistema de Paneles Unificado...');
+          console.log('🚀 Inicializando Sistemas Modulares de Juego de Guerra...');
           
-          // Inicializar Panel de Juego Unificado
-          if (typeof PanelJuegoUnificado !== 'undefined') {
-            window.panelJuegoUnificado = new PanelJuegoUnificado();
-            console.log('✅ Panel de Juego Unificado inicializado');
-          } else {
-            console.warn('⚠️ PanelJuegoUnificado no está disponible');
+          // 1. Sistema de Paneles Modular
+          if (typeof SistemaPaneles !== 'undefined') {
+            window.sistemaPaneles = new SistemaPaneles('juegodeguerra');
+            console.log('✅ Sistema de Paneles modular inicializado');
           }
           
-          // Inicializar Sistema de Paneles Unificado
-          if (typeof SistemaPanelesUnificado !== 'undefined') {
-            window.sistemaPanelesUnificado = new SistemaPanelesUnificado();
-            console.log('✅ Sistema de Paneles Unificado inicializado');
-          } else {
-            console.warn('⚠️ SistemaPanelesUnificado no está disponible');
+          // 2. Sistema de Juego de Guerra
+          if (typeof SistemaJuegoGuerra !== 'undefined') {
+            window.sistemaJuegoGuerra = new SistemaJuegoGuerra();
+            console.log('✅ Sistema de Juego de Guerra inicializado');
           }
+          
+          // 3. Sistema 3D (si está disponible)
+          if (typeof Sistema3D !== 'undefined') {
+            console.log('✅ Sistema 3D disponible para Juego de Guerra');
+          }
+          
+          // 4. Integración con gestores existentes
+          integrarGestoresExistentes();
           
         } catch (error) {
-          console.error('❌ Error inicializando sistemas de paneles:', error);
+          console.error('❌ Error inicializando sistemas modulares:', error);
         }
-      }, 1500); // Inicializar paneles antes que gestorJuego
+      }, 1500); // Inicializar sistemas antes que gestorJuego
     });
+    
+    // Funciones de integración modular
+    function integrarGestoresExistentes() {
+      console.log('🔗 Integrando gestores existentes con sistemas modulares...');
+      
+      // Integrar gestorInterfaz con sistema de paneles
+      if (window.gestorInterfaz && window.sistemaPaneles) {
+        window.gestorInterfaz.sistemaPaneles = window.sistemaPaneles;
+        console.log('✅ GestorInterfaz integrado con SistemaPaneles');
+      }
+      
+      // Integrar gestorFases con sistema de juego
+      if (window.gestorFases && window.sistemaJuegoGuerra) {
+        window.gestorFases.sistemaJuego = window.sistemaJuegoGuerra;
+        console.log('✅ GestorFases integrado con SistemaJuegoGuerra');
+      }
+      
+      // Integrar gestorTurnos
+      if (window.gestorTurnos && window.sistemaPaneles) {
+        window.gestorTurnos.sistemaPaneles = window.sistemaPaneles;
+        console.log('✅ GestorTurnos integrado');
+      }
+    }
+    
+    function integrarSistemasPaneles() {
+      setTimeout(() => {
+        try {
+          // Retrocompatibilidad - mantener sistemas legacy
+          console.log('🔄 Manteniendo retrocompatibilidad con sistemas legacy...');
+          
+        } catch (error) {
+          console.error('❌ Error integrando sistemas de paneles:', error);
+        }
+      }, 1500);
+    }
+
+    function configurarEventosJuego() {
+      const btn3D = document.getElementById('btn3DView');
+      if (btn3D) {
+        btn3D.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (typeof toggleVista3DModular === 'function') {
+            toggleVista3DModular();
+          } else {
+            activarVista3D();
+          }
+        });
+      }
+      
+      document.addEventListener('faseCambiada', (event) => {
+        const { nuevaFase, nuevaSubfase } = event.detail;
+        actualizarBotonesControlJuego(nuevaFase, nuevaSubfase);
+      });
+      
+      setTimeout(() => {
+        if (window.gestorJuego?.gestorFases) {
+          const fase = window.gestorJuego.gestorFases.fase;
+          const subfase = window.gestorJuego.gestorFases.subfase;
+          actualizarBotonesControlJuego(fase, subfase);
+        }
+      }, 2000);
+      
+      console.log('✅ Eventos de juego configurados');
+    }
   </script>
 </body>
 </html>
