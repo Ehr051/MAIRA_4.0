@@ -344,9 +344,19 @@ function habilitarDobleClicEnElementos() {
 
             layer.off('dblclick').on('dblclick', function(e) {
                 // ✅ COORDINACIÓN CON MENU RADIAL
-                // Solo interceptar si hay una herramienta de edición activa
+                // Solo interceptar si hay una herramienta de edición activa específica
                 // Si no, permitir que MiRadial maneje el evento
-                if (window.herramientaActiva && window.herramientaActiva !== 'selector') {
+                const herramientasEdicion = ['editar', 'mover', 'edicion', 'editing'];
+                const tieneHerramientaEdicion = window.herramientaActiva && 
+                    herramientasEdicion.includes(window.herramientaActiva.toLowerCase());
+                
+                console.log('🔍 [mapaP] Doble click en elemento:', {
+                    herramientaActiva: window.herramientaActiva,
+                    tieneHerramientaEdicion,
+                    MiRadialDisponible: !!window.MiRadial
+                });
+                
+                if (tieneHerramientaEdicion) {
                     L.DomEvent.stopPropagation(e);
                     L.DomEvent.preventDefault(e);
                     console.log('🎯 Doble click en elemento - abriendo edición (herramienta activa)');

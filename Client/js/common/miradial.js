@@ -247,14 +247,21 @@
                     return;
                 }
                 
-                // Si no hay elemento, verificar hexágono
+                // Si no hay elemento, mostrar menú de terreno
                 if (window.HexGrid) {
+                    // MODO HEXAGONAL (Juego de Guerra)
                     const hexagono = window.HexGrid.getHexagonAt(e.latlng);
                     if (hexagono) {
                         this.selectedHex = hexagono;
                         const point = map.latLngToContainerPoint(e.latlng);
                         this.mostrarMenu(point.x, point.y, 'terreno');
                     }
+                } else {
+                    // MODO LIBRE (Planeamiento) - mostrar menú de terreno siempre
+                    this.selectedHex = null;
+                    this.selectedPosition = e.latlng; // Guardar posición para info de terreno
+                    const point = map.latLngToContainerPoint(e.latlng);
+                    this.mostrarMenu(point.x, point.y, 'terreno');
                 }
             });
 
@@ -860,10 +867,17 @@ handleMenuClick: function(action, submenu) {
             }
             break;
             
-        // === ACCIONES DE JUEGO DE GUERRA ===
+        // === ACCIONES DE TERRENO (compatible con hexágonos y modo libre) ===
         case 'infoTerrenoJG':
-            if (this.selectedHex && typeof window.mostrarInfoTerrenoJG === 'function') {
+            if (window.HexGrid && this.selectedHex && typeof window.mostrarInfoTerrenoJG === 'function') {
+                // MODO HEXAGONAL: usar función específica de juego de guerra
                 window.mostrarInfoTerrenoJG(this.selectedHex);
+            } else if (this.selectedPosition || this.selectedHex) {
+                // MODO LIBRE O FALLBACK: mostrar información genérica de terreno
+                const position = this.selectedPosition || (this.selectedHex ? this.selectedHex.center : null);
+                if (position) {
+                    this.mostrarInfoTerrenoGenerico(position);
+                }
             }
             break;
         case 'marcarObjetivo':
@@ -1466,7 +1480,98 @@ processElevationInfo: async function (corners, popup) {
                 tooltip.remove();
             }
         },
-        
+
+        /**
+         * Muestra información genérica de terreno (compatible con hexágonos y modo libre)
+         * @param {Object} position - Posición {lat, lng} o hexágono con center
+         */
+        mostrarInfoTerrenoGenerico: async function(position) {
+            try {
+                console.log('[MiRadial] 🌍 Mostrando información de terreno genérico para:', position);
+                
+                const latlng = position.center ? position.center : position;
+                if (!latlng || !latlng.lat || !latlng.lng) {
+                    console.error('[MiRadial] ❌ Posición inválida para información de terreno');
+                    return;
+                }
+
+                // Crear contenido del popup
+                let content = `
+                    <div class="info-terreno-popup">
+                        <h4>🌍 Información del Terreno</h4>
+                        <div class="terreno-coords">
+                            <strong>Coordenadas:</strong><br>
+                            Lat: ${latlng.lat.toFixed(6)}<br>
+                            Lng: ${latlng.lng.toFixed(6)}
+                        </div>
+                        <div id="elevacion-info">
+                            <strong>Elevación:</strong> <span id="elevacion">Cargando...</span>
+                        </div>
+                        <div id="vegetacion-info">
+                            <strong>Vegetación:</strong> <span id="vegetacion">Cargando...</span>
+                        </div>
+                `;
+
+                // Si hay hexágono, mostrar información adicional
+                if (window.HexGrid && this.selectedHex) {
+                    content += `
+                        <div class="hex-info">
+                            <strong>Hexágono:</strong> ${this.selectedHex.id || 'ID no disponible'}
+                        </div>
+                    `;
+                }
+
+                content += `</div>`;
+
+                // Mostrar popup
+                const popup = L.popup({
+                    maxWidth: 300,
+                    className: 'terreno-info-popup'
+                })
+                .setLatLng(latlng)
+                .setContent(content)
+                .openOn(this.map);
+
+                // Obtener información de elevación
+                if (window.elevationHandler && typeof window.elevationHandler.obtenerElevacion === 'function') {
+                    try {
+                        const elevacion = await window.elevationHandler.obtenerElevacion(latlng.lat, latlng.lng);
+                        const elevacionElement = popup.getElement().querySelector('#elevacion');
+                        if (elevacionElement) {
+                            elevacionElement.textContent = `${elevacion}m`;
+                        }
+                    } catch (error) {
+                        console.warn('[MiRadial] ⚠️ Error obteniendo elevación:', error);
+                        const elevacionElement = popup.getElement().querySelector('#elevacion');
+                        if (elevacionElement) {
+                            elevacionElement.textContent = 'No disponible';
+                        }
+                    }
+                }
+
+                // Obtener información de vegetación
+                if (window.vegetationHandler && typeof window.vegetationHandler.getVegetationInfo === 'function') {
+                    try {
+                        const vegetacion = await window.vegetationHandler.getVegetationInfo(latlng.lat, latlng.lng);
+                        const vegetacionElement = popup.getElement().querySelector('#vegetacion');
+                        if (vegetacionElement) {
+                            vegetacionElement.textContent = vegetacion ? vegetacion.tipo : 'No disponible';
+                        }
+                    } catch (error) {
+                        console.warn('[MiRadial] ⚠️ Error obteniendo vegetación:', error);
+                        const vegetacionElement = popup.getElement().querySelector('#vegetacion');
+                        if (vegetacionElement) {
+                            vegetacionElement.textContent = 'No disponible';
+                        }
+                    }
+                }
+
+                console.log('[MiRadial] ✅ Información de terreno mostrada correctamente');
+
+            } catch (error) {
+                console.error('[MiRadial] ❌ Error mostrando información de terreno:', error);
+            }
+        }
 
         
     };
