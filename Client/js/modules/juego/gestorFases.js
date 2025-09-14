@@ -929,19 +929,30 @@ manejarSectorConfirmado(datos) {
 }
 
 actualizarBotonesFase() {
-    const panelFases = document.getElementById('panel-fases');
-    if (!panelFases) return;
-
-    const esDirector = this.esDirector(window.userId);
-    const jugadorActual = this.obtenerJugadorActual();
-
-    console.log('Actualizando botones fase:', {
+    // ⚠️ FUNCIÓN DESACTIVADA - REEMPLAZADA POR SISTEMA DE PANELES UNIFICADO
+    console.log('🔧 actualizarBotonesFase() desactivada - usando Sistema de Paneles Unificado');
+    
+    // Solo logear el estado para debug
+    console.log('Estado de fase:', {
         fase: this.fase,
         subfase: this.subfase,
-        esDirector,
+        esDirector: this.esDirector(window.userId),
         sectorConfirmado: this.sectorConfirmado,
         zonasDefinidas: this.zonasDespliegue
     });
+    
+    // Delegar al Sistema de Paneles Unificado
+    if (window.panelJuegoUnificado && window.panelJuegoUnificado.actualizarEstado) {
+        window.panelJuegoUnificado.actualizarEstado({
+            fase: this.fase,
+            subfase: this.subfase,
+            esDirector: this.esDirector(window.userId),
+            sectorConfirmado: this.sectorConfirmado,
+            zonasDefinidas: this.zonasDespliegue
+        });
+    }
+    
+    return; // ❌ NO CREAR PANEL OBSOLETO
 
     // Limpiar panel y listeners anteriores
     const botonesAnteriores = panelFases.querySelectorAll('button');
@@ -1134,14 +1145,11 @@ validarFaseActual() {
     }
 
     crearInterfazFases() {
-        // Crear el panel de control de fases si no existe
-        let panelFases = document.getElementById('panel-fases');
-        if (!panelFases) {
-            panelFases = document.createElement('div');
-            panelFases.id = 'panel-fases';
-            panelFases.className = 'panel-control';
-            document.body.appendChild(panelFases);
-        }
+        // ⚠️ FUNCIÓN DESACTIVADA - REEMPLAZADA POR SISTEMA DE PANELES UNIFICADO
+        console.log('🔧 crearInterfazFases() desactivada - usando Sistema de Paneles Unificado');
+        
+        // No crear panel obsoleto - el Sistema de Paneles Unificado maneja esto
+        return;
 
         // Agregar estilos
         const estilos = document.createElement('style');

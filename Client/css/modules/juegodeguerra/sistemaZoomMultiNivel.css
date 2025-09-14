@@ -331,6 +331,308 @@
 }
 
 /* ===========================================
+   BOTÓN VISTA 3D - JUEGO DE GUERRA
+   =========================================== */
+
+#btn3DView {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+#btn3DView:hover {
+    color: #4caf50 !important;
+    transform: translateY(-1px);
+}
+
+#btn3DView .fas.fa-cube {
+    transition: all 0.3s ease;
+    animation: rotar3D 2s ease-in-out infinite;
+}
+
+#btn3DView:hover .fas.fa-cube {
+    animation: rotar3DActivo 1s ease-in-out infinite;
+    color: #4caf50;
+}
+
+@keyframes rotar3D {
+    0%, 100% { transform: rotateY(0deg) rotateX(0deg); }
+    25% { transform: rotateY(15deg) rotateX(5deg); }
+    50% { transform: rotateY(0deg) rotateX(10deg); }
+    75% { transform: rotateY(-15deg) rotateX(5deg); }
+}
+
+@keyframes rotar3DActivo {
+    0%, 100% { transform: rotateY(0deg) rotateX(0deg) scale(1); }
+    50% { transform: rotateY(180deg) rotateX(15deg) scale(1.1); }
+}
+
+/* Indicador de vista 3D activa */
+.vista-3d-activa #btn3DView {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 3px solid #4caf50;
+    color: #4caf50 !important;
+}
+
+/* Animación para elementos 3D activados */
+.elemento-3d-activado {
+    animation: aparecer3D 0.8s ease-out;
+}
+
+@keyframes aparecer3D {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotateY(90deg);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1) rotateY(45deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotateY(0deg);
+    }
+}
+
+/* ===========================================
+   BARRA DE ESTADO INFERIOR - TODO EL ANCHO
+   =========================================== */
+
+.barra-estado-inferior {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(30, 30, 30, 0.95));
+    backdrop-filter: blur(10px);
+    border-top: 2px solid rgba(76, 175, 80, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.estado-grupo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.estado-grupo.centro {
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.indicador-nivel-zoom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.indicador-nivel-zoom:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.nivel-texto {
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+}
+
+.nivel-zoom {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: 'Courier New', monospace;
+}
+
+.estado-partida {
+    color: #4caf50;
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.estado-partida::before {
+    content: '●';
+    animation: latir 2s ease-in-out infinite;
+}
+
+.estado-conexion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Colores por nivel de zoom */
+.indicador-nivel-zoom.estrategico {
+    border-left: 4px solid #2196f3;
+}
+
+.indicador-nivel-zoom.estrategico .nivel-texto {
+    color: #64b5f6;
+}
+
+.indicador-nivel-zoom.tactico {
+    border-left: 4px solid #ff9800;
+}
+
+.indicador-nivel-zoom.tactico .nivel-texto {
+    color: #ffb74d;
+}
+
+.indicador-nivel-zoom.operacional {
+    border-left: 4px solid #4caf50;
+}
+
+.indicador-nivel-zoom.operacional .nivel-texto {
+    color: #81c784;
+}
+
+/* Indicador de turno integrado */
+.indicador-turno {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: rgba(255, 193, 7, 0.2);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-left: 4px solid #ffc107;
+    transition: all 0.3s ease;
+}
+
+.indicador-turno:hover {
+    background: rgba(255, 193, 7, 0.25);
+    transform: translateY(-2px);
+}
+
+#textoTurno {
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ffc107;
+}
+
+#timerTurno {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+@keyframes latir {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ===========================================
+   SISTEMA DE NOTIFICACIONES PUSH/POP
+   =========================================== */
+
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 350px;
+    pointer-events: none;
+}
+
+.notification {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #ff5722;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    transform: translateX(100%);
+    opacity: 0;
+    animation: slideInNotification 0.3s ease-out forwards;
+    cursor: pointer;
+    position: relative;
+}
+
+.notification.success {
+    border-left-color: #4caf50;
+}
+
+.notification.warning {
+    border-left-color: #ff9800;
+}
+
+.notification.error {
+    border-left-color: #f44336;
+}
+
+.notification .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.notification .close-btn:hover {
+    color: white;
+}
+
+@keyframes slideInNotification {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutNotification {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Asegurar que no tape otros elementos importantes */
+.barra-estado-inferior {
+    margin-bottom: 0;
+}
+
+/* Ajustar elementos que podrían quedar tapados */
+#medicionDistancia,
+#botones-secundarios {
+    margin-bottom: 60px !important; /* Espacio para la barra */
+}
+
+/* ===========================================
    RESPONSIVE - MOBILE
    =========================================== */
 
@@ -345,5 +647,33 @@
     
     .modelo-3d {
         transform: scale(0.85);
+    }
+    
+    /* Botón 3D más grande en móvil */
+    #btn3DView {
+        font-size: 1.1em;
+        padding: 12px 16px;
+    }
+    
+    /* Barra inferior responsive */
+    .barra-estado-inferior {
+        height: 45px;
+        padding: 0 15px;
+    }
+    
+    .estado-grupo {
+        gap: 10px;
+    }
+    
+    .nivel-texto {
+        font-size: 10px;
+    }
+    
+    .nivel-zoom {
+        font-size: 9px;
+    }
+    
+    .estado-partida {
+        font-size: 12px;
     }
 }

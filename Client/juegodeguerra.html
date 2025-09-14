@@ -118,6 +118,9 @@
   <!-- 🎯 PANEL UNIFICADO (Reemplaza paneles separados) -->
   <script src="js/modules/shared/panelJuegoUnificado.js"></script>
   
+  <!-- 📢 SISTEMA DE NOTIFICACIONES PUSH/POP -->
+  <script src="js/modules/shared/notificationSystem.js"></script>
+  
   <!-- 🔍 SISTEMA ZOOM MULTI-NIVEL (Total War Style) -->
   <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
 
@@ -379,10 +382,28 @@
 
   <!-- Paneles obsoletos eliminados - Reemplazados por Sistema de Paneles Unificado -->
   
-  <!-- Indicador de nivel de zoom actual -->
-  <div id="indicadorNivelZoom" class="indicador-nivel-zoom estrategico">
-    <div class="nivel-texto">ESTRATÉGICO</div>
-    <div class="nivel-zoom">Zoom: 6</div>
+  <!-- Barra de Estado Inferior Integrada - TODO EL ANCHO -->
+  <div id="barraEstadoInferior" class="barra-estado-inferior">
+    <div class="estado-grupo">
+      <div id="indicadorTurno" class="indicador-turno">
+        <span id="textoTurno">Turno 1</span>
+        <span id="timerTurno">05:00</span>
+      </div>
+    </div>
+    
+    <div class="estado-grupo centro">
+      <div id="indicadorNivelZoom" class="indicador-nivel-zoom estrategico">
+        <div class="nivel-texto">ESTRATÉGICO</div>
+        <div class="nivel-zoom">Zoom: 6</div>
+      </div>
+    </div>
+    
+    <div class="estado-grupo">
+      <div class="estado-partida">Partida Activa</div>
+      <div id="estado-conexion" class="estado-conexion">
+        <i class="fas fa-circle" style="color: #4caf50;"></i> Online
+      </div>
+    </div>
   </div>
   
   <!-- Controles de Fase del Juego -->
@@ -390,14 +411,7 @@
     <!-- Botones de control movidos al Sistema de Paneles Unificado -->
   </div>
   
-  <!-- Indicadores de Estado del Juego -->
-  <div id="indicador-turno" style="position: fixed; top: 80px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
-    Turno 1 - Iniciando...
-  </div>
-  
-  <div id="timer-turno" style="position: fixed; top: 115px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; z-index: 1000; font-family: 'Courier New', monospace; font-size: 12px;">
-    05:00
-  </div>
+  <!-- Indicadores dinámicos creados por el Sistema de Paneles Unificado -->
 
   <!-- Botones de prueba eliminados - Funcionalidad integrada en Sistema de Paneles -->
 
@@ -470,6 +484,7 @@
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
+        <a href="#" id="btn3DView"><i class="fas fa-cube"></i> Vista 3D</a>
       </div>
     </div>
     <div class="menu-btn">
@@ -1213,7 +1228,8 @@
     </div>
 
     <div id="calculoMarchaContainer" style="display: none;"></div>
-    <div id="errorContainer" class="error-container" style="display: none;"></div>
+    <!-- Sistema de Notificaciones Push/Pop -->
+    <div id="notificationContainer" class="notification-container"></div>
 
     <!-- Paneles específicos -->
     <div id="panelMarchaContainer" style="display: none;"></div>
@@ -1394,8 +1410,77 @@
       }
     }
     
+    // 🎯 FUNCIONALIDAD VISTA 3D
+    function activarVista3D() {
+      console.log('🎮 Activando vista 3D en Juego de Guerra...');
+      
+      try {
+        // Verificar si el sistema 3D está disponible
+        if (typeof window.threeDMapService === 'undefined') {
+          console.error('❌ threeDMapService no disponible');
+          alert('⚠️ Sistema 3D no disponible. Asegúrate de que los scripts 3D estén cargados.');
+          return;
+        }
+        
+        // Verificar si tenemos elementos desplegados para mostrar en 3D
+        const elementosDesplegados = [];
+        
+        // Buscar elementos militares en el mapa
+        window.mapa.eachLayer((layer) => {
+          if (layer.options && layer.options.tipo === 'elemento' && layer.options.sidc) {
+            const elemento = {
+              id: layer.options.id,
+              tipo: layer.options.sidc,
+              posicion: layer.getLatLng(),
+              nombre: layer.options.nombre || 'Elemento Militar'
+            };
+            elementosDesplegados.push(elemento);
+          }
+        });
+        
+        console.log('🎯 Elementos encontrados para vista 3D:', elementosDesplegados.length);
+        
+        if (elementosDesplegados.length === 0) {
+          alert('ℹ️ No hay elementos militares desplegados en el mapa.\n\nDespliega algunas unidades primero para ver la vista 3D.');
+          return;
+        }
+        
+        // Activar vista 3D usando el sistema de zoom multi-nivel
+        if (typeof window.sistemaZoomMultiNivel !== 'undefined') {
+          // Forzar zoom operacional para activar 3D
+          const zoomOperacional = 15; // Zoom level para vista operacional
+          window.mapa.setZoom(zoomOperacional);
+          
+          // Activar modo 3D
+          window.sistemaZoomMultiNivel.activar3D();
+          
+          // Mostrar mensaje de éxito
+          const mensaje = `🎮 Vista 3D activada!\n\n✅ ${elementosDesplegados.length} elementos militares mostrados en 3D\n\n💡 Usa los controles del mouse para navegar:\n• Click izquierdo + arrastrar: Rotar\n• Rueda del mouse: Zoom\n• Click derecho + arrastrar: Mover`;
+          
+          setTimeout(() => alert(mensaje), 500);
+          
+        } else {
+          console.error('❌ sistemaZoomMultiNivel no disponible');
+          alert('⚠️ Sistema de zoom 3D no disponible.');
+        }
+        
+      } catch (error) {
+        console.error('❌ Error activando vista 3D:', error);
+        alert('❌ Error al activar vista 3D: ' + error.message);
+      }
+    }
+    
     // Escuchar cambios de fase cuando se inicialice el DOM
     document.addEventListener('DOMContentLoaded', () => {
+      // 🎯 CONFIGURAR BOTÓN VISTA 3D
+      const btn3D = document.getElementById('btn3DView');
+      if (btn3D) {
+        btn3D.addEventListener('click', (e) => {
+          e.preventDefault();
+          activarVista3D();
+        });
+      }
+      
       // Escuchar eventos de cambio de fase
       document.addEventListener('faseCambiada', (event) => {
         const { nuevaFase, nuevaSubfase } = event.detail;

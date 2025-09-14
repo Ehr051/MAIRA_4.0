@@ -699,6 +699,64 @@ class SistemaZoomMultiNivel {
             this.mapa.setZoom(zoomTarget);
         }
     }
+
+    /**
+     * 🎮 ACTIVAR VISTA 3D
+     * Función para activar manualmente la vista 3D desde el botón del menú
+     */
+    activar3D() {
+        console.log('🎮 Activando vista 3D manual...');
+        
+        try {
+            // Forzar nivel operacional para activar 3D
+            this.forzarNivel('operacional');
+            
+            // Esperar un momento para que el zoom se aplique
+            setTimeout(() => {
+                // Forzar actualización del nivel
+                this.nivelActual = 'operacional';
+                this.actualizarIndicadorZoom();
+                
+                // Renderizar elementos 3D existentes
+                this.renderizarNivelOperacional();
+                
+                console.log('✅ Vista 3D activada correctamente');
+                
+                // Disparar evento personalizado
+                document.dispatchEvent(new CustomEvent('vista3DActivada', {
+                    detail: { nivel: 'operacional', elementos: this.elementos.size }
+                }));
+                
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Error activando vista 3D:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 🎯 DESACTIVAR VISTA 3D
+     * Volver al nivel táctico/estratégico
+     */
+    desactivar3D() {
+        console.log('📱 Desactivando vista 3D...');
+        
+        try {
+            // Volver al nivel táctico
+            this.forzarNivel('tactico');
+            
+            // Limpiar elementos 3D si existen
+            if (this.capasRenderizado.elementos3d) {
+                this.capasRenderizado.elementos3d.clearLayers();
+            }
+            
+            console.log('✅ Vista 3D desactivada');
+            
+        } catch (error) {
+            console.error('❌ Error desactivando vista 3D:', error);
+        }
+    }
 }
 
 // Instancia global
@@ -708,6 +766,7 @@ let sistemaZoom;
 window.inicializarSistemaZoom = (mapa) => {
     sistemaZoom = new SistemaZoomMultiNivel(mapa);
     window.sistemaZoom = sistemaZoom;
+    window.sistemaZoomMultiNivel = sistemaZoom; // Alias para compatibilidad
     return sistemaZoom;
 };
 
