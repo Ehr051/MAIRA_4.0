@@ -981,8 +981,8 @@ def proxy_github_file(file_path):
     import requests
     
     try:
-        # URL base del release tiles-v3.0
-        base_url = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+        # URL base del release v4.0
+        base_url = 'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/'
         github_url = base_url + file_path
         
         # Hacer la request al archivo de GitHub
@@ -1061,7 +1061,7 @@ def extraer_tile_vegetacion():
             return jsonify({"success": False, "message": "Parámetros requeridos: archivo_tar, tile_filename"}), 400
         
         # Construir rutas
-        base_path = "https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/"
+        base_path = "https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/"
         tar_url = base_path + archivo_tar
         tiles_dir = os.path.join("tiles", "vegetacion")
         output_path = os.path.join(tiles_dir, tile_filename)
@@ -4818,9 +4818,53 @@ def github_proxy(asset_name):
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# 🗺️ SERVIR TILES COMO ARCHIVOS ESTÁTICOS EN RENDER
+@app.route('/tiles/data_argentina/<path:filename>')
+def serve_static_tiles(filename):
+    """Servir tiles como archivos estáticos desde directorio público"""
+    tiles_dir = os.path.join(app.root_path, 'static', 'tiles', 'data_argentina')
+    
+    # Verificar si el archivo existe localmente
+    local_file = os.path.join(tiles_dir, filename)
+    if os.path.exists(local_file):
+        return send_from_directory(tiles_dir, filename)
+    
+    # Si no existe, redirigir al proxy de GitHub
+    return github_proxy(filename)
+
+@app.route('/tiles/altimetria/<path:filename>')
+def serve_altimetria_static(filename):
+    """Servir tiles de altimetría como archivos estáticos"""
+    return serve_static_tiles(f"altimetria/{filename}")
+
+@app.route('/tiles/vegetacion/<path:filename>')
+def serve_vegetacion_static(filename):
+    """Servir tiles de vegetación como archivos estáticos"""
+    return serve_static_tiles(f"vegetacion/{filename}")
+
+# Configurar directorio estático para tiles en Render
+def setup_static_tiles_directory():
+    """Configurar directorio estático para tiles"""
+    print("🗂️ Configurando directorio estático para tiles...")
+    
+    static_tiles_dir = os.path.join(app.root_path, 'static', 'tiles', 'data_argentina')
+    os.makedirs(static_tiles_dir, exist_ok=True)
+    
+    # Crear enlaces simbólicos si estamos en desarrollo
+    if not os.environ.get('RENDER'):
+        print("� Creando enlaces simbólicos para desarrollo local")
+        
+        # Crear estructura básica
+        subdirs = ['altimetria', 'vegetacion', 'indices']
+        for subdir in subdirs:
+            os.makedirs(os.path.join(static_tiles_dir, subdir), exist_ok=True)
+    
+    print(f"📁 Directorio tiles configurado: {static_tiles_dir}")
+
+# Ejecutar configuración de tiles estáticos
+setup_static_tiles_directory()
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    print(f"🚀 Iniciando MAIRA 4.0 en puerto {port}")
     port = int(os.environ.get('PORT', 5000))
     print(f"🚀 Iniciando MAIRA 4.0 en puerto {port}")
     socketio.run(app, host='0.0.0.0', port=port, debug=False)
