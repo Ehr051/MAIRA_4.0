@@ -198,6 +198,9 @@
   <script src="/node_modules/leaflet-easybutton/src/easy-button.js"></script>
   <script src="/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
   <script src="/node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  
+  <!-- 🔍 DETECTOR DE ZOOM 3D -->
+  <script src="js/modules/gaming/detectorZoom3D.js"></script>
   <script src="/node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
   <script src="/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
   <script src="/node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
@@ -329,6 +332,7 @@
   <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
   <script src="js/modules/gaming/tactico3dIntegration.js"></script>
   <script src="js/modules/gaming/sistema3DIntegrado.js"></script>
+  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <script src="js/modules/sistema3d.js"></script>
@@ -352,50 +356,9 @@
   <script src="js/Test/autoTest.js"></script>
   <script src="js/Test/visualizadorTests.js"></script>
 
-  <script>
-    // 🚀 INICIALIZACIÓN DIRECTA JUEGO DE GUERRA
-    async function initializeJuegoDeguerra() {
-        console.log('🚀 MAIRA 4.0 - Iniciando Juego de Guerra (Modo Directo)...');
-        console.log('🎯 Panel Unificado + Sistema Zoom Multi-Nivel (Total War Style)');
-        
-        // Verificar dependencias críticas
-        if (typeof $ === 'undefined') {
-            console.error('❌ jQuery no cargado');
-            return;
-        }
-        
-        if (typeof L === 'undefined') {
-            console.error('❌ Leaflet no cargado');
-            return;
-        }
-        
-        if (typeof ms === 'undefined') {
-            console.error('❌ Milsymbol no cargado');
-            return;
-        }
-        
-        try {
-            // Obtener configuración de partida
-            const configuracionPartida = obtenerConfiguracionPartida();
-            console.log('📋 Configuración de partida:', configuracionPartida);
-            
-            // Inicializar UserIdentity primero
-            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity) {
-                await MAIRA.UserIdentity.initialize();
-            }
-            
-            // Inicializar GameEngine con configuración
-            if (typeof GameEngine !== 'undefined') {
-                window.gameEngine = new GameEngine();
-                if (configuracionPartida) {
-                    await window.gameEngine.setupGame(configuracionPartida);
-                }
-                console.log('✅ GameEngine inicializado');
-            }
-            
-            // Inicializar GestorJuego si existe
-            if (typeof GestorJuego !== 'undefined') {
-                window.gestorJuego = new GestorJuego();
+  <!-- 🚀 INICIALIZADORES EXTERNOS (JavaScript limpio) -->
+  <script src="js/modules/gaming/inicializadorJuegoGuerra.js"></script>
+  <script src="js/modules/gaming/gestorDetectorGestos.js"></script>
                 await window.gestorJuego.inicializar(configuracionPartida);
                 console.log('✅ GestorJuego inicializado');
             }
@@ -1465,272 +1428,8 @@
     });
     */
 
-    async function descargarDetectorGestos() {
-      const btnControlGestos = document.getElementById('btnControlGestos');
-      
-      try {
-        // Mostrar mensaje de confirmación
-        const confirmacion = confirm(
-          '🤚 MAIRA Detector de Gestos\n\n' +
-          '¿Deseas descargar e instalar el detector de gestos en tu PC?\n\n' +
-          '✅ Control por gestos para cualquier programa\n' +
-          '✅ Mesa de proyección interactiva\n' +
-          '✅ Integración con MAIRA Web\n\n' +
-          'Se descargará un archivo ZIP con instalador automático.'
-        );
-        
-        if (!confirmacion) return;
-        
-        // Mostrar indicador de descarga
-        const mensajeOriginal = btnControlGestos.innerHTML;
-        btnControlGestos.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Descargando...';
-        btnControlGestos.disabled = true;
-        
-        // Realizar descarga
-        const response = await fetch('/api/download-gesture-detector');
-        
-        if (!response.ok) {
-          throw new Error(`Error en descarga: ${response.status}`);
-        }
-        
-        // Crear blob y descargar archivo
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'MAIRA_Detector_Gestos.zip';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        // Mostrar instrucciones
-        setTimeout(() => {
-          alert(
-            '📦 ¡Descarga completada!\n\n' +
-            '📋 Próximos pasos:\n' +
-            '1. Busca el archivo "MAIRA_Detector_Gestos.zip" en Descargas\n' +
-            '2. Extrae el archivo ZIP\n' +
-            '3. Ejecuta "maira_gestos.py" (doble click)\n' +
-            '4. Sigue las instrucciones en pantalla\n\n' +
-            '💡 El detector funcionará con MAIRA y cualquier otro programa.'
-          );
-        }, 500);
-        
-      } catch (error) {
-        console.error('Error descargando detector de gestos:', error);
-        alert('❌ Error al descargar el detector de gestos.\nVerifica tu conexión e intenta nuevamente.');
-      } finally {
-        // Restaurar botón
-        if (btnControlGestos) {
-          btnControlGestos.innerHTML = mensajeOriginal;
-          btnControlGestos.disabled = false;
-        }
-      }
-    }
-    
-    // Funciones de debug y utilidad para el juego
-    function forzarInicioCombate() {
-      console.log('🔥 Forzando inicio de combate...');
-      
-      if (window.gestorJuego?.gestorComunicacion?.socket) {
-        window.gestorJuego.gestorComunicacion.socket.emit('iniciarCombate', {
-          partidaCodigo: window.codigoPartida,
-          timestamp: new Date().toISOString()
-        });
-      } else if (window.gestorJuego?.gestorFases) {
-        // Modo local
-        window.gestorJuego.gestorFases.fase = 'combate';
-        window.gestorJuego.gestorFases.subfase = 'turno';
-        window.gestorJuego.gestorFases.actualizarBotonesFase();
-        if (window.gestorJuego.gestorInterfaz) {
-          window.gestorJuego.gestorInterfaz.actualizarInterfazFase('combate');
-        }
-      }
-    }
-    
-    function debugJuego() {
-      console.log('🐛 Estado del juego:');
-      console.log('- gestorJuego:', window.gestorJuego);
-      console.log('- gestorFases:', window.gestorJuego?.gestorFases);
-      console.log('- gestorTurnos:', window.gestorJuego?.gestorTurnos);
-      console.log('- gestorInterfaz:', window.gestorJuego?.gestorInterfaz);
-      console.log('- codigoPartida:', window.codigoPartida);
-      console.log('- fase actual:', window.gestorJuego?.gestorFases?.fase);
-      console.log('- subfase actual:', window.gestorJuego?.gestorFases?.subfase);
-      console.log('- socket conectado:', window.gestorJuego?.gestorComunicacion?.socket?.connected);
-    }
-    
-    // Mostrar/ocultar botones según la fase
-    function actualizarBotonesControlJuego(fase, subfase) {
-      const btnPrep = document.getElementById('btnFinalizarPreparacion');
-      const btnTurno = document.getElementById('btnFinalizarTurno');
-      
-      if (fase === 'preparacion' && subfase === 'despliegue') {
-        if (btnPrep) btnPrep.style.display = 'block';
-        if (btnTurno) btnTurno.style.display = 'none';
-      } else if (fase === 'combate') {
-        if (btnPrep) btnPrep.style.display = 'none';
-        if (btnTurno) btnTurno.style.display = 'block';
-      } else {
-        if (btnPrep) btnPrep.style.display = 'none';
-        if (btnTurno) btnTurno.style.display = 'none';
-      }
-    }
-    
-    // 🎯 FUNCIONALIDAD VISTA 3D INTEGRADA (NUEVA VERSION)
-    function activarVista3D() {
-      console.log('🎮 Activando vista 3D integrada...');
-      
-      try {
-        // Usar el nuevo sistema 3D integrado
-        if (window.sistema3DIntegrado && window.sistema3DIntegrado.inicializado) {
-          window.sistema3DIntegrado.cambiarAVista3D();
-          
-          // Mostrar mensaje de éxito
-          setTimeout(() => {
-            const mensaje = `🎮 Vista 3D Táctica Activada!\n\n✅ Sistema 3D integrado funcionando\n💡 Usa los controles del mouse para navegar:\n• Click + arrastrar: Rotar\n• Rueda: Zoom\n• Botón "Volver a Mapa 2D" para regresar`;
-            alert(mensaje);
-          }, 500);
-          
-        } else {
-          console.warn('⚠️ Sistema 3D integrado no disponible, usando fallback...');
-          
-          // Fallback al sistema anterior si no está disponible el integrado
-          if (typeof window.sistemaZoomMultiNivel !== 'undefined') {
-            window.mapa.setZoom(15);
-            window.sistemaZoomMultiNivel.activar3D();
-          } else {
-            alert('⚠️ Sistema 3D no disponible. Recarga la página e intenta nuevamente.');
-          }
-        }
-        
-      } catch (error) {
-        console.error('❌ Error activando vista 3D:', error);
-        alert('❌ Error al activar vista 3D: ' + error.message);
-      }
-    }
-    
-    // ✅ CONFIGURACIÓN DE EVENTOS - MOVIDO A INICIALIZACIÓN PRINCIPAL
-    function configurarEventosJuegoPrincipal() {
-      // 🎯 CONFIGURAR BOTÓN VISTA 3D
-      const btn3D = document.getElementById('btn3DView');
-      if (btn3D) {
-        btn3D.addEventListener('click', (e) => {
-          e.preventDefault();
-          activarVista3D();
-        });
-      }
-      
-      // Escuchar eventos de cambio de fase
-      document.addEventListener('faseCambiada', (event) => {
-        const { nuevaFase, nuevaSubfase } = event.detail;
-        actualizarBotonesControlJuego(nuevaFase, nuevaSubfase);
-      });
-      
-      // Verificar estado inicial después de que se cargue todo
-      setTimeout(() => {
-        if (window.gestorJuego?.gestorFases) {
-          const fase = window.gestorJuego.gestorFases.fase;
-          const subfase = window.gestorJuego.gestorFases.subfase;
-          actualizarBotonesControlJuego(fase, subfase);
-        }
-      }, 2000);
-      
-      // 🎯 INICIALIZAR SISTEMAS MODULARES
-      setTimeout(() => {
-        try {
-          console.log('🚀 Inicializando Sistemas Modulares de Juego de Guerra...');
-          
-          // 1. Sistema de Paneles Modular
-          if (typeof SistemaPaneles !== 'undefined') {
-            window.sistemaPaneles = new SistemaPaneles('juegodeguerra');
-            console.log('✅ Sistema de Paneles modular inicializado');
-          }
-          
-          // 2. Sistema de Juego de Guerra
-          if (typeof SistemaJuegoGuerra !== 'undefined') {
-            window.sistemaJuegoGuerra = new SistemaJuegoGuerra();
-            console.log('✅ Sistema de Juego de Guerra inicializado');
-          }
-          
-          // 3. Sistema 3D (si está disponible)
-          if (typeof Sistema3D !== 'undefined') {
-            console.log('✅ Sistema 3D disponible para Juego de Guerra');
-          }
-          
-          // 4. Integración con gestores existentes
-          integrarGestoresExistentes();
-          
-        } catch (error) {
-          console.error('❌ Error inicializando sistemas modulares:', error);
-        }
-      }, 1500); // Inicializar sistemas antes que gestorJuego
-    };
-    
-    // Funciones de integración modular
-    function integrarGestoresExistentes() {
-      console.log('🔗 Integrando gestores existentes con sistemas modulares...');
-      
-      // Integrar gestorInterfaz con sistema de paneles
-      if (window.gestorInterfaz && window.sistemaPaneles) {
-        window.gestorInterfaz.sistemaPaneles = window.sistemaPaneles;
-        console.log('✅ GestorInterfaz integrado con SistemaPaneles');
-      }
-      
-      // Integrar gestorFases con sistema de juego
-      if (window.gestorFases && window.sistemaJuegoGuerra) {
-        window.gestorFases.sistemaJuego = window.sistemaJuegoGuerra;
-        console.log('✅ GestorFases integrado con SistemaJuegoGuerra');
-      }
-      
-      // Integrar gestorTurnos
-      if (window.gestorTurnos && window.sistemaPaneles) {
-        window.gestorTurnos.sistemaPaneles = window.sistemaPaneles;
-        console.log('✅ GestorTurnos integrado');
-      }
-    }
-    
-    function integrarSistemasPaneles() {
-      setTimeout(() => {
-        try {
-          // Retrocompatibilidad - mantener sistemas legacy
-          console.log('🔄 Manteniendo retrocompatibilidad con sistemas legacy...');
-          
-        } catch (error) {
-          console.error('❌ Error integrando sistemas de paneles:', error);
-        }
-      }, 1500);
-    }
-
-    function configurarEventosJuego() {
-      const btn3D = document.getElementById('btn3DView');
-      if (btn3D) {
-        btn3D.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (typeof toggleVista3DModular === 'function') {
-            toggleVista3DModular();
-          } else {
-            activarVista3D();
-          }
-        });
-      }
-      
-      document.addEventListener('faseCambiada', (event) => {
-        const { nuevaFase, nuevaSubfase } = event.detail;
-        actualizarBotonesControlJuego(nuevaFase, nuevaSubfase);
-      });
-      
-      setTimeout(() => {
-        if (window.gestorJuego?.gestorFases) {
-          const fase = window.gestorJuego.gestorFases.fase;
-          const subfase = window.gestorJuego.gestorFases.subfase;
-          actualizarBotonesControlJuego(fase, subfase);
-        }
-      }, 2000);
-      
-      console.log('✅ Eventos de juego configurados');
-    }
+    // ✅ TODO EL JAVASCRIPT HA SIDO MOVIDO A ARCHIVOS EXTERNOS
+    // Ver: inicializadorJuegoGuerra.js, gestorDetectorGestos.js, detectorZoom3D.js
   </script>
 </body>
 </html>
