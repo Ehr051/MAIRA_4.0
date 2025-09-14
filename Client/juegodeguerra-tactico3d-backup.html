@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 JUEGO DE GUERRA 3D - MAIRA 4.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* === PANEL DE CONTROL IZQUIERDO === */
+        .panel-control {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.95);
+            border-right: 2px solid #00ff00;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        /* === BARRA SUPERIOR INTEGRADA === */
+        .barra-superior-integrada {
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid #00ff00;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .estado-juego {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .fase-actual {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .turno-actual {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .jugador-actual {
+            color: #FF9800;
+            font-weight: bold;
+        }
+
+        .reloj-turno {
+            color: #f44336;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* === PANELES PRINCIPALES === */
+        .panel-section {
+            margin: 15px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .panel-content {
+            padding: 12px;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        /* === LISTA DE UNIDADES === */
+        .lista-unidades {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .unidad-item {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: 3px;
+            padding: 8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .unidad-item:hover {
+            background: rgba(0, 255, 0, 0.15);
+            border-color: #00ff00;
+        }
+
+        .unidad-item.selected {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+
+        .unidad-item.enemiga {
+            border-color: rgba(255, 0, 0, 0.5);
+            color: #ff6666;
+        }
+
+        .unidad-nombre {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .unidad-estado {
+            font-size: 10px;
+            color: #888;
+        }
+
+        /* === CONTROLES DE VISTA === */
+        .controles-vista {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn-control {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-control:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+        }
+
+        .btn-control.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+
+        /* === PANEL DE ÓRDENES === */
+        .panel-ordenes {
+            background: rgba(0, 100, 0, 0.1);
+            border: 1px solid #00aa00;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .orden-btn {
+            display: block;
+            width: 100%;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin-bottom: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .orden-btn:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .orden-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* === ÁREA PRINCIPAL 3D === */
+        .viewer-3d {
+            flex: 1;
+            position: relative;
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* === HUD SUPERIOR === */
+        .hud-superior {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ffff;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 11px;
+            border: 1px solid #00ffff;
+            min-width: 200px;
+        }
+
+        /* === HUD INFERIOR === */
+        .hud-inferior {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            border: 1px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .coordenadas-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .minimap {
+            width: 120px;
+            height: 80px;
+            border: 1px solid #00ff00;
+            background: rgba(0, 50, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        /* === INDICADORES DE UNIDADES === */
+        .unidad-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .unidad-marker.propia {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .unidad-marker.enemiga {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .unidad-marker.neutral {
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+
+        .unidad-marker:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .unidad-marker.selected {
+            transform: scale(1.3);
+            box-shadow: 0 0 20px currentColor;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* === ÓRDENES VISUALES === */
+        .orden-visual {
+            position: absolute;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .ruta-movimiento {
+            stroke: #00ffff;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            fill: none;
+            opacity: 0.8;
+        }
+
+        .area-objetivo {
+            fill: rgba(255, 0, 0, 0.2);
+            stroke: #ff0000;
+            stroke-width: 2;
+            stroke-dasharray: 3,3;
+        }
+
+        /* === MODO TÁCTRICO === */
+        .modo-tactico {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #ffff00;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid #ffff00;
+            font-weight: bold;
+        }
+
+        /* === CONTROLES DE FASES === */
+        .controles-fase {
+            margin-bottom: 15px;
+        }
+
+        .btn-fase {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 3px 0;
+            background: linear-gradient(135deg, #2d5a87, #1e3d5c);
+            color: white;
+            border: 1px solid #4a90c2;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-fase:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4a90c2, #2d5a87);
+            box-shadow: 0 2px 8px rgba(74, 144, 194, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-fase:disabled {
+            background: #444;
+            color: #888;
+            border-color: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-fase:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(74, 144, 194, 0.2);
+        }
+
+        .botones-confirmacion {
+            display: flex;
+            gap: 5px;
+            margin: 5px 0 10px 0;
+        }
+
+        .btn-confirmar, .btn-cancelar {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-confirmar {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            border: 1px solid #28a745;
+        }
+
+        .btn-confirmar:hover {
+            background: linear-gradient(135deg, #34ce57, #28a745);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-cancelar:hover {
+            background: linear-gradient(135deg, #e4606d, #dc3545);
+            transform: translateY(-1px);
+        }
+
+        .btn-finalizar-turno {
+            background: linear-gradient(135deg, #fd7e14, #e55a00);
+            border-color: #fd7e14;
+            font-weight: bold;
+        }
+
+        .btn-finalizar-turno:hover {
+            background: linear-gradient(135deg, #ff922b, #fd7e14);
+        }
+
+        #infoJugadorActual, #infoTurnoCombate {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .reloj-combate {
+            margin-top: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        .estado-despliegues {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+
+        .jugador-despliegue {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .jugador-despliegue:last-child {
+            border-bottom: none;
+        }
+
+        .estado-confirmado {
+            color: #28a745;
+        }
+
+        .estado-pendiente {
+            color: #ffc107;
+        }
+
+        .secuencia-turnos {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+
+        .turno-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .turno-item:last-child {
+            border-bottom: none;
+        }
+
+        .turno-activo {
+            background: rgba(255, 193, 7, 0.2);
+            border-radius: 3px;
+            padding: 3px 5px;
+            font-weight: bold;
+        }
+
+        .turno-completado {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1200px) {
+            .panel-control {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .panel-control {
+                width: 250px;
+            }
+            
+            .hud-inferior {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PANEL DE CONTROL IZQUIERDO -->
+        <div class="panel-control">
+            <!-- Barra superior integrada -->
+            <div class="barra-superior-integrada">
+                <div class="estado-juego">
+                    <div class="fase-actual" id="faseActual">PREP</div>
+                    <div class="turno-actual" id="turnoActual">T1</div>
+                    <div class="jugador-actual" id="jugadorActual">-</div>
+                </div>
+                <div class="reloj-turno" id="relojTurno">--:--</div>
+            </div>
+
+            <!-- Panel de Vista 3D -->
+            <div class="panel-section">
+                <div class="panel-header">🎯 Vista Táctica 3D</div>
+                <div class="panel-content">
+                    <div class="controles-vista">
+                        <button class="btn-control active" id="btnVista2D">📋 Vista 2D</button>
+                        <button class="btn-control" id="btnVista3D">🎮 Vista 3D</button>
+                        <button class="btn-control" id="btnVistaAerea">🚁 Aérea</button>
+                        <button class="btn-control" id="btnVistaTactica">🎯 Táctica</button>
+                    </div>
+                    
+                    <div style="font-size: 10px; color: #888; margin-bottom: 10px;">
+                        🎲 Modo: <span id="modoActual">Planeamiento</span><br>
+                        📏 Escala: <span id="escalaActual">1:50,000</span><br>
+                        🌍 Terreno: <span id="terrenoActual">Cargado</span>
+                    </div>
+                    
+                    <div class="controles-vista">
+                        <button class="btn-control" onclick="resetearCamara()">📷 Reset</button>
+                        <button class="btn-control" onclick="toggleWireframe()">🕸️ Wire</button>
+                        <button class="btn-control" onclick="toggleLuces()">💡 Luz</button>
+                        <button class="btn-control" onclick="capturarPantalla()">📸 Foto</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Control de Fases -->
+            <div class="panel-section">
+                <div class="panel-header">🎮 Control de Fases</div>
+                <div class="panel-content">
+                    <!-- Fase Preparación -->
+                    <div id="controlesPeparacion" class="controles-fase">
+                        <button class="btn-fase" id="btnDefinirSector">📍 Definir Sector</button>
+                        <div class="botones-confirmacion" id="confirmacionSector" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarSector()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarSector()">❌ Cancelar</button>
+                        </div>
+                        
+                        <button class="btn-fase" id="btnDefinirZonaRoja" disabled>🚫 Definir Zona Roja</button>
+                        <div class="botones-confirmacion" id="confirmacionZonaRoja" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarZonaRoja()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarZonaRoja()">❌ Cancelar</button>
+                        </div>
+                        
+                        <button class="btn-fase" id="btnDefinirZonaAzul" disabled>🔵 Definir Zona Azul</button>
+                        <div class="botones-confirmacion" id="confirmacionZonaAzul" style="display: none;">
+                            <button class="btn-confirmar" onclick="confirmarZonaAzul()">✅ Confirmar</button>
+                            <button class="btn-cancelar" onclick="cancelarZonaAzul()">❌ Cancelar</button>
+                        </div>
+                    </div>
+
+                    <!-- Fase Despliegue -->
+                    <div id="controlesDespliegue" class="controles-fase" style="display: none;">
+                        <div id="infoJugadorActual">
+                            <strong>Despliegue jugador: <span id="nombreJugadorDespliegue">-</span></strong>
+                        </div>
+                        <button class="btn-fase" id="btnFinalizarDespliegue" disabled>🎯 Finalizar Despliegue</button>
+                        <div class="estado-despliegues" id="estadoDespliegues">
+                            <!-- Se poblará dinámicamente con el estado de cada jugador -->
+                        </div>
+                    </div>
+
+                    <!-- Fase Combate -->
+                    <div id="controlesCombate" class="controles-fase" style="display: none;">
+                        <div id="infoTurnoCombate">
+                            <strong>Turno: <span id="nombreJugadorCombate">-</span></strong>
+                            <div class="reloj-combate">⏱️ <span id="tiempoTurnoCombate">05:00</span></div>
+                        </div>
+                        <button class="btn-fase btn-finalizar-turno" id="btnFinalizarTurno">⏭️ Finalizar Turno</button>
+                        <div class="secuencia-turnos" id="secuenciaTurnos">
+                            <!-- Se poblará con la secuencia de turnos -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Unidades -->
+            <div class="panel-section">
+                <div class="panel-header">⚔️ Unidades en Combate</div>
+                <div class="panel-content">
+                    <div class="lista-unidades" id="listaUnidades">
+                        <!-- Se poblará dinámicamente -->
+                    </div>
+                    
+                    <div style="margin-top: 10px; font-size: 10px; color: #888;">
+                        <div>🟢 Propias: <span id="unidadesPropias">0</span></div>
+                        <div>🔴 Enemigas: <span id="unidadesEnemigas">0</span></div>
+                        <div>🟡 Neutrales: <span id="unidadesNeutrales">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Información de Unidad -->
+            <div class="panel-section" id="panelInfoUnidad" style="display: none;">
+                <div class="panel-header">📊 Información de Unidad</div>
+                <div class="panel-content" id="infoUnidadContent">
+                    <!-- Se poblará al seleccionar unidad -->
+                </div>
+            </div>
+
+            <!-- Panel de Órdenes -->
+            <div class="panel-section" id="panelOrdenes" style="display: none;">
+                <div class="panel-header">📋 Órdenes Tácticas</div>
+                <div class="panel-content">
+                    <button class="orden-btn" onclick="darOrdenMovimiento()">
+                        🏃 Mover Unidad
+                    </button>
+                    <button class="orden-btn" onclick="darOrdenAtaque()">
+                        🎯 Atacar Objetivo
+                    </button>
+                    <button class="orden-btn" onclick="darOrdenDefender()">
+                        🛡️ Defender Posición
+                    </button>
+                    <button class="orden-btn" onclick="darOrdenPatrullar()">
+                        🔄 Patrullar Área
+                    </button>
+                    <button class="orden-btn" onclick="darOrdenRetirada()">
+                        ↩️ Retirada Táctica
+                    </button>
+                    <button class="orden-btn" onclick="cancelarOrdenes()">
+                        ❌ Cancelar Órdenes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel de Estado de Juego -->
+            <div class="panel-section">
+                <div class="panel-header">📈 Estado del Juego</div>
+                <div class="panel-content">
+                    <div style="font-size: 10px; line-height: 1.6;">
+                        <div>⏱️ Tiempo restante: <span id="tiempoRestante">--:--</span></div>
+                        <div>🎯 Objetivos: <span id="objetivosStatus">En progreso</span></div>
+                        <div>📡 Comunicaciones: <span id="commsStatus">Activas</span></div>
+                        <div>🔋 Moral: <span id="moralStatus">Alta</span></div>
+                        <div>📦 Suministros: <span id="suministrosStatus">Adecuados</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÁREA PRINCIPAL 3D -->
+        <div class="viewer-3d">
+            <canvas id="canvas3d"></canvas>
+            
+            <!-- Modo táctico indicator -->
+            <div class="modo-tactico" id="modoTacticoIndicator" style="display: none;">
+                🎯 MODO TÁCTICO 3D ACTIVO
+            </div>
+
+            <!-- HUD Superior -->
+            <div class="hud-superior">
+                <div><strong>🎮 COMANDOS ACTIVOS</strong></div>
+                <div id="comandosActivos">
+                    <div>🖱️ Click: Seleccionar unidad</div>
+                    <div>🔄 Drag: Rotar vista</div>
+                    <div>⚪ Scroll: Zoom</div>
+                    <div>↑↓←→ Flechas: Mover cámara</div>
+                    <div>Space: Pausar/Reanudar</div>
+                </div>
+            </div>
+
+            <!-- HUD Inferior -->
+            <div class="hud-inferior">
+                <div class="coordenadas-info">
+                    <div>
+                        <strong>📍 POSICIÓN</strong><br>
+                        Lat: <span id="latActual">0.000</span><br>
+                        Lng: <span id="lngActual">0.000</span>
+                    </div>
+                    <div>
+                        <strong>📏 CÁMARA</strong><br>
+                        Alt: <span id="alturaCamera">100</span>m<br>
+                        Dir: <span id="direccionCamera">N</span>
+                    </div>
+                    <div>
+                        <strong>🎯 SELECCIÓN</strong><br>
+                        <span id="seleccionActual">Ninguna</span>
+                    </div>
+                </div>
+                
+                <div class="minimap" id="minimap">
+                    <!-- Minimapa se renderizará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- THREE.js Libraries -->
+    <script src="Libs/three/build/three.min.js"></script>
+    <script src="Libs/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="Libs/three/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // 🎯 Sistema Integrado de Juego de Guerra 3D
+        class JuegoGuerra3D {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+                
+                // Estado del juego
+                this.fase = 'preparacion';
+                this.subfase = 'definicion_sector';
+                this.turnoActual = 1;
+                this.jugadorActual = null;
+                this.tiempoRestante = 300; // 5 minutos por turno
+                
+                // Unidades y elementos
+                this.unidades = new Map();
+                this.unidadSeleccionada = null;
+                this.terreno = null;
+                this.unidadesSIDC = [];
+                
+                // Centro del mapa para conversiones lat/lng ↔ 3D
+                this.centroMapa = { lat: -34.6118, lng: -58.3960 }; // Buenos Aires como centro por defecto
+                
+                // Sistema híbrido 2D/3D
+                this.vistaActual = '3D'; // '2D' | '3D'
+                this.sincronizacionActiva = true;
+                this.marcadores = new Map();
+                
+                // Modo de vista
+                this.modoVista = '2D';
+                this.modoTactico = false;
+                
+                // Configuración
+                this.escalaMapa = 50000; // 1:50,000
+                this.coordenadasActuales = { lat: 0, lng: 0 };
+                
+                this.init();
+                this.inicializarControlFases();
+                this.iniciarIntegracionMAIRA();
+            }
+
+            init() {
+                const canvas = document.getElementById('canvas3d');
+                
+                // Configurar escena
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x87CEEB);
+
+                // Configurar cámara
+                this.camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 50000);
+                this.camera.position.set(0, 1000, 1000);
+
+                // Configurar renderer
+                this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                // Configurar controles
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.minDistance = 50;
+                this.controls.maxDistance = 5000;
+
+                // Configurar iluminación
+                this.setupLighting();
+                
+                // Setup eventos
+                this.setupEventListeners();
+                
+                // Generar terreno inicial
+                this.generarTerrenoDemo();
+                
+                // Crear unidades demo
+                this.crearUnidadesDemo();
+
+                // Iniciar animación
+                this.animate();
+
+                console.log('🎮 Sistema de Juego de Guerra 3D iniciado');
+            }
+
+            setupLighting() {
+                // Luz ambiental
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                this.scene.add(ambientLight);
+
+                // Luz direccional (sol)
+                const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+                sunLight.position.set(1000, 2000, 500);
+                sunLight.castShadow = true;
+                sunLight.shadow.mapSize.width = 2048;
+                sunLight.shadow.mapSize.height = 2048;
+                this.scene.add(sunLight);
+
+                // Grilla táctica
+                const gridHelper = new THREE.GridHelper(2000, 50, 0x00ff00, 0x004400);
+                gridHelper.position.y = -5;
+                this.scene.add(gridHelper);
+            }
+
+            generarTerrenoDemo() {
+                // Terreno básico para demo
+                const geometry = new THREE.PlaneGeometry(2000, 2000, 64, 64);
+                
+                // Generar altura procedural
+                const vertices = geometry.attributes.position.array;
+                for (let i = 0; i < vertices.length; i += 3) {
+                    const x = vertices[i];
+                    const z = vertices[i + 1];
+                    vertices[i + 2] = Math.sin(x * 0.001) * Math.cos(z * 0.001) * 50;
+                }
+                
+                geometry.attributes.position.needsUpdate = true;
+                geometry.computeVertexNormals();
+
+                const material = new THREE.MeshLambertMaterial({ 
+                    color: 0x4a5d23,
+                    wireframe: false 
+                });
+
+                this.terreno = new THREE.Mesh(geometry, material);
+                this.terreno.rotation.x = -Math.PI / 2;
+                this.terreno.receiveShadow = true;
+                this.scene.add(this.terreno);
+            }
+
+            crearUnidadesDemo() {
+                // Crear unidades demo para prueba
+                const tiposUnidades = [
+                    { id: 'inf1', nombre: 'Pelotón Alpha', tipo: 'infanteria', equipo: 'propio', pos: [-200, 0, -100] },
+                    { id: 'inf2', nombre: 'Pelotón Bravo', tipo: 'infanteria', equipo: 'propio', pos: [-100, 0, -150] },
+                    { id: 'veh1', nombre: 'Humvee-1', tipo: 'vehiculo', equipo: 'propio', pos: [0, 0, -100] },
+                    { id: 'tank1', nombre: 'M1A2-Alpha', tipo: 'tanque', equipo: 'propio', pos: [100, 0, -120] },
+                    { id: 'enemy1', nombre: 'Fuerza Enemiga-1', tipo: 'infanteria', equipo: 'enemigo', pos: [200, 0, 200] },
+                    { id: 'enemy2', nombre: 'T-72-Red', tipo: 'tanque', equipo: 'enemigo', pos: [300, 0, 150] }
+                ];
+
+                tiposUnidades.forEach(unidadData => {
+                    this.crearUnidad(unidadData);
+                });
+
+                this.actualizarListaUnidades();
+            }
+
+            crearUnidad(data) {
+                // Crear representación 3D básica
+                let geometry, material;
+                
+                switch(data.tipo) {
+                    case 'infanteria':
+                        geometry = new THREE.BoxGeometry(10, 15, 8);
+                        break;
+                    case 'vehiculo':
+                        geometry = new THREE.BoxGeometry(20, 12, 35);
+                        break;
+                    case 'tanque':
+                        geometry = new THREE.BoxGeometry(25, 15, 40);
+                        break;
+                    default:
+                        geometry = new THREE.BoxGeometry(15, 10, 20);
+                }
+
+                const color = data.equipo === 'propio' ? 0x00ff00 : 
+                             data.equipo === 'enemigo' ? 0xff0000 : 0xffff00;
+                             
+                material = new THREE.MeshLambertMaterial({ color: color });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(...data.pos);
+                mesh.position.y = 10; // Elevar sobre el terreno
+                mesh.castShadow = true;
+                mesh.userData = data;
+
+                this.scene.add(mesh);
+                
+                // Guardar referencia
+                this.unidades.set(data.id, {
+                    ...data,
+                    mesh: mesh,
+                    estado: 'inactivo',
+                    salud: 100,
+                    municion: 100,
+                    ordenes: []
+                });
+            }
+
+            // ✅ SISTEMA DE ÓRDENES ESPECÍFICAS POR TIPO SIDC
+            obtenerOrdenesDisponibles(unidad) {
+                const tipo = unidad.tipo;
+                const ordenesBase = ['mantener_posicion', 'cancelar_ordenes'];
+                
+                switch(tipo) {
+                    case 'infanteria':
+                        return [...ordenesBase, 'defender', 'atacar', 'marchar', 'reabastecer', 'patrullar'];
+                    
+                    case 'tanque':
+                    case 'vehiculo_combate':
+                        return [...ordenesBase, 'atacar', 'defender', 'flanquear', 'reagrupar', 'repostar'];
+                    
+                    case 'vehiculo_armado':
+                    case 'vehiculo':
+                        return [...ordenesBase, 'mover', 'atacar', 'patrullar', 'repostar', 'transportar'];
+                    
+                    case 'artilleria':
+                        return [...ordenesBase, 'bombardear', 'reposicionar', 'apoyo_fuego', 'reabastecer'];
+                    
+                    case 'ingenieros':
+                        return [...ordenesBase, 'construir', 'reparar', 'mover', 'desactivar_minas'];
+                    
+                    case 'comunicaciones':
+                        return [...ordenesBase, 'establecer_enlace', 'mover', 'interferir_comunicaciones'];
+                    
+                    case 'sanidad':
+                        return [...ordenesBase, 'evacuar_heridos', 'establecer_puesto_socorro', 'mover'];
+                    
+                    case 'abastecimiento':
+                        return [...ordenesBase, 'reabastecer_unidad', 'mover', 'establecer_deposito'];
+                    
+                    default:
+                        return [...ordenesBase, 'mover', 'atacar'];
+                }
+            }
+
+            impartirOrden(unidad, tipoOrden, parametros = {}) {
+                const orden = {
+                    id: `orden_${Date.now()}`,
+                    tipo: tipoOrden,
+                    parametros: parametros,
+                    timestamp: Date.now(),
+                    jugador: this.jugadorActivo,
+                    estado: 'pendiente' // pendiente | ejecutando | completada | cancelada
+                };
+                
+                // Validar que la orden sea válida para este tipo de unidad
+                const ordenesDisponibles = this.obtenerOrdenesDisponibles(unidad);
+                if (!ordenesDisponibles.includes(tipoOrden)) {
+                    console.warn(`❌ Orden '${tipoOrden}' no disponible para ${unidad.tipo}`);
+                    return false;
+                }
+                
+                // Agregar a la cola de órdenes (asegurar que exista la estructura)
+                if (!unidad.ordenes) {
+                    unidad.ordenes = [];
+                }
+                unidad.ordenes.push(orden);
+                
+                console.log(`📋 Orden '${tipoOrden}' impartida a ${unidad.nombre} por ${this.jugadorActivo?.descripcion || 'Sistema'}`);
+                
+                // Actualizar visual
+                this.actualizarVisualOrden(unidad, orden);
+                
+                return true;
+            }
+
+            actualizarVisualOrden(unidad, orden) {
+                // Agregar indicador visual de orden pendiente
+                const mesh = unidad.mesh;
+                
+                if (mesh) {
+                    // Crear indicador de orden
+                    if (!mesh.indicadorOrden) {
+                        const geometry = new THREE.RingGeometry(8, 10, 0, Math.PI * 2);
+                        const material = new THREE.MeshBasicMaterial({ 
+                            color: 0xffff00, 
+                            transparent: true, 
+                            opacity: 0.8 
+                        });
+                        
+                        mesh.indicadorOrden = new THREE.Mesh(geometry, material);
+                        mesh.indicadorOrden.position.y = 20;
+                        mesh.indicadorOrden.rotation.x = -Math.PI / 2;
+                        mesh.add(mesh.indicadorOrden);
+                    }
+                    
+                    // Animar indicador
+                    mesh.indicadorOrden.visible = true;
+                }
+            }
+
+            setupEventListeners() {
+                // Eventos de mouse
+                const canvas = this.renderer.domElement;
+                // ✅ SISTEMA DE DOBLE CLICK PARA ÓRDENES
+                let clickTimeout = null;
+                let clickCount = 0;
+                
+                canvas.addEventListener('click', (event) => {
+                    clickCount++;
+                    
+                    if (clickCount === 1) {
+                        clickTimeout = setTimeout(() => {
+                            // Click simple - seleccionar
+                            this.onMouseClick(event);
+                            clickCount = 0;
+                        }, 300);
+                    } else if (clickCount === 2) {
+                        // Doble click - mostrar órdenes
+                        clearTimeout(clickTimeout);
+                        this.onMouseDoubleClick(event);
+                        clickCount = 0;
+                    }
+                });
+                canvas.addEventListener('mousemove', (event) => this.onMouseMove(event));
+                
+                // Eventos de teclado
+                document.addEventListener('keydown', (event) => this.onKeyDown(event));
+                
+                // Eventos de vista
+                document.getElementById('btnVista2D').addEventListener('click', () => this.cambiarVista('2D'));
+                document.getElementById('btnVista3D').addEventListener('click', () => this.cambiarVista('3D'));
+                document.getElementById('btnVistaAerea').addEventListener('click', () => this.cambiarVista('aerea'));
+                document.getElementById('btnVistaTactica').addEventListener('click', () => this.cambiarVista('tactica'));
+                
+                // Resize
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+
+            // ✅ DOBLE CLICK PARA MENÚ DE ÓRDENES
+            onMouseDoubleClick(event) {
+                const rect = event.target.getBoundingClientRect();
+                this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+                if (intersects.length > 0) {
+                    const objeto = intersects[0].object;
+                    
+                    // Buscar la unidad asociada
+                    let unidad = null;
+                    if (objeto.userData.unidadSIDC) {
+                        unidad = objeto.userData.unidadSIDC;
+                    } else {
+                        // Buscar en unidades demo
+                        const unidadDemo = Array.from(this.unidades.values()).find(u => u.mesh === objeto);
+                        if (unidadDemo) {
+                            unidad = unidadDemo;
+                        }
+                    }
+                    
+                    if (unidad) {
+                        console.log(`👆 Doble click en ${unidad.nombre}`);
+                        this.mostrarMenuOrdenes(unidad, event);
+                    }
+                }
+            }
+
+            mostrarMenuOrdenes(unidad, event) {
+                this.ocultarMenuOrdenes();
+                
+                const menu = document.createElement('div');
+                menu.id = 'menu-ordenes';
+                menu.style.cssText = `
+                    position: fixed;
+                    left: ${event.clientX}px;
+                    top: ${event.clientY}px;
+                    background: rgba(0, 0, 0, 0.95);
+                    border: 2px solid #00ff00;
+                    border-radius: 8px;
+                    padding: 10px;
+                    z-index: 10000;
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    color: #00ff00;
+                    min-width: 200px;
+                `;
+                
+                const titulo = document.createElement('div');
+                titulo.innerHTML = `<strong>${unidad.nombre}</strong><br><small>${unidad.tipo}</small>`;
+                titulo.style.marginBottom = '10px';
+                titulo.style.borderBottom = '1px solid #00ff00';
+                titulo.style.paddingBottom = '5px';
+                menu.appendChild(titulo);
+                
+                const ordenesDisponibles = this.obtenerOrdenesDisponibles(unidad);
+                
+                ordenesDisponibles.forEach(orden => {
+                    const boton = document.createElement('button');
+                    boton.textContent = this.obtenerNombreOrden(orden);
+                    boton.style.cssText = `
+                        display: block;
+                        width: 100%;
+                        margin: 2px 0;
+                        padding: 5px 10px;
+                        background: transparent;
+                        border: 1px solid #00ff00;
+                        color: #00ff00;
+                        cursor: pointer;
+                        font-family: 'Courier New', monospace;
+                        font-size: 11px;
+                    `;
+                    
+                    boton.onmouseover = () => boton.style.background = 'rgba(0, 255, 0, 0.2)';
+                    boton.onmouseout = () => boton.style.background = 'transparent';
+                    
+                    boton.onclick = () => {
+                        this.ejecutarOrdenDesdeMenu(unidad, orden);
+                        this.ocultarMenuOrdenes();
+                    };
+                    
+                    menu.appendChild(boton);
+                });
+                
+                const btnCancelar = document.createElement('button');
+                btnCancelar.textContent = '❌ Cancelar';
+                btnCancelar.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    margin: 5px 0 0 0;
+                    padding: 5px 10px;
+                    background: transparent;
+                    border: 1px solid #ff4000;
+                    color: #ff4000;
+                    cursor: pointer;
+                    font-family: 'Courier New', monospace;
+                    font-size: 11px;
+                `;
+                btnCancelar.onclick = () => this.ocultarMenuOrdenes();
+                menu.appendChild(btnCancelar);
+                
+                document.body.appendChild(menu);
+                
+                setTimeout(() => {
+                    document.addEventListener('click', this.cerrarMenuOrdenes, { once: true });
+                }, 100);
+            }
+
+            obtenerNombreOrden(orden) {
+                const nombres = {
+                    'mantener_posicion': '🛡️ Mantener Posición',
+                    'atacar': '⚔️ Atacar',
+                    'defender': '🛡️ Defender',
+                    'mover': '🚶 Mover',
+                    'marchar': '🚶 Marchar',
+                    'reabastecer': '📦 Reabastecer',
+                    'patrullar': '🔄 Patrullar',
+                    'flanquear': '↗️ Flanquear',
+                    'reagrupar': '🤝 Reagrupar',
+                    'repostar': '⛽ Repostar',
+                    'bombardear': '💥 Bombardear',
+                    'reposicionar': '📍 Reposicionar',
+                    'apoyo_fuego': '🎯 Apoyo de Fuego',
+                    'cancelar_ordenes': '❌ Cancelar Órdenes'
+                };
+                
+                return nombres[orden] || orden;
+            }
+
+            ejecutarOrdenDesdeMenu(unidad, tipoOrden) {
+                console.log(`📋 Orden '${tipoOrden}' seleccionada para ${unidad.nombre}`);
+                
+                let parametros = {};
+                if (tipoOrden === 'mover' || tipoOrden === 'marchar') {
+                    parametros.destino = { 
+                        x: Math.random() * 200 - 100, 
+                        y: 0, 
+                        z: Math.random() * 200 - 100 
+                    };
+                }
+                
+                this.impartirOrden(unidad, tipoOrden, parametros);
+            }
+
+            ocultarMenuOrdenes() {
+                const menuExistente = document.getElementById('menu-ordenes');
+                if (menuExistente) {
+                    menuExistente.remove();
+                }
+            }
+
+            cerrarMenuOrdenes = (event) => {
+                const menu = document.getElementById('menu-ordenes');
+                if (menu && !menu.contains(event.target)) {
+                    this.ocultarMenuOrdenes();
+                }
+            }
+
+            // ✅ FUNCIONES NUEVAS PARA SISTEMA COMBATE CORREGIDO
+            iniciarFaseCombate() {
+                console.log('🎮 Iniciando fase de COMBATE con turnos alternados');
+                
+                // Resetear el sistema de turnos
+                this.combate = {
+                    fase: 'COMBATE',
+                    turnos: {
+                        jugadorActual: 1,
+                        equipoActual: 'azul',
+                        estado: 'impartiendo_ordenes',
+                        secuencia: [
+                            { equipo: 'azul', jugador: 1, descripcion: 'Jugador 1 Azul imparte órdenes' },
+                            { equipo: 'azul', jugador: 2, descripcion: 'Jugador 2 Azul imparte órdenes' },
+                            { equipo: 'rojo', jugador: 1, descripcion: 'Jugador 1 Rojo imparte órdenes (ejecutando azules)' },
+                            { equipo: 'rojo', jugador: 2, descripcion: 'Jugador 2 Rojo imparte órdenes (ejecutando azules)' }
+                        ],
+                        indiceActual: 0,
+                        tiempo_turno: 30,
+                        tiempo_restante: 30
+                    },
+                    ejecucion: {
+                        simultanea: true,
+                        azules_ejecutando: false,
+                        rojos_ejecutando: false
+                    }
+                };
+                
+                this.iniciarRelojTurno();
+                this.actualizarHUD();
+            }
+
+            habilitarOrdenesSegunTurno() {
+                const turnoActual = this.combate.turnos.secuencia[this.combate.turnos.indiceActual];
+                console.log(`🎯 Turno actual: ${turnoActual.descripcion}`);
+                
+                // Habilitar órdenes solo para el jugador correspondiente
+                this.jugadorActivo = turnoActual;
+                this.actualizarInterfazTurno();
+            }
+
+            avanzarTurno() {
+                // Guardar órdenes del turno actual
+                this.guardarOrdenesTurno();
+                
+                const turnoAnterior = this.combate.turnos.secuencia[this.combate.turnos.indiceActual];
+                
+                // Avanzar al siguiente turno
+                this.combate.turnos.indiceActual = (this.combate.turnos.indiceActual + 1) % this.combate.turnos.secuencia.length;
+                const turnoNuevo = this.combate.turnos.secuencia[this.combate.turnos.indiceActual];
+                
+                // ✅ EJECUTAR ÓRDENES AL CAMBIAR DE EQUIPO
+                if (turnoAnterior.equipo !== turnoNuevo.equipo) {
+                    console.log(`🔄 Cambio de equipo: ${turnoAnterior.equipo} → ${turnoNuevo.equipo}`);
+                    this.ejecutarOrdenesPorEquipo(turnoAnterior.equipo);
+                }
+                
+                // Configurar siguiente turno
+                this.habilitarOrdenesSegunTurno();
+                this.combate.turnos.tiempo_restante = this.combate.turnos.tiempo_turno;
+                
+                console.log(`🔄 Turno avanzado: ${turnoNuevo.descripcion}`);
+            }
+
+            ejecutarOrdenesPorEquipo(equipo) {
+                console.log(`⚡ Ejecutando órdenes del equipo ${equipo}...`);
+                
+                // Ejecutar solo órdenes del equipo especificado
+                this.unidadesSIDC.forEach(unidad => {
+                    if (unidad.equipo === equipo && unidad.ordenes && unidad.ordenes.length > 0) {
+                        console.log(`🎬 Ejecutando órdenes para ${unidad.nombre}`);
+                        
+                        unidad.ordenes.forEach(orden => {
+                            this.ejecutarOrden(unidad, orden);
+                        });
+                        
+                        // Limpiar órdenes ejecutadas
+                        unidad.ordenes = [];
+                        
+                        // Quitar indicador visual
+                        if (unidad.mesh3D && unidad.mesh3D.indicadorOrden) {
+                            unidad.mesh3D.indicadorOrden.visible = false;
+                        }
+                    }
+                });
+                
+                this.actualizarTodasLasUnidades();
+            }
+
+            iniciarIntegracionMAIRA() {
+                // Integrar con los sistemas existentes de MAIRA
+                this.integrarConGestorFases();
+                this.integrarConGestorTurnos();
+                this.cargarUnidadesSIDCDelMapa();
+                this.iniciarActualizacionEstado();
+            }
+
+            integrarConGestorFases() {
+                // Conectar con el sistema de fases existente
+                if (window.gestorJuego?.gestorFases) {
+                    const gestorFases = window.gestorJuego.gestorFases;
+                    
+                    // Escuchar cambios de fase
+                    if (gestorFases.emisorEventos) {
+                        gestorFases.emisorEventos.on('faseCambiada', (datos) => {
+                            this.actualizarSegunFase(datos.nuevaFase, datos.nuevaSubfase);
+                        });
+                    }
+                    
+                    // Obtener estado actual
+                    this.fase = gestorFases.fase || 'preparacion';
+                    this.subfase = gestorFases.subfase || 'definicion_sector';
+                }
+            }
+
+            integrarConGestorTurnos() {
+                // Conectar con el sistema de turnos existente
+                if (window.gestorJuego?.gestorTurnos) {
+                    const gestorTurnos = window.gestorJuego.gestorTurnos;
+                    
+                    // Escuchar cambios de turno
+                    if (gestorTurnos.eventos) {
+                        gestorTurnos.eventos.on('cambioTurno', (datos) => {
+                            this.turnoActual = datos.turno;
+                            this.jugadorActual = datos.jugadorActual;
+                            this.actualizarHUD();
+                        });
+                        
+                        gestorTurnos.eventos.on('tiempoActualizado', (tiempo) => {
+                            this.tiempoRestante = tiempo;
+                            this.actualizarReloj();
+                        });
+                    }
+                }
+            }
+
+            // ✅ CONECTAR CON UNIDADES SIDC REALES DEL MAPA
+            cargarUnidadesSIDCDelMapa() {
+                console.log('🔗 Cargando unidades SIDC del mapa 2D...');
+                
+                this.unidadesSIDC = [];
+                
+                // Buscar todas las unidades militares en el mapa
+                if (window.mapa) {
+                    window.mapa.eachLayer((layer) => {
+                        if (layer.options && layer.options.sidc && layer.options.tipo === 'elemento') {
+                            this.procesarUnidadSIDC(layer);
+                        }
+                    });
+                }
+                
+                // También buscar en elementos GB si está disponible
+                if (window.elementosGB && window.elementosGB.elementos) {
+                    Object.values(window.elementosGB.elementos).forEach(elemento => {
+                        if (elemento.sidc) {
+                            this.procesarElementoGB(elemento);
+                        }
+                    });
+                }
+                
+                console.log(`🎯 Cargadas ${this.unidadesSIDC.length} unidades SIDC del mapa`);
+                this.crearRepresentaciones3DParaSIDC();
+            }
+
+            procesarUnidadSIDC(layer) {
+                const unidad = {
+                    id: layer.options.id || `sidc_${Date.now()}_${Math.random()}`,
+                    nombre: layer.options.nombre || 'Unidad Militar',
+                    sidc: layer.options.sidc,
+                    posicion: layer.getLatLng(),
+                    equipo: this.determinarEquipoPorSIDC(layer.options.sidc),
+                    tipo: this.determinarTipoPorSIDC(layer.options.sidc),
+                    layer2D: layer,
+                    estado: {
+                        operacional: true,
+                        combustible: 100,
+                        municion: 100,
+                        daños: 0
+                    },
+                    ordenes: {
+                        actual: null,
+                        cola: []
+                    }
+                };
+                
+                this.unidadesSIDC.push(unidad);
+            }
+
+            procesarElementoGB(elemento) {
+                const unidad = {
+                    id: elemento.id,
+                    nombre: elemento.nombre || elemento.designacion || 'Elemento GB',
+                    sidc: elemento.sidc,
+                    posicion: elemento.posicion,
+                    equipo: elemento.equipo || this.determinarEquipoPorSIDC(elemento.sidc),
+                    tipo: this.determinarTipoPorSIDC(elemento.sidc),
+                    elementoGB: elemento,
+                    estado: {
+                        operacional: elemento.estado?.operacional ?? true,
+                        combustible: elemento.estado?.combustible ?? 100,
+                        municion: elemento.estado?.municion ?? 100,
+                        daños: elemento.estado?.daños ?? 0
+                    },
+                    ordenes: {
+                        actual: null,
+                        cola: []
+                    }
+                };
+                
+                this.unidadesSIDC.push(unidad);
+            }
+
+            determinarEquipoPorSIDC(sidc) {
+                if (!sidc || sidc.length < 2) return 'neutral';
+                
+                // Segundo caracter del SIDC indica afiliación
+                const afiliacion = sidc[1];
+                switch(afiliacion) {
+                    case 'F': return 'azul';    // Friendly
+                    case 'H': return 'rojo';    // Hostile
+                    case 'N': return 'neutral'; // Neutral
+                    case 'U': return 'neutral'; // Unknown
+                    default: return 'neutral';
+                }
+            }
+
+            determinarTipoPorSIDC(sidc) {
+                // Usar el sistema existente SIDCModelo3DBridge si está disponible
+                if (window.SIDCModelo3DBridge) {
+                    const bridge = new window.SIDCModelo3DBridge();
+                    return bridge.parsearSIDCDirecto(sidc);
+                }
+                
+                // Fallback básico
+                if (!sidc || sidc.length < 7) return 'unidad_general';
+                
+                const codigoFuncion = sidc.substring(4, 7);
+                const mapaBasico = {
+                    'UCI': 'infanteria',
+                    'UCR': 'tanque',
+                    'UCF': 'artilleria',
+                    'EVA': 'vehiculo_armado',
+                    'EVC': 'vehiculo_combate'
+                };
+                
+                return mapaBasico[codigoFuncion] || 'unidad_general';
+            }
+
+            crearRepresentaciones3DParaSIDC() {
+                // Crear representaciones 3D para cada unidad SIDC
+                this.unidadesSIDC.forEach(unidad => {
+                    this.crearRepresentacion3D(unidad);
+                });
+            }
+
+            crearRepresentacion3D(unidad) {
+                // Crear mesh 3D para la unidad
+                const mesh = this.crearMeshPorTipo(unidad.tipo, unidad.equipo);
+                
+                // Posicionar según coordenadas del mapa
+                if (unidad.posicion && unidad.posicion.lat && unidad.posicion.lng) {
+                    // Convertir lat/lng a coordenadas 3D locales
+                    const pos3d = this.convertirLatLngA3D(unidad.posicion);
+                    mesh.position.set(pos3d.x, pos3d.y, pos3d.z);
+                }
+                
+                // Agregar metadatos
+                mesh.userData.unidadSIDC = unidad;
+                mesh.userData.tipo = 'unidad_sidc';
+                mesh.userData.id = unidad.id;
+                
+                // Agregar a la escena
+                this.scene.add(mesh);
+                this.unidades.push(mesh);
+                
+                // Vincular mesh con unidad
+                unidad.mesh3D = mesh;
+                
+                console.log(`📦 Creada representación 3D para ${unidad.nombre} (${unidad.tipo})`);
+            }
+
+            convertirLatLngA3D(posicion) {
+                // Conversión básica lat/lng a coordenadas 3D locales
+                // Para una implementación real, usar proyección apropiada
+                return {
+                    x: (posicion.lng - this.centroMapa.lng) * 111320, // Aprox metros por grado
+                    y: 0,
+                    z: -(posicion.lat - this.centroMapa.lat) * 111320 // Negativo para que norte sea +Z
+                };
+            }
+
+            actualizarSegunFase(fase, subfase) {
+                this.fase = fase;
+                this.subfase = subfase;
+                
+                console.log(`🎯 Vista 3D actualizando según fase: ${fase}/${subfase}`);
+                
+                // ✅ SISTEMA CORREGIDO: Solo una fase COMBATE con turnos internos
+                switch(fase) {
+                    case 'preparacion':
+                        if (subfase === 'despliegue') {
+                            this.habilitarDespliegue();
+                        }
+                        break;
+                    case 'combate':
+                        // ✅ COMBATE = Una sola fase con sistema de turnos alternados interno
+                        this.iniciarFaseCombate();
+                        this.habilitarOrdenesSegunTurno();
+                        break;
+                        this.iniciarModoCombate();
+                        break;
+                }
+                
+                this.actualizarHUD();
+            }
+
+            habilitarDespliegue() {
+                console.log('🎯 Habilitando modo despliegue en vista 3D');
+                document.getElementById('modoActual').textContent = 'Despliegue';
+                
+                // Permitir mover unidades propias
+                this.unidades.forEach((unidad, id) => {
+                    if (unidad.equipo === 'propio') {
+                        unidad.estado = 'desplegable';
+                    }
+                });
+            }
+
+            iniciarModoCombate() {
+                console.log('🔥 Iniciando modo combate en vista 3D');
+                document.getElementById('modoActual').textContent = 'Combate';
+                document.getElementById('modoTacticoIndicator').style.display = 'block';
+                
+                this.modoTactico = true;
+                
+                // Habilitar todas las funciones de combate
+                this.unidades.forEach((unidad, id) => {
+                    unidad.estado = 'combate';
+                });
+            }
+
+            onMouseClick(event) {
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                this.raycaster.setFromCamera(this.mouse, this.camera);
+                
+                // Buscar intersecciones con unidades
+                const meshes = Array.from(this.unidades.values()).map(u => u.mesh);
+                const intersects = this.raycaster.intersectObjects(meshes);
+
+                if (intersects.length > 0) {
+                    const clickedMesh = intersects[0].object;
+                    const unidadId = clickedMesh.userData.id;
+                    this.seleccionarUnidad(unidadId);
+                } else {
+                    this.deseleccionarUnidad();
+                }
+            }
+
+            onMouseMove(event) {
+                // Actualizar posición del mouse para hover effects
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            }
+
+            onKeyDown(event) {
+                switch(event.code) {
+                    case 'Space':
+                        event.preventDefault();
+                        this.togglePausa();
+                        break;
+                    case 'ArrowUp':
+                        this.camera.position.z -= 50;
+                        break;
+                    case 'ArrowDown':
+                        this.camera.position.z += 50;
+                        break;
+                    case 'ArrowLeft':
+                        this.camera.position.x -= 50;
+                        break;
+                    case 'ArrowRight':
+                        this.camera.position.x += 50;
+                        break;
+                }
+            }
+
+            seleccionarUnidad(unidadId) {
+                // Deseleccionar anterior
+                if (this.unidadSeleccionada) {
+                    const unidadAnterior = this.unidades.get(this.unidadSeleccionada);
+                    if (unidadAnterior) {
+                        unidadAnterior.mesh.material.emissive.setHex(0x000000);
+                    }
+                }
+
+                // Seleccionar nueva
+                this.unidadSeleccionada = unidadId;
+                const unidad = this.unidades.get(unidadId);
+                
+                if (unidad) {
+                    // Resaltar visualmente
+                    unidad.mesh.material.emissive.setHex(0x444400);
+                    
+                    // Mostrar información
+                    this.mostrarInfoUnidad(unidad);
+                    
+                    // Mostrar panel de órdenes si es propia
+                    if (unidad.equipo === 'propio' && this.modoTactico) {
+                        document.getElementById('panelOrdenes').style.display = 'block';
+                    }
+                    
+                    console.log(`🎯 Unidad seleccionada: ${unidad.nombre}`);
+                }
+                
+                this.actualizarHUD();
+            }
+
+            deseleccionarUnidad() {
+                if (this.unidadSeleccionada) {
+                    const unidad = this.unidades.get(this.unidadSeleccionada);
+                    if (unidad) {
+                        unidad.mesh.material.emissive.setHex(0x000000);
+                    }
+                }
+                
+                this.unidadSeleccionada = null;
+                document.getElementById('panelInfoUnidad').style.display = 'none';
+                document.getElementById('panelOrdenes').style.display = 'none';
+                this.actualizarHUD();
+            }
+
+            mostrarInfoUnidad(unidad) {
+                const panel = document.getElementById('panelInfoUnidad');
+                const content = document.getElementById('infoUnidadContent');
+                
+                content.innerHTML = `
+                    <div><strong>${unidad.nombre}</strong></div>
+                    <div>Tipo: ${unidad.tipo}</div>
+                    <div>Equipo: ${unidad.equipo}</div>
+                    <div>Estado: ${unidad.estado}</div>
+                    <div>Salud: ${unidad.salud}%</div>
+                    <div>Munición: ${unidad.municion}%</div>
+                    <div>Posición: ${unidad.mesh.position.x.toFixed(0)}, ${unidad.mesh.position.z.toFixed(0)}</div>
+                    <div>Órdenes activas: ${unidad.ordenes.length}</div>
+                `;
+                
+                panel.style.display = 'block';
+            }
+
+            actualizarListaUnidades() {
+                const lista = document.getElementById('listaUnidades');
+                lista.innerHTML = '';
+                
+                let propias = 0, enemigas = 0, neutrales = 0;
+                
+                this.unidades.forEach((unidad, id) => {
+                    const item = document.createElement('div');
+                    item.className = `unidad-item ${unidad.equipo === 'enemigo' ? 'enemiga' : ''}`;
+                    if (id === this.unidadSeleccionada) {
+                        item.classList.add('selected');
+                    }
+                    
+                    item.innerHTML = `
+                        <div class="unidad-nombre">${unidad.nombre}</div>
+                        <div class="unidad-estado">${unidad.tipo} - ${unidad.estado}</div>
+                    `;
+                    
+                    item.addEventListener('click', () => this.seleccionarUnidad(id));
+                    lista.appendChild(item);
+                    
+                    // Contar por equipo
+                    if (unidad.equipo === 'propio') propias++;
+                    else if (unidad.equipo === 'enemigo') enemigas++;
+                    else neutrales++;
+                });
+                
+                // Actualizar contadores
+                document.getElementById('unidadesPropias').textContent = propias;
+                document.getElementById('unidadesEnemigas').textContent = enemigas;
+                document.getElementById('unidadesNeutrales').textContent = neutrales;
+            }
+
+            // =====================================================
+            // 🎮 SISTEMA DE CONTROL DE FASES COMPLETO
+            // =====================================================
+
+            inicializarControlFases() {
+                // Configurar eventos de los botones de fase
+                this.configurarEventosFases();
+                this.actualizarPanelFases();
+                
+                // Datos de ejemplo para pruebas
+                this.jugadores = [
+                    { id: 'jugador1', nombre: 'Comandante Azul', equipo: 'azul', desplegado: false },
+                    { id: 'jugador2', nombre: 'Comandante Rojo', equipo: 'rojo', desplegado: false }
+                ];
+                
+                this.jugadorActualIndex = 0;
+                this.tiempoTurno = 300; // 5 minutos por turno
+                this.temporizadorActivo = false;
+            }
+
+            configurarEventosFases() {
+                // Fase Preparación
+                document.getElementById('btnDefinirSector').addEventListener('click', this.iniciarDefinicionSector.bind(this));
+                document.getElementById('btnDefinirZonaRoja').addEventListener('click', this.iniciarDefinicionZonaRoja.bind(this));
+                document.getElementById('btnDefinirZonaAzul').addEventListener('click', this.iniciarDefinicionZonaAzul.bind(this));
+                
+                // Fase Despliegue
+                document.getElementById('btnFinalizarDespliegue').addEventListener('click', this.confirmarDespliegueJugador.bind(this));
+                
+                // Fase Combate
+                document.getElementById('btnFinalizarTurno').addEventListener('click', this.finalizarTurnoActual.bind(this));
+            }
+
+            actualizarPanelFases() {
+                // Ocultar todos los paneles de fase
+                document.getElementById('controlesPeparacion').style.display = 'none';
+                document.getElementById('controlesDespliegue').style.display = 'none';
+                document.getElementById('controlesCombate').style.display = 'none';
+                
+                // Mostrar panel según fase actual
+                switch(this.fase) {
+                    case 'preparacion':
+                        document.getElementById('controlesPeparacion').style.display = 'block';
+                        this.actualizarPanelPreparacion();
+                        break;
+                    case 'despliegue':
+                        document.getElementById('controlesDespliegue').style.display = 'block';
+                        this.actualizarPanelDespliegue();
+                        break;
+                    case 'combate':
+                        document.getElementById('controlesCombate').style.display = 'block';
+                        this.actualizarPanelCombate();
+                        break;
+                }
+                
+                // Actualizar indicador de fase
+                document.getElementById('faseActual').textContent = this.fase.toUpperCase();
+            }
+
+            // FASE PREPARACIÓN
+            iniciarDefinicionSector() {
+                console.log('📍 Iniciando definición de sector');
+                this.subfase = 'definicion_sector';
+                
+                // Mostrar botones de confirmación
+                document.getElementById('confirmacionSector').style.display = 'block';
+                document.getElementById('btnDefinirSector').disabled = true;
+                
+                // Activar modo de dibujo en el mapa
+                this.activarModoDefinicion('sector');
+            }
+
+            iniciarDefinicionZonaRoja() {
+                console.log('🚫 Iniciando definición de zona roja');
+                this.subfase = 'definicion_zona_roja';
+                
+                document.getElementById('confirmacionZonaRoja').style.display = 'block';
+                document.getElementById('btnDefinirZonaRoja').disabled = true;
+                
+                this.activarModoDefinicion('zona_roja');
+            }
+
+            iniciarDefinicionZonaAzul() {
+                console.log('🔵 Iniciando definición de zona azul');
+                this.subfase = 'definicion_zona_azul';
+                
+                document.getElementById('confirmacionZonaAzul').style.display = 'block';
+                document.getElementById('btnDefinirZonaAzul').disabled = true;
+                
+                this.activarModoDefinicion('zona_azul');
+            }
+
+            activarModoDefinicion(tipo) {
+                // Cambiar cursor y habilitar herramientas de dibujo
+                this.renderer.domElement.style.cursor = 'crosshair';
+                
+                // Aquí se integraría con las herramientas de dibujo del mapa
+                console.log(`🖊️ Modo de definición activado: ${tipo}`);
+            }
+
+            actualizarPanelPreparacion() {
+                // Habilitar botones según progreso
+                const sectorDefinido = this.subfase !== 'definicion_sector';
+                const zonaRojaDefinida = this.zonaRojaConfirmada || false;
+                const zonaAzulDefinida = this.zonaAzulConfirmada || false;
+                
+                document.getElementById('btnDefinirZonaRoja').disabled = !sectorDefinido;
+                document.getElementById('btnDefinirZonaAzul').disabled = !zonaRojaDefinida;
+                
+                if (sectorDefinido && zonaRojaDefinida && zonaAzulDefinida) {
+                    this.avanzarADespliegue();
+                }
+            }
+
+            // FASE DESPLIEGUE
+            avanzarADespliegue() {
+                console.log('🎯 Avanzando a fase de despliegue');
+                this.fase = 'despliegue';
+                this.jugadorActualIndex = 0;
+                this.actualizarPanelFases();
+            }
+
+            actualizarPanelDespliegue() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                
+                document.getElementById('nombreJugadorDespliegue').textContent = jugadorActual.nombre;
+                
+                // Actualizar estado de despliegues
+                const estadoDespliegues = document.getElementById('estadoDespliegues');
+                estadoDespliegues.innerHTML = this.jugadores.map(jugador => `
+                    <div class="jugador-despliegue">
+                        <span>${jugador.nombre}</span>
+                        <span class="${jugador.desplegado ? 'estado-confirmado' : 'estado-pendiente'}">
+                            ${jugador.desplegado ? '✅ Confirmado' : '⏳ Pendiente'}
+                        </span>
+                    </div>
+                `).join('');
+                
+                // Habilitar botón si hay unidades desplegadas
+                const tieneDesplegadas = this.contarUnidadesDesplegadas(jugadorActual.id) > 0;
+                document.getElementById('btnFinalizarDespliegue').disabled = !tieneDesplegadas;
+            }
+
+            confirmarDespliegueJugador() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                console.log(`✅ Confirmando despliegue de ${jugadorActual.nombre}`);
+                
+                jugadorActual.desplegado = true;
+                
+                // Pasar al siguiente jugador
+                this.jugadorActualIndex++;
+                
+                if (this.jugadorActualIndex >= this.jugadores.length) {
+                    // Todos confirmaron, pasar a combate
+                    this.avanzarACombate();
+                } else {
+                    // Siguiente jugador
+                    this.actualizarPanelDespliegue();
+                }
+            }
+
+            // FASE COMBATE
+            avanzarACombate() {
+                console.log('🔥 Avanzando a fase de combate');
+                this.fase = 'combate';
+                this.jugadorActualIndex = 0;
+                this.iniciarTemporizador();
+                this.actualizarPanelFases();
+            }
+
+            actualizarPanelCombate() {
+                const jugadorActual = this.jugadores[this.jugadorActualIndex];
+                
+                document.getElementById('nombreJugadorCombate').textContent = jugadorActual.nombre;
+                
+                // Actualizar secuencia de turnos
+                const secuenciaTurnos = document.getElementById('secuenciaTurnos');
+                secuenciaTurnos.innerHTML = this.jugadores.map((jugador, index) => `
+                    <div class="turno-item ${index === this.jugadorActualIndex ? 'turno-activo' : ''}">
+                        <span>${jugador.nombre}</span>
+                        <span>${index === this.jugadorActualIndex ? '▶️ Activo' : index < this.jugadorActualIndex ? '✅ Completado' : '⏳ Esperando'}</span>
+                    </div>
+                `).join('');
+            }
+
+            iniciarTemporizador() {
+                this.tiempoRestante = this.tiempoTurno;
+                this.temporizadorActivo = true;
+                
+                this.intervalTimer = setInterval(() => {
+                    if (this.temporizadorActivo && this.tiempoRestante > 0) {
+                        this.tiempoRestante--;
+                        this.actualizarRelojCombate();
+                        
+                        if (this.tiempoRestante === 0) {
+                            this.finalizarTurnoAutomatico();
+                        }
+                    }
+                }, 1000);
+            }
+
+            actualizarRelojCombate() {
+                const minutos = Math.floor(this.tiempoRestante / 60);
+                const segundos = this.tiempoRestante % 60;
+                const tiempo = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                
+                document.getElementById('tiempoTurnoCombate').textContent = tiempo;
+                
+                // Cambiar color si queda poco tiempo
+                const elemento = document.getElementById('tiempoTurnoCombate');
+                if (this.tiempoRestante <= 30) {
+                    elemento.style.color = '#dc3545';
+                } else if (this.tiempoRestante <= 60) {
+                    elemento.style.color = '#ffc107';
+                } else {
+                    elemento.style.color = '#ffc107';
+                }
+            }
+
+            finalizarTurnoActual() {
+                console.log('⏭️ Finalizando turno manualmente');
+                this.finalizarTurno();
+            }
+
+            finalizarTurnoAutomatico() {
+                console.log('⏰ Finalizando turno por tiempo agotado');
+                this.finalizarTurno();
+            }
+
+            finalizarTurno() {
+                this.temporizadorActivo = false;
+                
+                // Pasar al siguiente jugador
+                this.jugadorActualIndex = (this.jugadorActualIndex + 1) % this.jugadores.length;
+                
+                // Reiniciar temporizador
+                this.tiempoRestante = this.tiempoTurno;
+                this.temporizadorActivo = true;
+                
+                // Actualizar panel
+                this.actualizarPanelCombate();
+                
+                console.log(`🔄 Turno pasado a: ${this.jugadores[this.jugadorActualIndex].nombre}`);
+            }
+
+            contarUnidadesDesplegadas(jugadorId) {
+                // Contar unidades desplegadas por el jugador
+                let count = 0;
+                this.unidades.forEach(unidad => {
+                    if (unidad.jugadorId === jugadorId && unidad.desplegada) {
+                        count++;
+                    }
+                });
+                return count;
+            }
+
+            cambiarVista(vista) {
+                // Actualizar botones
+                document.querySelectorAll('.btn-control').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`btnVista${vista.charAt(0).toUpperCase() + vista.slice(1)}`).classList.add('active');
+                
+                this.modoVista = vista;
+                
+                // Ajustar cámara según el modo
+                switch(vista) {
+                    case '2D':
+                        this.camera.position.set(0, 2000, 0);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case '3D':
+                        this.camera.position.set(500, 300, 500);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case 'aerea':
+                        this.camera.position.set(0, 1500, 200);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case 'tactica':
+                        this.camera.position.set(200, 150, 200);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                }
+                
+                this.controls.update();
+            }
+
+            iniciarActualizacionEstado() {
+                // Actualizar estado cada segundo
+                setInterval(() => {
+                    this.actualizarHUD();
+                    this.actualizarListaUnidades();
+                }, 1000);
+            }
+
+            actualizarHUD() {
+                // Actualizar fase y turno
+                document.getElementById('faseActual').textContent = this.fase.toUpperCase().substring(0, 4);
+                document.getElementById('turnoActual').textContent = `T${this.turnoActual}`;
+                document.getElementById('jugadorActual').textContent = this.jugadorActual?.nombre || '-';
+                
+                // Actualizar selección
+                const seleccion = this.unidadSeleccionada ? 
+                    this.unidades.get(this.unidadSeleccionada)?.nombre : 'Ninguna';
+                document.getElementById('seleccionActual').textContent = seleccion;
+                
+                // Actualizar coordenadas
+                document.getElementById('latActual').textContent = this.coordenadasActuales.lat.toFixed(6);
+                document.getElementById('lngActual').textContent = this.coordenadasActuales.lng.toFixed(6);
+                document.getElementById('alturaCamera').textContent = Math.round(this.camera.position.y);
+                
+                // Actualizar dirección de cámara
+                const direccion = this.calcularDireccionCamera();
+                document.getElementById('direccionCamera').textContent = direccion;
+            }
+
+            actualizarReloj() {
+                const minutos = Math.floor(this.tiempoRestante / 60);
+                const segundos = this.tiempoRestante % 60;
+                const tiempoTexto = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                document.getElementById('relojTurno').textContent = tiempoTexto;
+            }
+
+            calcularDireccionCamera() {
+                const vector = new THREE.Vector3();
+                this.camera.getWorldDirection(vector);
+                const angle = Math.atan2(vector.x, vector.z) * (180 / Math.PI);
+                const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+                const index = Math.round(((angle + 360) % 360) / 45) % 8;
+                return directions[index];
+            }
+
+            onWindowResize() {
+                const canvas = document.getElementById('canvas3d');
+                this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+                
+                // Actualizar animaciones de unidades si es necesario
+                this.actualizarAnimacionesUnidades();
+            }
+
+            actualizarAnimacionesUnidades() {
+                // Animaciones básicas de unidades (respiración, movimiento, etc.)
+                const tiempo = Date.now() * 0.001;
+                
+                this.unidades.forEach((unidad, id) => {
+                    if (unidad.mesh) {
+                        // Animación de respiración sutil
+                        unidad.mesh.position.y = 10 + Math.sin(tiempo + id.length) * 0.5;
+                        
+                        // Si la unidad está seleccionada, hacerla brillar más
+                        if (id === this.unidadSeleccionada) {
+                            const intensity = 0.2 + Math.sin(tiempo * 3) * 0.1;
+                            unidad.mesh.material.emissive.setRGB(intensity, intensity, 0);
+                        }
+                    }
+                });
+            }
+
+            // ✅ FUNCIONES FALTANTES PARA COMPLETAR EL SISTEMA
+            guardarOrdenesTurno() {
+                const turnoActual = this.combate.turnos.secuencia[this.combate.turnos.indiceActual];
+                console.log(`💾 Guardando órdenes del turno: ${turnoActual.descripcion}`);
+                
+                // Crear snapshot de todas las órdenes pendientes
+                const ordenesTurno = [];
+                this.unidadesSIDC.forEach(unidad => {
+                    if (unidad.ordenes && unidad.ordenes.length > 0) {
+                        ordenesTurno.push({
+                            unidadId: unidad.id,
+                            ordenes: [...unidad.ordenes]
+                        });
+                    }
+                });
+                
+                // Guardar en historial de turnos
+                if (!this.historialTurnos) {
+                    this.historialTurnos = [];
+                }
+                
+                this.historialTurnos.push({
+                    turno: turnoActual,
+                    timestamp: Date.now(),
+                    ordenes: ordenesTurno
+                });
+            }
+
+            ejecutarCicloCompleto() {
+                console.log('⚡ Ejecutando ciclo completo de órdenes...');
+                
+                // Marcar que estamos ejecutando
+                this.combate.ejecucion.azules_ejecutando = true;
+                this.combate.ejecucion.rojos_ejecutando = true;
+                
+                // Ejecutar todas las órdenes pendientes
+                this.unidadesSIDC.forEach(unidad => {
+                    if (unidad.ordenes && unidad.ordenes.length > 0) {
+                        unidad.ordenes.forEach(orden => {
+                            this.ejecutarOrden(unidad, orden);
+                        });
+                        
+                        // Limpiar órdenes ejecutadas
+                        unidad.ordenes = [];
+                    }
+                });
+                
+                // Actualizar visual
+                this.actualizarTodasLasUnidades();
+                
+                setTimeout(() => {
+                    this.combate.ejecucion.azules_ejecutando = false;
+                    this.combate.ejecucion.rojos_ejecutando = false;
+                    console.log('✅ Ciclo de ejecución completado');
+                }, 2000);
+            }
+
+            ejecutarOrden(unidad, orden) {
+                console.log(`🎬 Ejecutando orden '${orden.tipo}' para ${unidad.nombre}`);
+                orden.estado = 'ejecutando';
+                
+                switch(orden.tipo) {
+                    case 'mover':
+                    case 'marchar':
+                        this.ejecutarMovimiento(unidad, orden.parametros);
+                        break;
+                    case 'atacar':
+                        this.ejecutarAtaque(unidad, orden.parametros);
+                        break;
+                    case 'defender':
+                        this.ejecutarDefensa(unidad, orden.parametros);
+                        break;
+                    case 'mantener_posicion':
+                        // No hacer nada, mantener posición actual
+                        break;
+                    default:
+                        console.log(`⚠️ Orden '${orden.tipo}' no implementada aún`);
+                }
+                
+                orden.estado = 'completada';
+            }
+
+            sincronizarCon2D() {
+                console.log('🔄 Sincronizando estado 3D con mapa 2D...');
+                
+                // Actualizar posiciones en el mapa 2D
+                this.unidadesSIDC.forEach(unidad => {
+                    if (unidad.layer2D && unidad.mesh3D) {
+                        // Convertir posición 3D a lat/lng
+                        const pos3d = unidad.mesh3D.position;
+                        const latLng = this.convertir3DALatLng(pos3d);
+                        
+                        // Actualizar posición en mapa 2D
+                        unidad.layer2D.setLatLng(latLng);
+                        unidad.posicion = latLng;
+                    }
+                });
+                
+                console.log('✅ Sincronización 2D completada');
+            }
+
+            convertir3DALatLng(posicion3d) {
+                // Conversión inversa de 3D a lat/lng
+                return {
+                    lat: this.centroMapa.lat - (posicion3d.z / 111320),
+                    lng: this.centroMapa.lng + (posicion3d.x / 111320)
+                };
+            }
+
+            iniciarRelojTurno() {
+                if (this.intervalorReloj) {
+                    clearInterval(this.intervalorReloj);
+                }
+                
+                this.intervalorReloj = setInterval(() => {
+                    if (this.combate.turnos.tiempo_restante > 0) {
+                        this.combate.turnos.tiempo_restante--;
+                        this.actualizarReloj();
+                    } else {
+                        // Tiempo agotado, avanzar turno automáticamente
+                        this.avanzarTurno();
+                    }
+                }, 1000);
+            }
+
+            actualizarReloj() {
+                const tiempoElement = document.querySelector('.tiempo-restante');
+                if (tiempoElement) {
+                    const minutos = Math.floor(this.combate.turnos.tiempo_restante / 60);
+                    const segundos = this.combate.turnos.tiempo_restante % 60;
+                    tiempoElement.textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+                }
+            }
+
+            redimensionar() {
+                if (this.camera && this.renderer) {
+                    const canvas = document.getElementById('canvas3d');
+                    const ancho = canvas.clientWidth;
+                    const alto = canvas.clientHeight;
+                    
+                    this.camera.aspect = ancho / alto;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(ancho, alto);
+                }
+            }
+
+            // ✅ PROCESAR ELEMENTO EXTERNO DESDE JUEGO PRINCIPAL
+            procesarElementoExterno(elemento) {
+                const unidad = {
+                    id: elemento.id,
+                    nombre: elemento.nombre,
+                    sidc: elemento.sidc,
+                    posicion: elemento.posicion,
+                    equipo: elemento.equipo,
+                    tipo: this.determinarTipoPorSIDC(elemento.sidc),
+                    estado: elemento.estado || {
+                        operacional: true,
+                        combustible: 100,
+                        municion: 100,
+                        daños: 0
+                    },
+                    ordenes: {
+                        actual: null,
+                        cola: []
+                    },
+                    esExterno: true // Marcar como proveniente del juego principal
+                };
+                
+                this.unidadesSIDC.push(unidad);
+                console.log(`➕ Elemento externo procesado: ${unidad.nombre} (${unidad.tipo})`);
+                
+                return unidad;
+            }
+        }
+
+        // 🎯 Funciones globales de control
+        let juegoGuerra3D;
+
+        function resetearCamara() {
+            if (juegoGuerra3D) {
+                juegoGuerra3D.cambiarVista('3D');
+            }
+        }
+
+        function toggleWireframe() {
+            if (juegoGuerra3D && juegoGuerra3D.terreno) {
+                juegoGuerra3D.terreno.material.wireframe = !juegoGuerra3D.terreno.material.wireframe;
+            }
+        }
+
+        function toggleLuces() {
+            if (juegoGuerra3D) {
+                const lights = juegoGuerra3D.scene.children.filter(child => child.isLight);
+                lights.forEach(light => {
+                    light.visible = !light.visible;
+                });
+            }
+        }
+
+        function capturarPantalla() {
+            if (juegoGuerra3D) {
+                const canvas = document.getElementById('canvas3d');
+                const link = document.createElement('a');
+                link.download = `combate3d_${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log('📸 Captura guardada');
+            }
+        }
+
+        // Funciones de órdenes tácticas
+        function darOrdenMovimiento() {
+            console.log('📋 Orden: Mover unidad');
+            // Implementar lógica de movimiento
+        }
+
+        function darOrdenAtaque() {
+            console.log('🎯 Orden: Atacar objetivo');
+            // Implementar lógica de ataque
+        }
+
+        function darOrdenDefender() {
+            console.log('🛡️ Orden: Defender posición');
+            // Implementar lógica de defensa
+        }
+
+        function darOrdenPatrullar() {
+            console.log('🔄 Orden: Patrullar área');
+            // Implementar lógica de patrullaje
+        }
+
+        function darOrdenRetirada() {
+            console.log('↩️ Orden: Retirada táctica');
+            // Implementar lógica de retirada
+        }
+
+        function cancelarOrdenes() {
+            console.log('❌ Cancelando todas las órdenes');
+            // Implementar cancelación de órdenes
+        }
+
+        // 🎬 Inicializar cuando la página esté lista
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                juegoGuerra3D = new JuegoGuerra3D();
+                console.log('🎮 Juego de Guerra 3D inicializado');
+            }, 100);
+        });
+
+        // ✅ SISTEMA HÍBRIDO 2D ↔ 3D
+        function alternarVista2D3D() {
+            if (!juegoGuerra3D) return;
+            
+            if (juegoGuerra3D.vistaActual === '3D') {
+                cambiarA2D();
+            } else {
+                cambiarA3D();
+            }
+        }
+
+        function cambiarA2D() {
+            console.log('🗺️ Cambiando a vista 2D...');
+            
+            // Sincronizar estado actual con mapa 2D
+            juegoGuerra3D.sincronizarCon2D();
+            
+            // Ocultar interfaz 3D
+            document.getElementById('interfaz-3d').style.display = 'none';
+            
+            // Mostrar mapa 2D (si existe)
+            if (window.mapa && window.mapa.getContainer()) {
+                const mapaContainer = window.mapa.getContainer();
+                mapaContainer.style.display = 'block';
+                
+                // Invalidar tamaño del mapa para re-renderizar
+                setTimeout(() => {
+                    window.mapa.invalidateSize();
+                }, 100);
+            }
+            
+            juegoGuerra3D.vistaActual = '2D';
+            
+            // Actualizar botón
+            const btnVista = document.querySelector('.btn-vista-hibrida');
+            if (btnVista) {
+                btnVista.textContent = '🎮 Vista 3D';
+                btnVista.title = 'Cambiar a vista 3D táctica';
+            }
+        }
+
+        function cambiarA3D() {
+            console.log('🎮 Cambiando a vista 3D...');
+            
+            // Ocultar mapa 2D
+            if (window.mapa && window.mapa.getContainer()) {
+                window.mapa.getContainer().style.display = 'none';
+            }
+            
+            // Mostrar interfaz 3D
+            document.getElementById('interfaz-3d').style.display = 'flex';
+            
+            // Sincronizar unidades desde 2D
+            juegoGuerra3D.cargarUnidadesSIDCDelMapa();
+            
+            // Redimensionar renderer
+            if (juegoGuerra3D.renderer) {
+                juegoGuerra3D.redimensionar();
+            }
+            
+            juegoGuerra3D.vistaActual = '3D';
+            
+            // Actualizar botón
+            const btnVista = document.querySelector('.btn-vista-hibrida');
+            if (btnVista) {
+                btnVista.textContent = '🗺️ Vista 2D';
+                btnVista.title = 'Cambiar a vista 2D tradicional';
+            }
+        }
+
+        // ✅ INTEGRACIÓN CON JUEGODEGUERRA.HTML EXISTENTE
+        function integrarConJuegoGuerraExistente() {
+            console.log('🔗 Intentando integrar con juegodeguerra.html existente...');
+            
+            // Buscar función de cambio a vista 3D en juegodeguerra.html
+            if (typeof window.cambiarAVista3D === 'function') {
+                console.log('✅ Función cambiarAVista3D encontrada');
+                
+                // Reemplazar función existente
+                window.cambiarAVista3D_original = window.cambiarAVista3D;
+                window.cambiarAVista3D = function() {
+                    cambiarA3D();
+                };
+            }
+            
+            // Buscar gestor de juego existente
+            if (window.gestorJuego) {
+                console.log('✅ GestorJuego encontrado, integrando...');
+                juegoGuerra3D.iniciarIntegracionMAIRA();
+            }
+            
+            // Crear botón híbrido si no existe
+            if (!document.querySelector('.btn-vista-hibrida')) {
+                crearBotonVistaHibrida();
+            }
+        }
+
+        function crearBotonVistaHibrida() {
+            const btn = document.createElement('button');
+            btn.className = 'btn-accion btn-vista-hibrida';
+            btn.innerHTML = '🗺️ Vista 2D';
+            btn.title = 'Alternar entre vista 2D y 3D';
+            btn.onclick = alternarVista2D3D;
+            
+            // Agregar al panel de control o crear contenedor
+            const panelControl = document.querySelector('.panel-control');
+            if (panelControl) {
+                panelControl.appendChild(btn);
+            } else {
+                // Crear contenedor flotante
+                const container = document.createElement('div');
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                `;
+                container.appendChild(btn);
+                document.body.appendChild(container);
+            }
+        }
+
+        // ✅ ESCUCHAR MENSAJES DEL JUEGO PRINCIPAL
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.tipo) {
+                procesarMensajeJuegoPrincipal(event.data);
+            }
+        });
+
+        function procesarMensajeJuegoPrincipal(mensaje) {
+            console.log('📨 Mensaje recibido del juego principal:', mensaje.tipo);
+            
+            switch(mensaje.tipo) {
+                case 'INICIALIZAR_COMBATE':
+                    inicializarConDatos(mensaje.datos);
+                    break;
+                case 'ACTUALIZAR_DATOS':
+                    actualizarConDatos(mensaje.datos);
+                    break;
+            }
+        }
+
+        function inicializarConDatos(datos) {
+            console.log('🔄 Inicializando vista 3D con datos del juego principal...');
+            console.log(`📊 Elementos recibidos: ${datos.elementos.length}`);
+            
+            if (juegoGuerra3D) {
+                // Configurar centro del mapa basado en elementos
+                if (datos.elementos.length > 0) {
+                    const latPromedio = datos.elementos.reduce((sum, el) => sum + (el.posicion.lat || 0), 0) / datos.elementos.length;
+                    const lngPromedio = datos.elementos.reduce((sum, el) => sum + (el.posicion.lng || 0), 0) / datos.elementos.length;
+                    juegoGuerra3D.centroMapa = { lat: latPromedio, lng: lngPromedio };
+                }
+                
+                // Limpiar unidades demo y cargar unidades reales
+                juegoGuerra3D.unidades.clear();
+                juegoGuerra3D.unidadesSIDC = [];
+                
+                // Procesar elementos del juego principal
+                datos.elementos.forEach(elemento => {
+                    juegoGuerra3D.procesarElementoExterno(elemento);
+                });
+                
+                // Actualizar fase y configuración
+                juegoGuerra3D.fase = datos.fase;
+                juegoGuerra3D.subfase = datos.subfase;
+                
+                if (datos.fase === 'combate') {
+                    juegoGuerra3D.iniciarFaseCombate();
+                }
+                
+                // Crear representaciones 3D
+                juegoGuerra3D.crearRepresentaciones3DParaSIDC();
+                
+                // Actualizar interfaz
+                juegoGuerra3D.actualizarHUD();
+                
+                console.log('✅ Vista 3D inicializada con datos reales');
+            }
+        }
+
+        function actualizarConDatos(datos) {
+            if (juegoGuerra3D) {
+                console.log('🔄 Actualizando datos en vista 3D...');
+                
+                datos.elementos.forEach(elemento => {
+                    const unidadExistente = juegoGuerra3D.unidadesSIDC.find(u => u.id === elemento.id);
+                    if (unidadExistente) {
+                        // Actualizar unidad existente
+                        Object.assign(unidadExistente, elemento);
+                    } else {
+                        // Agregar nueva unidad
+                        juegoGuerra3D.procesarElementoExterno(elemento);
+                        juegoGuerra3D.crearRepresentacion3D(juegoGuerra3D.unidadesSIDC[juegoGuerra3D.unidadesSIDC.length - 1]);
+                    }
+                });
+            }
+        }
+
+        // =====================================================
+        // 🎮 FUNCIONES GLOBALES DE CONTROL DE FASES
+        // =====================================================
+
+        function confirmarSector() {
+            if (juegoGuerra3D) {
+                console.log('✅ Sector confirmado');
+                juegoGuerra3D.sectorConfirmado = true;
+                document.getElementById('confirmacionSector').style.display = 'none';
+                document.getElementById('btnDefinirZonaRoja').disabled = false;
+                document.getElementById('btnDefinirSector').textContent = '✅ Sector Definido';
+                document.getElementById('btnDefinirSector').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarSector() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de sector cancelada');
+                document.getElementById('confirmacionSector').style.display = 'none';
+                document.getElementById('btnDefinirSector').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+            }
+        }
+
+        function confirmarZonaRoja() {
+            if (juegoGuerra3D) {
+                console.log('✅ Zona roja confirmada');
+                juegoGuerra3D.zonaRojaConfirmada = true;
+                document.getElementById('confirmacionZonaRoja').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').disabled = false;
+                document.getElementById('btnDefinirZonaRoja').textContent = '✅ Zona Roja Definida';
+                document.getElementById('btnDefinirZonaRoja').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarZonaRoja() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de zona roja cancelada');
+                document.getElementById('confirmacionZonaRoja').style.display = 'none';
+                document.getElementById('btnDefinirZonaRoja').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+            }
+        }
+
+        function confirmarZonaAzul() {
+            if (juegoGuerra3D) {
+                console.log('✅ Zona azul confirmada');
+                juegoGuerra3D.zonaAzulConfirmada = true;
+                document.getElementById('confirmacionZonaAzul').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').textContent = '✅ Zona Azul Definida';
+                document.getElementById('btnDefinirZonaAzul').disabled = true;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+                juegoGuerra3D.actualizarPanelPreparacion();
+            }
+        }
+
+        function cancelarZonaAzul() {
+            if (juegoGuerra3D) {
+                console.log('❌ Definición de zona azul cancelada');
+                document.getElementById('confirmacionZonaAzul').style.display = 'none';
+                document.getElementById('btnDefinirZonaAzul').disabled = false;
+                juegoGuerra3D.renderer.domElement.style.cursor = 'default';
+            }
+        }
+
+        // Notificar al padre cuando se cierre la ventana
+        window.addEventListener('beforeunload', () => {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({
+                    tipo: 'VISTA_CERRADA'
+                }, '*');
+            }
+        });
+
+    </script>
+</body>
+</html>

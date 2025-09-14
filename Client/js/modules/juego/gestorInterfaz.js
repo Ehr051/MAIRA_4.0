@@ -28,30 +28,28 @@ class GestorInterfaz extends GestorBase {
     }
 
     crearEstructuraBase() {
-        // Panel principal
-        const interfaz = document.createElement('div');
-        interfaz.id = 'interfaz-juego';
-        interfaz.className = 'interfaz-contenedor';
+        // ✅ NUEVA VERSIÓN: Usar sistema de paneles integrado
+        console.log('🚫 GestorInterfaz: Usando sistema de paneles integrado, omitiendo creación de elementos obsoletos');
         
-        // Panel de mensajes
-        const mensajes = document.createElement('div');
-        mensajes.id = 'mensajes-container';
-        mensajes.className = 'mensajes-container';
+        // Buscar elementos existentes del sistema de paneles
+        const sistemaPaneles = document.getElementById('sistemaPanelesContainer');
+        const mapContainer = document.getElementById('mapContainer');
         
-        // Panel de juego (reemplaza panel-estado)
-        const panelEstado = document.createElement('div');
-        panelEstado.id = 'estado-juego';
-        panelEstado.className = 'panel-juego';
-        
-        interfaz.appendChild(mensajes);
-        interfaz.appendChild(panelEstado);
-        document.body.appendChild(interfaz);
-
-        this.contenedores = {
-            principal: interfaz,
-            mensajes: mensajes,
-            panelEstado: panelEstado
-        };
+        if (sistemaPaneles) {
+            console.log('✅ Usando sistema de paneles existente');
+            this.contenedores = {
+                principal: sistemaPaneles,
+                mensajes: sistemaPaneles.querySelector('.mensajes-sistema') || sistemaPaneles,
+                panelEstado: sistemaPaneles.querySelector('.panel-estado') || sistemaPaneles
+            };
+        } else {
+            console.warn('⚠️ Sistema de paneles no encontrado, usando fallback');
+            this.contenedores = {
+                principal: document.body,
+                mensajes: document.body,
+                panelEstado: document.body
+            };
+        }
     }
 
     configurarEstilos() {

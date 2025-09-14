@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 Inspector GLB - MAIRA 4.0</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #00ffff;
+            text-align: center;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        
+        .inspector-panel {
+            background: #111;
+            border: 1px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .hex-view {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            white-space: pre;
+        }
+        
+        .json-view {
+            background: #222;
+            padding: 15px;
+            border-left: 3px solid #00ff00;
+            overflow-x: auto;
+        }
+        
+        button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 12px 25px;
+            margin: 10px 5px;
+            cursor: pointer;
+            font-family: inherit;
+            border-radius: 5px;
+        }
+        
+        button:hover {
+            background: #555;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .success { background: #004400; border: 1px solid #00ff00; }
+        .error { background: #440000; border: 1px solid #ff6666; color: #ff6666; }
+        .warning { background: #443300; border: 1px solid #ffaa00; color: #ffaa00; }
+        .info { background: #002244; border: 1px solid #00aaff; color: #00aaff; }
+        
+        .file-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: #222;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #00ff00;
+        }
+        
+        select {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 8px;
+            margin: 5px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Inspector GLB - Análisis Profundo</h1>
+        
+        <div style="text-align: center;">
+            <select id="modelSelector">
+                <option value="tam_tank.glb">TAM Tank (16MB)</option>
+                <option value="tam_2c_tank.glb">TAM 2C Tank (19MB)</option>
+                <option value="sk105.glb">SK105 (9MB)</option>
+                <option value="soldier_rifle.glb">Soldado Rifle (3MB)</option>
+                <option value="humvee.glb">Humvee (2MB)</option>
+            </select>
+            <br>
+            <button onclick="analizarGLB()">🔍 Analizar GLB Seleccionado</button>
+            <button onclick="extraerJSON()">📄 Extraer JSON</button>
+            <button onclick="analizarTexturas()">🖼️ Analizar Texturas</button>
+            <button onclick="limpiar()">🧹 Limpiar</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let glbData = null;
+        let glbJSON = null;
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function limpiar() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function analizarGLB() {
+            const selector = document.getElementById('modelSelector');
+            const archivo = selector.value;
+            
+            limpiar();
+            log(`🔬 Analizando ${archivo}...`, 'info');
+            
+            try {
+                const response = await fetch(`Client/assets/models/${archivo}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                glbData = arrayBuffer;
+                
+                log(`✅ Archivo cargado: ${arrayBuffer.byteLength} bytes`, 'success');
+                
+                analizarHeader(arrayBuffer);
+                analizarChunks(arrayBuffer);
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function analizarHeader(buffer) {
+            const dataView = new DataView(buffer);
+            
+            log('📋 <strong>ANÁLISIS DE HEADER GLB:</strong>', 'info');
+            
+            // Magic (4 bytes)
+            const magic = dataView.getUint32(0, true);
+            const magicStr = String.fromCharCode(
+                magic & 0xFF,
+                (magic >> 8) & 0xFF,
+                (magic >> 16) & 0xFF,
+                (magic >> 24) & 0xFF
+            );
+            
+            // Version (4 bytes)
+            const version = dataView.getUint32(4, true);
+            
+            // Length (4 bytes)
+            const length = dataView.getUint32(8, true);
+            
+            const results = document.getElementById('results');
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'file-info';
+            headerDiv.innerHTML = `
+                <div class="info-card">
+                    <h3>🔮 Magic Number</h3>
+                    <p><strong>Valor:</strong> ${magicStr}</p>
+                    <p><strong>Hex:</strong> 0x${magic.toString(16)}</p>
+                    <p><strong>Válido:</strong> ${magicStr === 'glTF' ? '✅ SÍ' : '❌ NO'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>📋 Versión</h3>
+                    <p><strong>Valor:</strong> ${version}</p>
+                    <p><strong>Soportada:</strong> ${version === 2 ? '✅ GLB 2.0' : '❌ Versión no soportada'}</p>
+                </div>
+                <div class="info-card">
+                    <h3>📏 Longitud</h3>
+                    <p><strong>Declarada:</strong> ${length.toLocaleString()} bytes</p>
+                    <p><strong>Real:</strong> ${buffer.byteLength.toLocaleString()} bytes</p>
+                    <p><strong>Coincide:</strong> ${length === buffer.byteLength ? '✅ SÍ' : '❌ NO'}</p>
+                </div>
+            `;
+            results.appendChild(headerDiv);
+            
+            if (magicStr !== 'glTF' || version !== 2) {
+                log('❌ <strong>ARCHIVO GLB INVÁLIDO</strong>', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function analizarChunks(buffer) {
+            log('📦 <strong>ANÁLISIS DE CHUNKS:</strong>', 'info');
+            
+            const dataView = new DataView(buffer);
+            let offset = 12; // Después del header
+            let chunkIndex = 0;
+            
+            while (offset < buffer.byteLength) {
+                if (offset + 8 > buffer.byteLength) break;
+                
+                const chunkLength = dataView.getUint32(offset, true);
+                const chunkType = dataView.getUint32(offset + 4, true);
+                
+                const typeStr = String.fromCharCode(
+                    chunkType & 0xFF,
+                    (chunkType >> 8) & 0xFF,
+                    (chunkType >> 16) & 0xFF,
+                    (chunkType >> 24) & 0xFF
+                );
+                
+                log(`📦 <strong>Chunk ${chunkIndex}:</strong>`, 'info');
+                log(`   📏 Longitud: ${chunkLength.toLocaleString()} bytes`, 'info');
+                log(`   🏷️ Tipo: "${typeStr}" (0x${chunkType.toString(16)})`, 'info');
+                
+                if (typeStr === 'JSON') {
+                    analizarChunkJSON(buffer, offset + 8, chunkLength);
+                } else if (typeStr === 'BIN\\0' || typeStr === 'BIN\0') {
+                    analizarChunkBIN(buffer, offset + 8, chunkLength);
+                } else if (typeStr.startsWith('BIN')) {
+                    // BIN sin null terminator también es válido
+                    analizarChunkBIN(buffer, offset + 8, chunkLength);
+                    log(`   ✅ Chunk BIN válido (variante: "${typeStr}")`, 'success');
+                } else {
+                    log(`   ⚠️ Tipo de chunk desconocido: ${typeStr}`, 'warning');
+                }
+                
+                offset += 8 + chunkLength;
+                // Alinear a 4 bytes
+                if (chunkLength % 4 !== 0) {
+                    offset += 4 - (chunkLength % 4);
+                }
+                chunkIndex++;
+            }
+        }
+
+        function analizarChunkJSON(buffer, offset, length) {
+            try {
+                const jsonBytes = new Uint8Array(buffer, offset, length);
+                const jsonString = new TextDecoder().decode(jsonBytes);
+                glbJSON = JSON.parse(jsonString);
+                
+                log(`   ✅ JSON parseado correctamente`, 'success');
+                log(`   📊 Tamaño JSON: ${jsonString.length} caracteres`, 'info');
+                
+                // Analizar contenido del JSON
+                if (glbJSON.buffers) {
+                    log(`   📦 Buffers: ${glbJSON.buffers.length}`, 'info');
+                    glbJSON.buffers.forEach((buffer, index) => {
+                        if (buffer.uri) {
+                            log(`   📎 Buffer ${index} tiene URI: ${buffer.uri}`, 'warning');
+                        } else {
+                            log(`   ✅ Buffer ${index} está embebido (sin URI)`, 'success');
+                        }
+                    });
+                }
+                
+                if (glbJSON.images) {
+                    log(`   🖼️ Imágenes: ${glbJSON.images.length}`, 'info');
+                    glbJSON.images.forEach((image, index) => {
+                        if (image.uri) {
+                            log(`   📎 Imagen ${index} tiene URI: ${image.uri}`, 'error');
+                            log(`   ❌ ESTE ES EL PROBLEMA - Imagen externa`, 'error');
+                        } else if (image.bufferView !== undefined) {
+                            log(`   ✅ Imagen ${index} está embebida (bufferView: ${image.bufferView})`, 'success');
+                        } else {
+                            log(`   ⚠️ Imagen ${index} configuración extraña`, 'warning');
+                        }
+                    });
+                }
+                
+                if (glbJSON.textures) {
+                    log(`   🎨 Texturas: ${glbJSON.textures.length}`, 'info');
+                }
+                
+                if (glbJSON.materials) {
+                    log(`   🎭 Materiales: ${glbJSON.materials.length}`, 'info');
+                }
+                
+            } catch (error) {
+                log(`   ❌ Error parseando JSON: ${error.message}`, 'error');
+            }
+        }
+
+        function analizarChunkBIN(buffer, offset, length) {
+            log(`   ✅ Chunk binario encontrado`, 'success');
+            log(`   📊 Datos binarios: ${length.toLocaleString()} bytes`, 'info');
+            
+            // Mostrar primeros bytes en hex
+            const preview = new Uint8Array(buffer, offset, Math.min(32, length));
+            let hexStr = '';
+            for (let i = 0; i < preview.length; i++) {
+                hexStr += preview[i].toString(16).padStart(2, '0') + ' ';
+                if ((i + 1) % 16 === 0) hexStr += '\n';
+            }
+            
+            const results = document.getElementById('results');
+            const hexDiv = document.createElement('div');
+            hexDiv.className = 'inspector-panel';
+            hexDiv.innerHTML = `
+                <h4>🔢 Vista Hexadecimal (primeros 32 bytes):</h4>
+                <div class="hex-view">${hexStr}</div>
+            `;
+            results.appendChild(hexDiv);
+        }
+
+        async function extraerJSON() {
+            if (!glbJSON) {
+                log('⚠️ Primero analiza un GLB', 'warning');
+                return;
+            }
+            
+            const results = document.getElementById('results');
+            const jsonDiv = document.createElement('div');
+            jsonDiv.className = 'inspector-panel';
+            jsonDiv.innerHTML = `
+                <h3>📄 JSON Extraído del GLB:</h3>
+                <div class="json-view">${JSON.stringify(glbJSON, null, 2)}</div>
+                <button onclick="descargarJSON()">💾 Descargar JSON</button>
+            `;
+            results.appendChild(jsonDiv);
+        }
+
+        function descargarJSON() {
+            if (!glbJSON) return;
+            
+            const blob = new Blob([JSON.stringify(glbJSON, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gltf-extracted.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function analizarTexturas() {
+            if (!glbJSON) {
+                log('⚠️ Primero analiza un GLB', 'warning');
+                return;
+            }
+            
+            log('🖼️ <strong>ANÁLISIS DETALLADO DE TEXTURAS:</strong>', 'info');
+            
+            if (glbJSON.images) {
+                glbJSON.images.forEach((image, index) => {
+                    log(`🖼️ <strong>Imagen ${index}:</strong>`, 'info');
+                    
+                    if (image.uri) {
+                        log(`   ❌ <strong>PROBLEMA ENCONTRADO:</strong>`, 'error');
+                        log(`   📎 URI externa: "${image.uri}"`, 'error');
+                        log(`   💡 Esta imagen no está embebida en el GLB`, 'error');
+                        log(`   🔧 GLTFLoader no puede cargar URIs externas`, 'error');
+                    } else if (image.bufferView !== undefined) {
+                        log(`   ✅ Imagen embebida correctamente`, 'success');
+                        log(`   📦 BufferView: ${image.bufferView}`, 'success');
+                        if (image.mimeType) {
+                            log(`   🎭 Tipo MIME: ${image.mimeType}`, 'info');
+                        }
+                    } else {
+                        log(`   ⚠️ Configuración de imagen inválida`, 'warning');
+                    }
+                });
+                
+                // Contar problemas
+                const problemImages = glbJSON.images.filter(img => img.uri).length;
+                const goodImages = glbJSON.images.filter(img => img.bufferView !== undefined).length;
+                
+                if (problemImages > 0) {
+                    log(`❌ <strong>DIAGNÓSTICO FINAL:</strong>`, 'error');
+                    log(`   ${problemImages} imagen(es) con URIs externas (PROBLEMÁTICAS)`, 'error');
+                    log(`   ${goodImages} imagen(es) embebidas correctamente`, 'success');
+                    log(`   💡 <strong>SOLUCIÓN:</strong> Reexportar GLB con texturas embebidas`, 'warning');
+                } else {
+                    log(`✅ <strong>Todas las texturas están embebidas correctamente</strong>`, 'success');
+                }
+            } else {
+                log('📋 No se encontraron imágenes en el GLB', 'info');
+            }
+        }
+
+        // Log inicial
+        console.log('🔬 Inspector GLB inicializado');
+    </script>
+</body>
+</html>

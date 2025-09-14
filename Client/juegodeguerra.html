@@ -41,6 +41,128 @@
   <!-- Sistema de Paneles Unificado -->
   <link rel="stylesheet" href="css/modules/sistema-paneles-unificado.css">
   
+  <!-- Estilos para Vista 3D Integrada -->
+  <style>
+    /* === VISTA 3D INTEGRADA === */
+    .vista-3d-integrada {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      background: #87CEEB;
+    }
+    
+    #canvas3d {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .panel-3d-integrado {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 320px;
+      max-height: calc(100vh - 100px);
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 12px;
+      border: 2px solid #4a90c2;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      overflow-y: auto;
+      z-index: 1001;
+    }
+    
+    .hud-3d-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1002;
+    }
+    
+    .hud-superior-3d {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      pointer-events: auto;
+    }
+    
+    .btn-cambio-vista {
+      background: linear-gradient(135deg, #4a90c2, #2d5a87);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-cambio-vista:hover {
+      background: linear-gradient(135deg, #5ba0d2, #3d6a97);
+      transform: translateY(-1px);
+    }
+    
+    /* Compatibilidad con paneles existentes */
+    .panel-3d-integrado .panel-section {
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .panel-3d-integrado .panel-header {
+      background: linear-gradient(135deg, #2d5a87, #1e3d5c);
+      color: white;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px 6px 0 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .panel-3d-integrado .panel-content {
+      padding: 10px;
+      color: #e0e0e0;
+      font-size: 11px;
+    }
+    
+    .panel-3d-integrado .btn-control {
+      width: 100%;
+      padding: 6px 10px;
+      margin: 2px 0;
+      background: linear-gradient(135deg, #2d5a87, #1e3d5c);
+      color: white;
+      border: 1px solid #4a90c2;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .panel-3d-integrado .btn-control:hover {
+      background: linear-gradient(135deg, #4a90c2, #2d5a87);
+      transform: translateY(-1px);
+    }
+    
+    .panel-3d-integrado .btn-control.active {
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+      border-color: #28a745;
+    }
+  </style>
+  
   <!-- � CONFIGURACIÓN DE RED -->
   <script src="js/common/networkConfig.js"></script>
   
@@ -199,8 +321,14 @@
   <!-- Sistema de Paneles Unificado -->
   <script src="js/modules/juego/sistemaPanelesUnificado.js"></script>
   
+  <!-- THREE.js para vista 3D integrada -->
+  <script src="Libs/three/three.min.js"></script>
+  <script src="Libs/three/OrbitControls.js"></script>
+  <script src="Libs/three/GLTFLoader.js"></script>
+  
   <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
   <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  <script src="js/modules/gaming/sistema3DIntegrado.js"></script>
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <script src="js/modules/sistema3d.js"></script>
@@ -998,8 +1126,28 @@
   </div>
 
   <main>
-    <div id="mapContainer"></div>
-    <div id="map" style="height: 100%;"></div>
+    <div id="mapContainer">
+      <!-- Mapa 2D (Leaflet) -->
+      <div id="map" style="height: 100%;"></div>
+      
+      <!-- Vista 3D Integrada (oculta por defecto) -->
+      <div id="vista3D" class="vista-3d-integrada" style="display: none;">
+        <canvas id="canvas3d"></canvas>
+        
+        <!-- Panel de Control 3D Integrado -->
+        <div id="panel3DIntegrado" class="panel-3d-integrado">
+          <!-- Se poblará dinámicamente con los controles del sistema táctico 3D -->
+        </div>
+        
+        <!-- HUD 3D -->
+        <div id="hud3D" class="hud-3d-overlay">
+          <div class="hud-superior-3d">
+            <strong>🎮 MODO TÁCTICO 3D ACTIVO</strong>
+            <button id="btn3DToMap" class="btn-cambio-vista">📋 Volver a Mapa 2D</button>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <!-- Contenedor para el Sistema de Paneles Unificado -->
     <div id="sistemaPanelesContainer" class="sistema-paneles-container">
@@ -1430,58 +1578,31 @@
       }
     }
     
-    // 🎯 FUNCIONALIDAD VISTA 3D
+    // 🎯 FUNCIONALIDAD VISTA 3D INTEGRADA (NUEVA VERSION)
     function activarVista3D() {
-      console.log('🎮 Activando vista 3D en Juego de Guerra...');
+      console.log('🎮 Activando vista 3D integrada...');
       
       try {
-        // Verificar si el sistema 3D está disponible
-        if (typeof window.threeDMapService === 'undefined') {
-          console.error('❌ threeDMapService no disponible');
-          alert('⚠️ Sistema 3D no disponible. Asegúrate de que los scripts 3D estén cargados.');
-          return;
-        }
-        
-        // Verificar si tenemos elementos desplegados para mostrar en 3D
-        const elementosDesplegados = [];
-        
-        // Buscar elementos militares en el mapa
-        window.mapa.eachLayer((layer) => {
-          if (layer.options && layer.options.tipo === 'elemento' && layer.options.sidc) {
-            const elemento = {
-              id: layer.options.id,
-              tipo: layer.options.sidc,
-              posicion: layer.getLatLng(),
-              nombre: layer.options.nombre || 'Elemento Militar'
-            };
-            elementosDesplegados.push(elemento);
-          }
-        });
-        
-        console.log('🎯 Elementos encontrados para vista 3D:', elementosDesplegados.length);
-        
-        if (elementosDesplegados.length === 0) {
-          alert('ℹ️ No hay elementos militares desplegados en el mapa.\n\nDespliega algunas unidades primero para ver la vista 3D.');
-          return;
-        }
-        
-        // Activar vista 3D usando el sistema de zoom multi-nivel
-        if (typeof window.sistemaZoomMultiNivel !== 'undefined') {
-          // Forzar zoom operacional para activar 3D
-          const zoomOperacional = 15; // Zoom level para vista operacional
-          window.mapa.setZoom(zoomOperacional);
-          
-          // Activar modo 3D
-          window.sistemaZoomMultiNivel.activar3D();
+        // Usar el nuevo sistema 3D integrado
+        if (window.sistema3DIntegrado && window.sistema3DIntegrado.inicializado) {
+          window.sistema3DIntegrado.cambiarAVista3D();
           
           // Mostrar mensaje de éxito
-          const mensaje = `🎮 Vista 3D activada!\n\n✅ ${elementosDesplegados.length} elementos militares mostrados en 3D\n\n💡 Usa los controles del mouse para navegar:\n• Click izquierdo + arrastrar: Rotar\n• Rueda del mouse: Zoom\n• Click derecho + arrastrar: Mover`;
-          
-          setTimeout(() => alert(mensaje), 500);
+          setTimeout(() => {
+            const mensaje = `🎮 Vista 3D Táctica Activada!\n\n✅ Sistema 3D integrado funcionando\n💡 Usa los controles del mouse para navegar:\n• Click + arrastrar: Rotar\n• Rueda: Zoom\n• Botón "Volver a Mapa 2D" para regresar`;
+            alert(mensaje);
+          }, 500);
           
         } else {
-          console.error('❌ sistemaZoomMultiNivel no disponible');
-          alert('⚠️ Sistema de zoom 3D no disponible.');
+          console.warn('⚠️ Sistema 3D integrado no disponible, usando fallback...');
+          
+          // Fallback al sistema anterior si no está disponible el integrado
+          if (typeof window.sistemaZoomMultiNivel !== 'undefined') {
+            window.mapa.setZoom(15);
+            window.sistemaZoomMultiNivel.activar3D();
+          } else {
+            alert('⚠️ Sistema 3D no disponible. Recarga la página e intenta nuevamente.');
+          }
         }
         
       } catch (error) {
@@ -1545,7 +1666,7 @@
           console.error('❌ Error inicializando sistemas modulares:', error);
         }
       }, 1500); // Inicializar sistemas antes que gestorJuego
-    });
+    };
     
     // Funciones de integración modular
     function integrarGestoresExistentes() {

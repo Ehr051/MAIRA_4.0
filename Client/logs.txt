@@ -1,0 +1,704 @@
+ URLs configuradas: Object
+ milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+ Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation
+(anónimo) @ three.min.js:1
+ ✅ GLTFLoader completo registrado globalmente
+ ✅ Sistema 3D modular cargado
+ ✅ Sistema de Paneles modular cargado
+ ✅ Sistema de Planeamiento modular cargado
+ ✅ OrbitControls (versión navegador) cargado correctamente
+ Deprecated include of L.Mixin.Events: this property will be removed in future releases, please inherit from L.Evented instead. Error
+    at et.extend (http://127.0.0.1:5500/node_modules/leaflet/dist/leaflet.js:5:3233)
+    at http://127.0.0.1:5500/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js:6:34
+    at http://127.0.0.1:5500/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js:6:7077
+et.extend @ leaflet.js:5
+ 🔄 Intentando cargar master_mini_tiles_index.json...
+ 📡 Intentando cargar desde: https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json
+ 🚀 Inicializando terrainAdapter (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+ ✅ MAIRAServicesManager registrado globalmente
+ ✅ TransitabilityService registrado en MAIRA.Services.Transitability
+slopeAnalysisService.js:7 Uncaught 
+ ✅ ElevationProfileService inicializado
+ ✅ ElevationProfileService cargado y funciones exportadas al scope global
+threeDMapService.js:7 Uncaught 
+elevationHandler.js:1 Uncaught 
+ 🌿 Intentando cargar vegetation_master_index.json...
+ 🌿 Intentando cargar vegetación desde: /api/proxy/github-vegetation/vegetation_master_index.json
+ 🌿 VegetationHandler v2.0 cargado - Compatible con patrón CDN
+ ✅ GeometryUtils inicializado con Leaflet
+ ✅ GeometryUtils con Leaflet cargado y funciones exportadas al scope global
+ 📱 Dispositivo móvil detectado: false
+ 📐 Orientación: landscape
+ 💻 Dispositivo de escritorio, optimizaciones móviles deshabilitadas
+ ✅ MobileOptimizationHandler inicializado
+ ✅ MobileOptimizationHandler cargado y función exportada al scope global
+ ✅ MapInteractionHandler inicializado con Leaflet
+ ✅ MapInteractionHandler cargado y funciones exportadas al scope global
+ ✅ MeasurementHandler con Leaflet cargado y funciones exportadas al scope global
+ ✅ Funciones de edición de líneas restauradas: hacerLineaEditable, deshabilitarEdicionLinea, convertirAPolyline
+ ✅ MeasurementHandler cargado - Funciones exportadas al scope global - Menú contextual implementado
+ 🚀 PerformanceOptimizer inicializado
+ 🚀 PerformanceOptimizer módulo cargado
+ 🔔 EventBus inicializado
+ 📐 PendienteHandler inicializado
+ 📐 PendienteHandler módulo cargado
+ 🚗 TransitabilidadHandler inicializado
+ 🚗 TransitabilidadHandler módulo cargado
+ ✅ SearchHandler inicializado
+ ✅ SearchHandler cargado - initializeBuscarLugar disponible globalmente
+ ℹ️ Auto-inicialización desactivada - usar initializeBuscarLugar() manualmente si es necesario
+ ✅ TestHandler inicializado
+ ✅ TestHandler cargado - ejecutarTestPlaneamiento disponible globalmente
+ 🔍 Calcos inicializados correctamente
+ 🔄 herramientasP.js REFACTORIZADO
+ 📦 Funcionalidad distribuida en 6 módulos especializados
+ ✅ UserIdentity stub inicializado
+ ✅ MAIRA.Utils stub inicializado
+ ✅ herramientasP.js stub cargado - funcionalidad en módulos especializados
+ ✅ interpolarPuntosRuta restaurada para CalculoMarcha.js
+ ✅ ToolsInitializer creado
+ ✅ ToolsInitializer cargado - auto-inicialización programada
+ MAIRA Atajos inicializado para macOS - 27 atajos disponibles
+ 🚀 Inicializando indexP (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+ 🧪 Test de Planeamiento - Modo desarrollo
+ Tests de planeamiento inicializados
+ 🤖 Auto-test - Sistema de testing automático
+ Auto-test system initialized
+ 👁️ Visualizador de Tests - UI para testing
+chrome-extension://ekhagklcjbdpajgpjgmbionohlpdbjgc/lib/SingleFile/single-file-hooks-frames.js:1  Failed to load resource: net::ERR_FAILED
+:5500/api/proxy/github-vegetation/vegetation_master_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando vegetación desde /api/proxy/github-vegetation/vegetation_master_index.json: HTTP 404 para /api/proxy/github-vegetation/vegetation_master_index.json
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_vegetation_index.jsonvegetation_master_index.json
+ ⚠️ Socket.IO no disponible
+(anónimo) @ planeamiento.html:982
+ Live reload enabled.
+ ✅ PerformanceOptimizer inicializado correctamente
+ 📐 Usando cálculo directo de pendientes (sin worker)
+ ✅ PendienteHandler inicializado correctamente
+ ⚠️ VegetationHandler no disponible
+initialize @ transitabilidadHandler.js:62
+ ✅ TransitabilidadHandler inicializado correctamente
+ 🔍 DOM cargado, auto-inicializando SearchHandler...
+ 🔗 Botón de test encontrado: 
+ 🔗 Botón de test encontrado: 
+ DOM completamente cargado. Iniciando configuración del mapa...
+ 🔍 Zoom nivel cambiado: estrategico → operacional (zoom: 10)
+ 🔍 Sistema Zoom Multi-Nivel inicializado con modelos 3D (Total War Style)
+ 🔍 Sistema Zoom Multi-Nivel inicializado
+ Mapa inicializado correctamente
+ Consolidando event listeners del mapa...
+ ✅ Event listener configurado: opacitySlider -> input
+ ✅ Event listener configurado: colorSelector -> input
+ ✅ Event listener configurado: gridWidthSlider -> input
+ ✅ Event listener configurado: coordenadasCheckbox -> change
+ Event listeners consolidados correctamente
+ Configuración del mapa completada
+ Inicializando funcionalidades de calcos
+ Inicializando funcionalidades de símbolos
+ 🚀 Inicializando herramientas refactorizadas...
+ Panel inicializado
+ 🎯 PlaneamientoManager inicializado
+ 🎯 Inicializando módulo de Planeamiento
+ ⚠️ Socket no disponible - trabajando en modo local
+configurarSocket @ planeamiento.js:28
+ ✅ Cargados 0 elementos
+ DOM completamente cargado y parseado
+ Índice de tiles cargado correctamente, inicializando elevación.
+ Inicializando datos de elevación con bounds: Object
+ Esperando a que el índice de tiles se cargue.
+cargarDatosElevacion @ terrainAdapter.js:125
+ DOM completamente cargado y parseado
+ Inicializando controles...
+ 🎯 Inicializando MiRadial en planeamiento...
+ 🎯 MiRadial.inicializar llamado con: e planeamiento
+ Cambiando fase a: preparacion
+ MiRadial inicializado
+ ✅ MiRadial inicializado correctamente
+ Controles inicializados con éxito
+ 🔍 Inicializando búsqueda de lugares...
+ 🔍 Usando búsqueda básica con elementos HTML existentes
+ 🔍 Inicializando búsqueda básica...
+ ✅ Elementos HTML de búsqueda encontrados
+ ✅ Búsqueda básica inicializada con auto-activación
+ Test visualizer initialized
+ 🚀 MAIRA 4.0 - Inicialización modular
+ 🔧 Service Worker registrado: ServiceWorkerRegistration
+github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando desde https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json: Failed to fetch
+(anónimo) @ terrainAdapter.js:103
+ 📡 Intentando cargar desde: https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json
+github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_vegetation_index.jsonvegetation_master_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando vegetación desde https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_vegetation_index.jsonvegetation_master_index.json: Failed to fetch
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/vegetation_master_index.json
+ ✅ Funciones de herramientas cargadas (7/7): Array(7)
+ 🔗 Inicializando event listeners...
+ ✅ Event listeners de medición disponibles
+ ✅ Event listeners de selección disponibles
+ ✅ Event listeners inicializados
+ 🔄 Configurando interacciones entre módulos...
+ ✅ Interacciones de perfil de elevación disponibles
+ ✅ ElevationHandler disponible para integración
+ ✅ Interacciones configuradas
+ 🔍 Verificando funcionalidad...
+ ✅ Funciones disponibles (7/7): Array(7)
+ ✅ Funciones activas (5/5): Array(5)
+ ✅ Handlers de terreno activos (2/2): Array(2)
+ 📱 Info del dispositivo: false
+ ✅ Herramientas refactorizadas inicializadas correctamente
+github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando desde https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json: Failed to fetch
+(anónimo) @ terrainAdapter.js:103
+ 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/vegetation_master_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando vegetación desde https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/vegetation_master_index.json: Failed to fetch
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+ ⚠️ FPS bajo detectado: 2
+measureFPS @ performanceOptimizer.js:380
+ No se encontró el menú MCC para añadir opciones de puntos
+(anónimo) @ simbolosP.js:675
+ 🎯 Símbolos militares PI/PT listos para usar en gráficos
+ 🎯 Inicializando Sistema de Planeamiento...
+ ✅ Sistema de Planeamiento inicializado
+ ✅ Sistema de Planeamiento inicializado
+ ✅ Sistema 3D disponible
+ ✅ Eventos de planeamiento configurados
+ 📊 Funciones heredadas: 5/5
+ 🔍 Verificando funciones críticas:
+   - editarElementoSeleccionado: function
+   - mostrarMenuContextual: function
+   - seleccionarElemento: function
+   - Mapa inicializado correctamente
+:5500/api/proxy/github/master_mini_tiles_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ terrainAdapter.js:103
+ 📡 Intentando cargar desde: https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json
+Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando vegetación desde Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json: HTTP 404 para Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: /Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando vegetación desde /Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json: HTTP 404 para /Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: ./Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando vegetación desde ./Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json: HTTP 404 para ./Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: ../Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+ ⚠️ Error cargando vegetación desde ../Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json: HTTP 404 para ../Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+(anónimo) @ vegetacionhandler.js:74
+ 🌿 Intentando cargar vegetación desde: https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json
+raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando vegetación desde https://raw.githubusercontent.com/Ehr051/MAIRA/main/Client/Libs/datos_argentina/Vegetacion_NDVI_Tiles/vegetation_master_index.json: Failed to fetch
+(anónimo) @ vegetacionhandler.js:74
+ ❌ Error cargando vegetación desde todas las URLs: 
+(anónimo) @ vegetacionhandler.js:80
+ ⚠️ Error inicializando MAIRA.Vegetacion: 
+inicializar @ vegetacionhandler.js:443
+github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando desde https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json: Failed to fetch
+(anónimo) @ terrainAdapter.js:103
+ 📡 Intentando cargar desde: https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json
+github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando desde https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json: Failed to fetch
+(anónimo) @ terrainAdapter.js:103
+ 📡 Intentando cargar desde: https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json
+github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json:1  Failed to load resource: net::ERR_FAILED
+ ⚠️ Error cargando desde https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json: Failed to fetch
+(anónimo) @ terrainAdapter.js:103
+ ❌ Error cargando desde todas las URLs: 
+(anónimo) @ terrainAdapter.js:109
+ Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ terrainAdapter.js:117
+ ⚠️ Error inicializando MAIRA.Elevacion: 
+inicializar @ terrainAdapter.js:724
+ Error durante la inicialización de datos de elevación: 
+initializeIndexP @ indexP.js:49
+ Inicializando controles...
+ 🎯 Inicializando MiRadial en planeamiento...
+ 🎯 MiRadial.inicializar llamado con: e planeamiento
+ Cambiando fase a: preparacion
+ MiRadial inicializado
+ ✅ MiRadial inicializado correctamente
+ Controles inicializados con éxito
+ 🔍 Inicializando búsqueda de lugares...
+ 🔍 Usando búsqueda básica con elementos HTML existentes
+ 🔍 Inicializando búsqueda básica...
+ ✅ Elementos HTML de búsqueda encontrados
+ ✅ Búsqueda básica inicializada con auto-activación
+ 🔗 Vegetación integrada con Elevación
+ El objeto map no es una instancia válida de Leaflet: 
+init @ miradial.js:230
+ ✅ Menú radial inicializado
+ 🔗 Elevación integrada con Vegetación
+planeamiento.js:465 Uncaught 
+ 🎮 Renderizando elementos 3D...
+ ⚠️ Sistemas 3D no disponibles, usando renderizado básico
+renderizarElementos3D @ sistemaZoomMultiNivel.js:349
+ 🔍 Zoom nivel cambiado: operacional → tactico (zoom: 13)
+planeamiento.js:465 Uncaught 
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: agregar-menu
+ ✅ Menú 'agregar-menu' mostrado
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'agregar-menu' sigue abierto correctamente
+ 🔧 Intentando alternar menú: infanteriaBtn
+ ✅ Menú 'infanteriaBtn' mostrado
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'infanteriaBtn' sigue abierto correctamente
+ Actualizando SIDC con carácter: F
+ Actualizando SIDC con carácter: F
+ Actualizando SIDC con carácter: F
+ Actualizando SIDC con carácter: F
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: infanteriaArmamentoBtn
+ ✅ Menú 'infanteriaArmamentoBtn' mostrado
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'infanteriaArmamentoBtn' sigue abierto correctamente
+ 🔧 Intentando alternar menú: infanteria-armamento
+ ⚠️ Menú 'infanteria-armamento' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria-armamento
+ ⚠️ Menú 'infanteria-armamento' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ 🎯 Deseleccionando elementos
+ ✅ Elementos deseleccionados correctamente
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: infanteria-armamento
+ ⚠️ Menú 'infanteria-armamento' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria-armamento
+ ⚠️ Menú 'infanteria-armamento' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ 🎯 Deseleccionando elementos
+ ✅ Elementos deseleccionados correctamente
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: infanteriaVehiculosBtn
+ ✅ Menú 'infanteriaVehiculosBtn' mostrado
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'infanteriaVehiculosBtn' sigue abierto correctamente
+ 🔧 Intentando alternar menú: infanteria-vehiculos
+ ⚠️ Menú 'infanteria-vehiculos' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria-vehiculos
+ ⚠️ Menú 'infanteria-vehiculos' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: infanteria
+ ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ 🎯 Deseleccionando elementos
+ ✅ Elementos deseleccionados correctamente
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: caballeriaBtn
+ ✅ Menú 'caballeriaBtn' mostrado
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'caballeriaBtn' sigue abierto correctamente
+ 🔧 Intentando alternar menú: caballeriaVehiculosBtn
+ ✅ Menú 'caballeriaVehiculosBtn' mostrado
+ 🔧 Intentando alternar menú: Caballeria
+ ⚠️ Menú 'Caballeria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: Caballeria
+ ⚠️ Menú 'Caballeria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ ✅ Menú 'caballeriaVehiculosBtn' sigue abierto correctamente
+ 🔧 Intentando alternar menú: caballeria-vehiculos
+ ⚠️ Menú 'caballeria-vehiculos' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: caballeria-vehiculos
+ ⚠️ Menú 'caballeria-vehiculos' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: Caballeria
+ ⚠️ Menú 'Caballeria' no encontrado
+toggleMenu @ indexP.js:225
+ 🔧 Intentando alternar menú: Caballeria
+ ⚠️ Menú 'Caballeria' no encontrado
+toggleMenu @ indexP.js:225
+planeamiento.js:465 Uncaught 
+ 🎯 Deseleccionando elementos
+ ✅ Elementos deseleccionados correctamente
+planeamiento.js:465 Uncaught 
+ 🔧 Intentando alternar menú: agregar-menu
+ ✅ Menú 'agregar-menu' ocultado
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Doble click en elemento para editar: e
+ 🎯 [DEBUG] editarElementoSeleccionado (original) llamada
+ 🎯 [DEBUG] elementoSeleccionado: e
+ 🎯 [DEBUG] Tipo de elemento: e
+ 🎯 [DEBUG] Es marker: true
+ 🎯 [DEBUG] options: Object
+ 🎯 [DEBUG] sidc: SFGPEWR--------
+ 🎯 [DEBUG] Verificando tipo de SIDC...
+ 🎯 [DEBUG] Es equipo, mostrando panel equipo
+ Mostrando panel de edición de equipo
+ Intentando mostrar panel: panelEdicionEquipo
+ 🗂️ Todos los paneles de edición cerrados
+ Panel panelEdicionEquipo mostrado
+ Estilos de panelEdicionEquipo: Object
+planeamiento.js:465 Uncaught 
+planeamiento.js:465 Uncaught 
+planeamiento.js:465 Uncaught 
+planeamiento.js:465 Uncaught 
+ Input changed: designacionEquipo
+planeamiento.js:465 Uncaught 
+ Input changed: asignacionEquipo
+ Panel panelEdicionEquipo cerrado
+ Enviando equipo actualizado al servidor
+ [EdicionCompleto] Socket no conectado
+enviarElementoAlServidor @ edicioncompleto.js:1282
+ Resultado de envío de equipo: false
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Doble click en elemento para editar: e
+ 🎯 [DEBUG] editarElementoSeleccionado (original) llamada
+ 🎯 [DEBUG] elementoSeleccionado: e
+ 🎯 [DEBUG] Tipo de elemento: e
+ 🎯 [DEBUG] Es marker: true
+ 🎯 [DEBUG] options: Object
+ 🎯 [DEBUG] sidc: SFGPEVAI-------
+ 🎯 [DEBUG] Verificando tipo de SIDC...
+ 🎯 [DEBUG] Es equipo, mostrando panel equipo
+ Mostrando panel de edición de equipo
+ Intentando mostrar panel: panelEdicionEquipo
+ 🗂️ Todos los paneles de edición cerrados
+ Panel panelEdicionEquipo mostrado
+ Estilos de panelEdicionEquipo: Object
+planeamiento.js:465 Uncaught 
+ Construyendo SIDC: Object
+edicioncompleto.js:579 Uncaught 
+planeamiento.js:465 Uncaught 
+ Input changed: tipoVehiculoEquipo
+planeamiento.js:465 Uncaught 
+ Input changed: designacionEquipo
+planeamiento.js:465 Uncaught 
+ Input changed: asignacionEquipo
+ Panel panelEdicionEquipo cerrado
+ Enviando equipo actualizado al servidor
+ [EdicionCompleto] Socket no conectado
+enviarElementoAlServidor @ edicioncompleto.js:1282
+ Resultado de envío de equipo: false
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Doble click en elemento para editar: e
+ 🎯 [DEBUG] editarElementoSeleccionado (original) llamada
+ 🎯 [DEBUG] elementoSeleccionado: e
+ 🎯 [DEBUG] Tipo de elemento: e
+ 🎯 [DEBUG] Es marker: true
+ 🎯 [DEBUG] options: Object
+ 🎯 [DEBUG] sidc: SFGPEVAT-------
+ 🎯 [DEBUG] Verificando tipo de SIDC...
+ 🎯 [DEBUG] Es equipo, mostrando panel equipo
+ Mostrando panel de edición de equipo
+ Intentando mostrar panel: panelEdicionEquipo
+ 🗂️ Todos los paneles de edición cerrados
+ Panel panelEdicionEquipo mostrado
+ Estilos de panelEdicionEquipo: Object
+planeamiento.js:465 Uncaught 
+ Construyendo SIDC: Object
+edicioncompleto.js:579 Uncaught 
+planeamiento.js:465 Uncaught 
+ Input changed: tipoVehiculoEquipo
+planeamiento.js:465 Uncaught 
+ Input changed: designacionEquipo
+planeamiento.js:465 Uncaught 
+ Input changed: asignacionEquipo
+ Input changed: asignacionEquipo
+ Input changed: asignacionEquipo
+ Panel panelEdicionEquipo cerrado
+ Enviando equipo actualizado al servidor
+ [EdicionCompleto] Socket no conectado
+enviarElementoAlServidor @ edicioncompleto.js:1282
+ Resultado de envío de equipo: false
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+ ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught 
+ 🎯 Seleccionando elemento: e
+herramientasP.js:130 ✅ Elemento seleccionado correctamente
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+simbolosP.js:219 🎯 Doble click en elemento para editar: e
+edicioncompleto.js:2181 🎯 [DEBUG] editarElementoSeleccionado (original) llamada
+edicioncompleto.js:2182 🎯 [DEBUG] elementoSeleccionado: e
+edicioncompleto.js:2189 🎯 [DEBUG] Tipo de elemento: e
+edicioncompleto.js:2190 🎯 [DEBUG] Es marker: true
+edicioncompleto.js:2193 🎯 [DEBUG] options: Object
+edicioncompleto.js:2194 🎯 [DEBUG] sidc: SFGPEWM--------
+edicioncompleto.js:2197 🎯 [DEBUG] Verificando tipo de SIDC...
+edicioncompleto.js:2199 🎯 [DEBUG] Es equipo, mostrando panel equipo
+edicioncompleto.js:508 Mostrando panel de edición de equipo
+edicioncompleto.js:445 Intentando mostrar panel: panelEdicionEquipo
+edicioncompleto.js:441 🗂️ Todos los paneles de edición cerrados
+edicioncompleto.js:451 Panel panelEdicionEquipo mostrado
+edicioncompleto.js:455 Estilos de panelEdicionEquipo: Object
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+edicioncompleto.js:567 Construyendo SIDC: Object
+edicioncompleto.js:579 Uncaught TypeError: Cannot read properties of undefined (reading 'codigo')
+    at obtenerSIDCActual (edicioncompleto.js:579:71)
+    at HTMLSelectElement.actualizarPreviewSimbolo (edicioncompleto.js:605:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+performanceOptimizer.js:566 Input changed: tipoVehiculoEquipo
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+performanceOptimizer.js:566 Input changed: designacionEquipo
+performanceOptimizer.js:566 Input changed: designacionEquipo
+performanceOptimizer.js:566 Input changed: designacionEquipo
+performanceOptimizer.js:566 Input changed: designacionEquipo
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+performanceOptimizer.js:566 Input changed: asignacionEquipo
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+edicioncompleto.js:632 Panel panelEdicionEquipo cerrado
+edicioncompleto.js:1247 Enviando equipo actualizado al servidor
+edicioncompleto.js:1282 [EdicionCompleto] Socket no conectado
+enviarElementoAlServidor @ edicioncompleto.js:1282
+edicioncompleto.js:1249 Resultado de envío de equipo: false
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+indexP.js:221 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:233 ✅ Menú 'herramientas-menu' mostrado
+indexP.js:221 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:233 ✅ Menú 'herramientas-menu' ocultado
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+indexP.js:240 ⚠️ PROBLEMA: Menú 'herramientas-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:240
+indexP.js:448 Función toggleVista3D no encontrada
+(anónimo) @ indexP.js:448
+planeamiento.html:1077 🎮 Inicializando Vista 3D modular...
+sistema3d.js:47 🚀 Inicializando Sistema 3D MAIRA...
+sistema3d.js:91 ✅ Sistema 3D inicializado correctamente
+sistema3d.js:179 🎯 Cargando modelo: TAM Tank
+GLTFLoader.js:19 🚀 GLTFLoader completo inicializado
+sistema3d.js:179 🎯 Cargando modelo: SK105
+GLTFLoader.js:19 🚀 GLTFLoader completo inicializado
+sistema3d.js:179 🎯 Cargando modelo: M113 APC
+GLTFLoader.js:19 🚀 GLTFLoader completo inicializado
+indexP.js:448 Función toggleVista3D no encontrada
+(anónimo) @ indexP.js:448
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+Client/assets/models/sk105.glb:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+sistema3d.js:225 ❌ Error cargando SK105: Bh: fetch for "http://127.0.0.1:5500/Client/Client/assets/models/sk105.glb" responded with 404: Not Found
+    at three.min.js:7:562968
+(anónimo) @ sistema3d.js:225
+sistema3d.js:241 📦 Creando placeholder para SK105
+Client/assets/models/tam_tank.glb:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+sistema3d.js:225 ❌ Error cargando TAM Tank: Bh: fetch for "http://127.0.0.1:5500/Client/Client/assets/models/tam_tank.glb" responded with 404: Not Found
+    at three.min.js:7:562968
+(anónimo) @ sistema3d.js:225
+sistema3d.js:241 📦 Creando placeholder para TAM Tank
+Client/assets/models/m113_apc.glb:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+sistema3d.js:225 ❌ Error cargando M113 APC: Bh: fetch for "http://127.0.0.1:5500/Client/Client/assets/models/m113_apc.glb" responded with 404: Not Found
+    at three.min.js:7:562968
+(anónimo) @ sistema3d.js:225
+sistema3d.js:241 📦 Creando placeholder para M113 APC
+sistema3d.js:293 ✅ Formación cargada: 3/3 modelos
+planeamiento.html:1132 ✅ Vista 3D modular activada
+indexP.js:221 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:233 ✅ Menú 'herramientas-menu' ocultado
+indexP.js:221 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:233 ✅ Menú 'herramientas-menu' mostrado
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+indexP.js:240 ⚠️ PROBLEMA: Menú 'herramientas-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:240
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.html:1152 Uncaught TypeError: window.sistema3D.limpiarEscena is not a function
+    at window.cerrarVista3DModular (planeamiento.html:1152:26)
+    at HTMLButtonElement.onclick (planeamiento.html:1:1)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+planeamiento.js:465 Uncaught TypeError: this.cerrarPanelPropiedades is not a function
+    at SistemaPlaneamiento.deseleccionarTodo (planeamiento.js:465:14)
+    at SistemaPlaneamiento.manejarClick (planeamiento.js:133:18)
+    at HTMLDocument.<anonymous> (planeamiento.js:53:18)
+performanceOptimizer.js:380 ⚠️ FPS bajo detectado: 0
+measureFPS @ performanceOptimizer.js:380
+sw.js:384 🔧 Service Worker cargado
+performanceOptimizer.js:380 ⚠️ FPS bajo detectado: 5
+measureFPS @ performanceOptimizer.js:380
+performanceOptimizer.js:380 ⚠️ FPS bajo detectado: 26
+measureFPS @ performanceOptimizer.js:380
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+requestAnimationFrame
+measureFPS @ performanceOptimizer.js:387
+
+
+
+en juego de guerra:
+
+
