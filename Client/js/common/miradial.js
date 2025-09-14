@@ -1030,8 +1030,13 @@ handleMenuClick: function(action, submenu) {
          */
         processVegetationInfo: async function(corners, popup) {
             try {
+                if (!window.vegetationHandler || typeof window.vegetationHandler.getVegetationInfo !== 'function') {
+                    console.warn('⚠️ vegetationHandler no disponible');
+                    return;
+                }
+                
                 const vegetaciones = await Promise.all(corners.map(async punto => {
-                    const veg = await window.vegetacionHandler.obtenerVegetacionEnPunto(punto.lat, punto.lng);
+                    const veg = await window.vegetationHandler.getVegetationInfo(punto.lat, punto.lng);
                     console.log(`Vegetación en ${punto.lat.toFixed(4)}, ${punto.lng.toFixed(4)}:`, veg);
                     return veg;
                 }));

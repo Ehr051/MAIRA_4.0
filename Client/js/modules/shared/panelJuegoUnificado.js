@@ -549,7 +549,7 @@ class ControladorHUD {
     inicializarEventos() {
         // Tecla H para ocultar/mostrar HUD completo
         document.addEventListener('keydown', (event) => {
-            if (event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
+            if (event.key && event.key.toLowerCase() === 'h' && !event.ctrlKey && !event.altKey) {
                 this.alternarHUD();
             }
         });
@@ -607,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Hacer disponible globalmente
     window.panelUnificado = panelUnificado;
+    window.panelJuegoUnificado = panelUnificado; // Alias para compatibilidad
     window.controladorHUD = controladorHUD;
     
     console.log('✅ Sistema HUD profesional inicializado');
