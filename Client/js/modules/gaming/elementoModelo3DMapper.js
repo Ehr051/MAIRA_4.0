@@ -28,6 +28,14 @@ class ElementoModelo3DMapper {
             "Argentine Medium Tank": "TAM",
             "Tanque Argentino Mediano": "TAM",
             
+            // TANQUES LIGEROS
+            "SK-105": "SK105",
+            "SK 105": "SK105",
+            "SK105": "SK105",
+            "Kürassier": "SK105",
+            "Tanque Ligero SK": "SK105",
+            "Light Tank SK105": "SK105",
+            
             // VEHÍCULOS BLINDADOS
             "M113": "M113",
             "M113A2": "M113", 
@@ -79,6 +87,7 @@ class ElementoModelo3DMapper {
             
             // ELEMENTOS GENÉRICOS POR CATEGORÍA
             "Tank": "TAM",
+            "Light Tank": "SK105",
             "APC": "M113", 
             "IFV": "VCTP",
             "Artillery": "CITER",
@@ -99,6 +108,12 @@ class ElementoModelo3DMapper {
                 elementos: ["TAM", "Tanque TAM", "MBT Argentino"],
                 colorMapa: "#8B4513",
                 prioridad: 10
+            },
+            "LIGHT_TANK": {
+                descripcion: "Light Tank",
+                elementos: ["SK105", "SK-105", "Kürassier"],
+                colorMapa: "#A0522D",
+                prioridad: 9
             },
             "APC": {
                 descripcion: "Armored Personnel Carrier", 

@@ -339,3 +339,40 @@
     from { opacity: 1; }
     to { opacity: 0; }
 }
+
+/* === BOTÓN HUD TOGGLE === */
+.hud-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    pointer-events: auto;
+}
+
+.hud-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+}
+
+/* === ESTADO HUD OCULTO === */
+.sistema-paneles-unificado.hud-oculto {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* No ocultar el contenedor principal, solo el sistema de paneles */
+.sistema-paneles-container .sistema-paneles-unificado.hud-oculto {
+    display: none !important;
+}

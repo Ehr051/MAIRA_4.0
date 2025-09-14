@@ -37,39 +37,94 @@ class SistemaPanelesUnificado {
         this.crearEstructuraHTML();
         this.configurarEventos();
         this.cargarConfiguracion();
+        this.integrarConGestores();
         
         console.log('[SistemaPaneles] ✅ Sistema de paneles inicializado');
     }
     
+    integrarConGestores() {
+        // Esperar a que se inicialicen los gestores
+        setTimeout(() => {
+            if (window.gestorJuego) {
+                console.log('[SistemaPaneles] 🔗 Integrando con gestores existentes');
+                
+                // Integrar con gestorInterfaz
+                if (window.gestorJuego.gestorInterfaz) {
+                    this.gestorInterfaz = window.gestorJuego.gestorInterfaz;
+                    console.log('[SistemaPaneles] ✅ Integrado con gestorInterfaz');
+                }
+                
+                // Integrar con gestorFases
+                if (window.gestorJuego.gestorFases) {
+                    this.gestorFases = window.gestorJuego.gestorFases;
+                    this.actualizarEstadoFase();
+                    console.log('[SistemaPaneles] ✅ Integrado con gestorFases');
+                }
+                
+                // Integrar con gestorTurnos
+                if (window.gestorJuego.gestorTurnos) {
+                    this.gestorTurnos = window.gestorJuego.gestorTurnos;
+                    this.actualizarEstadoTurno();
+                    console.log('[SistemaPaneles] ✅ Integrado con gestorTurnos');
+                }
+                
+                // Escuchar eventos de los gestores
+                this.configurarEventosGestores();
+            }
+        }, 2000);
+    }
+    
     crearEstructuraHTML() {
-        // Crear contenedor principal
-        const contenedor = document.createElement('div');
-        contenedor.id = 'sistemaPanelesUnificado';
-        contenedor.className = 'sistema-paneles-unificado';
+        // Verificar si ya existe el contenedor para evitar duplicados
+        let contenedor = document.getElementById('sistemaPanelesUnificado');
+        if (contenedor) {
+            console.log('[SistemaPaneles] ⚠️ Sistema ya existe, limpiando...');
+            contenedor.remove();
+        }
+        
+        // Usar el contenedor existente en el HTML o crear uno nuevo
+        contenedor = document.getElementById('sistemaPanelesContainer');
+        if (!contenedor) {
+            contenedor = document.createElement('div');
+            contenedor.id = 'sistemaPanelesContainer';
+            contenedor.className = 'sistema-paneles-container';
+            document.body.appendChild(contenedor);
+        }
+        
+        // Limpiar contenido previo
+        contenedor.innerHTML = '';
+        
+        // Crear el sistema de paneles dentro del contenedor
+        const sistemaPaneles = document.createElement('div');
+        sistemaPaneles.id = 'sistemaPanelesUnificado';
+        sistemaPaneles.className = 'sistema-paneles-unificado';
         
         // Barra superior
-        contenedor.appendChild(this.crearBarraSuperior());
+        sistemaPaneles.appendChild(this.crearBarraSuperior());
         
         // Panel lateral izquierdo
-        contenedor.appendChild(this.crearPanelLateral());
+        sistemaPaneles.appendChild(this.crearPanelLateral());
         
         // Barra inferior
-        contenedor.appendChild(this.crearBarraInferior());
-        
-        // Panel derecho (herramientas)
-        contenedor.appendChild(this.crearPanelDerecho());
+        sistemaPaneles.appendChild(this.crearBarraInferior());
         
         // Sistema de notificaciones
-        contenedor.appendChild(this.crearSistemaNotificaciones());
+        sistemaPaneles.appendChild(this.crearSistemaNotificaciones());
         
-        // Agregar al body
-        document.body.appendChild(contenedor);
+        // Botón HUD toggle (fuera del sistema de paneles)
+        const hudToggle = document.createElement('button');
+        hudToggle.className = 'hud-toggle';
+        hudToggle.textContent = 'HUD ON/OFF';
+        hudToggle.onclick = () => this.alternarHUD();
+        
+        // Agregar al contenedor
+        contenedor.appendChild(sistemaPaneles);
+        contenedor.appendChild(hudToggle);
         
         // Guardar referencias
         this.paneles.superior = document.getElementById('barraSuperior');
         this.paneles.lateral = document.getElementById('panelLateralIzquierdo');
         this.paneles.inferior = document.getElementById('barraInferior');
-        this.paneles.derecho = document.getElementById('panelLateralDerecho');
         this.paneles.notificaciones = document.getElementById('sistemaNotificaciones');
     }
     
@@ -78,14 +133,19 @@ class SistemaPanelesUnificado {
         barra.id = 'barraSuperior';
         barra.className = 'barra-superior';
         
+        // Datos iniciales reales
+        const faseInicial = this.estado.fase || 'Inicializando';
+        const turnoInicial = this.estado.turno || 0;
+        const jugadorInicial = this.estado.jugadorActual?.nombre || 'Esperando';
+        
         barra.innerHTML = `
             <div class="estado-juego">
-                <span class="fase-actual">Fase: <span id="faseActual">Preparación</span></span>
-                <span class="turno-actual">Turno: <span id="turnoActual">-</span></span>
-                <span class="jugador-actual">Jugador: <span id="jugadorActual">-</span></span>
+                <span class="fase-actual">Fase: <span id="faseActual">${faseInicial}</span></span>
+                <span class="turno-actual">Turno: <span id="turnoActual">${turnoInicial > 0 ? turnoInicial : '-'}</span></span>
+                <span class="jugador-actual">Jugador: <span id="jugadorActual">${jugadorInicial}</span></span>
             </div>
             <div class="controles-rapidos">
-                <button class="btn-control-rapido" onclick="sistemaPaneles.alternarPanel('lateral')" title="Panel Principal">
+                <button class="btn-control-rapido" onclick="window.sistemaPanelesUnificado?.alternarPanel('lateral')" title="Panel Principal">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -97,24 +157,23 @@ class SistemaPanelesUnificado {
     crearPanelLateral() {
         const panel = document.createElement('div');
         panel.id = 'panelLateralIzquierdo';
-        panel.className = 'panel-lateral-izquierdo';
+        panel.className = 'panel-lateral-izquierdo oculto';  // Inicia oculto
         
         panel.innerHTML = `
             <div class="panel-header">
                 <span>Control de Juego</span>
-                <button onclick="sistemaPaneles.alternarPanel('lateral')" class="btn-cerrar">
+                <button onclick="window.sistemaPanelesUnificado?.alternarPanel('lateral')" class="btn-cerrar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="panel-content">
-                <div id="controlesFase" class="controles-fase">
-                    <!-- Los controles se actualizan dinámicamente -->
-                </div>
-                <div id="infoJugadores" class="info-jugadores">
-                    <!-- Información de jugadores -->
-                </div>
-                <div id="estadisticas" class="estadisticas">
-                    <!-- Estadísticas del juego -->
+                <h3>🎮 MAIRA 4.0</h3>
+                <p>Sistema de guerra táctico</p>
+                <p><strong>Estado:</strong> Iniciando sistema...</p>
+                <div class="controles-iniciales">
+                    <button class="btn-iniciar" onclick="window.location.reload()">
+                        🔄 Reiniciar Sistema
+                    </button>
                 </div>
             </div>
         `;
@@ -136,31 +195,6 @@ class SistemaPanelesUnificado {
         return barra;
     }
     
-    crearPanelDerecho() {
-        const panel = document.createElement('div');
-        panel.id = 'panelLateralDerecho';
-        panel.className = 'panel-lateral-derecho';
-        
-        const herramientas = [
-            { id: 'zoom', icon: 'fa-search-plus', title: 'Controles de Zoom' },
-            { id: 'medicion', icon: 'fa-ruler', title: 'Herramientas de Medición' },
-            { id: 'capas', icon: 'fa-layer-group', title: 'Control de Capas' },
-            { id: 'configuracion', icon: 'fa-cog', title: 'Configuración' }
-        ];
-        
-        const botones = herramientas.map(herramienta => `
-            <button class="btn-panel-derecho" 
-                    data-herramienta="${herramienta.id}"
-                    title="${herramienta.title}"
-                    onclick="sistemaPaneles.activarHerramienta('${herramienta.id}')">
-                <i class="fas ${herramienta.icon}"></i>
-            </button>
-        `).join('');
-        
-        panel.innerHTML = botones;
-        return panel;
-    }
-    
     crearSistemaNotificaciones() {
         const sistema = document.createElement('div');
         sistema.id = 'sistemaNotificaciones';
@@ -168,6 +202,113 @@ class SistemaPanelesUnificado {
         return sistema;
     }
     
+    // === ACTUALIZACIÓN DE DATOS REALES ===
+    
+    actualizarBarraSuperior(barra) {
+        // Obtener datos reales del gestorJuego
+        const gestorJuego = window.gestorJuego;
+        const datosReales = this.obtenerDatosJuego();
+        
+        barra.innerHTML = `
+            <div class="estado-juego-real">
+                <div class="fase-info">
+                    <span class="fase-label">FASE:</span>
+                    <span class="fase-valor" id="faseActual">${datosReales.fase}</span>
+                </div>
+                <div class="turno-info">
+                    <span class="turno-label">TURNO:</span>
+                    <span class="turno-valor" id="turnoActual">${datosReales.turno}</span>
+                    <span class="tiempo-restante" id="tiempoRestante">${datosReales.tiempoRestante}</span>
+                </div>
+                <div class="jugador-info">
+                    <span class="jugador-label">JUGADOR:</span>
+                    <span class="jugador-valor" id="jugadorActual">${datosReales.jugadorActual}</span>
+                </div>
+                <div class="estado-conexion">
+                    <i class="fas fa-circle" style="color: ${datosReales.conectado ? '#4caf50' : '#f44336'};"></i>
+                    <span>${datosReales.conectado ? 'Online' : 'Offline'}</span>
+                </div>
+            </div>
+            <div class="controles-principales">
+                <button class="btn-panel-toggle" onclick="window.sistemaPaneles?.alternarPanel('lateral')" title="Panel de Control">
+                    <i class="fas fa-gamepad"></i>
+                </button>
+                <button class="btn-fase-siguiente" onclick="window.sistemaPaneles?.siguienteFase()" title="Siguiente Fase">
+                    <i class="fas fa-forward"></i>
+                </button>
+            </div>
+        `;
+        
+        // Configurar actualización automática cada segundo
+        if (!this.intervaloActualizacion) {
+            this.intervaloActualizacion = setInterval(() => {
+                this.actualizarDatosEnTiempoReal();
+            }, 1000);
+        }
+    }
+    
+    obtenerDatosJuego() {
+        const gestorJuego = window.gestorJuego;
+        const gestorFases = gestorJuego?.gestorFases;
+        const gestorTurnos = gestorJuego?.gestorTurnos;
+        const gestorComunicacion = gestorJuego?.gestorComunicacion;
+        
+        return {
+            fase: gestorFases?.fase || 'Preparación',
+            subfase: gestorFases?.subfase || 'definicion_sector',
+            turno: gestorTurnos?.turnoActual || 1,
+            tiempoRestante: this.formatearTiempo(gestorTurnos?.tiempoRestante || 300),
+            jugadorActual: gestorTurnos?.jugadorActual?.nombre || 'Sistema',
+            conectado: gestorComunicacion?.socket?.connected || false,
+            partida: window.codigoPartida || 'Local',
+            elementos: this.contarElementosDesplegados()
+        };
+    }
+    
+    formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60);
+        const segs = segundos % 60;
+        return `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+    }
+    
+    contarElementosDesplegados() {
+        let elementos = 0;
+        if (window.mapa && window.mapa.eachLayer) {
+            window.mapa.eachLayer((layer) => {
+                if (layer.options && layer.options.tipo === 'elemento') {
+                    elementos++;
+                }
+            });
+        }
+        return elementos;
+    }
+    
+    actualizarDatosEnTiempoReal() {
+        const datos = this.obtenerDatosJuego();
+        
+        // Actualizar elementos específicos
+        const faseActual = document.getElementById('faseActual');
+        const turnoActual = document.getElementById('turnoActual');
+        const tiempoRestante = document.getElementById('tiempoRestante');
+        const jugadorActual = document.getElementById('jugadorActual');
+        
+        if (faseActual) faseActual.textContent = datos.fase;
+        if (turnoActual) turnoActual.textContent = datos.turno;
+        if (tiempoRestante) tiempoRestante.textContent = datos.tiempoRestante;
+        if (jugadorActual) jugadorActual.textContent = datos.jugadorActual;
+        
+        // Actualizar estado interno
+        Object.assign(this.estado, datos);
+    }
+    
+    siguienteFase() {
+        const gestorJuego = window.gestorJuego;
+        if (gestorJuego?.gestorFases) {
+            gestorJuego.gestorFases.siguienteFase();
+            this.mostrarNotificacion('Avanzando a la siguiente fase...', 'info');
+        }
+    }
+
     // === MÉTODOS DE ACTUALIZACIÓN ===
     
     actualizarEstado(nuevoEstado) {
@@ -505,7 +646,18 @@ class SistemaPanelesUnificado {
     }
     
     mostrarConfiguracion() {
-        this.mostrarNotificacion('Panel de configuración - Funcionalidad en desarrollo', 'info');
+        this.mostrarNotificacion('Configuración - Funcionalidad en desarrollo', 'info');
+    }
+    
+    // === ALTERNAR HUD ===
+    alternarHUD() {
+        const sistema = document.getElementById('sistemaPanelesUnificado');
+        
+        if (sistema) {
+            sistema.classList.toggle('hud-oculto');
+            const visible = !sistema.classList.contains('hud-oculto');
+            this.mostrarNotificacion(`HUD ${visible ? 'Activado' : 'Desactivado'}`, 'info');
+        }
     }
     
     mostrarAyudaDespliegue() {
@@ -520,7 +672,139 @@ class SistemaPanelesUnificado {
         `;
         this.mostrarNotificacion(info, 'info', 8000);
     }
+    
+    // === INTEGRACIÓN CON GESTORES ===
+    configurarEventosGestores() {
+        // Escuchar cambios de fase
+        document.addEventListener('faseCambiada', (event) => {
+            console.log('[SistemaPaneles] 📥 Fase cambiada:', event.detail);
+            this.actualizarEstadoFase();
+        });
+        
+        // Escuchar cambios de turno
+        document.addEventListener('turnoCambiado', (event) => {
+            console.log('[SistemaPaneles] 📥 Turno cambiado:', event.detail);
+            this.actualizarEstadoTurno();
+        });
+        
+        // Escuchar cambios de interfaz
+        document.addEventListener('interfazActualizada', (event) => {
+            console.log('[SistemaPaneles] 📥 Interfaz actualizada:', event.detail);
+            this.sincronizarConInterfaz();
+        });
+    }
+    
+    actualizarEstadoFase() {
+        if (this.gestorFases) {
+            const faseActual = this.gestorFases.fase || 'Desconocida';
+            const subfaseActual = this.gestorFases.subfase || '';
+            
+            this.estado.fase = faseActual;
+            this.estado.subfase = subfaseActual;
+            
+            // Actualizar UI
+            const faseElement = document.getElementById('faseActual');
+            if (faseElement) {
+                faseElement.textContent = `${faseActual}${subfaseActual ? ' - ' + subfaseActual : ''}`;
+            }
+            
+            // Actualizar contenido del panel según la fase
+            this.actualizarContenidoPorFase(faseActual, subfaseActual);
+        }
+    }
+    
+    actualizarEstadoTurno() {
+        if (this.gestorTurnos) {
+            const turnoActual = this.gestorTurnos.turnoActual || 0;
+            const jugadorActual = this.gestorTurnos.jugadorActual;
+            
+            this.estado.turno = turnoActual;
+            this.estado.jugadorActual = jugadorActual;
+            
+            // Actualizar UI
+            const turnoElement = document.getElementById('turnoActual');
+            if (turnoElement) {
+                turnoElement.textContent = turnoActual > 0 ? turnoActual : '-';
+            }
+            
+            const jugadorElement = document.getElementById('jugadorActual');
+            if (jugadorElement) {
+                jugadorElement.textContent = jugadorActual?.nombre || '-';
+            }
+        }
+    }
+    
+    actualizarContenidoPorFase(fase, subfase) {
+        const contenido = this.paneles.lateral?.querySelector('.panel-content');
+        if (!contenido) return;
+        
+        let htmlContenido = '';
+        
+        switch (fase) {
+            case 'preparacion':
+                if (subfase === 'definicion_sector') {
+                    htmlContenido = `
+                        <h3>🎯 Definición de Sector</h3>
+                        <p>Define el sector de operaciones para la partida.</p>
+                        <div class="controles-fase">
+                            <button class="btn-fase" onclick="window.gestorJuego?.gestorFases?.siguienteFase()">
+                                Continuar
+                            </button>
+                        </div>
+                    `;
+                } else if (subfase === 'despliegue') {
+                    htmlContenido = `
+                        <h3>🪖 Despliegue de Fuerzas</h3>
+                        <p>Despliega tus unidades en el sector asignado.</p>
+                        <div class="controles-fase">
+                            <button class="btn-fase" onclick="window.gestorJuego?.gestorFases?.finalizarDespliegue()">
+                                Finalizar Despliegue
+                            </button>
+                        </div>
+                    `;
+                }
+                break;
+                
+            case 'combate':
+                htmlContenido = `
+                    <h3>⚔️ Fase de Combate</h3>
+                    <p>Turno ${this.estado.turno}</p>
+                    <p>Jugador: ${this.estado.jugadorActual?.nombre || 'N/A'}</p>
+                    <div class="controles-fase">
+                        <button class="btn-fase" onclick="window.gestorJuego?.gestorTurnos?.finalizarTurno()">
+                            Finalizar Turno
+                        </button>
+                    </div>
+                `;
+                break;
+                
+            default:
+                htmlContenido = `
+                    <h3>🎮 MAIRA 4.0</h3>
+                    <p>Sistema de guerra táctico</p>
+                    <p>Fase: ${fase}</p>
+                    ${subfase ? `<p>Subfase: ${subfase}</p>` : ''}
+                `;
+        }
+        
+        contenido.innerHTML = htmlContenido;
+    }
+    
+    sincronizarConInterfaz() {
+        // Sincronizar con el gestorInterfaz existente
+        if (this.gestorInterfaz && this.gestorInterfaz.contenedores) {
+            // Ocultar el panel del gestorInterfaz para evitar duplicación
+            const panelInterfaz = this.gestorInterfaz.contenedores.panelEstado;
+            if (panelInterfaz) {
+                panelInterfaz.style.display = 'none';
+                console.log('[SistemaPaneles] 🔗 Panel de interfaz original ocultado');
+            }
+        }
+    }
 }
+
+// Inicializar el sistema cuando se carga la página
+window.sistemaPaneles = null;
 
 // Inicializar automáticamente cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {

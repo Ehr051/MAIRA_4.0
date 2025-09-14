@@ -2,9 +2,9 @@
  * SISTEMA ZOOM MULTI-NIVEL - MAIRA 4.0
  * =====================================
  * Inspirado en Total War: 3 niveles de visualización
- * 1. ESTRATÉGICO (zoom 5-8): Estandartes y símbolos militares
- * 2. TÁCTICO (zoom 9-12): Unidades detalladas con iconografía
- * 3. OPERACIONAL (zoom 13-18): Elementos individuales 3D
+ * 1. ESTRATÉGICO (zoom 5-8): Estandartes y símbolos militares - ZOOM 3 (más lejos)
+ * 2. OPERACIONAL (zoom 9-12): Unidades detalladas con iconografía - ZOOM 2 (medio)
+ * 3. TÁCTICO (zoom 13-18): Elementos individuales 3D - ZOOM 1 (más cerca)
  */
 
 class SistemaZoomMultiNivel {
@@ -12,9 +12,9 @@ class SistemaZoomMultiNivel {
         this.mapa = mapa;
         this.nivelActual = 'estrategico';
         this.niveles = {
-            estrategico: { min: 5, max: 8, icono: 'flag', escala: 1.0 },
-            tactico: { min: 9, max: 12, icono: 'chess-board', escala: 0.8 },
-            operacional: { min: 13, max: 18, icono: 'cube', escala: 0.6 }
+            estrategico: { min: 5, max: 8, icono: 'flag', escala: 1.0 },    // Zoom 3 - Más lejos
+            operacional: { min: 9, max: 12, icono: 'chess-board', escala: 0.8 },  // Zoom 2 - Medio
+            tactico: { min: 13, max: 18, icono: 'cube', escala: 0.6 }       // Zoom 1 - Más cerca
         };
         
         this.elementos = new Map(); // Almacena todos los elementos del mapa
@@ -63,11 +63,11 @@ class SistemaZoomMultiNivel {
         
         // Determinar nivel actual
         if (zoomActual >= this.niveles.estrategico.min && zoomActual <= this.niveles.estrategico.max) {
-            this.nivelActual = 'estrategico';
-        } else if (zoomActual >= this.niveles.tactico.min && zoomActual <= this.niveles.tactico.max) {
-            this.nivelActual = 'tactico';
+            this.nivelActual = 'estrategico';   // Zoom 3 - Estandartes (más lejos)
         } else if (zoomActual >= this.niveles.operacional.min && zoomActual <= this.niveles.operacional.max) {
-            this.nivelActual = 'operacional';
+            this.nivelActual = 'operacional';   // Zoom 2 - Unidades (medio)
+        } else if (zoomActual >= this.niveles.tactico.min && zoomActual <= this.niveles.tactico.max) {
+            this.nivelActual = 'tactico';       // Zoom 1 - Elementos 3D (más cerca)
         }
         
         // Si cambió el nivel, actualizar renderizado
@@ -100,13 +100,13 @@ class SistemaZoomMultiNivel {
 
     ocultarNivel(nivel) {
         switch(nivel) {
-            case 'estrategico':
+            case 'estrategico':     // Zoom 3 - Estandartes
                 this.capasRenderizado.estandartes.clearLayers();
                 break;
-            case 'tactico':
+            case 'operacional':     // Zoom 2 - Unidades
                 this.capasRenderizado.unidades.clearLayers();
                 break;
-            case 'operacional':
+            case 'tactico':         // Zoom 1 - Elementos 3D
                 this.capasRenderizado.elementos3d.clearLayers();
                 break;
         }
@@ -114,13 +114,13 @@ class SistemaZoomMultiNivel {
 
     mostrarNivel(nivel) {
         switch(nivel) {
-            case 'estrategico':
+            case 'estrategico':     // Zoom 3 - Más lejos del suelo
                 this.renderizarEstandartes();
                 break;
-            case 'tactico':
+            case 'operacional':     // Zoom 2 - Nivel medio
                 this.renderizarUnidades();
                 break;
-            case 'operacional':
+            case 'tactico':         // Zoom 1 - Más cerca del suelo
                 this.renderizarElementos3D();
                 break;
         }
@@ -137,31 +137,168 @@ class SistemaZoomMultiNivel {
     }
 
     crearEstandarte(elemento) {
+        // Determinar tipo de unidad y símbolo apropiado
+        const tipoUnidad = this.determinarTipoUnidad(elemento);
+        const simboloMilitar = this.obtenerSimboloMilitar(elemento);
+        const bandoColor = this.obtenerColorBando(elemento.bando || 'azul');
+        
         const icono = L.divIcon({
-            className: 'estandarte-militar',
+            className: 'estandarte-militar estrategico',
             html: `
                 <div class="estandarte-contenedor">
-                    <div class="bandera ${elemento.bando || 'azul'}">
-                        <i class="fas fa-flag"></i>
+                    <div class="estandarte-mástil"></div>
+                    <div class="bandera-militar ${elemento.bando || 'azul'}" style="background: ${bandoColor}">
+                        <div class="simbolo-nacional">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="codigo-unidad">${elemento.codigo || 'UNK'}</div>
                     </div>
-                    <div class="nombre-unidad">${elemento.nombre}</div>
-                    <div class="fuerza-numerica">${elemento.efectivos || '???'}</div>
+                    <div class="info-tactica">
+                        <div class="designacion-unidad">${elemento.nombre || 'UNIDAD'}</div>
+                        <div class="tipo-fuerza">${tipoUnidad.toUpperCase()}</div>
+                        <div class="efectivos-numericos">
+                            <i class="fas fa-users"></i>
+                            <span>${elemento.efectivos || '???'}</span>
+                        </div>
+                        <div class="estado-operacional ${elemento.estado || 'operativo'}">
+                            <div class="indicador-estado"></div>
+                            <span>${this.obtenerEstadoTexto(elemento.estado)}</span>
+                        </div>
+                    </div>
+                    <div class="simbolo-militar-mini">
+                        ${simboloMilitar}
+                    </div>
                 </div>
             `,
-            iconSize: [60, 80],
-            iconAnchor: [30, 70]
+            iconSize: [80, 120],
+            iconAnchor: [40, 110]
         });
 
         const marker = L.marker(elemento.posicion, { icon: icono });
         
-        // Evento click para mostrar información
+        // Evento click para mostrar información detallada
         marker.on('click', () => {
-            if (window.panelUnificado) {
-                window.panelUnificado.seleccionarElemento(elemento);
-            }
+            this.mostrarInformacionEstandarte(elemento);
+        });
+
+        // Animación de aparición
+        marker.on('add', () => {
+            setTimeout(() => {
+                const estandarteEl = marker.getElement();
+                if (estandarteEl) {
+                    estandarteEl.classList.add('estandarte-desplegado');
+                }
+            }, 100);
         });
 
         return marker;
+    }
+
+    // Funciones auxiliares para estandartes
+    determinarTipoUnidad(elemento) {
+        if (elemento.tipo) return elemento.tipo;
+        if (elemento.sidc) {
+            return this.obtenerTipoPorSIDC(elemento.sidc);
+        }
+        return 'Infantería';
+    }
+
+    obtenerSimboloMilitar(elemento) {
+        if (elemento.sidc && window.ms) {
+            try {
+                const symbol = new window.ms.Symbol(elemento.sidc, {
+                    size: 20,
+                    fill: true,
+                    colorMode: "Light"
+                });
+                return symbol.asSVG();
+            } catch (e) {
+                console.warn('Error generando símbolo SIDC:', e);
+            }
+        }
+        
+        // Símbolo genérico si no hay SIDC
+        return '<i class="fas fa-shield-alt"></i>';
+    }
+
+    obtenerColorBando(bando) {
+        const colores = {
+            'azul': '#1e40af',
+            'rojo': '#dc2626', 
+            'verde': '#16a34a',
+            'amarillo': '#ca8a04',
+            'neutral': '#64748b'
+        };
+        return colores[bando] || colores['azul'];
+    }
+
+    obtenerEstadoTexto(estado) {
+        const estados = {
+            'operativo': 'OPERATIVO',
+            'degradado': 'DEGRADADO',
+            'no_operativo': 'NO OPERATIVO',
+            'en_combate': 'EN COMBATE',
+            'reagrupando': 'REAGRUPANDO'
+        };
+        return estados[estado] || 'OPERATIVO';
+    }
+
+    obtenerTipoPorSIDC(sidc) {
+        // Lógica simplificada de tipos por SIDC
+        if (!sidc || sidc.length < 6) return 'Infantería';
+        
+        const codigo = sidc.substring(4, 7);
+        const tipos = {
+            'UCI': 'Infantería',
+            'UCR': 'Caballería', 
+            'UCF': 'Artillería',
+            'UCE': 'Ingenieros',
+            'UCD': 'Def. Aérea',
+            'UUS': 'Comunicaciones'
+        };
+        
+        return tipos[codigo] || 'Unidad';
+    }
+
+    mostrarInformacionEstandarte(elemento) {
+        // Panel de información detallada para el estandarte
+        const infoPanel = document.createElement('div');
+        infoPanel.className = 'panel-info-estandarte';
+        infoPanel.innerHTML = `
+            <div class="header-estandarte">
+                <h3>${elemento.nombre || 'UNIDAD MILITAR'}</h3>
+                <button class="btn-cerrar" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+            <div class="contenido-estandarte">
+                <div class="seccion">
+                    <h4>Identificación</h4>
+                    <p><strong>Código:</strong> ${elemento.codigo || 'N/A'}</p>
+                    <p><strong>Tipo:</strong> ${this.determinarTipoUnidad(elemento)}</p>
+                    <p><strong>SIDC:</strong> ${elemento.sidc || 'N/A'}</p>
+                </div>
+                <div class="seccion">
+                    <h4>Estado Operacional</h4>
+                    <p><strong>Estado:</strong> ${this.obtenerEstadoTexto(elemento.estado)}</p>
+                    <p><strong>Efectivos:</strong> ${elemento.efectivos || '???'}</p>
+                    <p><strong>Posición:</strong> [${elemento.posicion?.lat?.toFixed(4) || '?'}, ${elemento.posicion?.lng?.toFixed(4) || '?'}]</p>
+                </div>
+            </div>
+        `;
+        
+        // Posicionar el panel
+        infoPanel.style.position = 'fixed';
+        infoPanel.style.top = '20px';
+        infoPanel.style.right = '20px';
+        infoPanel.style.zIndex = '10000';
+        
+        document.body.appendChild(infoPanel);
+        
+        // Auto remove después de 10 segundos
+        setTimeout(() => {
+            if (infoPanel.parentElement) {
+                infoPanel.remove();
+            }
+        }, 10000);
     }
 
     // NIVEL TÁCTICO: Unidades con iconografía detallada
@@ -708,23 +845,23 @@ class SistemaZoomMultiNivel {
         console.log('🎮 Activando vista 3D manual...');
         
         try {
-            // Forzar nivel operacional para activar 3D
-            this.forzarNivel('operacional');
+            // Forzar nivel TÁCTICO para activar 3D (zoom más cercano)
+            this.forzarNivel('tactico');
             
             // Esperar un momento para que el zoom se aplique
             setTimeout(() => {
-                // Forzar actualización del nivel
-                this.nivelActual = 'operacional';
+                // Forzar actualización del nivel TÁCTICO (elementos 3D)
+                this.nivelActual = 'tactico';
                 this.actualizarIndicadorZoom();
                 
                 // Renderizar elementos 3D existentes
-                this.renderizarNivelOperacional();
+                this.renderizarElementos3D();
                 
                 console.log('✅ Vista 3D activada correctamente');
                 
                 // Disparar evento personalizado
                 document.dispatchEvent(new CustomEvent('vista3DActivada', {
-                    detail: { nivel: 'operacional', elementos: this.elementos.size }
+                    detail: { nivel: 'tactico', elementos: this.elementos.size }
                 }));
                 
             }, 500);
@@ -737,14 +874,14 @@ class SistemaZoomMultiNivel {
 
     /**
      * 🎯 DESACTIVAR VISTA 3D
-     * Volver al nivel táctico/estratégico
+     * Volver al nivel operacional/estratégico
      */
     desactivar3D() {
         console.log('📱 Desactivando vista 3D...');
         
         try {
-            // Volver al nivel táctico
-            this.forzarNivel('tactico');
+            // Volver al nivel operacional (unidades)
+            this.forzarNivel('operacional');
             
             // Limpiar elementos 3D si existen
             if (this.capasRenderizado.elementos3d) {

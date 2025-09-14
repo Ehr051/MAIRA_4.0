@@ -332,6 +332,100 @@ function actualizarCaracteristicas(categoriaArma, tipo) {
         option.textContent = caract;
         caracteristicaSelect.appendChild(option);
     });
+    
+    // Actualizar selector de tipo de vehículo según el arma y tipo seleccionado
+    actualizarSelectorTipoVehiculo(categoria, arma, tipo);
+}
+
+function actualizarSelectorTipoVehiculo(categoria, arma, tipo) {
+    const tipoVehiculoSelect = document.getElementById('tipoVehiculo');
+    const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+    
+    if (!tipoVehiculoSelect && !tipoVehiculoEquipoSelect) return;
+    
+    // Usar sistema jerárquico si está disponible
+    let vehiculosDisponibles = [];
+    
+    if (window.sistemaJerarquicoSIDC && window.sistemaJerarquicoSIDC.obtenerVehiculosDisponibles) {
+        vehiculosDisponibles = window.sistemaJerarquicoSIDC.obtenerVehiculosDisponibles(categoria, arma, tipo);
+    } else {
+        // Fallback: lógica básica
+        if (categoria === 'Armas' && arma === 'Caballería') {
+            if (tipo === 'Blindada') {
+                vehiculosDisponibles = [
+                    { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
+                    { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
+                    { valor: 'SK105', texto: 'SK-105 Kürassier' }
+                ];
+            } else if (tipo === 'Exploración') {
+                vehiculosDisponibles = [
+                    { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Exploración' },
+                    { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Táctico' }
+                ];
+            }
+        } else if (categoria === 'Armas' && arma === 'Infantería') {
+            if (tipo === 'Mecanizada') {
+                vehiculosDisponibles = [
+                    { valor: 'VCTP', texto: 'VCTP - Vehículo de Combate de Transporte de Personal' },
+                    { valor: 'M113', texto: 'M113 - Transporte de Personal' }
+                ];
+            } else if (tipo === 'Motorizada') {
+                vehiculosDisponibles = [
+                    { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo Multipropósito' },
+                    { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Transporte' },
+                    { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' }
+                ];
+            }
+        } else if (categoria === 'Armas' && arma === 'Artillería') {
+            vehiculosDisponibles = [
+                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Apoyo' },
+                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo de Remolque' },
+                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo Logístico' }
+            ];
+        } else if (categoria === 'Servicios') {
+            vehiculosDisponibles = [
+                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Servicio' },
+                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' },
+                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
+            ];
+        }
+        
+        // Si no hay vehículos específicos, mostrar todos
+        if (vehiculosDisponibles.length === 0) {
+            vehiculosDisponibles = [
+                { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
+                { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
+                { valor: 'SK105', texto: 'SK-105 Kürassier' },
+                { valor: 'VCTP', texto: 'VCTP - Vehículo de Combate de Transporte de Personal' },
+                { valor: 'M113', texto: 'M113 - Transporte de Personal' },
+                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo Multipropósito' },
+                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' },
+                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
+            ];
+        }
+    }
+    
+    // Actualizar selector de unidades
+    if (tipoVehiculoSelect) {
+        tipoVehiculoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+        vehiculosDisponibles.forEach(vehiculo => {
+            let option = document.createElement('option');
+            option.value = vehiculo.valor;
+            option.textContent = vehiculo.texto;
+            tipoVehiculoSelect.appendChild(option);
+        });
+    }
+    
+    // Actualizar selector de equipos
+    if (tipoVehiculoEquipoSelect) {
+        tipoVehiculoEquipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+        vehiculosDisponibles.forEach(vehiculo => {
+            let option = document.createElement('option');
+            option.value = vehiculo.valor;
+            option.textContent = vehiculo.texto;
+            tipoVehiculoEquipoSelect.appendChild(option);
+        });
+    }
 }
 
 // ✅ FUNCIÓN CERRAR TODOS LOS PANELES QUE FALTABA:
@@ -399,6 +493,12 @@ function mostrarPanelEdicionUnidad(elemento) {
         document.getElementById('fuerzaTarea').checked = ['E', 'D'].includes(sidc.charAt(10));
         document.getElementById('designacion').value = elemento.options.designacion || '';
         document.getElementById('dependencia').value = elemento.options.dependencia || '';
+        
+        // Cargar tipo de vehículo si existe
+        const tipoVehiculoSelect = document.getElementById('tipoVehiculo');
+        if (tipoVehiculoSelect && elemento.options.tipoVehiculo) {
+            tipoVehiculoSelect.value = elemento.options.tipoVehiculo;
+        }
     }
     
     actualizarPreviewSimbolo();
@@ -412,6 +512,12 @@ function mostrarPanelEdicionEquipo(elemento) {
         document.getElementById('afiliacionEquipo').value = elemento.options.sidc.charAt(1);
         document.getElementById('designacionEquipo').value = elemento.options.designacion || '';
         document.getElementById('asignacionEquipo').value = elemento.options.dependencia || '';
+        
+        // Cargar tipo de vehículo si existe
+        const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+        if (tipoVehiculoEquipoSelect && elemento.options.tipoVehiculo) {
+            tipoVehiculoEquipoSelect.value = elemento.options.tipoVehiculo;
+        }
     }
     
     actualizarPreviewSimboloEquipo();
@@ -540,6 +646,47 @@ function inicializarSelectores() {
                 option.textContent = arma;
                 armaSelect.appendChild(option);
             });
+        });
+    }
+    
+    // Inicializar selector de tipo de vehículo
+    inicializarSelectorTipoVehiculo();
+}
+
+function inicializarSelectorTipoVehiculo() {
+    const tipoVehiculoSelect = document.getElementById('tipoVehiculo');
+    const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+    
+    const vehiculosDisponibles = [
+        { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
+        { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
+        { valor: 'SK105', texto: 'SK-105 Kürassier' },
+        { valor: 'VCTP', texto: 'VCTP - Vehículo de Combate de Transporte de Personal' },
+        { valor: 'M113', texto: 'M113 - Transporte de Personal' },
+        { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo Multipropósito' },
+        { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' },
+        { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
+    ];
+    
+    // Poblar selector de unidades
+    if (tipoVehiculoSelect) {
+        tipoVehiculoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+        vehiculosDisponibles.forEach(vehiculo => {
+            let option = document.createElement('option');
+            option.value = vehiculo.valor;
+            option.textContent = vehiculo.texto;
+            tipoVehiculoSelect.appendChild(option);
+        });
+    }
+    
+    // Poblar selector de equipos
+    if (tipoVehiculoEquipoSelect) {
+        tipoVehiculoEquipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+        vehiculosDisponibles.forEach(vehiculo => {
+            let option = document.createElement('option');
+            option.value = vehiculo.valor;
+            option.textContent = vehiculo.texto;
+            tipoVehiculoEquipoSelect.appendChild(option);
         });
     }
 }
@@ -816,6 +963,7 @@ function guardarCambiosUnidad() {
         const dependencia = document.getElementById('dependencia').value;
         const tipo = obtenerTipoDeElemento(nuevoSidc);
         const magnitud = document.getElementById('magnitud').value;
+        const tipoVehiculo = document.getElementById('tipoVehiculo')?.value || '';
         const esEquipoActual = esEquipo(nuevoSidc);
         
         // Validar campos requeridos: tipo, designación, magnitud, y propietario
@@ -909,6 +1057,7 @@ function guardarCambiosUnidad() {
             designacion: designacion,
             dependencia: dependencia,
             magnitud: !esEquipoActual ? magnitud : undefined,
+            tipoVehiculo: tipoVehiculo,
             equipo: equipoElemento,
             jugador: jugadorElemento,
             nombre: `${designacion}${dependencia ? '/' + dependencia : ''}` // ✅ CORREGIDO: nombre completo
@@ -1065,6 +1214,8 @@ function guardarCambiosEquipo() {
             return window.userId;
         }
 
+        const tipoVehiculoEquipo = document.getElementById('tipoVehiculoEquipo')?.value || '';
+        
         const nuevoMarcador = L.marker(posicionActual, {
             icon: icon,
             draggable: true,
@@ -1073,6 +1224,7 @@ function guardarCambiosEquipo() {
             tipo: tipo,
             designacion: designacion,
             dependencia: dependencia,
+            tipoVehiculo: tipoVehiculoEquipo,
             equipoJugador: equipoElemento,
             jugadorId: obtenerJugadorPropietario(),
             nombre: `${designacion}${dependencia ? '/' + dependencia : ''}` // ✅ CORREGIDO: nombre completo
@@ -2003,8 +2155,11 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarCaracteristicas(document.getElementById('arma').value, this.value);
     });
 
-    ['afiliacion', 'estado', 'arma', 'tipo', 'caracteristica', 'magnitud', 'puestoComando', 'fuerzaTarea', 'reforzado', 'disminuido', 'designacion', 'dependencia'].forEach(function(id) {
-        document.getElementById(id).addEventListener('change', actualizarPreviewSimbolo);
+    ['afiliacion', 'estado', 'arma', 'tipo', 'caracteristica', 'magnitud', 'puestoComando', 'fuerzaTarea', 'reforzado', 'disminuido', 'designacion', 'dependencia', 'tipoVehiculo', 'tipoVehiculoEquipo'].forEach(function(id) {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.addEventListener('change', actualizarPreviewSimbolo);
+        }
     });
 
     document.getElementById('guardarCambiosUnidad').addEventListener('click', guardarCambiosUnidad);

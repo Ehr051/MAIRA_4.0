@@ -262,6 +262,69 @@ def serve_static(path):
         # Si falla, servir index.html desde Client/
         return send_from_directory('Client', 'index.html')
 
+# ✅ CRÍTICO: Rutas específicas para modelos 3D
+@app.route('/Client/assets/models/<path:filename>')
+def serve_models(filename):
+    """Servir archivos de modelos 3D GLB/GLTF con content-type correcto"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        models_dir = os.path.join(base_dir, 'Client', 'assets', 'models')
+        
+        print(f"🎮 Sirviendo modelo 3D: {filename}")
+        print(f"🔍 Directorio modelos: {models_dir}")
+        print(f"🔍 ¿Existe archivo?: {os.path.exists(os.path.join(models_dir, filename))}")
+        
+        if not os.path.exists(models_dir):
+            print(f"❌ Directorio de modelos no encontrado: {models_dir}")
+            return "Directorio de modelos no encontrado", 404
+            
+        file_path = os.path.join(models_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"❌ Modelo no encontrado: {file_path}")
+            return "Modelo no encontrado", 404
+            
+        # Configurar content-type correcto para archivos GLB/GLTF
+        if filename.endswith('.glb'):
+            content_type = 'model/gltf-binary'
+        elif filename.endswith('.gltf'):
+            content_type = 'model/gltf+json'
+        else:
+            content_type = 'application/octet-stream'
+            
+        response = send_from_directory(models_dir, filename)
+        response.headers['Content-Type'] = content_type
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache por 1 hora
+        
+        print(f"✅ Modelo servido correctamente: {filename} ({content_type})")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error sirviendo modelo {filename}: {e}")
+        return f"Error cargando modelo: {str(e)}", 500
+
+# ✅ CRÍTICO: Rutas específicas para assets generales
+@app.route('/Client/assets/<path:filename>')
+def serve_assets(filename):
+    """Servir archivos de assets (imágenes, sonidos, etc.)"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        assets_dir = os.path.join(base_dir, 'Client', 'assets')
+        
+        print(f"📁 Sirviendo asset: {filename}")
+        
+        if not os.path.exists(assets_dir):
+            print(f"❌ Directorio de assets no encontrado: {assets_dir}")
+            return "Directorio de assets no encontrado", 404
+            
+        response = send_from_directory(assets_dir, filename)
+        response.headers['Cache-Control'] = 'public, max-age=1800'  # Cache por 30 minutos
+        
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error sirviendo asset {filename}: {e}")
+        return f"Error cargando asset: {str(e)}", 500
+
 # ✅ CRÍTICO: Rutas específicas para node_modules (CDN local)
 @app.route('/node_modules/<path:filename>')
 def serve_node_modules(filename):
@@ -455,6 +518,83 @@ def tiles_diagnostic():
     except Exception as e:
         print(f"❌ Error en diagnóstico de tiles: {e}")
         traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# 🗺️ SISTEMA DE DESCARGA Y CACHE DE TILES
+def descargar_tile(url, path_local):
+    """Descargar un tile y guardarlo localmente"""
+    try:
+        import requests
+        os.makedirs(os.path.dirname(path_local), exist_ok=True)
+        
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        
+        with open(path_local, 'wb') as f:
+            f.write(response.content)
+        
+        print(f"✅ Tile descargado: {path_local}")
+        return True
+    except Exception as e:
+        print(f"❌ Error descargando tile {url}: {e}")
+        return False
+
+@app.route('/tiles/<provider>/<int:z>/<int:x>/<int:y>.<ext>')
+def proxy_tile(provider, z, x, y, ext):
+    """Proxy/Cache para tiles de mapas - evita problemas de CORS"""
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiles_cache_dir = os.path.join(base_dir, 'static', 'tiles', provider)
+        tile_filename = f"{z}_{x}_{y}.{ext}"
+        tile_path = os.path.join(tiles_cache_dir, tile_filename)
+        
+        # URLs de providers
+        tile_urls = {
+            'osm': f'https://tile.openstreetmap.org/{z}/{x}/{y}.{ext}',
+            'satellite': f'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            'terrain': f'https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.{ext}',
+            'cartodb': f'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.{ext}'
+        }
+        
+        # Verificar si el tile ya existe en cache
+        if os.path.exists(tile_path):
+            print(f"🎯 Sirviendo tile desde cache: {tile_filename}")
+            return send_from_directory(tiles_cache_dir, tile_filename)
+        
+        # Si no existe, intentar descargarlo
+        if provider in tile_urls:
+            tile_url = tile_urls[provider]
+            
+            if descargar_tile(tile_url, tile_path):
+                response = send_from_directory(tiles_cache_dir, tile_filename)
+                response.headers['Cache-Control'] = 'public, max-age=86400'  # Cache 24h
+                response.headers['Access-Control-Allow-Origin'] = '*'
+                return response
+        
+        # Si falla la descarga, devolver error
+        return jsonify({'error': f'Tile no disponible: {provider}/{z}/{x}/{y}.{ext}'}), 404
+        
+    except Exception as e:
+        print(f"❌ Error en proxy de tiles: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tiles/clean_cache')
+def clean_tiles_cache():
+    """Limpiar cache de tiles descargados"""
+    try:
+        import shutil
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiles_cache_dir = os.path.join(base_dir, 'static', 'tiles')
+        
+        if os.path.exists(tiles_cache_dir):
+            shutil.rmtree(tiles_cache_dir)
+            print("🧹 Cache de tiles limpiado")
+            return jsonify({'message': 'Cache de tiles limpiado exitosamente'})
+        else:
+            return jsonify({'message': 'No hay cache para limpiar'})
+            
+    except Exception as e:
+        print(f"❌ Error limpiando cache: {e}")
         return jsonify({'error': str(e)}), 500
 
 # �🔍 RUTA DE DEBUG: Verificar estado de node_modules

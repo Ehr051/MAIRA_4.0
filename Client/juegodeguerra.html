@@ -129,6 +129,11 @@
   <script src="js/gaming/AIDirector.js"></script>
   <script src="js/gaming/FogOfWar.js"></script>
   
+  <!-- 🎯 SISTEMA 3D COMPLETO -->
+  <script src="js/modules/gaming/modelos3DManager.js"></script>
+  <script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
+  <script src="js/modules/gaming/sidcModelo3DBridge.js"></script>
+  
   <!-- 🗺️ SERVICIO 3D CRÍTICO -->
   <script src="js/services/threeDMapService.js"></script>
   
@@ -185,6 +190,7 @@
   <script src="js/modules/juego/gestorUnidades.js"></script>
   <script src="js/modules/juego/gestorMapa.js"></script>
   <script src="js/modules/juego/gestorEstado.js"></script>
+  <!-- ✅ GESTOR DE INTERFAZ - Integrado con sistema unificado -->
   <script src="js/modules/juego/gestorInterfaz.js"></script>
   
   <!-- Sistema de Paneles Unificado -->
@@ -381,37 +387,6 @@
   </div>
 
   <!-- Paneles obsoletos eliminados - Reemplazados por Sistema de Paneles Unificado -->
-  
-  <!-- Barra de Estado Inferior Integrada - TODO EL ANCHO -->
-  <div id="barraEstadoInferior" class="barra-estado-inferior">
-    <div class="estado-grupo">
-      <div id="indicadorTurno" class="indicador-turno">
-        <span id="textoTurno">Turno 1</span>
-        <span id="timerTurno">05:00</span>
-      </div>
-    </div>
-    
-    <div class="estado-grupo centro">
-      <div id="indicadorNivelZoom" class="indicador-nivel-zoom estrategico">
-        <div class="nivel-texto">ESTRATÉGICO</div>
-        <div class="nivel-zoom">Zoom: 6</div>
-      </div>
-    </div>
-    
-    <div class="estado-grupo">
-      <div class="estado-partida">Partida Activa</div>
-      <div id="estado-conexion" class="estado-conexion">
-        <i class="fas fa-circle" style="color: #4caf50;"></i> Online
-      </div>
-    </div>
-  </div>
-  
-  <!-- Controles de Fase del Juego -->
-  <div id="controlesJuego" style="position: fixed; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
-    <!-- Botones de control movidos al Sistema de Paneles Unificado -->
-  </div>
-  
-  <!-- Indicadores dinámicos creados por el Sistema de Paneles Unificado -->
 
   <!-- Botones de prueba eliminados - Funcionalidad integrada en Sistema de Paneles -->
 
@@ -1014,6 +989,11 @@
     <div id="mapContainer"></div>
     <div id="map" style="height: 100%;"></div>
     
+    <!-- Contenedor para el Sistema de Paneles Unificado -->
+    <div id="sistemaPanelesContainer" class="sistema-paneles-container">
+      <!-- Contenido será generado dinámicamente por sistemaPanelesUnificado.js -->
+    </div>
+    
     <div>
       <button id="fullscreenBtn" class="fullscreen-button"><i class="fas fa-expand"></i></button>
     </div>
@@ -1094,6 +1074,12 @@
               <select id="caracteristica"></select>
           </div>
           <div>
+              <label for="tipoVehiculo">Tipo de Vehículo:</label>
+              <select id="tipoVehiculo">
+                  <option value="">Seleccionar tipo...</option>
+              </select>
+          </div>
+          <div>
               <label for="magnitud">Magnitud:</label>
               <select id="magnitud">
                   <option value="-">No especificado</option>
@@ -1164,6 +1150,12 @@
                   <option value="-">Desconocido</option>
                   <option value="F">Amigo</option>
                   <option value="J">Hostil/Enemigo</option>
+              </select>
+          </div>
+          <div>
+              <label for="tipoVehiculoEquipo">Tipo de Vehículo:</label>
+              <select id="tipoVehiculoEquipo">
+                  <option value="">Seleccionar tipo...</option>
               </select>
           </div>
       </div>
@@ -1495,6 +1487,32 @@
           actualizarBotonesControlJuego(fase, subfase);
         }
       }, 2000);
+      
+      // 🎯 INICIALIZAR SISTEMA DE PANELES UNIFICADO
+      setTimeout(() => {
+        try {
+          console.log('🚀 Inicializando Sistema de Paneles Unificado...');
+          
+          // Inicializar Panel de Juego Unificado
+          if (typeof PanelJuegoUnificado !== 'undefined') {
+            window.panelJuegoUnificado = new PanelJuegoUnificado();
+            console.log('✅ Panel de Juego Unificado inicializado');
+          } else {
+            console.warn('⚠️ PanelJuegoUnificado no está disponible');
+          }
+          
+          // Inicializar Sistema de Paneles Unificado
+          if (typeof SistemaPanelesUnificado !== 'undefined') {
+            window.sistemaPanelesUnificado = new SistemaPanelesUnificado();
+            console.log('✅ Sistema de Paneles Unificado inicializado');
+          } else {
+            console.warn('⚠️ SistemaPanelesUnificado no está disponible');
+          }
+          
+        } catch (error) {
+          console.error('❌ Error inicializando sistemas de paneles:', error);
+        }
+      }, 1500); // Inicializar paneles antes que gestorJuego
     });
   </script>
 </body>
