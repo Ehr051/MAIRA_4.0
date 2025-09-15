@@ -428,16 +428,18 @@ class JuegoGuerra3DIntegrado {
 // Inicialización global
 window.sistema3DIntegrado = new Sistema3DIntegrado();
 
-// Auto-inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    window.sistema3DIntegrado.inicializar().then(() => {
-        // Verificar si debe activar vista 3D automáticamente
-        if (localStorage.getItem('activar3DDirecto') === 'true') {
-            localStorage.removeItem('activar3DDirecto');
-            setTimeout(() => {
-                console.log('🎮 Auto-activando vista 3D...');
-                window.sistema3DIntegrado.cambiarAVista3D();
-            }, 2000); // Esperar a que se cargue todo
-        }
-    });
-});
+// Auto-inicializar DESHABILITADO - Para evitar conflictos con el mapa principal
+// document.addEventListener('DOMContentLoaded', () => {
+//     window.sistema3DIntegrado.inicializar().then(() => {
+//         // Verificar si debe activar vista 3D automáticamente
+//         if (localStorage.getItem('activar3DDirecto') === 'true') {
+//             localStorage.removeItem('activar3DDirecto');
+//             setTimeout(() => {
+//                 console.log('🎮 Auto-activando vista 3D...');
+//                 window.sistema3DIntegrado.cambiarAVista3D();
+//             }, 2000); // Esperar a que se cargue todo
+//         }
+//     });
+// });
+
+console.log('📦 Sistema3DIntegrado clase cargada - Auto-inicialización deshabilitada');

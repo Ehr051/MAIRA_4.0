@@ -728,13 +728,15 @@ class VisorMapa3DMejorado {
     }
 }
 
-// Inicialización automática si el DOM está listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.visorMapa3D = new VisorMapa3DMejorado();
-        console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
-    });
-} else {
-    window.visorMapa3D = new VisorMapa3DMejorado();
-    console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
-}
+// Inicialización automática DESHABILITADA - Para evitar doble mapa
+// if (document.readyState === 'loading') {
+//     document.addEventListener('DOMContentLoaded', () => {
+//         window.visorMapa3D = new VisorMapa3DMejorado();
+//         console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
+//     });
+// } else {
+//     window.visorMapa3D = new VisorMapa3DMejorado();
+//     console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
+// }
+
+console.log('📦 VisorMapa3DMejorado clase cargada - Auto-inicialización deshabilitada');

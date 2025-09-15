@@ -82,11 +82,12 @@ async function initializeIndexP() {
                 
             }, 1000);
         } else {
-            // Modo normal de juego - ✅ NO TOCAR ESTA PARTE
-            if (!window.mapaInicializado) {
-                inicializarMapa();
-                window.mapaInicializado = true;
-            }
+            // Modo normal de juego - INICIALIZACION DESHABILITADA (mapaP.js se encarga)
+            // if (!window.mapaInicializado) {
+            //     inicializarMapa();
+            //     window.mapaInicializado = true;
+            // }
+            console.log('📦 indexP.js - Inicialización de mapa delegada a mapaP.js');
             inicializarControles();
             initializeBuscarLugar();
         }
@@ -709,10 +710,12 @@ function mostrarAyudaAtajos() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM completamente cargado y parseado");
     
-    if (!mapaInicializado) {
-        inicializarMapa();
-        mapaInicializado = true;
-    }
+    // INICIALIZACION DESHABILITADA - mapaP.js se encarga del mapa principal
+    // if (!mapaInicializado) {
+    //     inicializarMapa();
+    //     mapaInicializado = true;
+    // }
+    console.log('📦 indexP.js - Inicialización de mapa delegada a mapaP.js');
     inicializarControles();
     initializeBuscarLugar();
 });

@@ -323,19 +323,21 @@ class Tactico3DIntegration {
     }
 }
 
-// 🚀 Inicializar automáticamente si estamos en juegodeguerra.html
-if (typeof window !== 'undefined' && window.document) {
-    window.addEventListener('DOMContentLoaded', () => {
-        // Verificar que estamos en el contexto correcto
-        if (document.title.includes('Juego de Guerra') || 
-            document.querySelector('#mapa') || 
-            window.gestorJuego) {
-            
-            window.tactico3DIntegration = new Tactico3DIntegration();
-            console.log('🎮 Integración Táctico 3D lista');
-        }
-    });
-}
+// Inicializar automáticamente DESHABILITADO - Para evitar conflictos con el mapa principal
+// if (typeof window !== 'undefined' && window.document) {
+//     window.addEventListener('DOMContentLoaded', () => {
+//         // Verificar que estamos en el contexto correcto
+//         if (document.title.includes('Juego de Guerra') || 
+//             document.querySelector('#mapa') || 
+//             window.gestorJuego) {
+//             
+//             window.tactico3DIntegration = new Tactico3DIntegration();
+//             console.log('🎮 Integración Táctico 3D lista');
+//         }
+//     });
+// }
+
+console.log('📦 Tactico3DIntegration clase cargada - Auto-inicialización deshabilitada');
 
 // Exportar para uso como módulo
 if (typeof module !== 'undefined' && module.exports) {
