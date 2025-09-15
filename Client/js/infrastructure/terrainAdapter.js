@@ -11,8 +11,11 @@ const MINI_TILES_FALLBACK_URLS = [
     'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/'
 ];
 
-// Lista de URLs corregidas - LOCAL PRIMERO, LUEGO REMOTE
+// Lista de URLs corregidas - RENDER PRIMERO, LUEGO REMOTE
 const urls = [
+    // 🚀 PRIORIDAD MÁXIMA: Servidor Render (NUEVO)
+    'https://maira-4-0.onrender.com/static/tiles/data_argentina/master_mini_tiles_index.json',
+    
     // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
     'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
     

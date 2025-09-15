@@ -27,11 +27,17 @@ class VegetacionHandler {
 
     async loadVegetationIndex() {
         try {
-            // URLs a intentar en orden de prioridad - LOCAL FIRST
+            // URLs a intentar en orden de prioridad - RENDER FIRST
             const indexUrls = [
+                // 🚀 PRIORIDAD MÁXIMA: Servidor Render
+                'https://maira-4-0.onrender.com/static/tiles/data_argentina/vegetation_master_index.json',
+                
+                // 🔄 FALLBACKS LOCALES
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+                
+                // 🌐 FALLBACK REMOTO
                 `${VEGETATION_GITHUB_RELEASES_BASE}/vegetation_master_index.json`
             ];
             

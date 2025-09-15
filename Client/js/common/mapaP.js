@@ -259,15 +259,6 @@ function inicializarMapa() {
         window.inicializarSistemaZoom(mapa);
         console.log('🔍 Sistema Zoom Multi-Nivel inicializado');
         
-        // ⏸️ ELEMENTOS DE PRUEBA DESHABILITADOS TEMPORALMENTE
-        // Para evitar inserción automática de escuadrones en juego limpio
-        /*
-        setTimeout(() => {
-            if (typeof window.crearElementosPrueba === 'function') {
-                window.crearElementosPrueba();
-            }
-        }, 1000);
-        */
         console.log('⚠️ Elementos de prueba deshabilitados - Juego iniciará limpio');
     } else {
         console.warn('⚠️ Sistema Zoom Multi-Nivel no disponible');

@@ -728,7 +728,3 @@ class VisorMapa3DMejorado {
     }
 }
 
-// ❌ AUTO-INICIALIZACIÓN COMPLETAMENTE ELIMINADA
-// Solo se instanciará desde mapaP.js cuando sea necesario
-
-console.log('📦 VisorMapa3DMejorado clase cargada - SIN auto-inicialización');

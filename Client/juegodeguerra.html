@@ -41,127 +41,8 @@
   <!-- Sistema de Paneles Unificado -->
   <link rel="stylesheet" href="css/modules/sistema-paneles-unificado.css">
   
-  <!-- Estilos para Vista 3D Integrada -->
-  <style>
-    /* === VISTA 3D INTEGRADA === */
-    .vista-3d-integrada {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-      background: #87CEEB;
-    }
-    
-    #canvas3d {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    .panel-3d-integrado {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 320px;
-      max-height: calc(100vh - 100px);
-      background: rgba(0, 0, 0, 0.85);
-      border-radius: 12px;
-      border: 2px solid #4a90c2;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      overflow-y: auto;
-      z-index: 1001;
-    }
-    
-    .hud-3d-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1002;
-    }
-    
-    .hud-superior-3d {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      pointer-events: auto;
-    }
-    
-    .btn-cambio-vista {
-      background: linear-gradient(135deg, #4a90c2, #2d5a87);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s ease;
-    }
-    
-    .btn-cambio-vista:hover {
-      background: linear-gradient(135deg, #5ba0d2, #3d6a97);
-      transform: translateY(-1px);
-    }
-    
-    /* Compatibilidad con paneles existentes */
-    .panel-3d-integrado .panel-section {
-      margin-bottom: 15px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .panel-3d-integrado .panel-header {
-      background: linear-gradient(135deg, #2d5a87, #1e3d5c);
-      color: white;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 6px 6px 0 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .panel-3d-integrado .panel-content {
-      padding: 10px;
-      color: #e0e0e0;
-      font-size: 11px;
-    }
-    
-    .panel-3d-integrado .btn-control {
-      width: 100%;
-      padding: 6px 10px;
-      margin: 2px 0;
-      background: linear-gradient(135deg, #2d5a87, #1e3d5c);
-      color: white;
-      border: 1px solid #4a90c2;
-      border-radius: 4px;
-      font-size: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .panel-3d-integrado .btn-control:hover {
-      background: linear-gradient(135deg, #4a90c2, #2d5a87);
-      transform: translateY(-1px);
-    }
-    
-    .panel-3d-integrado .btn-control.active {
-      background: linear-gradient(135deg, #28a745, #1e7e34);
-      border-color: #28a745;
-    }
-  </style>
+  <!-- Vista 3D Integrada -->
+  <link rel="stylesheet" href="css/modules/vista3d-integrada.css">
   
   <!-- � CONFIGURACIÓN DE RED -->
   <script src="js/common/networkConfig.js"></script>
@@ -330,9 +211,9 @@
   <script src="Libs/three/GLTFLoader.js"></script>
   
   <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
-  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
-  <script src="js/modules/gaming/sistema3DIntegrado.js"></script>
-  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
+  <!--<script src="js/modules/gaming/tactico3dIntegration.js"></script>-->
+  <!--<script src="js/modules/gaming/sistema3DIntegrado.js"></script>-->
+  <!--<script src="js/modules/gaming/visorMapa3DMejorado.js"></script>-->
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <script src="js/modules/sistema3d.js"></script>

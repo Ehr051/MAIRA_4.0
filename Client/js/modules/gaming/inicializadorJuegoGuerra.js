@@ -29,7 +29,6 @@ class InicializadorJuegoGuerra {
             await this.inicializarUserIdentity();
             await this.inicializarGameEngine();
             await this.inicializarGestorJuego();
-            await this.inicializarMapaLeaflet();
             await this.configurarVista3D();
             await this.configurarEventos();
             
@@ -134,39 +133,7 @@ class InicializadorJuegoGuerra {
         }
     }
     
-    async inicializarMapaLeaflet() {
-        try {
-            // Configurar mapa principal - Buenos Aires, Argentina
-            // ❌ ELIMINAR CREACIÓN DE MAPA DUPLICADO
-            // Usar el mapa existente de mapaP.js
-            console.log('🗺️ Esperando mapa base de mapaP.js...');
-            
-            // Esperar a que window.mapa esté disponible
-            const esperarMapa = () => {
-                return new Promise((resolve) => {
-                    if (window.mapa && window.mapa.getCenter) {
-                        console.log('✅ Mapa base encontrado, usando existente');
-                        window.map = window.mapa; // Alias para compatibilidad
-                        resolve();
-                    } else {
-                        setTimeout(() => esperarMapa().then(resolve), 100);
-                    }
-                });
-            };
-            
-            await esperarMapa();
-            
-            // Agregar capa base
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(window.map);
-            
-            console.log('✅ Mapa Leaflet inicializado');
-            
-        } catch (error) {
-            console.error('❌ Error inicializando mapa:', error);
-        }
-    }
+
     
     async configurarVista3D() {
         try {
