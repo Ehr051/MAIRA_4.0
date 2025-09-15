@@ -98,8 +98,6 @@
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
   
-  <!-- NOTA: leaflet.pattern-src.js ahora se carga via dependency-manager DESPUÉS de Leaflet -->
-
   <!-- =============================================
        SCRIPTS JAVASCRIPT EXISTENTES - MAIRA 4.0
        ============================================= -->
@@ -121,8 +119,7 @@
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/militaryDataService.js"></script>
   <script src="js/services/DeploymentService.js"></script>
-  <!-- ❌ PanelIntegration.js ELIMINADO - Reemplazado por panelJuegoUnificado.js -->
-  
+
   <!-- 🎯 PANEL UNIFICADO (Reemplaza paneles separados) -->
   <script src="js/modules/shared/panelJuegoUnificado.js"></script>
   
@@ -141,6 +138,9 @@
   <script src="js/modules/gaming/modelos3DManager.js"></script>
   <script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
   <script src="js/modules/gaming/sidcModelo3DBridge.js"></script>
+  
+  <!-- 🎮 GESTOR VISTA 3D UNIFICADO -->
+  <script src="js/modules/shared/vista3DManager.js"></script>
   
   <!-- 🗺️ SERVICIO 3D CRÍTICO -->
   <script src="js/services/threeDMapService.js"></script>
@@ -333,6 +333,7 @@
       </div>
         <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
+        <a href="#" id="btnVista3D"><i class="fas fa-cube"></i> Vista 3D</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
       </div>
@@ -1191,6 +1192,30 @@
             }
             
             console.log('✅ MAIRA 4.0 listo para usar');
+            
+            // Configurar event listener para Vista 3D
+            const btnVista3D = document.getElementById('btnVista3D');
+            if (btnVista3D) {
+                btnVista3D.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof toggleVista3DModular === 'function') {
+                        toggleVista3DModular();
+                    } else {
+                        console.warn('⚠️ toggleVista3DModular no disponible');
+                    }
+                });
+                console.log('✅ Event listener Vista 3D configurado');
+            }
+            
+            // Inicializar HexGrid si existe
+            if (typeof HexGrid !== 'undefined' && window.mapa) {
+                HexGrid.initialize(window.mapa);
+                console.log('✅ HexGrid inicializado');
+            } else if (typeof HexGrid !== 'undefined') {
+                console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
+            } else {
+                console.warn('⚠️ HexGrid no disponible');
+            }
         }, 2000);
     });
   </script>

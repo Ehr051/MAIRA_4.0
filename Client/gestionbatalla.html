@@ -134,6 +134,10 @@
   <script src="js/modules/gestion/informesGB.js"></script>
   <script src="js/modules/gestion/elementosGB.js"></script>
   <script src="js/modules/gestion/gestionBatalla.js"></script>
+  
+  <!-- 🎮 SISTEMA 3D Y GESTOR VISTA 3D -->
+  <script src="js/modules/sistema3d.js"></script>
+  <script src="js/modules/shared/vista3DManager.js"></script>
   <script src="js/gaming/AIDirector.js"></script>
 
   <script>
@@ -169,6 +173,20 @@
         
         console.log('✅ Dependencias básicas cargadas');
         console.log('⚔️ GESTIÓN BATALLA inicializada correctamente');
+        
+        // Configurar event listener para Vista 3D
+        const btnVista3D = document.getElementById('btnVista3D');
+        if (btnVista3D) {
+            btnVista3D.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (typeof toggleVista3DModular === 'function') {
+                    toggleVista3DModular();
+                } else {
+                    console.warn('⚠️ toggleVista3DModular no disponible');
+                }
+            });
+            console.log('✅ Event listener Vista 3D configurado en Gestión Batalla');
+        }
         
         window.GestionBatallaInitialized = true;
     }
@@ -274,7 +292,9 @@
           </div>
           <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
           <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
+          <a href="#" id="btnVista3D"><i class="fas fa-cube"></i> Vista 3D</a>
           <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
+          <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
           <a href="#" id="btnBuscarElemento"><i class="fas fa-search"></i> Buscar Elementos</a>
           <a href="#" id="btn-seguimiento"><i class="fas fa-location-arrow"></i> Seguimiento</a>
           <a href="#" id="btn-centrar"><i class="fas fa-crosshairs"></i> Centrar en Mi Posición</a>

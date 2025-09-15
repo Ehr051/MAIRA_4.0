@@ -16,11 +16,13 @@ class Tactico3DIntegration {
     }
 
     inicializarIntegracion() {
-        // Agregar botón de vista 3D al panel principal si no existe
-        this.crearBotonVista3D();
+        // ❌ BOTÓN VISTA 3D DESACTIVADO - Se usa control integrado en menú herramientas
+        // this.crearBotonVista3D(); // DESACTIVADO
         
         // Escuchar eventos del gestor de fases para sincronización
         this.conectarEventos();
+        
+        console.log('✅ Tactico3DIntegration inicializado sin panel flotante');
     }
 
     crearBotonVista3D() {
@@ -61,23 +63,6 @@ class Tactico3DIntegration {
         */
     }
 
-    crearPanelFlotante(btn) {
-        const panel = document.createElement('div');
-        panel.id = 'panel-vista-3d';
-        panel.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #00ff00;
-            z-index: 1000;
-        `;
-        
-        panel.appendChild(btn);
-        document.body.appendChild(panel);
-    }
 
     conectarEventos() {
         // Escuchar cambios de fase para habilitar/deshabilitar vista 3D
