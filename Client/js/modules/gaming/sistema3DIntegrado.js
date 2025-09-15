@@ -21,6 +21,10 @@ class Sistema3DIntegrado {
     }
 
     async inicializar() {
+        console.log('🚫 Sistema3DIntegrado DESACTIVADO - Funcionalidades integradas en mapaP.js');
+        return true; // ❌ NO INICIALIZAR - Evitar conflictos con mapa único
+        
+        /*
         console.log('🎮 Inicializando Sistema 3D Integrado...');
         
         try {
@@ -46,6 +50,7 @@ class Sistema3DIntegrado {
             console.error('❌ Error inicializando Sistema 3D Integrado:', error);
             return false;
         }
+        */
     }
 
     configurarEventos() {

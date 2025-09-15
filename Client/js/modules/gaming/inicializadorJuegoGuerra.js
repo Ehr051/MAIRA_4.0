@@ -137,15 +137,24 @@ class InicializadorJuegoGuerra {
     async inicializarMapaLeaflet() {
         try {
             // Configurar mapa principal - Buenos Aires, Argentina
-            const centro = this.configuracionPartida?.mapaCentro || [-34.61315, -58.37723];
-            const zoom = this.configuracionPartida?.zoomInicial || 10;
+            // ❌ ELIMINAR CREACIÓN DE MAPA DUPLICADO
+            // Usar el mapa existente de mapaP.js
+            console.log('🗺️ Esperando mapa base de mapaP.js...');
             
-            window.map = L.map('mapContainer', {
-                center: centro,
-                zoom: zoom,
-                zoomControl: true,
-                preferCanvas: true
-            });
+            // Esperar a que window.mapa esté disponible
+            const esperarMapa = () => {
+                return new Promise((resolve) => {
+                    if (window.mapa && window.mapa.getCenter) {
+                        console.log('✅ Mapa base encontrado, usando existente');
+                        window.map = window.mapa; // Alias para compatibilidad
+                        resolve();
+                    } else {
+                        setTimeout(() => esperarMapa().then(resolve), 100);
+                    }
+                });
+            };
+            
+            await esperarMapa();
             
             // Agregar capa base
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
