@@ -136,8 +136,8 @@ class InicializadorJuegoGuerra {
     
     async inicializarMapaLeaflet() {
         try {
-            // Configurar mapa principal
-            const centro = this.configuracionPartida?.mapaCentro || [40.7128, -74.0060];
+            // Configurar mapa principal - Buenos Aires, Argentina
+            const centro = this.configuracionPartida?.mapaCentro || [-34.61315, -58.37723];
             const zoom = this.configuracionPartida?.zoomInicial || 10;
             
             window.map = L.map('mapContainer', {
@@ -369,8 +369,10 @@ class InicializadorJuegoGuerra {
 // Exportar para uso global
 window.InicializadorJuegoGuerra = InicializadorJuegoGuerra;
 
-// Auto-inicialización cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', async function() {
-    window.inicializadorJG = new InicializadorJuegoGuerra();
-    await window.inicializadorJG.inicializar();
-});
+// Auto-inicialización DESHABILITADA - Usando mapaP.js como sistema principal
+// document.addEventListener('DOMContentLoaded', async function() {
+//     window.inicializadorJG = new InicializadorJuegoGuerra();
+//     await window.inicializadorJG.inicializar();
+// });
+
+console.log('📦 InicializadorJuegoGuerra cargado - Auto-inicialización deshabilitada');

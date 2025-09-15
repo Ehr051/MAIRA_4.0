@@ -15,9 +15,9 @@ class VisorMapa3DMejorado {
         this.gridHelper = null;
         this.stats = null;
         
-        // Configuración inicial (se actualizará con coordenadas reales del mapa)
-        this.currentLat = 40.7128;
-        this.currentLng = -74.0060;
+        // Configuración inicial - Buenos Aires, Argentina (se actualizará con coordenadas reales del mapa)
+        this.currentLat = -34.61315;
+        this.currentLng = -58.37723;
         this.currentZoom = 12;
         this.mapRadius = 5; // km
         this.mapDetail = 512;
