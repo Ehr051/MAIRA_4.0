@@ -55,9 +55,9 @@ class SistemaPaneles {
                 posicion: 'lateral'
             },
             'vista3d': {
-                titulo: 'Vista 3D',
-                icono: '🎮',
-                clase: 'panel-3d',
+                titulo: 'Vista 3D (Deshabilitado)',
+                icono: '🚫',
+                clase: 'panel-3d-deshabilitado',
                 posicion: 'modal'
             },
             'informes': {
@@ -761,17 +761,15 @@ class SistemaPaneles {
                 
             case 'vista3d':
                 return `
-                    <div class="vista-3d-container">
-                        <div class="controles-3d">
-                            <button onclick="iniciarVista3D()" class="btn-3d">🚀 Iniciar Vista 3D</button>
-                            <button onclick="cargarFormacionCompleta()" class="btn-3d">🎖️ Cargar Formación</button>
-                            <button onclick="limpiarEscena3D()" class="btn-3d">🧹 Limpiar</button>
-                        </div>
-                        <canvas id="canvas-3d-modal" width="800" height="600" class="canvas-3d-modal"></canvas>
-                        <div class="info-3d">
-                            <p>🎮 Usa el mouse para navegar en la escena 3D</p>
-                            <p>🔄 Los modelos GLB se cargan automáticamente</p>
-                        </div>
+                    <div class="vista-3d-container-deshabilitada" style="text-align: center; padding: 40px; color: #666;">
+                        <h3>🚫 Vista 3D Deshabilitada</h3>
+                        <p>La Vista 3D ahora se activa desde:</p>
+                        <ul style="text-align: left; max-width: 300px; margin: 0 auto;">
+                            <li>🔍 <strong>Zoom alto en el mapa</strong> - Se sugiere automáticamente</li>
+                            <li>🎮 <strong>Menú herramientas</strong> - Botón Vista 3D unificado</li>
+                            <li>⌨️ <strong>Detector de zoom</strong> - Al acercarse mucho al terreno</li>
+                        </ul>
+                        <p style="margin-top: 20px; font-style: italic;">Esta implementación en panel está obsoleta para evitar conflictos.</p>
                     </div>
                 `;
                 

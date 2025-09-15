@@ -6,36 +6,33 @@
 async function toggleVista3DModular() {
     try {
         if (!window.sistema3D) {
-            console.log('🎮 Inicializando Vista 3D modular...');
+            console.log('🎮 Inicializando Vista 3D FULLSCREEN...');
             
-            // Crear contenedor flotante para la vista 3D
+            // Crear contenedor FULLSCREEN para la vista 3D
             let container = document.getElementById('vista3DContainer');
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'vista3DContainer';
                 container.style.cssText = `
                     position: fixed;
-                    top: 80px;
-                    right: 20px;
-                    width: 400px;
-                    height: 320px;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
                     background: #001133;
-                    border: 2px solid #00ff00;
-                    border-radius: 8px;
-                    z-index: 1000;
-                    box-shadow: 0 4px 20px rgba(0,255,0,0.3);
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
                 `;
                 
                 container.innerHTML = `
-                    <div style="padding: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace;">🎮 Vista 3D</h4>
-                            <button onclick="cerrarVista3DModular()" style="background: rgba(255,0,0,0.2); border: 1px solid #ff6666; color: #ff6666; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✕</button>
-                        </div>
-                        <canvas id="canvas-3d-flotante" width="380" height="260" style="border-radius: 4px; background: #000;"></canvas>
-                        <div style="margin-top: 8px; font-size: 11px; color: #aaa; text-align: center;">
-                            <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir</span>
-                        </div>
+                    <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; gap: 10px; align-items: center;">
+                        <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🎮 Vista 3D - Representación del Mapa</h4>
+                        <button onclick="cerrarVista3DModular()" style="background: rgba(255,0,0,0.8); border: 1px solid #ff6666; color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">✕ Salir del 3D</button>
+                    </div>
+                    <canvas id="canvas-3d-flotante" width="100%" height="100%" style="width: 100%; height: 100%; background: #87CEEB;"></canvas>
+                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #00ff00; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10001;">
+                        <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir • Esta vista representa el área donde está viendo el usuario en el mapa</span>
                     </div>
                 `;
                 
@@ -131,22 +128,35 @@ async function toggleVista3DModular() {
 }
 
 window.cerrarVista3DModular = function() {
+    console.log('🔄 Cerrando Vista 3D fullscreen...');
+    
     const container = document.getElementById('vista3DContainer');
     if (container) {
         container.remove();
+        console.log('✅ Contenedor Vista 3D eliminado');
     }
     
+    // Limpiar sistema 3D
     if (window.sistema3D) {
-        window.sistema3D.limpiarEscena();
+        if (typeof window.sistema3D.destruir === 'function') {
+            window.sistema3D.destruir();
+        }
         window.sistema3D = null;
+        console.log('✅ Sistema 3D limpiado');
     }
     
+    // Actualizar botón si existe
     const btnVista3D = document.getElementById('btnVista3D');
     if (btnVista3D) {
         btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Vista 3D';
     }
     
-    console.log('🔒 Vista 3D modular cerrada');
+    // Limpiar cualquier panel flotante residual
+    if (typeof window.limpiarPanelesFlotantes3D === 'function') {
+        window.limpiarPanelesFlotantes3D();
+    }
+    
+    console.log('🔒 Vista 3D modular cerrada completamente - Regreso al mapa 2D');
 };
 
 // Función para inicializar el sistema 3D si no está disponible

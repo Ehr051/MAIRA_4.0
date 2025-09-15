@@ -235,7 +235,19 @@ class Sistema3D {
             console.log(`📁 Archivo configurado: ${modeloConfig.archivo}`);
 
             // Crear loader personalizado para manejar GLB con buffers embebidos
-            const loader = new THREE.GLTFLoader();
+            let loader;
+            try {
+                // Intentar crear GLTFLoader - diferentes versiones pueden tener constructores diferentes
+                if (THREE.GLTFLoader) {
+                    loader = new THREE.GLTFLoader();
+                } else {
+                    throw new Error('GLTFLoader no disponible');
+                }
+            } catch (error) {
+                console.error('❌ Error creando GLTFLoader:', error);
+                reject(new Error('GLTFLoader no disponible o incompatible'));
+                return;
+            }
             const rutaCompleta = `/Client/assets/models/${modeloConfig.archivo}`;
             
             console.log(`🔗 Ruta completa construida: ${rutaCompleta}`);

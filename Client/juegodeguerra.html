@@ -38,11 +38,13 @@
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
   
-  <!-- Sistema de Paneles Unificado -->
-  <link rel="stylesheet" href="css/modules/sistema-paneles-unificado.css">
+  <!-- Sistema de Paneles Unificado - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
   
   <!-- Vista 3D Integrada -->
   <link rel="stylesheet" href="css/modules/vista3d-integrada.css">
+  
+  <!-- Panel Inferior Unificado - Total War Style -->
+  <link rel="stylesheet" href="css/core/panelInferiorUnificado.css">
   
   <!-- � CONFIGURACIÓN DE RED -->
   <script src="js/common/networkConfig.js"></script>
@@ -105,6 +107,9 @@
   <!-- 🏗️ CORE (archivos que existen) -->
   <script src="js/core/UserIdentity.js"></script>
   <script src="js/core/MAIRACore.js"></script>
+  
+  <!-- 🎮 PANEL INFERIOR UNIFICADO - Total War Style -->
+  <script src="js/core/panelInferiorUnificado.js"></script>
 
   <!-- 🔧 UTILS (archivos que existen) -->
   <script src="js/utils/eventemitter.js"></script>
@@ -120,8 +125,7 @@
   <script src="js/services/militaryDataService.js"></script>
   <script src="js/services/DeploymentService.js"></script>
 
-  <!-- 🎯 PANEL UNIFICADO (Reemplaza paneles separados) -->
-  <script src="js/modules/shared/panelJuegoUnificado.js"></script>
+  <!-- 🎯 PANEL UNIFICADO - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
   
   <!-- 📢 SISTEMA DE NOTIFICACIONES PUSH/POP -->
   <script src="js/modules/shared/notificationSystem.js"></script>
@@ -202,8 +206,7 @@
   <!-- ✅ GESTOR DE INTERFAZ - Integrado con sistema unificado -->
   <script src="js/modules/juego/gestorInterfaz.js"></script>
   
-  <!-- Sistema de Paneles Unificado -->
-  <script src="js/modules/juego/sistemaPanelesUnificado.js"></script>
+  <!-- Sistema de Paneles Unificado - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
   
   <!-- THREE.js para vista 3D integrada -->
   <script src="Libs/three/three.min.js"></script>
@@ -217,7 +220,12 @@
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <script src="js/modules/sistema3d.js"></script>
-  <script src="js/modules/paneles.js"></script>
+  <!-- js/modules/paneles.js - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
+  
+  <!-- 🔧 UTILIDADES Y SISTEMAS DE SOPORTE -->
+  <script src="js/modules/shared/vista3DManager.js"></script>
+  <!-- js/modules/shared/limpiezaPaneles3D.js - ELIMINADO: Funcionalidad integrada en Panel Inferior Unificado -->
+  <script src="js/modules/shared/diagnosticoSistema.js"></script>
   <script src="js/modules/planeamiento.js"></script>
   <script src="js/modules/juegodeguerra.js"></script>
 
@@ -883,9 +891,46 @@
         </div>
       </div>
     
-    <!-- Contenedor para el Sistema de Paneles Unificado -->
-    <div id="sistemaPanelesContainer" class="sistema-paneles-container">
-      <!-- Contenido será generado dinámicamente por sistemaPanelesUnificado.js -->
+    <!-- Panel Inferior Unificado - Estilo Total War Rome 3 -->
+    <div id="panelInferiorUnificado" class="panel-inferior-unificado">
+      <!-- Sección Izquierda: Información de Fase y Turno (Dinámica) -->
+      <div class="seccion-info">
+        <div class="info-fase">
+          <div class="fase-actual">
+            <span class="fase-numero" id="faseNumero">FASE -</span>
+            <span class="fase-nombre" id="faseNombre">Cargando...</span>
+          </div>
+          <div class="turno-info">
+            <span class="turno-label">TURNO:</span>
+            <span class="turno-numero" id="turnoNumero">-</span>
+          </div>
+        </div>
+        <div class="tiempo-restante">
+          <span class="tiempo-label">TIEMPO:</span>
+          <span class="tiempo-valor" id="tiempoValor">--:--</span>
+        </div>
+      </div>
+      
+      <!-- Sección Central: Controles del Jugador (Dinámicos) -->
+      <div class="seccion-controles">
+        <div class="controles-principales" id="controlesPrincipales">
+          <!-- Los botones se generan dinámicamente según la fase -->
+        </div>
+      </div>
+      
+      <!-- Sección Derecha: Minimapa y Controles -->
+      <div class="seccion-acciones">
+        <div class="minimapa-container">
+          <div class="minimapa" id="minimapa">
+            <!-- Mini mapa se renderiza aquí -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Elementos del Jugador (solo visible durante despliegue/combate) -->
+      <div class="elementos-jugadores" id="elementosJugadores" style="display: none;">
+        <!-- Los elementos se actualizan dinámicamente -->
+      </div>
     </div>
     
     <div>

@@ -16,52 +16,13 @@ class Tactico3DIntegration {
     }
 
     inicializarIntegracion() {
-        // ❌ BOTÓN VISTA 3D DESACTIVADO - Se usa control integrado en menú herramientas
-        // this.crearBotonVista3D(); // DESACTIVADO
-        
         // Escuchar eventos del gestor de fases para sincronización
         this.conectarEventos();
         
-        console.log('✅ Tactico3DIntegration inicializado sin panel flotante');
+        console.log('✅ Tactico3DIntegration inicializado');
     }
 
-    crearBotonVista3D() {
-        // FUNCIÓN DESACTIVADA - El botón 3D flotante es obsoleto
-        // Las funcionalidades 3D se activan desde:
-        // 1. Zoom del mapa (opción automática)
-        // 2. Menú herramientas (botón específico)
-        console.log('🚫 Botón Vista 3D Táctica DESACTIVADO - Se usan controles nativos del mapa');
-        return;
-        
-        /*
-        // Buscar si ya existe el botón
-        if (document.getElementById('btn-vista-3d-tactica')) {
-            return;
-        }
 
-        // Crear botón para vista 3D táctica
-        const btn = document.createElement('button');
-        btn.id = 'btn-vista-3d-tactica';
-        btn.className = 'btn-accion btn-vista-3d';
-        btn.innerHTML = '🎮 Vista Táctica 3D';
-        btn.title = 'Abrir vista táctica 3D para fase de combate';
-        btn.onclick = () => this.abrirVista3DTactica();
-
-        // Buscar dónde insertar el botón
-        const panelAcciones = document.querySelector('.acciones-fase') || 
-                             document.querySelector('.panel-acciones') ||
-                             document.querySelector('.controles-juego');
-
-        if (panelAcciones) {
-            panelAcciones.appendChild(btn);
-        } else {
-            // Crear panel flotante si no hay lugar específico
-            this.crearPanelFlotante(btn);
-        }
-
-        console.log('✅ Botón Vista 3D Táctica agregado');
-        */
-    }
 
 
     conectarEventos() {
@@ -79,28 +40,8 @@ class Tactico3DIntegration {
     }
 
     actualizarDisponibilidad3D(fase, subfase) {
-        const btn = document.getElementById('btn-vista-3d-tactica');
-        if (!btn) return;
-
-        if (fase === 'combate') {
-            // Habilitar vista 3D durante combate
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.innerHTML = '🎮 Vista Táctica 3D';
-            btn.title = 'Abrir vista táctica 3D para combate';
-        } else if (fase === 'preparacion' && subfase === 'despliegue') {
-            // También disponible durante despliegue
-            btn.disabled = false;
-            btn.style.opacity = '0.8';
-            btn.innerHTML = '🎮 Vista 3D (Despliegue)';
-            btn.title = 'Abrir vista 3D para despliegue táctico';
-        } else {
-            // Deshabilitar en otras fases
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.innerHTML = '🎮 Vista 3D (No disponible)';
-            btn.title = 'Vista 3D disponible solo en combate y despliegue';
-        }
+        // Esta función ya no maneja botones, solo registra cambios de fase
+        console.log(`🔄 Fase cambiada: ${fase}/${subfase}`);
     }
 
     abrirVista3DTactica() {

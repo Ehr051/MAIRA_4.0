@@ -10,22 +10,19 @@ const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 let elevationTileIndex;
 let elevationHandlerIndiceCargado = false;
 
-// 🔧 URLs de índices principales - SOLO GITHUB RELEASES v4.0
+// 🔧 URLs de índices principales - USANDO PROXY PARA EVITAR CORS
 const ELEVATION_INDEX_URLS = [
-  // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
-    // 🚀 PRIORIDAD 1: Proxy Flask confirmado funcionando (v4.0)
-      
-  // 🔄 FALLBACK: GitHub Release v2.0  
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json',
+  // 🚀 PRIORIDAD 1: Proxy local para evitar CORS
+  '/api/proxy/github/master_mini_tiles_index.json',
   
-    // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
+  // 🔄 FALLBACK: GitHub Release v4.0 directo (pueden fallar por CORS)
   'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
   
-  // 🔄 FALLBACK: GitHub Release v3.0
+  // 🔄 FALLBACK: GitHub Release v3.0 directo
   'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
   
-  // � FALLBACK: Directo desde assets de MAIRA-4.0
-
+  // 🔄 FALLBACK: GitHub Release v2.0 directo
+  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json'
 ];
 
 // Configuración de las provincias con sus archivos tar.gz locales
@@ -57,17 +54,17 @@ const ELEVATION_PROVINCES_CONFIG = {
     }
 };
 
-// 🚀 ESTRATEGIA v4.0: GitHub Releases (Altura + Vegetación)
+// 🚀 ESTRATEGIA v4.0: GitHub Releases usando proxy Flask
 const ELEVATION_RELEASE_ASSETS = {
-    // Altimetría (altura)
-    ALTIMETRIA_TAR_GZ: `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_altimetria_tiles.tar.gz`,
+    // Altimetría (altura) - usando proxy para evitar CORS
+    ALTIMETRIA_TAR_GZ: '/api/proxy/github/maira_altimetria_tiles.tar.gz',
     
-    // Vegetación (nueva en v4.0)
-    VEGETACION_TAR_GZ: `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_vegetacion_tiles.tar.gz`,
+    // Vegetación (nueva en v4.0) - usando proxy para evitar CORS
+    VEGETACION_TAR_GZ: '/api/proxy/github/maira_vegetacion_tiles.tar.gz',
     
-    // Manifesto y configuración
-    MANIFEST: `${ELEVATION_HANDLERS_GITHUB_BASE}/release_manifest.json`,
-    INDEX: `${ELEVATION_HANDLERS_GITHUB_BASE}/master_mini_tiles_index.json`
+    // Manifesto y configuración - usando proxy para evitar CORS
+    MANIFEST: '/api/proxy/github/release_manifest.json',
+    INDEX: '/api/proxy/github/master_mini_tiles_index.json'
 };
 
         // URLs de fallback para ELEVATION HANDLER - MANIFEST v4.0 COMPATIBLE

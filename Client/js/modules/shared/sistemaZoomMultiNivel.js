@@ -116,12 +116,18 @@ class SistemaZoomMultiNivel {
         switch(nivel) {
             case 'estrategico':     // Zoom 3 - Más lejos del suelo
                 this.renderizarEstandartes();
+                // Asegurar que la vista 3D esté desactivada
+                this.desactivarVista3DAutomatica();
                 break;
             case 'operacional':     // Zoom 2 - Nivel medio
                 this.renderizarUnidades();
+                // Asegurar que la vista 3D esté desactivada
+                this.desactivarVista3DAutomatica();
                 break;
             case 'tactico':         // Zoom 1 - Más cerca del suelo
                 this.renderizarElementos3D();
+                // Activar automáticamente la vista 3D en nivel táctico
+                this.activarVista3DAutomatica();
                 break;
         }
     }
@@ -892,6 +898,91 @@ class SistemaZoomMultiNivel {
             
         } catch (error) {
             console.error('❌ Error desactivando vista 3D:', error);
+        }
+    }
+
+    /**
+     * 🔄 ACTIVAR VISTA 3D AUTOMÁTICA
+     * Se ejecuta automáticamente cuando se alcanza el nivel táctico
+     */
+    activarVista3DAutomatica() {
+        console.log('🎮 Activando vista 3D automática por nivel de zoom...');
+        
+        try {
+            // Verificar si el sistema de vista 3D modular está disponible
+            if (typeof toggleVista3DModular === 'function') {
+                // Usar el sistema modular existente
+                const vista3DContainer = document.getElementById('vista3D');
+                if (vista3DContainer && vista3DContainer.style.display === 'none') {
+                    toggleVista3DModular();
+                    console.log('✅ Vista 3D modular activada automáticamente');
+                }
+            } else if (window.tactico3DIntegration && window.tactico3DIntegration.activarIntegracion) {
+                // Usar el sistema de integración táctico 3D
+                window.tactico3DIntegration.activarIntegracion();
+                console.log('✅ Vista 3D táctica activada automáticamente');
+            } else {
+                // Fallback: mostrar contenedor 3D básico
+                const vista3DContainer = document.getElementById('vista3D');
+                if (vista3DContainer) {
+                    vista3DContainer.style.display = 'block';
+                    console.log('✅ Contenedor 3D básico activado automáticamente');
+                }
+            }
+
+            // Emitir evento para que otros sistemas se enteren
+            document.dispatchEvent(new CustomEvent('vista3DActivadaAutomatica', {
+                detail: { 
+                    nivel: 'tactico', 
+                    zoom: this.mapa.getZoom(),
+                    automatico: true
+                }
+            }));
+
+        } catch (error) {
+            console.error('❌ Error activando vista 3D automática:', error);
+        }
+    }
+
+    /**
+     * 🔄 DESACTIVAR VISTA 3D AUTOMÁTICA
+     * Se ejecuta cuando se sale del nivel táctico
+     */
+    desactivarVista3DAutomatica() {
+        console.log('📱 Desactivando vista 3D automática por cambio de nivel...');
+        
+        try {
+            // Verificar si el sistema de vista 3D modular está disponible y activo
+            const vista3DContainer = document.getElementById('vista3D');
+            if (vista3DContainer && vista3DContainer.style.display !== 'none') {
+                
+                if (typeof toggleVista3DModular === 'function') {
+                    // Usar el sistema modular existente
+                    toggleVista3DModular();
+                    console.log('✅ Vista 3D modular desactivada automáticamente');
+                } else if (window.tactico3DIntegration && window.tactico3DIntegration.desactivarIntegracion) {
+                    // Usar el sistema de integración táctico 3D
+                    window.tactico3DIntegration.desactivarIntegracion();
+                    console.log('✅ Vista 3D táctica desactivada automáticamente');
+                } else {
+                    // Fallback: ocultar contenedor 3D básico
+                    vista3DContainer.style.display = 'none';
+                    console.log('✅ Contenedor 3D básico desactivado automáticamente');
+                }
+            }
+
+            // Emitir evento para que otros sistemas se enteren
+            document.dispatchEvent(new CustomEvent('vista3DDesactivadaAutomatica', {
+                detail: { 
+                    nivelAnterior: 'tactico',
+                    nivelActual: this.nivelActual,
+                    zoom: this.mapa.getZoom(),
+                    automatico: true
+                }
+            }));
+
+        } catch (error) {
+            console.error('❌ Error desactivando vista 3D automática:', error);
         }
     }
 }
