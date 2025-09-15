@@ -404,6 +404,18 @@ window.capas = capas;
 window.calcos = calcos;
 window.inicializarMapa = inicializarMapa;
 
+// 🔍 INICIALIZAR DETECTOR DE ZOOM 3D
+if (typeof DetectorZoom3D !== 'undefined' && mapa) {
+    try {
+        window.detectorZoom3D = new DetectorZoom3D(mapa);
+        console.log('✅ DetectorZoom3D inicializado desde mapaP.js');
+    } catch (error) {
+        console.warn('⚠️ Error inicializando DetectorZoom3D:', error);
+    }
+} else {
+    console.log('🔍 DetectorZoom3D no disponible aún - se inicializará automáticamente');
+}
+
 // Función para desactivar el zoom con doble clic
 
 function desactivarDobleClickZoom() {
@@ -599,14 +611,7 @@ function crearControlAlternativo3D() {
 
 // DOMContentLoaded SIMPLIFICADO Y OPTIMIZADO - ACTIVO (mapa base para planeamiento)
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM completamente cargado. Iniciando configuración del mapa...");
-    
-    // Limpiar paneles obsoletos
-    const panelObsoleto = document.getElementById('panel-vista-3d');
-    if (panelObsoleto) {
-        panelObsoleto.remove();
-        console.log('🗑️ Panel 3D obsoleto eliminado');
-    }
+    console.log("DOM completamente cargado. Iniciando configuración del mapa...");   
     
     // Inicializar mapa
     inicializarMapa();
