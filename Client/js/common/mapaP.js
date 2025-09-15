@@ -251,6 +251,9 @@ function inicializarMapa() {
     calcoActivo = L.layerGroup().addTo(mapa);
     calcos['Calco1'] = calcoActivo;
     
+    // 🎮 INTEGRAR FUNCIONALIDADES 3D DIRECTAMENTE EN MAPA BASE
+    inicializarFuncionalidades3D();
+    
     // 🔍 INICIALIZAR SISTEMA ZOOM MULTI-NIVEL (Total War Style)
     if (typeof window.inicializarSistemaZoom === 'function') {
         window.inicializarSistemaZoom(mapa);
@@ -525,9 +528,94 @@ function consolidarEventListeners() {
     console.log("Event listeners consolidados correctamente");
 }
 
-// DOMContentLoaded SIMPLIFICADO Y OPTIMIZADO
+// 🎮 FUNCIONALIDADES 3D INTEGRADAS DIRECTAMENTE
+function inicializarFuncionalidades3D() {
+    console.log('🎮 Integrando funcionalidades 3D en mapa base...');
+    
+    // Solo inicializar si no existe ya
+    if (window.visorMapa3D) {
+        console.log('⚠️ Funcionalidades 3D ya inicializadas');
+        return;
+    }
+    
+    // Verificar si las clases 3D están disponibles
+    if (typeof VisorMapa3DMejorado !== 'undefined') {
+        try {
+            // Crear instancia usando el mapa existente
+            window.visorMapa3D = new VisorMapa3DMejorado('map');
+            console.log('✅ Funcionalidades 3D integradas correctamente');
+            
+            // Agregar controles 3D al menú existente
+            agregarControles3DAlMenu();
+            
+        } catch (error) {
+            console.error('❌ Error integrando funcionalidades 3D:', error);
+        }
+    } else {
+        console.warn('⚠️ Clases 3D no disponibles - funcionalidades limitadas');
+    }
+}
+
+// 🎛️ AGREGAR CONTROLES 3D AL MENÚ EXISTENTE
+function agregarControles3DAlMenu() {
+    // Buscar el menú de herramientas existente
+    const menuHerramientas = document.querySelector('.menu-herramientas') || 
+                            document.querySelector('.controles-mapa') ||
+                            document.querySelector('.toolbar');
+    
+    if (menuHerramientas) {
+        // Crear botón 3D integrado
+        const btn3D = document.createElement('button');
+        btn3D.id = 'btn-vista-3d-integrado';
+        btn3D.className = 'btn-herramienta';
+        btn3D.innerHTML = '🌐 Vista 3D';
+        btn3D.title = 'Cambiar a vista 3D del terreno';
+        btn3D.onclick = () => {
+            if (window.visorMapa3D && typeof window.visorMapa3D.initialize === 'function') {
+                window.visorMapa3D.initialize();
+            }
+        };
+        
+        menuHerramientas.appendChild(btn3D);
+        console.log('✅ Control 3D agregado al menú de herramientas');
+    } else {
+        console.warn('⚠️ Menú de herramientas no encontrado - creando control alternativo');
+        crearControlAlternativo3D();
+    }
+}
+
+// 🎛️ CREAR CONTROL ALTERNATIVO SI NO HAY MENÚ
+function crearControlAlternativo3D() {
+    // Agregar al zoom control existente o crear uno simple
+    const zoomControl = document.querySelector('.leaflet-control-zoom');
+    if (zoomControl) {
+        const btn3D = document.createElement('a');
+        btn3D.className = 'leaflet-control-zoom-3d';
+        btn3D.href = '#';
+        btn3D.title = 'Vista 3D';
+        btn3D.innerHTML = '🌐';
+        btn3D.onclick = (e) => {
+            e.preventDefault();
+            if (window.visorMapa3D && typeof window.visorMapa3D.initialize === 'function') {
+                window.visorMapa3D.initialize();
+            }
+        };
+        
+        zoomControl.appendChild(btn3D);
+        console.log('✅ Control 3D agregado al zoom control');
+    }
+}
+
+// DOMContentLoaded SIMPLIFICADO Y OPTIMIZADO - ACTIVO (mapa base para planeamiento)
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM completamente cargado. Iniciando configuración del mapa...");
+    
+    // Limpiar paneles obsoletos
+    const panelObsoleto = document.getElementById('panel-vista-3d');
+    if (panelObsoleto) {
+        panelObsoleto.remove();
+        console.log('🗑️ Panel 3D obsoleto eliminado');
+    }
     
     // Inicializar mapa
     inicializarMapa();

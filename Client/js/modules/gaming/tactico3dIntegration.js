@@ -24,6 +24,14 @@ class Tactico3DIntegration {
     }
 
     crearBotonVista3D() {
+        // FUNCIÓN DESACTIVADA - El botón 3D flotante es obsoleto
+        // Las funcionalidades 3D se activan desde:
+        // 1. Zoom del mapa (opción automática)
+        // 2. Menú herramientas (botón específico)
+        console.log('🚫 Botón Vista 3D Táctica DESACTIVADO - Se usan controles nativos del mapa');
+        return;
+        
+        /*
         // Buscar si ya existe el botón
         if (document.getElementById('btn-vista-3d-tactica')) {
             return;
@@ -50,6 +58,7 @@ class Tactico3DIntegration {
         }
 
         console.log('✅ Botón Vista 3D Táctica agregado');
+        */
     }
 
     crearPanelFlotante(btn) {

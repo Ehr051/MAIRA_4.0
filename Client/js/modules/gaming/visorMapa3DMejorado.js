@@ -728,15 +728,7 @@ class VisorMapa3DMejorado {
     }
 }
 
-// Inicialización automática DESHABILITADA - Para evitar doble mapa
-// if (document.readyState === 'loading') {
-//     document.addEventListener('DOMContentLoaded', () => {
-//         window.visorMapa3D = new VisorMapa3DMejorado();
-//         console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
-//     });
-// } else {
-//     window.visorMapa3D = new VisorMapa3DMejorado();
-//     console.log('🗺️ VisorMapa3DMejorado disponible globalmente');
-// }
+// ❌ AUTO-INICIALIZACIÓN COMPLETAMENTE ELIMINADA
+// Solo se instanciará desde mapaP.js cuando sea necesario
 
-console.log('📦 VisorMapa3DMejorado clase cargada - Auto-inicialización deshabilitada');
+console.log('📦 VisorMapa3DMejorado clase cargada - SIN auto-inicialización');
