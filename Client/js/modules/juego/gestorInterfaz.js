@@ -33,7 +33,7 @@ class GestorInterfaz extends GestorBase {
         
         // Buscar elementos existentes del sistema de paneles
         const sistemaPaneles = document.getElementById('sistemaPanelesContainer');
-        const mapContainer = document.getElementById('mapContainer');
+        const mapContainer = document.getElementById('map');
         
         if (sistemaPaneles) {
             console.log('✅ Usando sistema de paneles existente');

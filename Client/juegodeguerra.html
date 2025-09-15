@@ -211,9 +211,9 @@
   <script src="Libs/three/GLTFLoader.js"></script>
   
   <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
-  <!--<script src="js/modules/gaming/tactico3dIntegration.js"></script>-->
-  <!--<script src="js/modules/gaming/sistema3DIntegrado.js"></script>-->
-  <!--<script src="js/modules/gaming/visorMapa3DMejorado.js"></script>-->
+  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  <script src="js/modules/gaming/sistema3DIntegrado.js"></script>
+  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <script src="js/modules/sistema3d.js"></script>
@@ -335,7 +335,6 @@
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
-        <!-- <a href="#" id="btn3DView"><i class="fas fa-cube"></i> Vista 3D</a> TEMPORALMENTE DESHABILITADO - Conflictos de inicialización -->
       </div>
     </div>
     <div class="menu-btn">
@@ -862,12 +861,11 @@
   </div>
 
   <main>
-    <div id="mapContainer">
-      <!-- Mapa 2D (Leaflet) -->
-      <div id="map" style="height: 100%;"></div>
+    <!-- ✅ ÚNICO CONTENEDOR DE MAPA -->
+    <div id="map" style="height: 100vh; width: 100vw;"></div>
       
-      <!-- Vista 3D Integrada (oculta por defecto) -->
-      <div id="vista3D" class="vista-3d-integrada" style="display: none;">
+    <!-- Vista 3D Integrada (oculta por defecto) -->
+    <div id="vista3D" class="vista-3d-integrada" style="display: none;">
         <canvas id="canvas3d"></canvas>
         
         <!-- Panel de Control 3D Integrado -->
@@ -883,7 +881,6 @@
           </div>
         </div>
       </div>
-    </div>
     
     <!-- Contenedor para el Sistema de Paneles Unificado -->
     <div id="sistemaPanelesContainer" class="sistema-paneles-container">

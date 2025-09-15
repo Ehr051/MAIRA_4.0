@@ -4,7 +4,7 @@
  */
 
 class VisorMapa3DMejorado {
-    constructor(containerId = 'mapContainer') {
+    constructor(containerId = 'map') {
         this.containerId = containerId;
         this.container = null;
         this.scene = null;

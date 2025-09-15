@@ -29,7 +29,7 @@ class Sistema3DIntegrado {
         
         try {
             // Obtener contenedores
-            this.mapContainer = document.getElementById('mapContainer');
+            this.mapContainer = document.getElementById('map');
             this.vista3DContainer = document.getElementById('vista3D');
             
             if (!this.mapContainer || !this.vista3DContainer) {

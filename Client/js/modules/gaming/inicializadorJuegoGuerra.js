@@ -139,13 +139,13 @@ class InicializadorJuegoGuerra {
         try {
             // Inicializar sistema 3D integrado mejorado
             if (typeof Sistema3DIntegrado !== 'undefined') {
-                window.sistema3DIntegrado = new Sistema3DIntegrado('mapContainer');
+                window.sistema3DIntegrado = new Sistema3DIntegrado('map');
                 console.log('✅ Sistema 3D integrado configurado');
             }
             
             // Inicializar Visor Mapa 3D Mejorado (basado en test_mapa3d.html)
             if (typeof VisorMapa3DMejorado !== 'undefined') {
-                window.visorMapa3DMejorado = new VisorMapa3DMejorado('mapContainer');
+                window.visorMapa3DMejorado = new VisorMapa3DMejorado('map');
                 console.log('✅ Visor Mapa 3D Mejorado configurado');
             }
             
@@ -330,7 +330,7 @@ class InicializadorJuegoGuerra {
             </div>
         `;
         
-        const container = document.getElementById('mapContainer') || document.body;
+        const container = document.getElementById('map') || document.body;
         container.innerHTML = mensaje;
     }
     
