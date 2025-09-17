@@ -70,10 +70,10 @@ const HexGrid = {
                             className: 'hex-cell'
                         }).addTo(this.hexLayer);
 
-                        // ✅ EVENTO DOBLE CLICK para marcado de hexágonos
+                        // ✅ EVENTO DOBLE CLICK para selección temporal de hexágonos
                         polygon.on('dblclick', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            this.toggleHexagonSelection(hexKey, polygon);
+                            this.selectHexagon(hexKey, polygon);
                         });
 
                         this.grid.set(hexKey, {
@@ -241,32 +241,38 @@ const HexGrid = {
         return inside;
     },
 
-    // ✅ SELECCIÓN DE HEXÁGONOS por doble click
-    selectedHexagons: new Set(),
+    // ✅ SELECCIÓN TEMPORAL DE HEXÁGONOS por doble click
+    currentSelection: null,
 
-    toggleHexagonSelection: function(hexKey, polygon) {
-        if (this.selectedHexagons.has(hexKey)) {
-            // Desmarcar
-            this.selectedHexagons.delete(hexKey);
-            polygon.getElement().classList.remove('hex-selected');
-            console.log('🔸 Hexágono desmarcado:', hexKey);
-        } else {
-            // Marcar
-            this.selectedHexagons.add(hexKey);
-            polygon.getElement().classList.add('hex-selected');
-            console.log('🔸 Hexágono marcado en amarillo:', hexKey);
+    selectHexagon: function(hexKey, polygon) {
+        // Limpiar selección anterior
+        this.clearSelection();
+
+        // Seleccionar nuevo hexágono (temporal, amarillo)
+        this.currentSelection = { hexKey, polygon };
+        polygon.getElement().classList.add('hex-selected');
+        console.log('🔸 Hexágono seleccionado temporalmente:', hexKey);
+
+        // Opcional: auto-limpiar después de unos segundos
+        setTimeout(() => {
+            if (this.currentSelection && this.currentSelection.hexKey === hexKey) {
+                this.clearSelection();
+            }
+        }, 3000);
+    },
+
+    clearSelection: function() {
+        if (this.currentSelection) {
+            this.currentSelection.polygon.getElement().classList.remove('hex-selected');
+            console.log('🔸 Selección temporal limpiada:', this.currentSelection.hexKey);
+            this.currentSelection = null;
         }
     },
 
+    // Función para compatibilidad con sistema existente
     clearAllSelections: function() {
-        this.selectedHexagons.forEach(hexKey => {
-            const hexData = this.grid.get(hexKey);
-            if (hexData && hexData.polygon) {
-                hexData.polygon.getElement().classList.remove('hex-selected');
-            }
-        });
-        this.selectedHexagons.clear();
-        console.log('🔸 Todas las selecciones de hexágonos limpiadas');
+        this.clearSelection();
+        console.log('🔸 Selección temporal limpiada');
     }
 };
 

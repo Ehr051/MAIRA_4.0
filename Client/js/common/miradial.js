@@ -247,14 +247,21 @@
                     return;
                 }
                 
-                // Si no hay elemento, mostrar menú de terreno
+                // Si no hay elemento, verificar hexágono
                 if (window.HexGrid) {
                     // MODO HEXAGONAL (Juego de Guerra)
                     const hexagono = window.HexGrid.getHexagonAt(e.latlng);
                     if (hexagono) {
                         this.selectedHex = hexagono;
-                        const point = map.latLngToContainerPoint(e.latlng);
-                        this.mostrarMenu(point.x, point.y, 'terreno');
+
+                        // ✅ MARCAR HEXÁGONO VISUALMENTE (funcionalidad original restaurada)
+                        this.toggleHexagonoMarcado(hexagono);
+
+                        console.log('🔸 Hexágono seleccionado por doble click:', e.latlng);
+
+                        // Opcional: mostrar menú contextual
+                        // const point = map.latLngToContainerPoint(e.latlng);
+                        // this.mostrarMenu(point.x, point.y, 'terreno');
                     }
                 } else {
                     // MODO LIBRE (Planeamiento) - mostrar menú de terreno siempre
@@ -1019,6 +1026,19 @@ handleMenuClick: function(action, submenu) {
             const point = this.getMenuPosition();
             this.mostrarMenu(point.x, point.y, previousMenu.type);
         },
+
+        /**
+         * ✅ TOGGLE HEXÁGONO MARCADO - Funcionalidad original restaurada
+         */
+        toggleHexagonoMarcado: function(hexagono) {
+            if (hexagono) {
+                const oldSelectedHex = this.selectedHex;
+                this.selectedHex = hexagono;
+                this.marcarHexagono();
+                this.selectedHex = oldSelectedHex;
+            }
+        },
+
         /**
          * Marca o desmarca un hexágono seleccionado
          */

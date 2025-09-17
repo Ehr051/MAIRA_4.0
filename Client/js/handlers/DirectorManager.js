@@ -261,6 +261,41 @@ class DirectorManager {
         }
     }
 
+    // ✅ FUNCIÓN GLOBAL para activar hexágonos en cualquier modo
+    activarSeleccionHexagonos() {
+        const hexagons = document.querySelectorAll('.hex-cell');
+        hexagons.forEach(hex => {
+            hex.classList.add('hex-interactive');
+            // Agregar listener para selección
+            if (!hex.hasAttribute('data-click-listener')) {
+                hex.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleHexagonoSeleccionado(hex);
+                });
+                hex.setAttribute('data-click-listener', 'true');
+            }
+        });
+        console.log('🔸 Selección de hexágonos activada - Click para marcar/desmarcar');
+    }
+
+    desactivarSeleccionHexagonos() {
+        const hexagons = document.querySelectorAll('.hex-cell');
+        hexagons.forEach(hex => {
+            hex.classList.remove('hex-interactive', 'hex-selected');
+        });
+        console.log('🔸 Selección de hexágonos desactivada');
+    }
+
+    toggleHexagonoSeleccionado(hexagon) {
+        if (hexagon.classList.contains('hex-selected')) {
+            hexagon.classList.remove('hex-selected');
+            console.log('🔸 Hexágono desmarcado');
+        } else {
+            hexagon.classList.add('hex-selected');
+            console.log('🔸 Hexágono marcado en amarillo fluorescente');
+        }
+    }
+
     // ===== NOTIFICACIONES =====
     notificarCambioRol(tipo, data) {
         if (window.MAIRA && window.MAIRA.EventBus) {
@@ -590,8 +625,13 @@ class DirectorManager {
 if (typeof window !== 'undefined') {
     window.MAIRA = window.MAIRA || {};
     window.MAIRA.DirectorManager = new DirectorManager();
-    
+
+    // ✅ FUNCIONES GLOBALES para selección de hexágonos
+    window.activarHexagonos = () => window.MAIRA.DirectorManager.activarSeleccionHexagonos();
+    window.desactivarHexagonos = () => window.MAIRA.DirectorManager.desactivarSeleccionHexagonos();
+
     console.log('👨‍✈️ DirectorManager cargado y disponible');
+    console.log('🔸 Funciones globales: activarHexagonos(), desactivarHexagonos()');
 }
 
 // Export para Node.js

@@ -906,12 +906,12 @@ async function generateRealTerrain() {
         console.log('🗻 Generando terreno real para bounds:', bounds);
 
         // Verificar si tenemos el handler de elevación
-        if (!window.ElevationHandlerRender) {
-            console.warn('⚠️ ElevationHandlerRender no disponible, usando terreno sintético');
+        if (!window.getElevation && !window.ElevationHandler) {
+            console.warn('⚠️ Handler de elevación no disponible, usando terreno sintético');
             return generateBasicTerrain();
         }
 
-        const elevationHandler = window.ElevationHandlerRender;
+        const elevationHandler = window.ElevationHandler || { getElevation: window.getElevation };
         const latStep = (bounds.north - bounds.south) / size;
         const lonStep = (bounds.east - bounds.west) / size;
 
