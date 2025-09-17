@@ -17,10 +17,10 @@ const VEGETATION_CONFIG = {
     ndviRange: [-1, 1]
 };
 
-// URLs de fallback para mini-tiles - ACTUALIZADO v4.0 con proxy confirmado
+// URLs de fallback para mini-tiles - RUTA RENDER ESTÁTICA
 const VEGETATION_URLS = [
-    '/api/proxy/github/',  // 🚀 PRIORIDAD 1: Proxy Flask confirmado
-    'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/',
+    '/opt/render/project/src/static/tiles/data_argentina/vegetation/',  // 🚀 PRIORIDAD 1: Directorio Render estático
+    '/static/tiles/data_argentina/vegetation/',
     'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
 ];
 

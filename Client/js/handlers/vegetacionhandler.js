@@ -1,15 +1,6 @@
 // vegetacionHandler.js - Sistema de vegetación MAIRA 4.0 con extracción dinámica desde GitHub Releases
 
-// 🚀 GitHub Release v4.0 - URLs CONFIRMADAS
-const VEGETATION_GITHUB_RELEASES_BASE = 'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0';
-const VEGETATION_RELEASE_ASSETS = {
-    TAR_GZ: `${VEGETATION_GITHUB_RELEASES_BASE}/maira_vegetacion_tiles.tar.gz`,
-    MANIFEST: `${VEGETATION_GITHUB_RELEASES_BASE}/release_manifest.json`
-};
-
-// Configuración para el proxy de GitHub si está disponible
-const USE_PROXY = true;
-const PROXY_BASE = '/api/proxy/github';
+// Configuración para directorio estático en Render
 
 class VegetacionHandler {
     constructor() {
@@ -27,18 +18,16 @@ class VegetacionHandler {
 
     async loadVegetationIndex() {
         try {
-            // URLs a intentar en orden de prioridad - RENDER FIRST
+            // URLs a intentar en orden de prioridad - RENDER PATH FIRST
             const indexUrls = [
-                // 🚀 PRIORIDAD MÁXIMA: Servidor Render
-                'https://maira-4-0.onrender.com/static/tiles/data_argentina/vegetation_master_index.json',
-                
+                // 🚀 PRIORIDAD MÁXIMA: Directorio Render estático
+                '/opt/render/project/src/static/tiles/data_argentina/vegetation_master_index.json',
+                '/static/tiles/data_argentina/vegetation_master_index.json',
+
                 // 🔄 FALLBACKS LOCALES
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-                './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-                
-                // 🌐 FALLBACK REMOTO
-                `${VEGETATION_GITHUB_RELEASES_BASE}/vegetation_master_index.json`
+                './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
             ];
             
             for (const indexUrl of indexUrls) {
@@ -174,31 +163,18 @@ class VegetacionHandler {
             }
         }
 
-            // 🚀 ESTRATEGIA v4.0: SOLO GitHub Release - URLs CONFIRMADAS
-        console.log(`🎯 Extrayendo ${tileInfo.filename} de GitHub Release v4.0`);
-        const releaseExtracted = await this.extractVegetationTileFromManifestTarGz(tileInfo);
-        
-        if (releaseExtracted) {
-            // Cache del tile extraído
-            this.cache.set(cacheKey, {
-                data: releaseExtracted,
-                timestamp: Date.now()
-            });
-            
-            console.log(`✅ Vegetación extraída desde Release v4.0: ${tileInfo.filename}`);
-            return releaseExtracted;
-        }
+        console.log(`🎯 Cargando ${tileInfo.filename} desde directorio estático Render`);
 
-        // URLs de fallback a intentar en orden
+        // URLs de fallback a intentar en orden - SIN GITHUB CALLBACKS
         const urls = [
-            // Proxy interno si está disponible (fallback)
-            ...(USE_PROXY ? [`${PROXY_BASE}/vegetation/${tileInfo.filename}`] : []),
-            
-            // GitHub Release directo (fallback)
-            `${VEGETATION_GITHUB_RELEASES_BASE}/${tileInfo.filename}`,
-            
+            // 🚀 PRIORIDAD: Directorio Render estático
+            `/opt/render/project/src/static/tiles/data_argentina/vegetation/${tileInfo.batch}/${tileInfo.filename}`,
+            `/static/tiles/data_argentina/vegetation/${tileInfo.batch}/${tileInfo.filename}`,
+
             // Fallbacks locales con batch
-            ...VEGETATION_FALLBACK_URLS.map(base => `${base}/${tileInfo.batch}/${tileInfo.filename}`)
+            `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
+            `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
+            `./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`
         ];
 
         for (const url of urls) {
@@ -341,59 +317,6 @@ class VegetacionHandler {
         console.log('🧹 Cache de vegetación limpiado');
     }
 
-    // Función para extraer dinámicamente un tile desde GitHub Releases o local
-    async extractVegetationTileIfNeeded(tile) {
-        try {
-            if (!tile.tar_file) {
-                // No hay información de archivo TAR, saltar extracción
-                return null;
-            }
-            
-            console.log(`🔧 Extrayendo tile de vegetación dinámicamente: ${tile.filename} desde ${tile.tar_file}`);
-            
-            // URLs de tar.gz a intentar (GitHub Releases primero, local después)
-            const tarUrls = [
-                // PRIORIDAD 1: GitHub Releases
-                `${VEGETATION_GITHUB_RELEASES_BASE}/${tile.provincia}_${tile.tar_file}`,
-                `${VEGETATION_GITHUB_RELEASES_BASE}/${tile.tar_file}`,
-                
-                // PRIORIDAD 2: Local
-                `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tile.provincia}/${tile.tar_file}`,
-                `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tile.provincia}/${tile.tar_file}`,
-                `./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tile.provincia}/${tile.tar_file}`
-            ];
-            
-            for (const tarUrl of tarUrls) {
-                try {
-                    console.log(`📦 Intentando descargar tar.gz de vegetación: ${tarUrl}`);
-                    const response = await fetch(tarUrl);
-                    
-                    if (response.ok) {
-                        const tarData = await response.arrayBuffer();
-                        console.log(`✅ Tar.gz de vegetación descargado: ${tarUrl} (${tarData.byteLength} bytes)`);
-                        
-                        // Extraer el archivo específico del tar.gz
-                        const extractedTif = await this.extractFileFromTar(tarData, tile.filename);
-                        
-                        if (extractedTif) {
-                            console.log(`✅ TIF de vegetación extraído exitosamente: ${tile.filename}`);
-                            return extractedTif;
-                        }
-                    }
-                } catch (error) {
-                    console.warn(`⚠️ Error con ${tarUrl}:`, error.message);
-                    continue;
-                }
-            }
-            
-            console.warn(`⚠️ No se pudo extraer ${tile.filename} de ningún tar.gz de vegetación`);
-            return null;
-            
-        } catch (error) {
-            console.error(`❌ Error en extractVegetationTileIfNeeded para ${tile.filename}:`, error);
-            return null;
-        }
-    }
 
     // Función para extraer un archivo específico de un TAR
     async extractFileFromTar(tarData, targetFilename) {
@@ -440,153 +363,6 @@ class VegetacionHandler {
         }
     }
 
-    // 🚀 Función para extraer vegetación de GitHub Release v4.0 - URL CONFIRMADA
-    async extractVegetationTileFromManifestTarGz(tileInfo) {
-        try {
-            console.log(`📦 Extrayendo vegetación ${tileInfo.filename} de GitHub Release v4.0`);
-            
-            // URL CONFIRMADA del tar.gz en GitHub Release
-            const tarGzUrl = VEGETATION_RELEASE_ASSETS.TAR_GZ;
-            
-            console.log(`📡 Descargando desde: ${tarGzUrl}`);
-            const response = await fetch(tarGzUrl);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status} descargando release vegetación`);
-            }
-            
-            const tarGzData = await response.arrayBuffer();
-            console.log(`✅ Vegetación descargada: ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
-            
-            // Extraer archivo específico del tar.gz
-            const extractedTif = await this.extractVegetationFileFromTarGz(tarGzData, tileInfo.filename);
-            
-            if (extractedTif) {
-                console.log(`✅ Vegetación extraída: ${tileInfo.filename}`);
-                return extractedTif;
-            } else {
-                throw new Error(`Tile ${tileInfo.filename} no encontrado en release`);
-            }
-            
-        } catch (error) {
-            console.error(`❌ Error extrayendo vegetación ${tileInfo.filename}:`, error);
-            return null;
-        }
-    }
-
-    // 🔧 Función para extraer vegetación REAL del tar.gz - IMPLEMENTACIÓN CON PAKO.JS
-    async extractVegetationFileFromTarGz(tarGzData, targetFilename) {
-        try {
-            console.log(`🔍 Extrayendo NDVI REAL ${targetFilename} de tar.gz de ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
-            
-            // Cargar pako.js si no está disponible
-            if (typeof pako === 'undefined') {
-                console.log('📦 Cargando pako.js para descompresión NDVI...');
-                await this.loadScript('/node_modules/pako/dist/pako.min.js');
-            }
-            
-            // Descomprimir gzip usando pako
-            console.log('🔧 Descomprimiendo gzip vegetación...');
-            const tarData = pako.ungzip(new Uint8Array(tarGzData));
-            console.log(`✅ NDVI descomprimido: ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
-            
-            // Parsear tar para encontrar el archivo específico
-            const extractedFile = await this.extractVegetationFromTar(tarData, targetFilename);
-            
-            if (extractedFile) {
-                console.log(`✅ NDVI REAL extraído: ${targetFilename} (${(extractedFile.byteLength / 1024).toFixed(1)}KB)`);
-                return extractedFile;
-            } else {
-                throw new Error(`Archivo NDVI ${targetFilename} no encontrado en tar`);
-            }
-            
-        } catch (error) {
-            console.error(`❌ Error extrayendo NDVI real ${targetFilename}:`, error);
-            
-            // Fallback: intentar interpretar como tar sin gzip
-            try {
-                console.log('🔄 Intentando NDVI como tar sin compresión...');
-                const extractedFile = await this.extractVegetationFromTar(new Uint8Array(tarGzData), targetFilename);
-                if (extractedFile) {
-                    console.log(`✅ NDVI REAL extraído (tar directo): ${targetFilename}`);
-                    return extractedFile;
-                }
-            } catch (fallbackError) {
-                console.error('❌ Fallback NDVI también falló:', fallbackError);
-            }
-            
-            return null;
-        }
-    }
-
-    // 🔧 Función para cargar script dinámicamente
-    async loadScript(src) {
-        return new Promise((resolve, reject) => {
-            if (document.querySelector(`script[src="${src}"]`)) {
-                resolve();
-                return;
-            }
-            
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-
-    // 🔧 Función para extraer archivo NDVI específico de datos TAR
-    async extractVegetationFromTar(tarData, targetFilename) {
-        try {
-            console.log(`🔍 Buscando NDVI ${targetFilename} en TAR de ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
-            
-            let offset = 0;
-            const tarBuffer = tarData.buffer || tarData;
-            
-            while (offset < tarBuffer.byteLength - 512) {
-                // Leer header TAR (512 bytes)
-                const header = new Uint8Array(tarBuffer, offset, 512);
-                
-                // NUL header indicates end
-                if (header[0] === 0) break;
-                
-                // Extraer nombre del archivo (primeros 100 bytes, null-terminated)
-                let filename = '';
-                for (let i = 0; i < 100 && header[i] !== 0; i++) {
-                    filename += String.fromCharCode(header[i]);
-                }
-                
-                // Extraer tamaño del archivo (bytes 124-135, octal)
-                let sizeStr = '';
-                for (let i = 124; i < 136 && header[i] !== 0 && header[i] !== 32; i++) {
-                    sizeStr += String.fromCharCode(header[i]);
-                }
-                
-                const fileSize = parseInt(sizeStr.trim(), 8) || 0;
-                
-                console.log(`📁 Encontrado NDVI en TAR: ${filename} (${fileSize} bytes)`);
-                
-                // Si es el archivo que buscamos
-                if (filename === targetFilename || filename.endsWith('/' + targetFilename)) {
-                    const dataOffset = offset + 512;
-                    const fileData = tarBuffer.slice(dataOffset, dataOffset + fileSize);
-                    console.log(`✅ Archivo NDVI real encontrado: ${filename} (${fileSize} bytes)`);
-                    return fileData;
-                }
-                
-                // Avanzar al siguiente archivo (512 bytes de header + tamaño del archivo, redondeado a 512)
-                const blockSize = Math.ceil((512 + fileSize) / 512) * 512;
-                offset += blockSize;
-            }
-            
-            console.warn(`⚠️ Archivo NDVI ${targetFilename} no encontrado en TAR`);
-            return null;
-            
-        } catch (error) {
-            console.error(`❌ Error parseando TAR NDVI:`, error);
-            return null;
-        }
-    }
 }
 
 // Exportar para uso global
