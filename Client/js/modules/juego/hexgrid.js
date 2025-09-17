@@ -63,12 +63,18 @@ const HexGrid = {
                     if (!this.grid.has(hexKey)) {
                         const corners = this.getHexCorners(hexCenter);
                         const polygon = L.polygon(corners, {
-                            
+
                             weight: 1,
                             opacity: 0.5,
                             fillOpacity: 0,
                             className: 'hex-cell'
                         }).addTo(this.hexLayer);
+
+                        // ✅ EVENTO DOBLE CLICK para marcado de hexágonos
+                        polygon.on('dblclick', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            this.toggleHexagonSelection(hexKey, polygon);
+                        });
 
                         this.grid.set(hexKey, {
                             polygon: polygon,
@@ -233,6 +239,34 @@ const HexGrid = {
         }
 
         return inside;
+    },
+
+    // ✅ SELECCIÓN DE HEXÁGONOS por doble click
+    selectedHexagons: new Set(),
+
+    toggleHexagonSelection: function(hexKey, polygon) {
+        if (this.selectedHexagons.has(hexKey)) {
+            // Desmarcar
+            this.selectedHexagons.delete(hexKey);
+            polygon.getElement().classList.remove('hex-selected');
+            console.log('🔸 Hexágono desmarcado:', hexKey);
+        } else {
+            // Marcar
+            this.selectedHexagons.add(hexKey);
+            polygon.getElement().classList.add('hex-selected');
+            console.log('🔸 Hexágono marcado en amarillo:', hexKey);
+        }
+    },
+
+    clearAllSelections: function() {
+        this.selectedHexagons.forEach(hexKey => {
+            const hexData = this.grid.get(hexKey);
+            if (hexData && hexData.polygon) {
+                hexData.polygon.getElement().classList.remove('hex-selected');
+            }
+        });
+        this.selectedHexagons.clear();
+        console.log('🔸 Todas las selecciones de hexágonos limpiadas');
     }
 };
 

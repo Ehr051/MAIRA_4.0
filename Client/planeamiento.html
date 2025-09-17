@@ -23,6 +23,8 @@
   
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
+  <!-- ✅ CSS HEXÁGONOS - Faltaba para colores correctos -->
+  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
   
   <script src="js/common/networkConfig.js"></script>
   <!-- Scripts JavaScript -->
@@ -49,7 +51,7 @@
   <script src="/Client/Libs/three/GLTFLoader.js"></script>
   
   <!-- Módulos MAIRA 4.0 -->
-  <script src="js/modules/sistema3d.js"></script>
+  <!-- <script src="js/modules/sistema3d.js"></script> ELIMINADO - Conflicto con threeDMapService -->
   <script src="js/modules/paneles.js"></script>
   <script src="js/modules/planeamiento.js"></script>
   <!-- Three.js OrbitControls versión compatible MAIRA -->
@@ -94,6 +96,7 @@
   <!-- Handlers de terreno -->
   <!-- <script src="js/workers/elevation.worker.js"></script> --> <!-- Workers se cargan dinámicamente -->
   <script src="js/handlers/elevationHandler.js"></script>
+  <script src="js/handlers/elevationHandlerRender.js"></script>
   <script src="js/handlers/vegetacionhandler.js"></script>
   
   <!-- Handlers refactorizados -->
@@ -997,10 +1000,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('✅ Sistema de Planeamiento inicializado');
             }
             
-            // 2. Inicializar Sistema 3D
-            if (typeof inicializarSistema3D === 'function') {
-                // La vista 3D se inicializará cuando se active
-                console.log('✅ Sistema 3D disponible');
+            // 2. Inicializar Sistema 3D - UNIFICADO
+            if (typeof toggleVista3D === 'function') {
+                // threeDMapService disponible
+                console.log('✅ Sistema 3D unificado (threeDMapService) disponible');
+            } else {
+                console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
             }
             
             // 3. Configurar eventos específicos de planeamiento
@@ -1073,10 +1078,12 @@ function verificarFuncionalidadesCriticas() {
     }
 }
 
-async function toggleVista3DModular() {
-    try {
-        if (!window.sistema3D) {
-            console.log('🎮 Inicializando Vista 3D modular...');
+// ✅ FUNCIÓN CONFLICTIVA ELIMINADA - toggleVista3DModular()
+// Solo usar threeDMapService.toggleVista3D() que funciona correctamente
+function toggleVista3DModular_ELIMINADA() {
+    console.warn('⚠️ Función obsoleta. Usar toggleVista3D() del threeDMapService');
+    return;
+    /* CÓDIGO CONFLICTIVO REMOVIDO PARA UNIFICACIÓN 3D
             
             // Crear contenedor flotante para la vista 3D
             let container = document.getElementById('vista3DContainer');
@@ -1167,8 +1174,10 @@ window.cerrarVista3DModular = function() {
         btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Vista 3D';
     }
     
-    console.log('🔒 Vista 3D modular cerrada');
-};
+    */ // FIN CÓDIGO ELIMINADO
+}
+
+// ✅ SISTEMA 3D UNIFICADO COMPLETO - Solo threeDMapService activo
 
 async function descargarDetectorGestos() {
     const btnControlGestos = document.getElementById('btnControlGestos');

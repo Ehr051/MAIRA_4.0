@@ -828,9 +828,9 @@ function activarVista3D() {
             
             is3DActive = true;
             
-            // Generar terreno básico si no hay datos
-            const basicElevationData = generateBasicTerrain();
-            threeDMapInstance.loadTerrain(basicElevationData, null, {
+            // Generar terreno usando datos reales de elevación
+            const realElevationData = await generateRealTerrain();
+            threeDMapInstance.loadTerrain(realElevationData, null, {
                 width: 1000,
                 height: 1000
             });
@@ -875,12 +875,87 @@ function desactivarVista3D() {
 }
 
 /**
- * Generar datos básicos de terreno para prueba
+ * Generar datos reales de terreno usando ElevationHandlerRender
+ */
+async function generateRealTerrain() {
+    const size = 256;
+    const data = new Float32Array(size * size);
+
+    try {
+        // Obtener bounds del mapa actual
+        const mapBounds = window.map ? window.map.getBounds() : null;
+        let bounds;
+
+        if (mapBounds) {
+            bounds = {
+                north: mapBounds.getNorth(),
+                south: mapBounds.getSouth(),
+                east: mapBounds.getEast(),
+                west: mapBounds.getWest()
+            };
+        } else {
+            // Buenos Aires por defecto
+            bounds = {
+                north: -34.5,
+                south: -34.7,
+                east: -58.3,
+                west: -58.5
+            };
+        }
+
+        console.log('🗻 Generando terreno real para bounds:', bounds);
+
+        // Verificar si tenemos el handler de elevación
+        if (!window.ElevationHandlerRender) {
+            console.warn('⚠️ ElevationHandlerRender no disponible, usando terreno sintético');
+            return generateBasicTerrain();
+        }
+
+        const elevationHandler = window.ElevationHandlerRender;
+        const latStep = (bounds.north - bounds.south) / size;
+        const lonStep = (bounds.east - bounds.west) / size;
+
+        // Generar grid de elevaciones reales
+        const promises = [];
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                const lat = bounds.south + (i * latStep);
+                const lon = bounds.west + (j * lonStep);
+                promises.push(elevationHandler.getElevation(lat, lon));
+            }
+        }
+
+        // Resolver todas las elevaciones
+        const elevations = await Promise.all(promises);
+
+        // Llenar el array de datos
+        for (let i = 0; i < size * size; i++) {
+            data[i] = elevations[i] || 0;
+        }
+
+        console.log('✅ Terreno real generado con datos de elevación');
+        console.log(`📊 Elevación min: ${Math.min(...data)}m, max: ${Math.max(...data)}m`);
+
+        return {
+            data: data,
+            width: size,
+            height: size
+        };
+
+    } catch (error) {
+        console.error('❌ Error generando terreno real:', error);
+        console.log('🔄 Fallback a terreno sintético');
+        return generateBasicTerrain();
+    }
+}
+
+/**
+ * Generar datos básicos de terreno para prueba (fallback)
  */
 function generateBasicTerrain() {
     const size = 256;
     const data = new Float32Array(size * size);
-    
+
     for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
             const x = (i / size) * 2 - 1;
@@ -889,7 +964,7 @@ function generateBasicTerrain() {
             data[i * size + j] = Math.max(0, 100 * (1 - distance)) + Math.random() * 20;
         }
     }
-    
+
     return {
         data: data,
         width: size,

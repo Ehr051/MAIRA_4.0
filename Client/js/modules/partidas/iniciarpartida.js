@@ -531,10 +531,10 @@ async function inicializarSocket() {
         }
         
         socket = io(SERVER_URL, {
-            transports: ['polling'],  // Solo polling para Render
+            transports: ['websocket', 'polling'],  // ✅ Habilitar websockets + polling fallback
             timeout: 30000,
             forceNew: true,
-            upgrade: false,  // No intentar upgrade a websocket
+            upgrade: true,  // ✅ Permitir upgrade a websocket para mejor rendimiento
             auth: {
                 token: token,
                 userId: userInfo.id,
@@ -907,6 +907,7 @@ function crearPartidaOnline() {
     
     // Configurar listeners para respuesta del servidor
     socket.once('partidaCreada', function(datosPartida) {
+        clearTimeout(timeoutId); // ✅ Limpiar timeout al recibir respuesta
         console.log('✅ Partida creada exitosamente:', datosPartida);
         partidaActual = datosPartida;
         
@@ -923,6 +924,7 @@ function crearPartidaOnline() {
     });
     
     socket.once('errorCrearPartida', function(error) {
+        clearTimeout(timeoutId); // ✅ Limpiar timeout al recibir error
         console.error('❌ Error al crear partida:', error);
         alert(error.mensaje || 'Error al crear la partida');
     });
@@ -938,18 +940,7 @@ function crearPartidaOnline() {
         alert('El servidor está tardando en responder. Por favor, inténtalo de nuevo.');
     }, 10000);
     
-    // Limpiar timeout cuando llegue respuesta
-    const originalPartidaCreada = socket._callbacks?.$partidaCreada?.[0] || socket._events?.partidaCreada;
-    socket.once('partidaCreada', function(datosPartida) {
-        clearTimeout(timeoutId);
-        console.log('✅ Respuesta recibida, timeout cancelado');
-        if (originalPartidaCreada) originalPartidaCreada(datosPartida);
-    });
-    
-    socket.once('errorCrearPartida', function(error) {
-        clearTimeout(timeoutId);
-        console.log('❌ Error recibido, timeout cancelado');
-    });
+    // ✅ TIMEOUT MANEJADO EN EL LISTENER PRINCIPAL - NO DUPLICAR LISTENERS
     
     // Emitir evento para crear partida
     console.log('📤 Emitiendo evento crearPartida...');

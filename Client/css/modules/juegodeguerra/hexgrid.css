@@ -2,12 +2,12 @@
 
 /* Cambiamos el selector para que SOLO afecte a los hexágonos, no a TODAS las líneas */
 .leaflet-pane > svg path.hex-cell {
-    fill: rgba(233, 250, 102, 0);
-    stroke: #040404bd;
-    stroke-width: 0.5px;
+    fill: transparent;
+    stroke: #000000; /* ✅ Negro puro como solicitado por el usuario */
+    stroke-width: 1px; /* ✅ Grosor ligeramente mayor para visibilidad */
     z-index: 200;
-    opacity: 0.7;
-    pointer-events: none; /* Permitir clicks del mapa para sectores/zonas */
+    opacity: 0.8; /* ✅ Opacidad mayor para mejor visibilidad */
+    pointer-events: none; /* Click simple pasa al mapa, doble click lo maneja JS */
 }
 
 .leaflet-pane > svg path.hex-cell:hover {
