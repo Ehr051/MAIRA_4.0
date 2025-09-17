@@ -1,0 +1,11 @@
+Model Information:
+* title:	TAM2C 3D Model
+* source:	https://sketchfab.com/3d-models/tam2c-3d-model-682198c4f1954bd9a08dba527b68b59b
+* author:	Tomas Rubianes (https://sketchfab.com/rasamot)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "TAM2C 3D Model" (https://sketchfab.com/3d-models/tam2c-3d-model-682198c4f1954bd9a08dba527b68b59b) by Tomas Rubianes (https://sketchfab.com/rasamot) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

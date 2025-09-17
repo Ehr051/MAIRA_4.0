@@ -14,17 +14,15 @@ class Sistema3D {
         this.inicializado = false;
         this.modelosCargados = new Map();
         
-                // Configuración de modelos disponibles
+                // Configuración de modelos disponibles - ACTUALIZADO A GLTF
         this.modelosConfig = [
-            { id: 'tam_tank', nombre: 'TAM Tank', archivo: 'tam_tank.glb', tipo: 'tanque' },
-            { id: 'sk105', nombre: 'SK105', archivo: 'sk105.glb', tipo: 'tanque' },
-            { id: 'm113_apc', nombre: 'M113 APC', archivo: 'm113_apc.glb', tipo: 'vehiculo' },
-            { id: 'humvee', nombre: 'Humvee', archivo: 'humvee.glb', tipo: 'vehiculo' },
-            { id: 'soldier_rifle', nombre: 'Soldado Rifle', archivo: 'soldier_rifle.glb', tipo: 'infanteria' },
-            { id: 'soldier_antitank', nombre: 'Soldado AT', archivo: 'soldier_antitank.glb', tipo: 'infanteria' },
-            { id: 'artillery_cannon', nombre: 'Artillería', archivo: 'artillery_cannon.glb', tipo: 'artilleria' },
-            { id: 'soldier_new', nombre: 'Soldado Nuevo GLB', archivo: 'soldier.glb', tipo: 'infanteria' },
-            { id: 'soldier_gltf', nombre: 'Soldado GLTF', archivo: 'scene.gltf', tipo: 'infanteria' }
+            { id: 'soldier', nombre: 'Soldado Regular', archivo: 'assets/models/gltf_new/soldier (2)/scene.gltf', tipo: 'infanteria' },
+            { id: 'tent_military', nombre: 'Tienda Militar', archivo: 'assets/models/gltf_new/tent_military/scene.gltf', tipo: 'estructura' },
+            { id: 'tree_tall', nombre: 'Árbol Alto', archivo: 'assets/models/gltf_new/arbol alto/scene.gltf', tipo: 'vegetacion' },
+            { id: 'medical_tent', nombre: 'Tienda Médica', archivo: 'assets/models/gltf_new/medical_tent/scene.gltf', tipo: 'estructura' },
+            { id: 'russian_soldier', nombre: 'Soldado Ruso', archivo: 'assets/models/gltf_new/russian_soldier/scene.gltf', tipo: 'infanteria' },
+            { id: 'tree_low', nombre: 'Árbol Bajo', archivo: 'assets/models/gltf_new/arbol bajo/scene.gltf', tipo: 'vegetacion' },
+            { id: 'antitank_obstacle', nombre: 'Obstáculo Antitanque', archivo: 'assets/models/gltf_new/dragons_teeth_anti-tank_obstacle/scene.gltf', tipo: 'obstaculo' }
         ];
     }
 
@@ -253,64 +251,71 @@ class Sistema3D {
             console.log(`🔗 Ruta completa construida: ${rutaCompleta}`);
             console.log(`🌍 URL final que se intentará cargar: ${new URL(rutaCompleta, window.location.origin).href}`);
 
-            // Cargar GLB como ArrayBuffer para manejar buffers embebidos
-            fetch(rutaCompleta)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    return response.arrayBuffer();
-                })
-                .then(arrayBuffer => {
-                    console.log(`📥 GLB cargado como ArrayBuffer (${arrayBuffer.byteLength} bytes)`);
-                    
-                    // Usar GLTFLoader.parse para manejar ArrayBuffer directamente
-                    loader.parse(
-                        arrayBuffer,
-                        '', // base path vacío ya que tenemos el buffer completo
-                        (gltf) => {
-                            try {
-                                if (gltf.scene && gltf.scene.isObject3D) {
-                                    // Configurar modelo
-                                    const modelo = gltf.scene;
-                                    modelo.position.set(posicion.x, posicion.y, posicion.z);
-                                    modelo.castShadow = true;
-                                    modelo.receiveShadow = true;
-                                    modelo.name = `modelo_${modeloId}`;
+            // Cargar GLTF usando el método estándar
+            loader.load(
+                rutaCompleta,
+                (gltf) => {
+                    try {
+                        console.log(`✅ GLTF cargado: ${modeloConfig.nombre}`);
 
-                                    // Aplicar sombras a todos los meshes
-                                    modelo.traverse((child) => {
-                                        if (child.isMesh) {
-                                            child.castShadow = true;
-                                            child.receiveShadow = true;
-                                        }
+                        if (!gltf.scene) {
+                            throw new Error('Scene inválida en GLTF');
+                        }
+
+                        // Usar la escena directamente (SIN clonar para evitar errores THREE.js)
+                        const modelo = gltf.scene;
+                        modelo.position.set(posicion.x, posicion.y, posicion.z);
+                        modelo.castShadow = true;
+                        modelo.receiveShadow = true;
+                        modelo.name = `modelo_${modeloId}`;
+
+                        // Verificar contenido y aplicar sombras
+                        let meshCount = 0;
+                        modelo.traverse((child) => {
+                            if (child.isMesh) {
+                                meshCount++;
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+
+                                // Asegurar material si no existe
+                                if (!child.material) {
+                                    child.material = new THREE.MeshStandardMaterial({
+                                        color: 0x888888
                                     });
-
-                                    this.scene.add(modelo);
-                                    this.modelosCargados.set(modeloId, modelo);
-
-                                    console.log(`✅ Modelo ${modeloConfig.nombre} cargado exitosamente desde ArrayBuffer`);
-                                    resolve(modelo);
-                                } else {
-                                    throw new Error('Scene inválida en GLB');
                                 }
-                            } catch (error) {
-                                console.error(`❌ Error procesando modelo ${modeloConfig.nombre}:`, error);
-                                this.crearPlaceholder(modeloId, posicion);
-                                resolve(null);
                             }
-                        },
-                        (error) => {
-                            console.error(`❌ Error parseando GLB ${modeloConfig.nombre}:`, error);
-                            // Crear placeholder en caso de error
+                        });
+
+                        console.log(`📊 Meshes encontrados: ${meshCount}`);
+
+                        if (meshCount === 0) {
+                            console.warn(`⚠️ No se encontraron meshes en ${modeloConfig.nombre}`);
+                            // Crear placeholder si no hay geometría
                             const placeholder = this.crearPlaceholder(modeloId, posicion);
                             resolve(placeholder);
+                            return;
                         }
-                    );
-                })
-                .catch(error => {
-                    console.error(`❌ Error cargando ${modeloConfig.nombre}:`, error);
-                    // Crear placeholder en caso de error
+
+                        this.scene.add(modelo);
+                        this.modelosCargados.set(modeloId, modelo);
+
+                        console.log(`✅ Modelo ${modeloConfig.nombre} agregado a la escena`);
+                        resolve(modelo);
+
+                    } catch (error) {
+                        console.error(`❌ Error procesando modelo ${modeloConfig.nombre}:`, error);
+                        const placeholder = this.crearPlaceholder(modeloId, posicion);
+                        resolve(placeholder);
+                    }
+                },
+                (progress) => {
+                    if (progress.total > 0) {
+                        const percent = Math.round((progress.loaded / progress.total) * 100);
+                        console.log(`📈 Cargando ${modeloConfig.nombre}: ${percent}%`);
+                    }
+                },
+                (error) => {
+                    console.error(`❌ Error cargando GLTF ${modeloConfig.nombre}:`, error);
                     const placeholder = this.crearPlaceholder(modeloId, posicion);
                     resolve(placeholder);
                 }

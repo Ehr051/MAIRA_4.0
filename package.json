@@ -39,6 +39,7 @@
         "@socket.io/component-emitter": "^3.1.2",
         "bootstrap": "^4.6.2",
         "chart.js": "^4.5.0",
+        "claude-code": "^0.0.2",
         "cors": "^2.8.5",
         "d3": "^7.9.0",
         "dotenv": "^16.4.5",

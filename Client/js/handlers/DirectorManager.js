@@ -173,13 +173,16 @@ class DirectorManager {
             alert('❌ Mapa no disponible');
             return;
         }
-        
+
         alert('📍 Haga clic en el mapa para definir esquinas del sector trabajo');
         this.modoDefinicionSector = true;
         this.puntosSelector = [];
-        
+
+        // Asegurar que los hexágonos no interfieran con los clicks
+        this.desactivarHexagonosInteractivos();
+
         window.map.getContainer().style.cursor = 'crosshair';
-        
+
         this.listenerSector = (e) => this.capturarPuntoSector(e);
         window.map.on('click', this.listenerSector);
     }
@@ -227,10 +230,34 @@ class DirectorManager {
     limpiarModoDefinicion() {
         this.modoDefinicionSector = false;
         this.puntosSelector = [];
-        
+
+        // Reactivar hexágonos si es necesario
+        this.reactivarHexagonosInteractivos();
+
         if (window.map) {
             window.map.getContainer().style.cursor = '';
             window.map.off('click', this.listenerSector);
+        }
+    }
+
+    // ===== MANEJO DE HEXÁGONOS =====
+    desactivarHexagonosInteractivos() {
+        // Remover la clase hex-interactive de todos los hexágonos
+        const hexagons = document.querySelectorAll('.hex-cell');
+        hexagons.forEach(hex => {
+            hex.classList.remove('hex-interactive');
+        });
+        console.log('🔸 Hexágonos desactivados para definición de sector');
+    }
+
+    reactivarHexagonosInteractivos() {
+        // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
+        if (window.modoJuego === 'combate' || window.fase === 'combate') {
+            const hexagons = document.querySelectorAll('.hex-cell');
+            hexagons.forEach(hex => {
+                hex.classList.add('hex-interactive');
+            });
+            console.log('🔸 Hexágonos reactivados para modo combate');
         }
     }
 
@@ -462,6 +489,100 @@ class DirectorManager {
         }
         
         return true;
+    }
+
+    // ===== DEFINICIÓN DE ZONAS =====
+    iniciarDefinicionZonaAzul() {
+        if (!window.map) {
+            alert('❌ Mapa no disponible');
+            return;
+        }
+
+        alert('🔵 Haga clic en el mapa para definir la zona azul');
+        this.modoDefinicionZona = 'azul';
+        this.puntosZona = [];
+
+        // Asegurar que los hexágonos no interfieran con los clicks
+        this.desactivarHexagonosInteractivos();
+
+        window.map.getContainer().style.cursor = 'crosshair';
+
+        this.listenerZona = (e) => this.capturarPuntoZona(e);
+        window.map.on('click', this.listenerZona);
+    }
+
+    iniciarDefinicionZonaRojo() {
+        if (!window.map) {
+            alert('❌ Mapa no disponible');
+            return;
+        }
+
+        alert('🔴 Haga clic en el mapa para definir la zona roja');
+        this.modoDefinicionZona = 'roja';
+        this.puntosZona = [];
+
+        // Asegurar que los hexágonos no interfieran con los clicks
+        this.desactivarHexagonosInteractivos();
+
+        window.map.getContainer().style.cursor = 'crosshair';
+
+        this.listenerZona = (e) => this.capturarPuntoZona(e);
+        window.map.on('click', this.listenerZona);
+    }
+
+    capturarPuntoZona(e) {
+        this.puntosZona.push(e.latlng);
+
+        const color = this.modoDefinicionZona === 'azul' ? '#2196F3' : '#f44336';
+
+        L.marker(e.latlng, {
+            icon: L.divIcon({
+                className: 'zona-marker',
+                html: this.modoDefinicionZona === 'azul' ? '🔵' : '🔴',
+                iconSize: [20, 20]
+            })
+        }).addTo(window.map);
+
+        console.log(`🎯 Punto zona ${this.modoDefinicionZona} capturado:`, e.latlng);
+
+        if (this.puntosZona.length >= 3) {
+            const continuar = confirm(`¿Finalizar definición de zona ${this.modoDefinicionZona}? (${this.puntosZona.length} puntos)`);
+            if (continuar) {
+                this.finalizarDefinicionZona();
+            }
+        }
+    }
+
+    finalizarDefinicionZona() {
+        if (this.puntosZona.length < 3) {
+            alert('❌ Se requieren al menos 3 puntos para definir una zona');
+            return;
+        }
+
+        const color = this.modoDefinicionZona === 'azul' ? '#2196F3' : '#f44336';
+        const bounds = L.latLngBounds(this.puntosZona);
+
+        L.polygon(this.puntosZona, {
+            color: color,
+            weight: 3,
+            fillOpacity: 0.1
+        }).addTo(window.map);
+
+        this.limpiarModoDefinicionZona();
+        alert(`✅ Zona ${this.modoDefinicionZona} definida correctamente`);
+    }
+
+    limpiarModoDefinicionZona() {
+        this.modoDefinicionZona = null;
+        this.puntosZona = [];
+
+        // Reactivar hexágonos si es necesario
+        this.reactivarHexagonosInteractivos();
+
+        if (window.map) {
+            window.map.getContainer().style.cursor = '';
+            window.map.off('click', this.listenerZona);
+        }
     }
 }
 

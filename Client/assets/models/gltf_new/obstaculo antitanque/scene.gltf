@@ -1,0 +1,272 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 828,
+      "max": [
+        56.590335845947266,
+        -12.598566055297852,
+        35.935176849365234
+      ],
+      "min": [
+        12.738114356994629,
+        -58.99995040893555,
+        -1.9791500568389893
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 2148,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 9936,
+      "componentType": 5126,
+      "count": 4822,
+      "max": [
+        56.590335845947266,
+        -12.598566055297852,
+        35.935176849365234
+      ],
+      "min": [
+        12.738114356994629,
+        -58.99995040893555,
+        -1.9791500568389893
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 67800,
+      "componentType": 5126,
+      "count": 4822,
+      "max": [
+        0.9921128153800964,
+        0.93861985206604,
+        0.8590943217277527
+      ],
+      "min": [
+        -0.9921128153800964,
+        -0.93861985206604,
+        -0.8590943217277527
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 4822,
+      "max": [
+        0.39588800072669983,
+        2.950021982192993
+      ],
+      "min": [
+        -0.39588800072669983,
+        -0.15983229875564575
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 8592,
+      "componentType": 5125,
+      "count": 9423,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Panzerschokolade (https://sketchfab.com/Panzerschokolade)",
+      "license": "CC-BY-SA-4.0 (http://creativecommons.org/licenses/by-sa/4.0/)",
+      "source": "https://sketchfab.com/3d-models/czech-hedgehog-fe1c3219fc1a450b8bb8ec53233f4bf4",
+      "title": "Czech Hedgehog"
+    },
+    "generator": "Sketchfab-12.65.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 46284,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 38576,
+      "byteOffset": 46284,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 125664,
+      "byteOffset": 84860,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 210524,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Metal_Rusted_baseColor.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "name": "edge_color846456255",
+      "pbrMetallicRoughness": {
+        "roughnessFactor": 0.6
+      }
+    },
+    {
+      "name": "Metal_Rusted",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.6705290967,
+        "roughnessFactor": 0.8894153305
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Material3",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "indices": 1,
+          "material": 0,
+          "mode": 1
+        }
+      ]
+    },
+    {
+      "name": "Material2",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 3,
+            "POSITION": 2,
+            "TEXCOORD_0": 4
+          },
+          "indices": 5,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        -1.0,
+        5.053215392444311e-16,
+        5.053215392444313e-16,
+        0.0,
+        5.053215392444312e-16,
+        -7.273661441694625e-16,
+        1.0,
+        0.0,
+        5.053215392444312e-16,
+        1.0,
+        7.273661441694625e-16,
+        0.0,
+        69.32827758789063,
+        -5.1425230312160744e-14,
+        71.59864807128906,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2,
+        3,
+        4
+      ],
+      "name": "Collada visual scene group"
+    },
+    {
+      "mesh": 0,
+      "name": "Material3"
+    },
+    {
+      "mesh": 1,
+      "name": "Material2"
+    },
+    {
+      "children": [
+        5
+      ],
+      "name": "SketchUp"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        -0.928226,
+        -0.3720168,
+        0.0,
+        0.0,
+        0.1347899,
+        -0.3363167,
+        0.932053,
+        0.0,
+        -0.3467393,
+        0.8651558,
+        0.362322,
+        0.0,
+        7.559425,
+        38.83937,
+        47.60608,
+        1.0
+      ],
+      "name": "skp_camera_Last_Saved_SketchUp_View"
+    },
+    {
+      "name": "ID1"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    }
+  ]
+}

@@ -317,44 +317,50 @@ window.measurementHandler = new MeasurementHandler();
 // ========== FUNCIONES GLOBALES PARA COMPATIBILIDAD ==========
 
 function medirDistancia() {
-    console.log("🔄 Iniciando medición con Leaflet");
-    
+    console.log("📏 Iniciando medición NORMAL sin símbolos PI/PT");
+
     const handler = window.measurementHandler;
-    
+
+    // ✅ ASEGURAR QUE MODO MARCHA ESTÉ DESACTIVADO
+    window.modoMarcha = false;
+    window.funcionMedicionActiva = "medirDistancia"; // ✅ IDENTIFICAR FUNCIÓN ACTIVA
+    console.log("🚫 Modo marcha DESACTIVADO para medición normal");
+    console.log("🔖 Función activa:", window.funcionMedicionActiva);
+
     // Verificar mapa
     if (!handler.mapa) {
         handler.mapa = window.mapa || window.map || null;
     }
-    
+
     if (!handler.mapa) {
         alert('Mapa no disponible para medición');
         return;
     }
-    
+
     // Verificar calco activo
     handler.calcoActivo = handler.obtenerCalcoActivo();
     if (!handler.calcoActivo) {
         alert('Debe tener un calco activo para medir distancias');
         return;
     }
-    
+
     if (handler.measuringDistance) {
         finalizarMedicion();
     } else {
         handler.measuringDistance = true;
         handler.mapa.getContainer().style.cursor = 'crosshair';
         handler.lineaActual = handler.crearLinea();
-        
+
         // Remover listeners existentes
         handler.mapa.off('click', addDistancePoint);
         handler.mapa.off('mousemove', actualizarDistanciaProvisional);
         handler.mapa.off('dblclick', finalizarMedicion);
-        
+
         // Configurar eventos
         handler.mapa.on('click', addDistancePoint);
         handler.mapa.on('mousemove', actualizarDistanciaProvisional);
         handler.mapa.once('dblclick', finalizarMedicion);
-        
+
         handler.mostrarDisplayMedicion();
     }
 }
@@ -386,10 +392,32 @@ function addDistancePoint(e) {
     
     handler.lineas[handler.lineaActual].marcadores.push(marker);
     
-    // ✅ PI/PT SOLO SI ESTÁ EN CONTEXTO DE MARCHA
-    if (window.modoMarcha && typeof window.contadorPuntosMarcha !== 'undefined') {
-        console.log("🎖️ Modo marcha activo - punto", window.contadorPuntosMarcha, "agregado");
+    // ✅ DEBUG: VERIFICAR MODO DE MEDICIÓN
+    console.log("🔍 Estado modo marcha:", window.modoMarcha);
+    console.log("🔍 Contador puntos marcha:", window.contadorPuntosMarcha);
+    console.log("🔍 Función que inició medición:", window.funcionMedicionActiva || "desconocida");
+
+    // ✅ VALIDACIÓN ESTRICTA: PREVENIR ACTIVACIÓN INCORRECTA DEL MODO MARCHA
+    if (window.funcionMedicionActiva === "medirDistancia" && window.modoMarcha) {
+        console.error("❌ ERROR CRÍTICO: Modo marcha activado desde función medirDistancia normal");
+        console.log("🔧 CORRECCIÓN AUTOMÁTICA: Desactivando modo marcha");
+        window.modoMarcha = false;
+    }
+
+    // ✅ PI/PT SOLO SI ESTÁ EN CONTEXTO DE MARCHA VÁLIDO
+    if (window.modoMarcha &&
+        typeof window.contadorPuntosMarcha !== 'undefined' &&
+        window.funcionMedicionActiva === "medirDistanciaConMarcadores") {
+        console.log("🎖️ MODO MARCHA ACTIVO - Punto", window.contadorPuntosMarcha, "- Se crearán símbolos PI/PT");
         // Los símbolos PI/PT se manejan automáticamente en panelMarcha.js
+    } else {
+        // ✅ MEDICIÓN NORMAL - NO CREAR SÍMBOLOS PI/PT
+        console.log("📏 MEDICIÓN NORMAL - Sin símbolos PI/PT");
+        if (window.modoMarcha) {
+            console.warn("⚠️ ADVERTENCIA: modo marcha activo pero condiciones inválidas - probablemente un error");
+            console.log("🔍 Función activa:", window.funcionMedicionActiva);
+            console.log("🔍 Contador puntos:", window.contadorPuntosMarcha);
+        }
     }
     
     handler.actualizarLinea(handler.lineaActual);
@@ -429,22 +457,24 @@ function actualizarDistanciaProvisional(e) {
 
 function finalizarMedicion() {
     const handler = window.measurementHandler;
-    
+
     if (!handler.measuringDistance) return;
-    
+
     handler.measuringDistance = false;
-    
+
+    console.log("🏁 Finalizando medición desde función:", window.funcionMedicionActiva || "desconocida");
+
     if (handler.mapa) {
         handler.mapa.getContainer().style.cursor = '';
         handler.mapa.off('click', addDistancePoint);
         handler.mapa.off('mousemove', actualizarDistanciaProvisional);
         handler.mapa.off('dblclick', finalizarMedicion);
     }
-    
+
     if (handler.lineaActual && handler.lineas[handler.lineaActual]) {
         const distanciaFinal = handler.lineas[handler.lineaActual].distancia;
         console.log(`✅ Medición finalizada: ${distanciaFinal.toFixed(2)} metros`);
-        
+
         // ✅ CAMBIAR ESTILO DE LÍNEA A DEFINITIVO (COMPATIBLE CON MARCHA):
         handler.lineas[handler.lineaActual].polyline.setStyle({
             dashArray: null,
@@ -452,13 +482,17 @@ function finalizarMedicion() {
             opacity: 1,
             weight: 3
         });
-        
+
         // ✅ ASEGURAR PROPIEDADES FINALES:
         handler.actualizarLinea(handler.lineaActual);
     }
-    
+
     handler.lineaActual = null;
     handler.ocultarDisplayMedicion();
+
+    // ✅ LIMPIAR VARIABLES DE DEBUG
+    window.funcionMedicionActiva = null;
+    console.log("🧹 Variables de debug limpiadas");
 }
 
 function mostrarPerfilElevacion() {

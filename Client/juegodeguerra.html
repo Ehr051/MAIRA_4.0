@@ -1243,10 +1243,11 @@
             if (btnVista3D) {
                 btnVista3D.addEventListener('click', function(e) {
                     e.preventDefault();
-                    if (typeof toggleVista3DModular === 'function') {
-                        toggleVista3DModular();
+                    // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
+                    if (typeof toggleVista3D === 'function') {
+                        toggleVista3D();
                     } else {
-                        console.warn('⚠️ toggleVista3DModular no disponible');
+                        console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
                     }
                 });
                 console.log('✅ Event listener Vista 3D configurado');

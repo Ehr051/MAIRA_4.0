@@ -1021,7 +1021,12 @@ function configurarEventosPlaneamiento() {
     if (btnVista3D) {
         btnVista3D.addEventListener('click', function(e) {
             e.preventDefault();
-            toggleVista3DModular();
+            // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
+            if (typeof toggleVista3D === 'function') {
+                toggleVista3D();
+            } else {
+                console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
+            }
         });
     }
 

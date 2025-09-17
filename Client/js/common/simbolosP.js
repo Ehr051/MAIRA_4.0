@@ -378,8 +378,8 @@ window.agregarPuntoControl = function(tipo) {
                 className: `punto-control-icon ${pcTipo.toLowerCase()}`,
                 html: symbol.asSVG(),
                 iconSize: [35, 35],
-                iconAnchor: [17.5, 70], // Anclaje en la parte inferior central
-                popupAnchor: [0, 35]   // Popup encima del símbolo
+                iconAnchor: [20, 40],  // ✅ CONFIGURACIÓN CORREGIDA para posicionamiento correcto
+                popupAnchor: [0, -40]  // ✅ POPUP CORREGIDO arriba del símbolo
             });
         }
         

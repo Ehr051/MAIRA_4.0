@@ -319,14 +319,94 @@ class ThreeDMapService {
         return texture;
     }
 
+    /**
+     * Agregar unidad militar desde datos SIDC
+     * @param {Object} elementData - Datos del elemento (lat, lng, sidc, etc.)
+     */
+    addMilitaryUnit(elementData) {
+        try {
+            const { lat, lng, sidc, designacion, afiliacion } = elementData;
+
+            // Convertir coordenadas lat/lng a posición en el terreno 3D
+            const position = this.convertLatLngTo3D(lat, lng);
+
+            // Determinar tipo de unidad desde SIDC
+            const unitType = this.getUnitTypeFromSIDC(sidc);
+
+            // Crear geometría y material según el tipo
+            const geometry = this.getUnitGeometry(unitType);
+            const material = this.getUnitMaterial(unitType, afiliacion);
+
+            const unit = new THREE.Mesh(geometry, material);
+            unit.position.set(position.x, position.y + 10, position.z);
+            unit.castShadow = true;
+
+            // Agregar metadata
+            unit.userData = {
+                sidc: sidc,
+                designacion: designacion,
+                afiliacion: afiliacion,
+                tipo: unitType,
+                originalElement: elementData
+            };
+
+            // Agregar texto con designación si existe
+            if (designacion) {
+                this.addUnitLabel(unit, designacion);
+            }
+
+            this.scene.add(unit);
+            console.log(`✅ Unidad militar agregada: ${designacion || unitType} en 3D`);
+            return unit;
+        } catch (error) {
+            console.error('❌ Error agregando unidad militar:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Convertir coordenadas lat/lng a posición 3D
+     */
+    convertLatLngTo3D(lat, lng) {
+        // Esta es una conversión básica - se puede mejorar según el sistema de coordenadas
+        const x = lng * 1000; // Escalado básico
+        const z = -lat * 1000; // Invertir Y para Three.js
+        const y = 0; // Altura base, se puede calcular desde terreno
+
+        return { x, y, z };
+    }
+
+    /**
+     * Determinar tipo de unidad desde código SIDC
+     */
+    getUnitTypeFromSIDC(sidc) {
+        if (!sidc || sidc.length < 10) return 'unknown';
+
+        const symbolSet = sidc.substring(4, 6);
+        const entity = sidc.substring(8, 10);
+
+        // Mapeo básico de códigos SIDC a tipos 3D
+        if (symbolSet === '10') { // Land units
+            switch(entity) {
+                case '11': return 'infantry';
+                case '12': return 'tank';
+                case '13': return 'artillery';
+                case '05': return 'helicopter';
+                default: return 'infantry';
+            }
+        }
+
+        return 'unknown';
+    }
+
     addUnit(position, type = 'tank') {
         const geometry = this.getUnitGeometry(type);
         const material = this.getUnitMaterial(type);
-        
+
         const unit = new THREE.Mesh(geometry, material);
         unit.position.set(position.x, position.y + 10, position.z); // +10 para elevarlo sobre el terreno
         unit.castShadow = true;
-        
+
         this.scene.add(unit);
         return unit;
     }
@@ -344,16 +424,135 @@ class ThreeDMapService {
         }
     }
 
-    getUnitMaterial(type) {
-        const colors = {
+    getUnitMaterial(type, afiliacion = 'F') {
+        // Colores base por tipo
+        const baseColors = {
             tank: 0x2d5016,      // Verde militar
             infantry: 0x8B4513,   // Marrón
-            helicopter: 0x696969  // Gris
+            helicopter: 0x696969, // Gris
+            artillery: 0x4a4a4a,  // Gris oscuro
+            unknown: 0x808080     // Gris neutro
         };
-        
-        return new THREE.MeshLambertMaterial({ 
-            color: colors[type] || 0x808080 
+
+        // Modificar color según afiliación NATO
+        let color = baseColors[type] || baseColors.unknown;
+
+        switch(afiliacion) {
+            case 'F': // Friend (Azul)
+                color = this.modifyColorForAffiliation(color, 'blue');
+                break;
+            case 'H': // Hostile (Rojo)
+            case 'J': // Hostile/Enemy
+                color = this.modifyColorForAffiliation(color, 'red');
+                break;
+            case 'N': // Neutral (Verde)
+                color = this.modifyColorForAffiliation(color, 'green');
+                break;
+            case 'U': // Unknown (Amarillo)
+            case '-': // Unknown
+                color = this.modifyColorForAffiliation(color, 'yellow');
+                break;
+        }
+
+        return new THREE.MeshLambertMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.9
         });
+    }
+
+    /**
+     * Modificar color base según afiliación
+     */
+    modifyColorForAffiliation(baseColor, affiliation) {
+        switch(affiliation) {
+            case 'blue':
+                return 0x0066cc; // Azul NATO
+            case 'red':
+                return 0xcc0000; // Rojo NATO
+            case 'green':
+                return 0x00cc66; // Verde NATO
+            case 'yellow':
+                return 0xcccc00; // Amarillo NATO
+            default:
+                return baseColor;
+        }
+    }
+
+    /**
+     * Agregar etiqueta de texto a una unidad
+     */
+    addUnitLabel(unit, text) {
+        try {
+            // Crear canvas para el texto
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            // Configurar canvas
+            canvas.width = 256;
+            canvas.height = 64;
+
+            // Configurar texto
+            context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = 'white';
+            context.font = 'bold 24px Arial';
+            context.textAlign = 'center';
+            context.fillText(text, canvas.width / 2, canvas.height / 2 + 8);
+
+            // Crear textura desde canvas
+            const texture = new THREE.CanvasTexture(canvas);
+
+            // Crear sprite para el texto
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Posicionar encima de la unidad
+            sprite.position.copy(unit.position);
+            sprite.position.y += 30;
+            sprite.scale.set(50, 12.5, 1);
+
+            // Agregar al grupo de la unidad
+            if (!unit.userData.labelGroup) {
+                unit.userData.labelGroup = new THREE.Group();
+                this.scene.add(unit.userData.labelGroup);
+            }
+
+            unit.userData.labelGroup.add(sprite);
+            unit.userData.label = sprite;
+
+        } catch (error) {
+            console.warn('⚠️ Error creando etiqueta:', error);
+        }
+    }
+
+    /**
+     * Limpiar todas las unidades militares de la escena
+     */
+    clearMilitaryUnits() {
+        if (!this.scene) return;
+
+        const unitsToRemove = [];
+
+        this.scene.traverse(child => {
+            if (child.userData && child.userData.tipo) {
+                // Es una unidad militar
+                unitsToRemove.push(child);
+            }
+            if (child.userData && child.userData.labelGroup) {
+                // Es un grupo de etiquetas
+                unitsToRemove.push(child.userData.labelGroup);
+            }
+        });
+
+        unitsToRemove.forEach(unit => {
+            this.scene.remove(unit);
+            if (unit.geometry) unit.geometry.dispose();
+            if (unit.material) unit.material.dispose();
+        });
+
+        console.log(`🧹 ${unitsToRemove.length} unidades militares removidas de la escena 3D`);
     }
 
     startRenderLoop() {
@@ -468,6 +667,93 @@ function toggleVista3D() {
 }
 
 /**
+ * Sincronizar elementos del mapa 2D con la vista 3D
+ */
+function sincronizarElementosMapa() {
+    if (!threeDMapInstance || !threeDMapInstance.isInitialized) {
+        console.warn('⚠️ Sistema 3D no inicializado para sincronización');
+        return;
+    }
+
+    try {
+        // Limpiar unidades existentes
+        threeDMapInstance.clearMilitaryUnits();
+
+        // Obtener elementos del mapa 2D
+        const elementos = obtenerElementosDelMapa();
+
+        let unidadesAgregadas = 0;
+
+        elementos.forEach(elemento => {
+            if (elemento.lat && elemento.lng) {
+                const unidad3D = threeDMapInstance.addMilitaryUnit({
+                    lat: elemento.lat,
+                    lng: elemento.lng,
+                    sidc: elemento.sidc || elemento.SIDC,
+                    designacion: elemento.designacion || elemento.nombre,
+                    afiliacion: elemento.afiliacion || 'F'
+                });
+
+                if (unidad3D) {
+                    unidadesAgregadas++;
+                }
+            }
+        });
+
+        console.log(`✅ Sincronización 3D completada: ${unidadesAgregadas} unidades agregadas`);
+
+    } catch (error) {
+        console.error('❌ Error sincronizando elementos:', error);
+    }
+}
+
+/**
+ * Obtener elementos del mapa 2D (adaptable según el sistema)
+ */
+function obtenerElementosDelMapa() {
+    const elementos = [];
+
+    try {
+        // Método 1: Buscar en window.elementos (sistema común)
+        if (window.elementos && Array.isArray(window.elementos)) {
+            elementos.push(...window.elementos);
+        }
+
+        // Método 2: Buscar en capas de Leaflet
+        if (window.mapa && window.mapa.eachLayer) {
+            window.mapa.eachLayer(layer => {
+                if (layer.elemento && layer.elemento.lat && layer.elemento.lng) {
+                    elementos.push(layer.elemento);
+                } else if (layer.getLatLng && layer.options && layer.options.sidc) {
+                    const latlng = layer.getLatLng();
+                    elementos.push({
+                        lat: latlng.lat,
+                        lng: latlng.lng,
+                        sidc: layer.options.sidc,
+                        designacion: layer.options.designacion,
+                        afiliacion: layer.options.afiliacion
+                    });
+                }
+            });
+        }
+
+        // Método 3: Buscar en arrays específicos del sistema
+        ['equipos', 'unidades', 'marcadores'].forEach(arrayName => {
+            if (window[arrayName] && Array.isArray(window[arrayName])) {
+                elementos.push(...window[arrayName]);
+            }
+        });
+
+        console.log(`🔍 Elementos encontrados para 3D: ${elementos.length}`);
+        return elementos;
+
+    } catch (error) {
+        console.error('❌ Error obteniendo elementos del mapa:', error);
+        return [];
+    }
+}
+
+/**
  * Activar vista 3D
  */
 function activarVista3D() {
@@ -553,7 +839,11 @@ function activarVista3D() {
             setTimeout(() => {
                 console.log('🔧 Forzado render inicial');
                 threeDMapInstance.render();
-            }, 100);
+
+                // ✅ SINCRONIZAR SÍMBOLOS MILITARES AUTOMÁTICAMENTE
+                console.log('🎖️ Sincronizando símbolos militares del mapa...');
+                sincronizarElementosMapa();
+            }, 500);
             
         }).catch(error => {
             console.error('❌ Error activando vista 3D:', error);
@@ -639,14 +929,19 @@ if (typeof window !== 'undefined') {
     window.toggleVista3D = toggleVista3D;
     window.activarVista3D = activarVista3D;
     window.desactivarVista3D = desactivarVista3D;
-    
+
+    // ✅ NUEVAS FUNCIONES DE INTEGRACIÓN DE SÍMBOLOS
+    window.sincronizarElementosMapa = sincronizarElementosMapa;
+    window.obtenerElementosDelMapa = obtenerElementosDelMapa;
+
     // Integración con namespace MAIRA
     if (!window.MAIRA) window.MAIRA = {};
     if (!window.MAIRA.Services) window.MAIRA.Services = {};
     window.MAIRA.Services.ThreeDMap = ThreeDMapService;
-    
+
     console.log('✅ ThreeDMapService registrado en MAIRA.Services.ThreeDMap');
     console.log('✅ Función toggleVista3D disponible globalmente');
+    console.log('✅ Funciones de sincronización de símbolos disponibles globalmente');
 }
 
 // export default ThreeDMapService; // Comentado para evitar error de export

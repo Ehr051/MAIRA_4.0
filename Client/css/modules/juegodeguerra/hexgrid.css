@@ -7,11 +7,13 @@
     stroke-width: 0.5px;
     z-index: 200;
     opacity: 0.7;
+    pointer-events: none; /* Permitir clicks del mapa para sectores/zonas */
 }
 
 .leaflet-pane > svg path.hex-cell:hover {
     fill: rgba(79, 77, 77, 0.393);
     cursor: pointer;
+    pointer-events: none; /* Mantener clicks disponibles para el mapa */
 }
 
 /* Asegurarnos que las otras líneas tengan prioridad sobre los hexágonos */

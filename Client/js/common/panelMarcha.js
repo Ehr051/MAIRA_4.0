@@ -466,12 +466,15 @@
         },
 
         medirDistanciaConMarcadores: function() {
-            console.log("🎯 Iniciando medición de distancia con marcadores de PI y PT para MARCHA");
+            console.log("🎯 INICIANDO MEDICIÓN DE MARCHA - Única función autorizada para crear PI/PT");
             var self = this;
-            
-            // ✅ CONFIGURAR MODO MARCHA PARA SÍMBOLOS PI/PT
+
+            // ✅ CONFIGURAR MODO MARCHA PARA SÍMBOLOS PI/PT (ÚNICA FUNCIÓN AUTORIZADA)
             window.modoMarcha = true;
-            console.log("🎖️ Modo marcha activado para inserción automática de PI/PT");
+            window.funcionMedicionActiva = "medirDistanciaConMarcadores"; // ✅ IDENTIFICAR FUNCIÓN ACTIVA
+            console.log("🎖️ MODO MARCHA ACTIVADO - Se crearán símbolos PI/PT automáticamente");
+            console.log("🔒 Esta es la ÚNICA función que debe activar modo marcha");
+            console.log("🔖 Función activa:", window.funcionMedicionActiva);
             
             // Configurar event listeners especiales para marcha
             this.configurarEventListenersMarcha();
@@ -619,11 +622,11 @@
                 monoColor: "black"             // ✅ NEGRO como simbolosP.js
             });
             
-            // Crear marcador con el símbolo militar
+            // ✅ CREAR MARCADOR CON CONFIGURACIÓN CORRECTA DE POSICIONAMIENTO
             var icon = L.divIcon({
                 html: symbol.asSVG(),
                 iconSize: [35, 35],
-                iconAnchor: [17, 17],
+                iconAnchor: [20, 40],  // ✅ CONFIGURACIÓN CORREGIDA para posicionamiento correcto
                 className: 'military-symbol-marker ' + tipo.toLowerCase()
             });
             
