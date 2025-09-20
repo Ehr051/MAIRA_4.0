@@ -221,16 +221,6 @@ class DetectorZoom3D {
     activarVista3D() {
         console.log('🚀 Activando vista 3D...');
         
-        // Prioridad 1: Visor Mapa 3D integrado en mapaP.js
-        if (window.visorMapa3D && typeof window.visorMapa3D.initialize === 'function') {
-            try {
-                window.visorMapa3D.initialize();
-                console.log('✅ Visor Mapa 3D integrado activado');
-                return;
-            } catch (error) {
-                console.warn('⚠️ Error activando Visor Mapa 3D integrado:', error);
-            }
-        }
         
         // Prioridad 2: Visor Mapa 3D Mejorado instanciado
         if (window.visorMapa3DMejorado && typeof window.visorMapa3DMejorado.cambiarAVista3D === 'function') {

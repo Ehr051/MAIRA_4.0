@@ -129,14 +129,10 @@ class TileExtractor {
     getTarUrls(dataType, region, tileName) {
         const baseUrls = {
             elevation: [
-                `https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/elevation_${region}.tar.gz`,
-                `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${region}/${region}_part_01.tar.gz`,
-                `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${region}/${region}_part_01.tar.gz`
+                '/opt/render/project/src/static/tiles/data_argentina/Altimetria'
             ],
             vegetation: [
-                `https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/vegetation_batch.tar.gz`,
-                `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_ndvi_batch_01/vegetation_ndvi_batch_01.tar.gz`,
-                `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_ndvi_batch_01/vegetation_ndvi_batch_01.tar.gz`
+                '/opt/render/project/src/static/tiles/data_argentina/vegetation/'
             ]
         };
 

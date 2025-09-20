@@ -1,5 +1,5 @@
 // elevation.worker.js
-const carpetaBase = '/Client/Libs/datos_argentina/Altimetria';
+const carpetaBase = '/opt/render/project/src/static/tiles/data_argentina/Altimetria';
 let tileCache = new Map();
 const CACHE_SIZE_LIMIT = 10;
 

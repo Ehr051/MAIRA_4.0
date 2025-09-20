@@ -8,10 +8,10 @@ class PanelInferiorUnificado {
     constructor() {
         this.panel = null;
         this.estado = {
-            fase: 'PLANEAMIENTO',
-            subFase: 'inicial',
-            turno: 1,
-            tiempoRestante: '15:00',
+            fase: null,
+            subFase: null,
+            turno: null,
+            tiempoRestante: null,
             jugadorActual: null
             // pausado y velocidad eliminados - duración fija por turno
         };
@@ -65,9 +65,6 @@ class PanelInferiorUnificado {
         this.configurarBotonSiguienteFase();
     }
 
-    // === FUNCIONES OBSOLETAS ELIMINADAS ===
-    // Los controles de pausa/velocidad fueron eliminados porque la duración del turno es fija (15 minutos)
-    // Los controles específicos (definir sector, gestión batalla, formaciones) ahora son dinámicos
 
     /**
      * Configura el botón Siguiente Fase

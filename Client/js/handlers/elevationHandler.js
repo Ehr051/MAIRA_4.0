@@ -13,16 +13,7 @@ let elevationHandlerIndiceCargado = false;
 // 🔧 URLs de índices principales - USANDO PROXY PARA EVITAR CORS
 const ELEVATION_INDEX_URLS = [
   // 🚀 PRIORIDAD 1: Proxy local para evitar CORS
-  '/api/proxy/github/master_mini_tiles_index.json',
-  
-  // 🔄 FALLBACK: GitHub Release v4.0 directo (pueden fallar por CORS)
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
-  
-  // 🔄 FALLBACK: GitHub Release v3.0 directo
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
-  
-  // 🔄 FALLBACK: GitHub Release v2.0 directo
-  'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/master_mini_tiles_index.json'
+  '/opt/render/project/src/static/tiles/data_argentina/Altimetria'
 ];
 
 // Configuración de las provincias con sus archivos tar.gz locales
