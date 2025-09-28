@@ -1,0 +1,146 @@
+/* MAIRA 4.0 - Estilos CSS */
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: Arial, sans-serif; 
+    background: #2a2a2a; 
+    color: white; 
+    overflow: hidden;
+    position: relative;
+}
+
+#ui-panel { 
+    position: fixed !important; 
+    top: 10px; 
+    left: 10px; 
+    width: 320px !important; 
+    max-width: 320px !important;
+    min-height: 200px !important;
+    background: rgba(255, 0, 0, 0.9) !important; 
+    border: 5px solid #fff !important;
+    padding: 15px; 
+    border-radius: 8px; 
+    z-index: 10000 !important; 
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #666 #222;
+}
+
+#ui-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+#ui-panel::-webkit-scrollbar-track {
+    background: #222;
+    border-radius: 4px;
+}
+
+#ui-panel::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+}
+
+#ui-panel::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+#status { 
+    margin-bottom: 15px; 
+    padding: 10px; 
+    background: rgba(0, 100, 0, 0.3); 
+    border-radius: 4px; 
+    font-size: 12px;
+}
+
+.control-group { 
+    margin-bottom: 15px; 
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.control-group label { 
+    display: block; 
+    margin-bottom: 8px; 
+    font-weight: bold; 
+    color: #ccc; 
+    font-size: 14px;
+}
+
+button { 
+    width: 100%; 
+    padding: 8px; 
+    margin: 3px 0; 
+    background: #4a4a4a; 
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-size: 12px;
+}
+
+button:hover { 
+    background: #5a5a5a; 
+}
+
+button.active {
+    background: #0066cc;
+}
+
+.model-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 5px; 
+}
+
+.model-btn { 
+    padding: 5px; 
+    font-size: 11px; 
+    margin: 0; 
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
+
+.slider-container {
+    margin: 10px 0;
+}
+
+.slider-container label {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin: 5px 0;
+}
+
+#selection-info {
+    background: rgba(0, 0, 100, 0.3);
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+.transform-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.transform-controls button {
+    font-size: 10px;
+    padding: 4px;
+}

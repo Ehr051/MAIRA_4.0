@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAIRA 4.0 - Visor 3D Mejorado</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="ui-panel">
+        <div id="status">Iniciando MAIRA 4.0 Mejorado...</div>
+        
+        <div class="control-group">
+            <label>🌍 Terreno Base</label>
+            <button onclick="MAIRA.createTerrain()">Crear Terreno</button>
+            <button onclick="MAIRA.clearTerrain()">Limpiar Terreno</button>
+        </div>
+        
+        <div class="control-group">
+            <label>💡 Iluminación</label>
+            <div class="slider-container">
+                <label>Intensidad Ambiente: <span id="ambientValue">0.6</span></label>
+                <input type="range" id="ambientSlider" min="0" max="2" step="0.1" value="0.6" onchange="MAIRA.updateAmbientLight(this.value)">
+            </div>
+            <div class="slider-container">
+                <label>Intensidad Direccional: <span id="directionalValue">1.0</span></label>
+                <input type="range" id="directionalSlider" min="0" max="3" step="0.1" value="1.0" onchange="MAIRA.updateDirectionalLight(this.value)">
+            </div>
+            <button onclick="MAIRA.resetLighting()">Restablecer Luces</button>
+        </div>
+        
+        <div class="control-group">
+            <label>📦 Cargar Modelos</label>
+            <input type="file" id="fileInput" accept=".glb,.gltf" multiple onchange="MAIRA.loadSelectedFiles(this.files)">
+            <input type="file" id="folderInput" webkitdirectory directory multiple onchange="MAIRA.loadFolder(this.files)">
+            <button onclick="document.getElementById('folderInput').click()">Seleccionar Directorio</button>
+            <button onclick="MAIRA.loadAllModelsInFolder()">Cargar GLB Predefinidos</button>
+            <div id="folder-info" style="font-size: 10px; color: #aaa; margin-top: 5px;">
+                Selecciona directorio con carpetas de modelos GLTF
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>🚗 Modelos Predefinidos</label>
+            <div class="model-grid">
+                <button class="model-btn" onclick="MAIRA.loadModel('client/assets/models/gbl_new/humvee.glb', 'jeep', 1.0)">Jeep</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('client/assets/models/gbl_new/m113.glb', 'M113', 0.001)">M113</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('client/assets/models/gbl_new/tam_tank.glb', 'TAM', 0.5)">TAM Tank</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('client/assets/models/gbl_new/a_solider_poin_weapon.glb', 'Soldado', 12.0)">Soldado</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('client/assets/models/gbl_new/russian_soldier.glb', 'Soldado Ruso', 13.0)">Soldado Ruso</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('Client/assets/models/gbl_new/low_poly_humvee_vehicle.glb', 'hunvee', 1.0)">hunvee</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('Client/assets/models/gbl_new/a_solider_poin_weapon.glb', 'soldier2', 1.0)">soldier2</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('Client/assets/models/gbl_new/tam_2c_war_thunder.glb', 'm1_abraTam2ca1', 0.5)">Tam2c</button>
+            </div>
+        </div>
+        
+        <div class="control-group" id="loaded-models-section" style="display: none;">
+            <label>📁 Modelos Cargados</label>
+            <div id="loaded-models-grid" class="model-grid">
+                <!-- Los botones de modelos cargados aparecerán aquí -->
+            </div>
+            <button onclick="MAIRA.clearLoadedModels()">Limpiar Lista</button>
+        </div>
+        
+        <div class="control-group">
+            <label>🎯 Selección Actual</label>
+            <div id="selection-info">Ningún objeto seleccionado</div>
+            <div class="transform-controls">
+                <button onclick="MAIRA.moveSelected('up')">↑</button>
+                <button onclick="MAIRA.rotateSelected('y', 0.1)">↻Y</button>
+                <button onclick="MAIRA.scaleSelected(1.1)">+</button>
+                <button onclick="MAIRA.moveSelected('left')">←</button>
+                <button onclick="MAIRA.deleteSelected()">🗑️</button>
+                <button onclick="MAIRA.moveSelected('right')">→</button>
+                <button onclick="MAIRA.scaleSelected(0.9)">-</button>
+                <button onclick="MAIRA.rotateSelected('y', -0.1)">↺Y</button>
+                <button onclick="MAIRA.moveSelected('down')">↓</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>🔧 Herramientas</label>
+            <button onclick="MAIRA.loadTestCube()">Cubo de Prueba</button>
+            <button onclick="MAIRA.clearAllModels()">Limpiar Modelos</button>
+            <button onclick="MAIRA.exportScene()">Exportar Escena</button>
+            <button onclick="MAIRA.resetCamera()">Reset Cámara</button>
+        </div>
+    </div>
+    
+    <!-- Scripts Three.js -->
+    <script src="client/Libs/mythree/three.min.js"></script>
+    <script src="client/Libs/mythree/Object3d.js"></script>
+    <script src="client/Libs/mythree/GLTFLoader.js"></script>
+    <script src="client/Libs/mythree/OrbitControlsBrowser.js"></script>
+    
+    <!-- Script principal -->
+    <script src="maira3d.js"></script>
+</body>
+</html>

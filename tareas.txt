@@ -1,0 +1,2044 @@
+three.min.js:1 Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation
+(anónimo) @ three.min.js:1
+Object3d.js:733 Object3D standalone registrado completamente en THREE.Object3D
+GLTFLoader.js:1060 GLTFLoader con soporte binario completo y validación robusta registrado
+OrbitControlsBrowser.js:889 ✅ OrbitControls (versión MAIRA 4.0) cargado correctamente
+RadialMenu.js:417 🎯 Menú Radial MAIRA 4.0 cargado completamente - disponible como window.RadialMenu
+test_integrado_debug.js:2332 MAIRA3DViewAdapter cargado y listo
+test_integrado.html:125 📦 Window load event triggered
+test_integrado.html:128 📦 Creating MAIRA3DViewAdapter...
+test_integrado.html:130 📦 MAIRA object created: MAIRA3DViewAdapter {materialTypes: {…}, placedModels: Array(0), units: Array(0), orders: Map(0), orderLines: Array(0), …}
+test_integrado.html:131 📦 Calling MAIRA.init()...
+test_integrado_debug.js:81 === INIT METHOD CALLED ===
+test_integrado_debug.js:82 🔥🔥 DEBUGGING INIT - VERSION 2025-09-27 🔴🔴🔴
+test_integrado_debug.js:83 🚀 INICIANDO MAIRA3DViewAdapter.init()...
+test_integrado_debug.js:89 📋 Elementos DOM inicializados: <div id=​"status">​[SUCCESS] MAIRA 3D inicializado correctamente​</div>​ <div id=​"selection-info">​Ningún objeto seleccionado​</div>​
+test_integrado_debug.js:92 🎨 Llamando initThreeJS...
+test_integrado_debug.js:133 🎨 INICIANDO initThreeJS...
+test_integrado_debug.js:144 📷 Cámara creada en posición: We {x: 120, y: 100, z: 120}
+test_integrado_debug.js:145 📷 Cámara mirando hacia: We {x: -0.6092076990801715, y: -0.5076730825668095, z: -0.6092076990801716}
+test_integrado_debug.js:155 🎨 Intentando agregar canvas a: <body>​…​</body>​ body children: 3
+test_integrado_debug.js:164 🎨 Canvas agregado exitosamente, body children ahora: 4
+test_integrado_debug.js:165 🎨 Canvas dimensions: 864 812
+test_integrado_debug.js:166 🎨 Canvas bounding rect: DOMRect {x: 0, y: 0, width: 864, height: 812, top: 0, …}
+test_integrado_debug.js:169 🎨 Canvas pointer events: auto
+test_integrado_debug.js:170 🎨 Canvas visibility: visible
+test_integrado_debug.js:171 🎨 Canvas display: block
+test_integrado_debug.js:172 🎨 Canvas z-index: 1
+test_integrado_debug.js:176 🎨 Total elements in DOM: 103
+test_integrado_debug.js:181 🎨 Elements with z-index > 0: (2) ['DIV. (z-index: 10000)', 'CANVAS. (z-index: 1)']
+test_integrado_debug.js:205 🎨 Three.js inicializado completamente
+test_integrado_debug.js:94 ✅ initThreeJS completado
+test_integrado_debug.js:96 💡 Llamando initLighting...
+test_integrado_debug.js:230 Iluminación inicializada
+test_integrado_debug.js:98 ✅ initLighting completado
+test_integrado_debug.js:100 🎮 Llamando initControls...
+test_integrado_debug.js:282 Controles inicializados
+test_integrado_debug.js:102 ✅ initControls completado
+test_integrado_debug.js:104 🎧 Llamando setupEventListeners...
+test_integrado_debug.js:286 🎧 Configurando event listeners...
+test_integrado_debug.js:287 🎧 Canvas element: <canvas data-engine=​"three.js r160" width=​"864" height=​"812" style=​"display:​ block;​ width:​ 864px;​ height:​ 812px;​ position:​ absolute;​ top:​ 0px;​ left:​ 0px;​ z-index:​ 1;​ touch-action:​ none;​">​
+test_integrado_debug.js:318 ✅ Event listeners configurados correctamente
+test_integrado_debug.js:106 ✅ setupEventListeners completado
+test_integrado_debug.js:109 🔧 Llamando initRadialMenu...
+test_integrado_debug.js:322 🔧 INICIANDO initRadialMenu()...
+test_integrado_debug.js:323 🔧 RadialMenu class disponible: function
+RadialMenu.js:8 🏗️ Constructor RadialMenu llamado
+RadialMenu.js:81 🔧 Inicializando RadialMenu...
+RadialMenu.js:98 📦 Creando elemento del menú radial...
+RadialMenu.js:114 ✅ Elemento del menú radial creado y agregado al DOM
+RadialMenu.js:94 ✅ RadialMenu inicializado completamente
+test_integrado_debug.js:333 📦 Instancia RadialMenu creada: RadialMenu {isVisible: false, centerX: 0, centerY: 0, radius: 50, selectedUnit: null, …}
+RadialMenu.js:158 🔗 Callback de acción configurado: function
+test_integrado_debug.js:341 ✅ Menú radial inicializado completamente
+test_integrado_debug.js:112 ✅ initRadialMenu completado, radialMenu: RadialMenu {isVisible: false, centerX: 0, centerY: 0, radius: 50, selectedUnit: null, …}
+test_integrado_debug.js:991 🏔️ Creando terreno tipo: plano
+test_integrado_debug.js:998 ℹ️ No hay terreno anterior que remover
+test_integrado_debug.js:1064 🔎 Primeros vértices del terreno: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+test_integrado_debug.js:1065 📊 Rango de altura Y: 60 60
+test_integrado_debug.js:1082 🌍 Terreno mesh creado con color: #228b22 tipo: plano
+test_integrado_debug.js:1083 📍 Posición del terreno: We {x: 0, y: 0, z: 0}
+test_integrado_debug.js:1084 🔄 Rotación del terreno: Pn {isEuler: true, _x: -1.5707963267948966, _y: 0, _z: 0, _order: 'XYZ', …}
+test_integrado_debug.js:1085 🎨 Material del terreno: hh {isMaterial: true, uuid: '6920f595-213a-4f25-9e4e-5fdfd8ab4e16', name: '', type: 'MeshLambertMaterial', blending: 1, …}
+test_integrado_debug.js:1086 📐 Dimensiones del terreno: {width: 120, height: 120, widthSegments: 24, heightSegments: 24}
+test_integrado_debug.js:1089 ✅ Terreno agregado a la escena. Hijos de la escena: 3
+test_integrado_debug.js:924 [SUCCESS] Terreno plano creado
+test_integrado_debug.js:1092 🏔️ Terreno creado exitosamente
+test_integrado_debug.js:924 [SUCCESS] MAIRA 3D inicializado correctamente
+test_integrado_debug.js:125 🎉 MAIRA3DViewAdapter inicializado completamente
+test_integrado.html:133 ✅ MAIRA inicializado: MAIRA3DViewAdapter {materialTypes: {…}, placedModels: Array(0), units: Array(0), orders: Map(0), orderLines: Array(0), …}
+test_integrado.html:124 [Violation] 'load' handler took 203ms
+favicon.ico:1  GET http://127.0.0.1:5501/favicon.ico 404 (Not Found)
+content.js:5768 Obtener ha terminado de cargar: GET "chrome-extension://ofpnmcalabcbjgholdjcjblkibolbppb/content.css".
+getRenderRoot @ content.js:5768
+initContentRoot @ content.js:5768
+(anónimo) @ content.js:5768
+onDOMReady @ content.js:2519
+init @ content.js:5768
+await in init
+(anónimo) @ content.js:5768
+Promise.then
+TBt @ content.js:5768
+(anónimo) @ content.js:5768
+(anónimo) @ content.js:5768
+test_integrado_debug.js:991 🏔️ Creando terreno tipo: desierto
+test_integrado_debug.js:994 🗑️ Removiendo terreno anterior de la escena...
+test_integrado_debug.js:996 ✅ Terreno anterior removido
+test_integrado_debug.js:1064 🔎 Primeros vértices del terreno: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+test_integrado_debug.js:1065 📊 Rango de altura Y: 60 60
+test_integrado_debug.js:1082 🌍 Terreno mesh creado con color: #ffd700 tipo: desierto
+test_integrado_debug.js:1083 📍 Posición del terreno: We {x: 0, y: 0, z: 0}
+test_integrado_debug.js:1084 🔄 Rotación del terreno: Pn {isEuler: true, _x: -1.5707963267948966, _y: 0, _z: 0, _order: 'XYZ', …}
+test_integrado_debug.js:1085 🎨 Material del terreno: hh {isMaterial: true, uuid: 'ddefdbe1-b141-4bfa-b215-c182e7a7708c', name: '', type: 'MeshLambertMaterial', blending: 1, …}
+test_integrado_debug.js:1086 📐 Dimensiones del terreno: {width: 120, height: 120, widthSegments: 24, heightSegments: 24}
+test_integrado_debug.js:1089 ✅ Terreno agregado a la escena. Hijos de la escena: 3
+test_integrado_debug.js:924 [SUCCESS] Terreno desierto creado
+test_integrado_debug.js:1092 🏔️ Terreno creado exitosamente
+test_integrado_debug.js:924 [INFO] Tipo de mapa cambiado a: desierto
+RadialMenu.js:358 🖱️ Document click detected en: BUTTON isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [SUCCESS] Modelo TAM 2C seleccionado. Click en el terreno para colocar.
+RadialMenu.js:358 🖱️ Document click detected en: BUTTON isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 439 558
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 439 558
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: undefined currentModelPath: ../Client/assets/models/gbl_new/tam_2c_war_thunder.glb selectedObject: ninguno
+test_integrado_debug.js:359 🎯 Intentando colocar modelo: TAM 2C en posición del click
+test_integrado_debug.js:373 📍 Coordenadas normalizadas del mouse: 0.01620370370370372 -0.37438423645320196
+test_integrado_debug.js:378 🔍 Intersecciones con terreno: 1
+test_integrado_debug.js:382 📍 Posición de colocación calculada: 56.57132949359021 3.5692978756561353 54.18222439935029
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C...
+GLTFLoader.js:28 GLTFLoader con soporte binario y validación robusta inicializado
+test_integrado_debug.js:389 ✅ Modelo colocado exitosamente
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 0.3%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 1.0%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 1.3%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 1.7%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 2.7%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 3.3%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 4.0%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 4.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 5.0%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 8.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 10.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 13.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 15.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 16.9%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 17.9%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 18.2%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 18.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 21.2%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 25.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 28.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 31.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 31.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 34.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 35.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 36.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 38.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 39.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 39.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 40.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 40.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 40.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 41.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 41.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 42.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 43.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 44.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 49.7%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 53.0%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 55.0%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 55.3%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 63.6%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 69.9%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 74.2%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 78.2%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 79.9%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 80.9%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 81.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 82.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 83.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 84.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 85.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 86.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 87.2%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 87.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 88.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 89.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 90.1%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 90.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 91.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 92.5%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 93.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 94.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 95.4%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 96.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 97.8%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 98.7%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 99.7%
+test_integrado_debug.js:924 [INFO] Cargando TAM 2C... 100.0%
+GLTFLoader.js:235 Chunks binarios encontrados: 1
+GLTFLoader.js:199 GLTFParser con validación robusta inicializado
+GLTFLoader.js:292 Iniciando análisis GLTF con validación robusta...
+GLTFLoader.js:438 JSON textures: (41) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+GLTFLoader.js:439 JSON images: (41) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+GLTFLoader.js:453 Cargando 41 texturas...
+three.min.js:7 Obtener ha terminado de cargar: GET "http://127.0.0.1:5501/Client/assets/models/gbl_new/tam_2c_war_thunder.glb".
+load @ three.min.js:7
+load @ GLTFLoader.js:56
+placeModelAtPosition @ test_integrado_debug.js:1128
+onMouseClick @ test_integrado_debug.js:388
+(anónimo) @ test_integrado_debug.js:297
+ Error cargando textura 0: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 1: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 2: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 3: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 4: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 5: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 6: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 7: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 8: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 9: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 10: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 11: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 12: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 13: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 14: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 15: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 16: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 17: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 18: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 19: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 20: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 21: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 22: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 23: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 24: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 25: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 26: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 27: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 28: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 29: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 30: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 31: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 32: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 33: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 34: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 35: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 36: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 37: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 38: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 39: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+ Error cargando textura 40: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+GLTFLoader.js:515 Todas las texturas cargadas
+GLTFLoader.js:349 Procesando 19 materiales
+GLTFLoader.js:350 Materiales JSON: (19) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+GLTFLoader.js:365 Procesando material 0: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: '05efcec1-46c1-4fff-afc7-74e66a5353ac', normalTexture: {…}}
+GLTFLoader.js:418 Material 0 creado: 05efcec1-46c1-4fff-afc7-74e66a5353ac
+GLTFLoader.js:365 Procesando material 1: {doubleSided: true, extensions: {…}, name: '169dcba1-0f86-4aa0-889c-1705209a33b5', normalTexture: {…}}
+GLTFLoader.js:418 Material 1 creado: 169dcba1-0f86-4aa0-889c-1705209a33b5
+GLTFLoader.js:365 Procesando material 2: {doubleSided: true, extensions: {…}, name: '35bf2e9c-da29-40fe-b4a0-7178b865d75a', normalTexture: {…}}
+GLTFLoader.js:418 Material 2 creado: 35bf2e9c-da29-40fe-b4a0-7178b865d75a
+GLTFLoader.js:365 Procesando material 3: {doubleSided: true, extensions: {…}, name: '3e631eb8-d0e3-47f3-a6c1-c4b87bafcef5', normalTexture: {…}}
+GLTFLoader.js:418 Material 3 creado: 3e631eb8-d0e3-47f3-a6c1-c4b87bafcef5
+GLTFLoader.js:365 Procesando material 4: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: '42e8f94d-5aff-4b2d-9a5c-080d9c8cba6e', normalTexture: {…}}
+GLTFLoader.js:418 Material 4 creado: 42e8f94d-5aff-4b2d-9a5c-080d9c8cba6e
+GLTFLoader.js:365 Procesando material 5: {doubleSided: true, extensions: {…}, name: '56cbd787-639c-4b60-ac92-dcf13b27b40c', normalTexture: {…}}
+GLTFLoader.js:418 Material 5 creado: 56cbd787-639c-4b60-ac92-dcf13b27b40c
+GLTFLoader.js:365 Procesando material 6: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: '7b0b887b-4fa9-4660-8668-c238a1d28c08'}
+GLTFLoader.js:418 Material 6 creado: 7b0b887b-4fa9-4660-8668-c238a1d28c08
+GLTFLoader.js:365 Procesando material 7: {doubleSided: true, extensions: {…}, name: '7e31fd88-daa1-4bfc-bb0e-a729e3801ca7', normalTexture: {…}}
+GLTFLoader.js:418 Material 7 creado: 7e31fd88-daa1-4bfc-bb0e-a729e3801ca7
+GLTFLoader.js:365 Procesando material 8: {doubleSided: true, extensions: {…}, name: '8182a9b1-9386-4c36-a499-0375e0b56eb3', normalTexture: {…}}
+GLTFLoader.js:418 Material 8 creado: 8182a9b1-9386-4c36-a499-0375e0b56eb3
+GLTFLoader.js:365 Procesando material 9: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: '81bd875d-9cb8-491c-80cd-daa1df621ecd', normalTexture: {…}}
+GLTFLoader.js:418 Material 9 creado: 81bd875d-9cb8-491c-80cd-daa1df621ecd
+GLTFLoader.js:365 Procesando material 10: {doubleSided: true, extensions: {…}, name: 'a5e97987-dced-4c05-b845-1d7e97b527b0', normalTexture: {…}}
+GLTFLoader.js:418 Material 10 creado: a5e97987-dced-4c05-b845-1d7e97b527b0
+GLTFLoader.js:365 Procesando material 11: {doubleSided: true, extensions: {…}, name: 'bac8831c-d6a9-4a11-84c7-e6cf14dba054', normalTexture: {…}}
+GLTFLoader.js:418 Material 11 creado: bac8831c-d6a9-4a11-84c7-e6cf14dba054
+GLTFLoader.js:365 Procesando material 12: {doubleSided: true, extensions: {…}, name: 'c4754aec-e131-453a-9813-4d3a586a7f2c', normalTexture: {…}}
+GLTFLoader.js:418 Material 12 creado: c4754aec-e131-453a-9813-4d3a586a7f2c
+GLTFLoader.js:365 Procesando material 13: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: 'c50fd4b8-bbd7-4978-84ef-b702e8f36a8e', normalTexture: {…}}
+GLTFLoader.js:418 Material 13 creado: c50fd4b8-bbd7-4978-84ef-b702e8f36a8e
+GLTFLoader.js:365 Procesando material 14: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: 'c8f12c0b-1dea-40ce-b813-fa79c579ac55', normalTexture: {…}}
+GLTFLoader.js:418 Material 14 creado: c8f12c0b-1dea-40ce-b813-fa79c579ac55
+GLTFLoader.js:365 Procesando material 15: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: 'd30f38fc-5b9d-487d-8870-6ba524c11c4a', normalTexture: {…}}
+GLTFLoader.js:418 Material 15 creado: d30f38fc-5b9d-487d-8870-6ba524c11c4a
+GLTFLoader.js:365 Procesando material 16: {doubleSided: true, extensions: {…}, name: 'ec33b163-5ab6-43d9-af19-ea22b6279420', normalTexture: {…}}
+GLTFLoader.js:418 Material 16 creado: ec33b163-5ab6-43d9-af19-ea22b6279420
+GLTFLoader.js:365 Procesando material 17: {doubleSided: true, extensions: {…}, name: 'edf786cd-9bb0-47cb-9e61-3d89141d28c8', normalTexture: {…}}
+GLTFLoader.js:418 Material 17 creado: edf786cd-9bb0-47cb-9e61-3d89141d28c8
+GLTFLoader.js:365 Procesando material 18: {alphaMode: 'BLEND', doubleSided: true, extensions: {…}, name: 'fe797064-91a1-4ef9-b3dc-1a84cfdd6a9a', normalTexture: {…}}
+GLTFLoader.js:418 Material 18 creado: fe797064-91a1-4ef9-b3dc-1a84cfdd6a9a
+GLTFLoader.js:284 GLTF structure validation passed
+GLTFLoader.js:542 Cargando 31 meshes...
+GLTFLoader.js:556 Procesando mesh 0: Object_0
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 4, material: 0, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 0
+GLTFLoader.js:591 Verificando accessor POSITION en índice 0
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, componentType: 5126, count: 24, max: Array(3), min: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 1: Object_1
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 9, material: 11, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 5
+GLTFLoader.js:591 Verificando accessor POSITION en índice 5
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 576, componentType: 5126, count: 92, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 2: Object_2
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 14, material: 1, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 10
+GLTFLoader.js:591 Verificando accessor POSITION en índice 10
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 2784, componentType: 5126, count: 8395, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 3: Object_3
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 19, material: 3, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 15
+GLTFLoader.js:591 Verificando accessor POSITION en índice 15
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 204264, componentType: 5126, count: 124, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 4: Object_4
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 24, material: 4, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 20
+GLTFLoader.js:591 Verificando accessor POSITION en índice 20
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 207240, componentType: 5126, count: 2706, max: Array(3), …}
+ Procesando mesh 5: Object_5
+ Procesando primitivo 0: {attributes: {…}, indices: 29, material: 5, mode: 4}
+ POSITION accessor index: 25
+ Verificando accessor POSITION en índice 25
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 272184, componentType: 5126, count: 5128, max: Array(3), …}
+ Procesando mesh 6: Object_6
+ Procesando primitivo 0: {attributes: {…}, indices: 34, material: 13, mode: 4}
+ POSITION accessor index: 30
+ Verificando accessor POSITION en índice 30
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 395256, componentType: 5126, count: 4171, max: Array(3), …}
+ Procesando mesh 7: Object_7
+ Procesando primitivo 0: {attributes: {…}, indices: 39, material: 14, mode: 4}
+ POSITION accessor index: 35
+ Verificando accessor POSITION en índice 35
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 495360, componentType: 5126, count: 416, max: Array(3), …}
+ Procesando mesh 8: Object_8
+ Procesando primitivo 0: {attributes: {…}, indices: 44, material: 18, mode: 4}
+ POSITION accessor index: 40
+ Verificando accessor POSITION en índice 40
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 505344, componentType: 5126, count: 4171, max: Array(3), …}
+ Procesando mesh 9: Object_9
+ Procesando primitivo 0: {attributes: {…}, indices: 49, material: 10, mode: 4}
+ POSITION accessor index: 45
+ Verificando accessor POSITION en índice 45
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 605448, componentType: 5126, count: 8383, max: Array(3), …}
+ Procesando mesh 10: Object_10
+ Procesando primitivo 0: {attributes: {…}, indices: 54, material: 2, mode: 4}
+ POSITION accessor index: 50
+ Verificando accessor POSITION en índice 50
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 806640, componentType: 5126, count: 4722, max: Array(3), …}
+ Procesando mesh 11: Object_11
+ Procesando primitivo 0: {attributes: {…}, indices: 59, material: 2, mode: 4}
+ POSITION accessor index: 55
+ Verificando accessor POSITION en índice 55
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 919968, componentType: 5126, count: 11700, max: Array(3), …}
+ Procesando mesh 12: Object_12
+ Procesando primitivo 0: {attributes: {…}, indices: 64, material: 2, mode: 4}
+ POSITION accessor index: 60
+ Verificando accessor POSITION en índice 60
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1200768, componentType: 5126, count: 1852, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 13: Object_13
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 68, material: 6, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 65
+GLTFLoader.js:591 Verificando accessor POSITION en índice 65
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1245216, componentType: 5126, count: 56, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 14: Object_14
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 73, material: 7, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 69
+GLTFLoader.js:591 Verificando accessor POSITION en índice 69
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1246560, componentType: 5126, count: 176, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 15: Object_15
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 78, material: 9, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 74
+GLTFLoader.js:591 Verificando accessor POSITION en índice 74
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1250784, componentType: 5126, count: 50, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 16: Object_16
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 83, material: 8, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 79
+GLTFLoader.js:591 Verificando accessor POSITION en índice 79
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1251984, componentType: 5126, count: 20527, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 17: Object_17
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 88, material: 8, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 84
+GLTFLoader.js:591 Verificando accessor POSITION en índice 84
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1744632, componentType: 5126, count: 6207, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 18: Object_18
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 93, material: 8, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 89
+GLTFLoader.js:591 Verificando accessor POSITION en índice 89
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 1893600, componentType: 5126, count: 7675, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 19: Object_19
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 98, material: 8, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 94
+GLTFLoader.js:591 Verificando accessor POSITION en índice 94
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 2077800, componentType: 5126, count: 10548, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 20: Object_20
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 103, material: 8, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 99
+GLTFLoader.js:591 Verificando accessor POSITION en índice 99
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 2330952, componentType: 5126, count: 1281, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 21: Object_21
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 108, material: 12, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 104
+GLTFLoader.js:591 Verificando accessor POSITION en índice 104
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 2361696, componentType: 5126, count: 12032, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 22: Object_22
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 113, material: 12, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 109
+GLTFLoader.js:591 Verificando accessor POSITION en índice 109
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 2650464, componentType: 5126, count: 28519, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 23: Object_23
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 118, material: 12, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 114
+GLTFLoader.js:591 Verificando accessor POSITION en índice 114
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 3334920, componentType: 5126, count: 11407, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 24: Object_24
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 123, material: 12, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 119
+GLTFLoader.js:591 Verificando accessor POSITION en índice 119
+GLTFLoader.js:592 Accessors disponibles: 154
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, byteOffset: 3608688, componentType: 5126, count: 9547, max: Array(3), …}
+GLTFLoader.js:556 Procesando mesh 25: Object_25
+ Procesando primitivo 0: {attributes: {…}, indices: 128, material: 12, mode: 4}
+ POSITION accessor index: 124
+ Verificando accessor POSITION en índice 124
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 3837816, componentType: 5126, count: 11425, max: Array(3), …}
+ Procesando mesh 26: Object_26
+ Procesando primitivo 0: {attributes: {…}, indices: 133, material: 12, mode: 4}
+ POSITION accessor index: 129
+ Verificando accessor POSITION en índice 129
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 4112016, componentType: 5126, count: 11134, max: Array(3), …}
+ Procesando mesh 27: Object_27
+ Procesando primitivo 0: {attributes: {…}, indices: 138, material: 12, mode: 4}
+ POSITION accessor index: 134
+ Verificando accessor POSITION en índice 134
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 4379232, componentType: 5126, count: 11649, max: Array(3), …}
+ Procesando mesh 28: Object_28
+ Procesando primitivo 0: {attributes: {…}, indices: 143, material: 15, mode: 4}
+ POSITION accessor index: 139
+ Verificando accessor POSITION en índice 139
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 4658808, componentType: 5126, count: 56, max: Array(3), …}
+ Procesando mesh 29: Object_29
+ Procesando primitivo 0: {attributes: {…}, indices: 148, material: 16, mode: 4}
+ POSITION accessor index: 144
+ Verificando accessor POSITION en índice 144
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 4660152, componentType: 5126, count: 6513, max: Array(3), …}
+ Procesando mesh 30: Object_30
+ Procesando primitivo 0: {attributes: {…}, indices: 153, material: 17, mode: 4}
+ POSITION accessor index: 149
+ Verificando accessor POSITION en índice 149
+ Accessors disponibles: 154
+ Accessor POSITION encontrado: {bufferView: 2, byteOffset: 4816464, componentType: 5126, count: 2922, max: Array(3), …}
+ POSITION cargado: 24 vertices
+ NORMAL cargado: 24 normales
+ UV cargado: 24 coordenadas
+ INDICES cargado: 24 índices
+ POSITION cargado: 92 vertices
+ NORMAL cargado: 92 normales
+ UV cargado: 92 coordenadas
+ INDICES cargado: 246 índices
+ POSITION cargado: 8395 vertices
+ NORMAL cargado: 8395 normales
+ UV cargado: 8395 coordenadas
+ INDICES cargado: 22272 índices
+ POSITION cargado: 124 vertices
+ NORMAL cargado: 124 normales
+ UV cargado: 124 coordenadas
+ INDICES cargado: 354 índices
+ POSITION cargado: 2706 vertices
+ NORMAL cargado: 2706 normales
+ UV cargado: 2706 coordenadas
+ INDICES cargado: 4956 índices
+ POSITION cargado: 5128 vertices
+ NORMAL cargado: 5128 normales
+ UV cargado: 5128 coordenadas
+ INDICES cargado: 11826 índices
+ POSITION cargado: 4171 vertices
+ NORMAL cargado: 4171 normales
+ UV cargado: 4171 coordenadas
+ INDICES cargado: 12546 índices
+ POSITION cargado: 416 vertices
+ NORMAL cargado: 416 normales
+ UV cargado: 416 coordenadas
+ INDICES cargado: 624 índices
+ POSITION cargado: 4171 vertices
+ NORMAL cargado: 4171 normales
+ UV cargado: 4171 coordenadas
+ INDICES cargado: 12546 índices
+ POSITION cargado: 8383 vertices
+ NORMAL cargado: 8383 normales
+ UV cargado: 8383 coordenadas
+ INDICES cargado: 20403 índices
+ POSITION cargado: 4722 vertices
+ NORMAL cargado: 4722 normales
+ UV cargado: 4722 coordenadas
+ INDICES cargado: 8406 índices
+ POSITION cargado: 11700 vertices
+ NORMAL cargado: 11700 normales
+ UV cargado: 11700 coordenadas
+ INDICES cargado: 24243 índices
+ POSITION cargado: 1852 vertices
+ NORMAL cargado: 1852 normales
+ UV cargado: 1852 coordenadas
+ INDICES cargado: 2928 índices
+ POSITION cargado: 56 vertices
+ NORMAL cargado: 56 normales
+ UV cargado: 56 coordenadas
+ INDICES cargado: 126 índices
+ POSITION cargado: 176 vertices
+ NORMAL cargado: 176 normales
+ UV cargado: 176 coordenadas
+ INDICES cargado: 720 índices
+ POSITION cargado: 50 vertices
+ NORMAL cargado: 50 normales
+ UV cargado: 50 coordenadas
+ INDICES cargado: 192 índices
+ POSITION cargado: 20527 vertices
+ NORMAL cargado: 20527 normales
+ UV cargado: 20527 coordenadas
+ INDICES cargado: 48606 índices
+ POSITION cargado: 6207 vertices
+ NORMAL cargado: 6207 normales
+ UV cargado: 6207 coordenadas
+ INDICES cargado: 12114 índices
+ POSITION cargado: 7675 vertices
+ NORMAL cargado: 7675 normales
+ UV cargado: 7675 coordenadas
+ INDICES cargado: 17505 índices
+ POSITION cargado: 10548 vertices
+ NORMAL cargado: 10548 normales
+ UV cargado: 10548 coordenadas
+ INDICES cargado: 26205 índices
+ POSITION cargado: 1281 vertices
+ NORMAL cargado: 1281 normales
+ UV cargado: 1281 coordenadas
+ INDICES cargado: 2673 índices
+ POSITION cargado: 12032 vertices
+ NORMAL cargado: 12032 normales
+ UV cargado: 12032 coordenadas
+ INDICES cargado: 27612 índices
+ POSITION cargado: 28519 vertices
+ NORMAL cargado: 28519 normales
+ UV cargado: 28519 coordenadas
+ INDICES cargado: 65535 índices
+ POSITION cargado: 11407 vertices
+ NORMAL cargado: 11407 normales
+ UV cargado: 11407 coordenadas
+ INDICES cargado: 27780 índices
+ POSITION cargado: 9547 vertices
+ NORMAL cargado: 9547 normales
+ UV cargado: 9547 coordenadas
+ INDICES cargado: 22698 índices
+ POSITION cargado: 11425 vertices
+ NORMAL cargado: 11425 normales
+ UV cargado: 11425 coordenadas
+ INDICES cargado: 29118 índices
+ POSITION cargado: 11134 vertices
+ NORMAL cargado: 11134 normales
+ UV cargado: 11134 coordenadas
+ INDICES cargado: 25260 índices
+ POSITION cargado: 11649 vertices
+ NORMAL cargado: 11649 normales
+ UV cargado: 11649 coordenadas
+ INDICES cargado: 27114 índices
+ POSITION cargado: 56 vertices
+ NORMAL cargado: 56 normales
+ UV cargado: 56 coordenadas
+ INDICES cargado: 84 índices
+ POSITION cargado: 6513 vertices
+ NORMAL cargado: 6513 normales
+ UV cargado: 6513 coordenadas
+ INDICES cargado: 15165 índices
+ POSITION cargado: 2922 vertices
+ NORMAL cargado: 2922 normales
+ UV cargado: 2922 coordenadas
+ INDICES cargado: 6795 índices
+ Geometría creada exitosamente con 24 vértices
+ Geometría creada exitosamente con 92 vértices
+ Geometría creada exitosamente con 8395 vértices
+ Geometría creada exitosamente con 124 vértices
+ Geometría creada exitosamente con 2706 vértices
+ Geometría creada exitosamente con 5128 vértices
+ Geometría creada exitosamente con 4171 vértices
+ Geometría creada exitosamente con 416 vértices
+ Geometría creada exitosamente con 4171 vértices
+ Geometría creada exitosamente con 8383 vértices
+ Geometría creada exitosamente con 4722 vértices
+ Geometría creada exitosamente con 11700 vértices
+ Geometría creada exitosamente con 1852 vértices
+ Geometría creada exitosamente con 56 vértices
+ Geometría creada exitosamente con 176 vértices
+ Geometría creada exitosamente con 50 vértices
+ Geometría creada exitosamente con 20527 vértices
+ Geometría creada exitosamente con 6207 vértices
+ Geometría creada exitosamente con 7675 vértices
+ Geometría creada exitosamente con 10548 vértices
+ Geometría creada exitosamente con 1281 vértices
+ Geometría creada exitosamente con 12032 vértices
+ Geometría creada exitosamente con 28519 vértices
+ Geometría creada exitosamente con 11407 vértices
+ Geometría creada exitosamente con 9547 vértices
+ Geometría creada exitosamente con 11425 vértices
+ Geometría creada exitosamente con 11134 vértices
+ Geometría creada exitosamente con 11649 vértices
+ Geometría creada exitosamente con 56 vértices
+ Geometría creada exitosamente con 6513 vértices
+ Geometría creada exitosamente con 2922 vértices
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Primitivo 0 creado exitosamente
+ Mesh 0 completado con 1 primitivos
+ Mesh 1 completado con 1 primitivos
+ Mesh 2 completado con 1 primitivos
+ Mesh 3 completado con 1 primitivos
+ Mesh 4 completado con 1 primitivos
+ Mesh 5 completado con 1 primitivos
+ Mesh 6 completado con 1 primitivos
+ Mesh 7 completado con 1 primitivos
+ Mesh 8 completado con 1 primitivos
+ Mesh 9 completado con 1 primitivos
+ Mesh 10 completado con 1 primitivos
+ Mesh 11 completado con 1 primitivos
+ Mesh 12 completado con 1 primitivos
+ Mesh 13 completado con 1 primitivos
+ Mesh 14 completado con 1 primitivos
+ Mesh 15 completado con 1 primitivos
+ Mesh 16 completado con 1 primitivos
+ Mesh 17 completado con 1 primitivos
+ Mesh 18 completado con 1 primitivos
+ Mesh 19 completado con 1 primitivos
+ Mesh 20 completado con 1 primitivos
+ Mesh 21 completado con 1 primitivos
+ Mesh 22 completado con 1 primitivos
+ Mesh 23 completado con 1 primitivos
+ Mesh 24 completado con 1 primitivos
+ Mesh 25 completado con 1 primitivos
+ Mesh 26 completado con 1 primitivos
+ Mesh 27 completado con 1 primitivos
+ Mesh 28 completado con 1 primitivos
+ Mesh 29 completado con 1 primitivos
+ Mesh 30 completado con 1 primitivos
+ Carga de meshes completada exitosamente. Total: 31
+ Cargando 33 nodos...
+ Nodo 0 creado: Sketchfab_model
+ Nodo 1 creado: TAM_2C.obj.cleaner.materialmerger.gles
+ Nodo 2 creado: Object_2
+ Nodo 3 creado: Object_3
+ Nodo 4 creado: Object_4
+ Nodo 5 creado: Object_5
+ Nodo 6 creado: Object_6
+ Nodo 7 creado: Object_7
+ Nodo 8 creado: Object_8
+ Nodo 9 creado: Object_9
+ Nodo 10 creado: Object_10
+ Nodo 11 creado: Object_11
+ Nodo 12 creado: Object_12
+ Nodo 13 creado: Object_13
+ Nodo 14 creado: Object_14
+ Nodo 15 creado: Object_15
+ Nodo 16 creado: Object_16
+ Nodo 17 creado: Object_17
+ Nodo 18 creado: Object_18
+ Nodo 19 creado: Object_19
+ Nodo 20 creado: Object_20
+ Nodo 21 creado: Object_21
+ Nodo 22 creado: Object_22
+ Nodo 23 creado: Object_23
+ Nodo 24 creado: Object_24
+ Nodo 25 creado: Object_25
+ Nodo 26 creado: Object_26
+ Nodo 27 creado: Object_27
+ Nodo 28 creado: Object_28
+ Nodo 29 creado: Object_29
+ Nodo 30 creado: Object_30
+ Nodo 31 creado: Object_31
+ Nodo 32 creado: Object_32
+ Mesh 0 agregado al nodo 2
+GLTFLoader.js:946 Mesh 1 agregado al nodo 3
+GLTFLoader.js:946 Mesh 2 agregado al nodo 4
+GLTFLoader.js:946 Mesh 3 agregado al nodo 5
+GLTFLoader.js:946 Mesh 4 agregado al nodo 6
+GLTFLoader.js:946 Mesh 5 agregado al nodo 7
+GLTFLoader.js:946 Mesh 6 agregado al nodo 8
+GLTFLoader.js:946 Mesh 7 agregado al nodo 9
+GLTFLoader.js:946 Mesh 8 agregado al nodo 10
+GLTFLoader.js:946 Mesh 9 agregado al nodo 11
+GLTFLoader.js:946 Mesh 10 agregado al nodo 12
+GLTFLoader.js:946 Mesh 11 agregado al nodo 13
+GLTFLoader.js:946 Mesh 12 agregado al nodo 14
+GLTFLoader.js:946 Mesh 13 agregado al nodo 15
+GLTFLoader.js:946 Mesh 14 agregado al nodo 16
+GLTFLoader.js:946 Mesh 15 agregado al nodo 17
+GLTFLoader.js:946 Mesh 16 agregado al nodo 18
+GLTFLoader.js:946 Mesh 17 agregado al nodo 19
+GLTFLoader.js:946 Mesh 18 agregado al nodo 20
+GLTFLoader.js:946 Mesh 19 agregado al nodo 21
+GLTFLoader.js:946 Mesh 20 agregado al nodo 22
+GLTFLoader.js:946 Mesh 21 agregado al nodo 23
+GLTFLoader.js:946 Mesh 22 agregado al nodo 24
+GLTFLoader.js:946 Mesh 23 agregado al nodo 25
+GLTFLoader.js:946 Mesh 24 agregado al nodo 26
+GLTFLoader.js:946 Mesh 25 agregado al nodo 27
+GLTFLoader.js:946 Mesh 26 agregado al nodo 28
+GLTFLoader.js:946 Mesh 27 agregado al nodo 29
+GLTFLoader.js:946 Mesh 28 agregado al nodo 30
+GLTFLoader.js:946 Mesh 29 agregado al nodo 31
+GLTFLoader.js:946 Mesh 30 agregado al nodo 32
+GLTFLoader.js:968 Nodo hijo 1 agregado al nodo 0
+GLTFLoader.js:968 Nodo hijo 2 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 3 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 4 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 5 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 6 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 7 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 8 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 9 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 10 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 11 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 12 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 13 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 14 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 15 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 16 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 17 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 18 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 19 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 20 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 21 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 22 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 23 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 24 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 25 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 26 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 27 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 28 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 29 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 30 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 31 agregado al nodo 1
+GLTFLoader.js:968 Nodo hijo 32 agregado al nodo 1
+GLTFLoader.js:978 Carga de nodos completada. Total: 33
+GLTFLoader.js:998 Cargando 1 escenas...
+GLTFLoader.js:1010 Procesando escena 0: Sketchfab_Scene
+GLTFLoader.js:1013 Nodos raíz: 1
+GLTFLoader.js:1022 Nodo 0 agregado a escena 0
+GLTFLoader.js:1029 Escena 0 completada con 1 nodos raíz
+GLTFLoader.js:1038 Carga de escenas completada. Total: 1
+GLTFLoader.js:315 Componentes GLTF cargados exitosamente
+GLTFLoader.js:60 GLTF cargado exitosamente
+test_integrado_debug.js:1297 Unidad TAM 2C asignada como Tanque (amigo)
+test_integrado_debug.js:924 [SUCCESS] TAM 2C colocado exitosamente
+[Violation] 'requestAnimationFrame' handler ha tardado <N> ms
+[Violation] 'requestAnimationFrame' handler ha tardado <N> ms
+[Violation] 'requestAnimationFrame' handler ha tardado <N> ms
+[Violation] 'requestAnimationFrame' handler ha tardado <N> ms
+[Violation] 'requestAnimationFrame' handler ha tardado <N> ms
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 443 544
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 443 544
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: undefined currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 8
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_16_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.0561062793364, 552.021245948919), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.0561062793364, 552.021245948919) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.056px', top: '502.021px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: moverUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: moverUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: moverUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: moverUnidad
+test_integrado_debug.js:924 [INFO] Click en múltiples puntos para ruta. Presione ENTER o ESPACIO para finalizar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 521 472
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 521 472
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'move', unit: Ya, waypoints: Array(0), lastClickTime: 0} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [INFO] Punto 1 agregado. ENTER/ESPACIO para finalizar ruta
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 537 436
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 537 436
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 527 388
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 527 388
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 437 551
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 437 551
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 6
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_27_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.0561062793364, 552.021245948919), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.0561062793364, 552.021245948919) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 389.056px;​ top:​ 502.021px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.056px', top: '502.021px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 437 551
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: moverUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: moverUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: moverUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: moverUnidad
+test_integrado_debug.js:924 [INFO] Click en múltiples puntos para ruta. Presione ENTER o ESPACIO para finalizar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 526 476
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 526 476
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'move', unit: Ya, waypoints: Array(0), lastClickTime: 0} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [INFO] Punto 1 agregado. ENTER/ESPACIO para finalizar ruta
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 526 476
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 526 476
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:410 🔍 Objeto intersectado:  {}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 526 476
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 526 476
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 526 476
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 440 548
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 440 548
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 7
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.0561062793364, 552.021245948919), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.0561062793364, 552.021245948919) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 389.056px;​ top:​ 502.021px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.056px', top: '502.021px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 440 548
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: infoUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: infoUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: infoUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: infoUnidad
+test_integrado_debug.js:924 [INFO] Información de TAM 2C mostrada
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 447 548
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 447 548
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 7
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+test_integrado_debug.js:419 📭 Deseleccionando unidad ya seleccionada
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 447 548
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 447 548
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 7
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.0561062793364, 552.021245948919), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.0561062793364, 552.021245948919) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ auto;​ opacity:​ 1;​ transition:​ opacity 0.2s;​ display:​ block;​ border:​ none;​ left:​ 389.056px;​ top:​ 502.021px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.056px', top: '502.021px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 447 548
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 447 548
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 447 548
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: darOrdenes
+RadialMenu.js:308 🔄 Ejecutando callback con acción: darOrdenes
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: darOrdenes
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: darOrdenes
+test_integrado_debug.js:2001 Uncaught TypeError: this.showAdvancedOrdersMenu is not a function
+    at MAIRA3DViewAdapter.handleRadialMenuOption (test_integrado_debug.js:2001:22)
+    at RadialMenu.actionCallback (test_integrado_debug.js:338:22)
+    at HTMLDivElement.<anonymous> (RadialMenu.js:309:26)
+handleRadialMenuOption @ test_integrado_debug.js:2001
+(anónimo) @ test_integrado_debug.js:338
+(anónimo) @ RadialMenu.js:309
+RadialMenu.js:306 🖱️ Opción del menú clickeada: atacarCon
+RadialMenu.js:308 🔄 Ejecutando callback con acción: atacarCon
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: atacarCon
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: atacarCon
+test_integrado_debug.js:924 [WARNING] Click en el objetivo para atacar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 457 390
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 457 390
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'attack', unit: Ya} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [ERROR] No se encontró unidad objetivo
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+RadialMenu.js:358 🖱️ Document click detected en: INPUT isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [SUCCESS] Modelo Soldado seleccionado. Click en el terreno para colocar.
+RadialMenu.js:358 🖱️ Document click detected en: BUTTON isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 443 390
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 443 390
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: ../Client/assets/models/gbl_new/a_solider_poin_weapon.glb selectedObject: TAM 2C
+test_integrado_debug.js:359 🎯 Intentando colocar modelo: Soldado en posición del click
+test_integrado_debug.js:373 📍 Coordenadas normalizadas del mouse: 0.02546296296296302 0.039408866995073843
+test_integrado_debug.js:378 🔍 Intersecciones con terreno: 1
+test_integrado_debug.js:382 📍 Posición de colocación calculada: -5.773582734238346 -0.06417854626370192 -11.882102879577857
+test_integrado_debug.js:924 [INFO] Cargando Soldado...
+GLTFLoader.js:28 GLTFLoader con soporte binario y validación robusta inicializado
+test_integrado_debug.js:389 ✅ Modelo colocado exitosamente
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [INFO] Cargando Soldado... 53.8%
+test_integrado_debug.js:924 [INFO] Cargando Soldado... 66.3%
+test_integrado_debug.js:924 [INFO] Cargando Soldado... 97.3%
+test_integrado_debug.js:924 [INFO] Cargando Soldado... 100.0%
+GLTFLoader.js:235 Chunks binarios encontrados: 1
+GLTFLoader.js:199 GLTFParser con validación robusta inicializado
+GLTFLoader.js:292 Iniciando análisis GLTF con validación robusta...
+GLTFLoader.js:438 JSON textures: (2) [{…}, {…}]
+GLTFLoader.js:439 JSON images: (2) [{…}, {…}]
+GLTFLoader.js:453 Cargando 2 texturas...
+GLTFLoader.js:497 Error cargando textura 0: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+GLTFLoader.js:497 Error cargando textura 1: Event {isTrusted: true, type: 'error', target: img, currentTarget: img, eventPhase: 2, …}
+(anónimo) @ GLTFLoader.js:497
+l @ three.min.js:7
+GLTFLoader.js:515 Todas las texturas cargadas
+GLTFLoader.js:349 Procesando 1 materiales
+GLTFLoader.js:350 Materiales JSON: [{…}]
+GLTFLoader.js:365 Procesando material 0: {doubleSided: true, extensions: {…}, name: 'Material.001'}
+GLTFLoader.js:418 Material 0 creado: Material.001
+GLTFLoader.js:284 GLTF structure validation passed
+GLTFLoader.js:542 Cargando 1 meshes...
+GLTFLoader.js:556 Procesando mesh 0: Object_0
+GLTFLoader.js:577 Procesando primitivo 0: {attributes: {…}, indices: 3, material: 0, mode: 4}
+GLTFLoader.js:587 POSITION accessor index: 0
+GLTFLoader.js:591 Verificando accessor POSITION en índice 0
+GLTFLoader.js:592 Accessors disponibles: 4
+GLTFLoader.js:597 Accessor POSITION encontrado: {bufferView: 2, componentType: 5126, count: 30000, max: Array(3), min: Array(3), …}
+GLTFLoader.js:732 POSITION cargado: 30000 vertices
+GLTFLoader.js:746 NORMAL cargado: 30000 normales
+GLTFLoader.js:762 UV cargado: 30000 coordenadas
+GLTFLoader.js:793 INDICES cargado: 30000 índices
+GLTFLoader.js:814 Geometría creada exitosamente con 30000 vértices
+GLTFLoader.js:621 Primitivo 0 creado exitosamente
+GLTFLoader.js:639 Mesh 0 completado con 1 primitivos
+GLTFLoader.js:646 Carga de meshes completada exitosamente. Total: 1
+GLTFLoader.js:894 Cargando 3 nodos...
+GLTFLoader.js:925 Nodo 0 creado: Sketchfab_model
+GLTFLoader.js:925 Nodo 1 creado: A_solider_poin_weapon_0601161349_texture.obj.cleaner.materialmerger.gles
+GLTFLoader.js:925 Nodo 2 creado: Object_2
+GLTFLoader.js:946 Mesh 0 agregado al nodo 2
+GLTFLoader.js:968 Nodo hijo 1 agregado al nodo 0
+GLTFLoader.js:968 Nodo hijo 2 agregado al nodo 1
+GLTFLoader.js:978 Carga de nodos completada. Total: 3
+GLTFLoader.js:998 Cargando 1 escenas...
+GLTFLoader.js:1010 Procesando escena 0: Sketchfab_Scene
+GLTFLoader.js:1013 Nodos raíz: 1
+GLTFLoader.js:1022 Nodo 0 agregado a escena 0
+GLTFLoader.js:1029 Escena 0 completada con 1 nodos raíz
+GLTFLoader.js:1038 Carga de escenas completada. Total: 1
+GLTFLoader.js:315 Componentes GLTF cargados exitosamente
+GLTFLoader.js:60 GLTF cargado exitosamente
+test_integrado_debug.js:1297 Unidad Soldado asignada como Infantería (enemigo)
+test_integrado_debug.js:924 [SUCCESS] Soldado colocado exitosamente
+three.min.js:7 Obtener ha terminado de cargar: GET "http://127.0.0.1:5501/Client/assets/models/gbl_new/a_solider_poin_weapon.glb".
+load @ three.min.js:7
+load @ GLTFLoader.js:56
+placeModelAtPosition @ test_integrado_debug.js:1128
+onMouseClick @ test_integrado_debug.js:388
+(anónimo) @ test_integrado_debug.js:297
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 444 386
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 444 386
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 3
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (443.0540207388904, 385.5117183431895), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (443.0540207388904, 385.5117183431895) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 389.056px;​ top:​ 502.021px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '393.054px', top: '335.512px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: atacarEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: atacarEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: atacarEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: atacarEnemigo
+test_integrado_debug.js:924 [WARNING] Click en el objetivo para atacar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 440 547
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 440 547
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'attack', unit: Ya} currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [WARNING] Soldado atacando a undefined
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 440 547
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 440 547
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 8
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.0561062793364, 552.021245948919), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.0561062793364, 552.021245948919) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ auto;​ opacity:​ 1;​ transition:​ opacity 0.2s;​ display:​ block;​ border:​ none;​ left:​ 389.056px;​ top:​ 502.021px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.056px', top: '502.021px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 440 547
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 440 547
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 440 547
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: atacarCon
+RadialMenu.js:308 🔄 Ejecutando callback con acción: atacarCon
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: atacarCon
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: atacarCon
+test_integrado_debug.js:924 [WARNING] Click en el objetivo para atacar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 441 391
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 441 391
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'attack', unit: Ya} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [WARNING] TAM 2C atacando a undefined
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 444 386
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 444 386
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 3
+test_integrado_debug.js:410 🔍 Objeto intersectado:  {unitId: '74a1cf2b-afc2-41fb-a2d0-2e8101b86d7a'}
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (443.80563814292066, 384.118618996293), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (443.80563814292066, 384.118618996293) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ auto;​ opacity:​ 1;​ transition:​ opacity 0.2s;​ display:​ block;​ border:​ none;​ left:​ 393.806px;​ top:​ 334.119px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '393.806px', top: '334.119px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: false
+RadialMenu.js:374 🎭 Click dentro del menú, no ocultar
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 598 336
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 598 336
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 0
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [ERROR] 💀 undefined destruido!
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 448 375
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 448 375
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (447.77311814051035, 376.7650189281845), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (447.77311814051035, 376.7650189281845) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 393.806px;​ top:​ 334.119px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '397.773px', top: '326.765px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: false
+RadialMenu.js:374 🎭 Click dentro del menú, no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: false
+RadialMenu.js:374 🎭 Click dentro del menú, no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 452 378
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 524 318
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 524 318
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 450 379
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 450 379
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (447.77311814051035, 376.7650189281845), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (447.77311814051035, 376.7650189281845) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ auto;​ opacity:​ 1;​ transition:​ opacity 0.2s;​ display:​ block;​ border:​ none;​ left:​ 397.773px;​ top:​ 326.765px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '397.773px', top: '326.765px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 450 379
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: observarEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: observarEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: observarEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: observarEnemigo
+test_integrado_debug.js:2015 Uncaught TypeError: this.observarEnemigo is not a function
+    at MAIRA3DViewAdapter.handleRadialMenuOption (test_integrado_debug.js:2015:22)
+    at RadialMenu.actionCallback (test_integrado_debug.js:338:22)
+    at HTMLDivElement.<anonymous> (RadialMenu.js:309:26)
+handleRadialMenuOption @ test_integrado_debug.js:2015
+(anónimo) @ test_integrado_debug.js:338
+(anónimo) @ RadialMenu.js:309
+RadialMenu.js:306 🖱️ Opción del menú clickeada: reportarEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: reportarEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: reportarEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: reportarEnemigo
+test_integrado_debug.js:2019 Uncaught TypeError: this.reportarEnemigo is not a function
+    at MAIRA3DViewAdapter.handleRadialMenuOption (test_integrado_debug.js:2019:22)
+    at RadialMenu.actionCallback (test_integrado_debug.js:338:22)
+    at HTMLDivElement.<anonymous> (RadialMenu.js:309:26)
+handleRadialMenuOption @ test_integrado_debug.js:2019
+(anónimo) @ test_integrado_debug.js:338
+(anónimo) @ RadialMenu.js:309
+RadialMenu.js:306 🖱️ Opción del menú clickeada: infoEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: infoEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: infoEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: infoEnemigo
+test_integrado_debug.js:2006 Uncaught TypeError: this.showEnemyInfo is not a function
+    at MAIRA3DViewAdapter.handleRadialMenuOption (test_integrado_debug.js:2006:22)
+    at RadialMenu.actionCallback (test_integrado_debug.js:338:22)
+    at HTMLDivElement.<anonymous> (RadialMenu.js:309:26)
+handleRadialMenuOption @ test_integrado_debug.js:2006
+(anónimo) @ test_integrado_debug.js:338
+(anónimo) @ RadialMenu.js:309
+RadialMenu.js:306 🖱️ Opción del menú clickeada: atacarEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: atacarEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: atacarEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: atacarEnemigo
+test_integrado_debug.js:924 [WARNING] Click en el objetivo para atacar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 446 489
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 446 489
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'attack', unit: Ya} currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [WARNING] Soldado atacando a undefined
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 435 524
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 435 524
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 7
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_16_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (439.2530317814144, 563.6153751225622), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (439.2530317814144, 563.6153751225622) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 397.773px;​ top:​ 326.765px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '389.253px', top: '513.615px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+RadialMenu.js:306 🖱️ Opción del menú clickeada: infoUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: infoUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: infoUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: infoUnidad
+test_integrado_debug.js:924 [INFO] Información de TAM 2C mostrada
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 505 428
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 505 428
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 4
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci, …}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+test_integrado_debug.js:419 📭 Deseleccionando unidad ya seleccionada
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [ERROR] 💀 undefined destruido!
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 444 390
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 444 390
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 514 454
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 514 454
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 6
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_16_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (503.44340227712644, 460.03928398498397), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (503.44340227712644, 460.03928398498397) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 389.253px;​ top:​ 513.615px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '453.443px', top: '410.039px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: moverUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: moverUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: moverUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: moverUnidad
+test_integrado_debug.js:924 [INFO] Click en múltiples puntos para ruta. Presione ENTER o ESPACIO para finalizar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 734 297
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 734 297
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'move', unit: Ya, waypoints: Array(0), lastClickTime: 0} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [INFO] Punto 1 agregado. ENTER/ESPACIO para finalizar ruta
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 744 253
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 744 253
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 751 265
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 751 265
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 751 265
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 751 265
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 751 265
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 751 265
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 751 265
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 511 448
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 511 448
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 6
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_16_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (504.45722122937224, 459.4031369824079), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (504.45722122937224, 459.4031369824079) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 453.443px;​ top:​ 410.039px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '454.457px', top: '409.403px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:924 [WARNING] 💥 TAM 2C atacando a undefined
+test_integrado_debug.js:924 [ERROR] 💀 undefined destruido!
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: moverUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: moverUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: moverUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: moverUnidad
+test_integrado_debug.js:924 [INFO] Click en múltiples puntos para ruta. Presione ENTER o ESPACIO para finalizar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:301 🖱️ Right click detectado en canvas
+test_integrado_debug.js:924 [SUCCESS] Orden de movimiento dada a TAM 2C
+test_integrado_debug.js:924 [SUCCESS] TAM 2C moviéndose
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 404 331
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 404 331
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'move', unit: Ya, waypoints: Array(0), lastClickTime: 0} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [INFO] Punto 1 agregado. ENTER/ESPACIO para finalizar ruta
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 453 243
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 453 243
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 453 243
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 453 243
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 453 243
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 453 243
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 453 243
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 418 314
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 418 314
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 351 389
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 351 389
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 516 370
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 516 370
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: selectionRing {}
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 547 365
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 547 365
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: waypoint-1 {}
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 514 366
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 514 366
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 3
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true, originalEmissive: ci, …}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (512.3320482249871, 364.6633320662696), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (512.3320482249871, 364.6633320662696) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 454.457px;​ top:​ 409.403px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '462.332px', top: '314.663px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: false
+RadialMenu.js:374 🎭 Click dentro del menú, no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: false
+RadialMenu.js:374 🎭 Click dentro del menú, no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 522 362
+RadialMenu.js:306 🖱️ Opción del menú clickeada: atacarEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: atacarEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: atacarEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: atacarEnemigo
+test_integrado_debug.js:924 [WARNING] Click en el objetivo para atacar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 400 424
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 400 424
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'attack', unit: Ya} currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [WARNING] Soldado atacando a undefined
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:924 [WARNING] 💥 Soldado atacando a undefined
+test_integrado_debug.js:924 [ERROR] 💀 undefined destruido!
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 401 432
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 401 432
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 15
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_22_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (395.9060155717647, 430.769980835242), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (395.9060155717647, 430.769980835242) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 462.332px;​ top:​ 314.663px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '345.906px', top: '380.77px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: defenderCon
+RadialMenu.js:308 🔄 Ejecutando callback con acción: defenderCon
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: defenderCon
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: defenderCon
+test_integrado_debug.js:924 [SUCCESS] TAM 2C defendiendo posición
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 439 434
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 439 434
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 412 423
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 412 423
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 13
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_22_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (395.94200996467265, 430.7885588186089), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (395.94200996467265, 430.7885588186089) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 345.906px;​ top:​ 380.77px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '345.942px', top: '380.789px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: defenderCon
+RadialMenu.js:308 🔄 Ejecutando callback con acción: defenderCon
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: defenderCon
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: defenderCon
+test_integrado_debug.js:924 [SUCCESS] TAM 2C defendiendo posición
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 481 379
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 481 379
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 3
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_0_Primitive_0 {isUnit: true, unitName: 'Soldado', unitRoot: Ya, selectable: true, originalEmissive: ci, …}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: Soldado
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (476.6402297955813, 383.0337726338466), contexto: unidadEnemiga
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadEnemiga, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 4 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 2: Atacar (atacarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 3: Observar (observarEnemigo)
+RadialMenu.js:260 🔘 Creando elemento 4: Reportar (reportarEnemigo)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (476.6402297955813, 383.0337726338466) con contexto unidadEnemiga
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 345.942px;​ top:​ 380.789px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '426.64px', top: '333.034px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 4
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: infoEnemigo
+RadialMenu.js:308 🔄 Ejecutando callback con acción: infoEnemigo
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: infoEnemigo
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: infoEnemigo
+test_integrado_debug.js:2006 Uncaught TypeError: this.showEnemyInfo is not a function
+    at MAIRA3DViewAdapter.handleRadialMenuOption (test_integrado_debug.js:2006:22)
+    at RadialMenu.actionCallback (test_integrado_debug.js:338:22)
+    at HTMLDivElement.<anonymous> (RadialMenu.js:309:26)
+handleRadialMenuOption @ test_integrado_debug.js:2006
+(anónimo) @ test_integrado_debug.js:338
+(anónimo) @ RadialMenu.js:309
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 469 510
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 469 510
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: Soldado
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 2
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:410 🔍 Objeto intersectado: selectionRing {}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 398 429
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 398 429
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 8
+test_integrado_debug.js:410 🔍 Objeto intersectado: Object_21_Primitive_0 {isUnit: true, unitName: 'TAM 2C', unitRoot: Ya, selectable: true, originalEmissive: ci, …}
+test_integrado_debug.js:412 🎖️ Unidad seleccionada: TAM 2C
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:163 📱 Mostrando menú radial en (395.9480646524212, 430.786371795283), contexto: unidadPropia
+RadialMenu.js:152 🎨 Menú radial contexto configurado: unidadPropia, modo: juegoGuerra
+RadialMenu.js:235 🏗️ Creando elementos del menú para contexto: unidadPropia, modo: juegoGuerra
+RadialMenu.js:254 📋 Creando 6 elementos del menú
+RadialMenu.js:260 🔘 Creando elemento 1: Información (infoUnidad)
+RadialMenu.js:260 🔘 Creando elemento 2: Mover (moverUnidad)
+RadialMenu.js:260 🔘 Creando elemento 3: Atacar (atacarCon)
+RadialMenu.js:260 🔘 Creando elemento 4: Defender (defenderCon)
+RadialMenu.js:260 🔘 Creando elemento 5: Reagrupar (reagrupar)
+RadialMenu.js:260 🔘 Creando elemento 6: Órdenes (darOrdenes)
+RadialMenu.js:319 ✅ Elementos del menú creados
+RadialMenu.js:190 ✅ Menú radial mostrado en (395.9480646524212, 430.786371795283) con contexto unidadPropia
+RadialMenu.js:191 📍 Elemento del menú: <div class=​"radial-menu-3d" style=​"width:​ 100px;​ height:​ 100px;​ position:​ fixed;​ z-index:​ 10000;​ pointer-events:​ none;​ opacity:​ 0;​ transition:​ opacity 0.2s;​ display:​ none;​ border:​ none;​ left:​ 426.64px;​ top:​ 333.034px;​">​…​</div>​
+RadialMenu.js:192 📍 Estilos del menú: {left: '345.948px', top: '380.786px', display: 'block', opacity: '1', pointerEvents: 'auto', …}
+RadialMenu.js:200 📍 Hijos del menú: 6
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+RadialMenu.js:358 🖱️ Document click detected en: DIV isVisible: true justShown: true
+RadialMenu.js:368 🎭 Menú recién mostrado (justShown=true), no ocultar
+test_integrado_debug.js:193 📄 BODY DOBLE CLICK: DIV 398 428
+RadialMenu.js:177 🎯 Flag justShown reseteado - menú puede ocultarse ahora
+RadialMenu.js:306 🖱️ Opción del menú clickeada: moverUnidad
+RadialMenu.js:308 🔄 Ejecutando callback con acción: moverUnidad
+test_integrado_debug.js:337 🎯 Acción del menú radial ejecutada: moverUnidad
+test_integrado_debug.js:1927 🎯 Ejecutando acción del menú radial: moverUnidad
+test_integrado_debug.js:924 [INFO] Click en múltiples puntos para ruta. Presione ENTER o ESPACIO para finalizar
+RadialMenu.js:212 🎭 Ocultando menú radial...
+RadialMenu.js:230 ✅ Menú radial ocultado completamente
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 516 570
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 516 570
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: {type: 'move', unit: Ya, waypoints: Array(0), lastClickTime: 0} currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:352 📋 Procesando orden pendiente...
+test_integrado_debug.js:924 [INFO] Punto 1 agregado. ENTER/ESPACIO para finalizar ruta
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 608 597
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 608 597
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: TAM 2C
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 608 597
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 608 597
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 608 597
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 608 597
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 608 597
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 582 613
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 582 613
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:198 🖱️ CANVAS CLICK NORMAL: 582 613
+test_integrado_debug.js:296 🖱️ Click detectado en canvas
+test_integrado_debug.js:348 🖱️ MOUSE CLICK DETECTADO - Posición: 582 613
+test_integrado_debug.js:349 📊 Estado actual - pendingOrder: null currentModelPath: null selectedObject: ninguno
+test_integrado_debug.js:399 🎯 Procesando selección de unidades...
+test_integrado_debug.js:407 🔍 Intersecciones encontradas para selección: 1
+test_integrado_debug.js:410 🔍 Objeto intersectado: terrain {type: 'terrain', selectable: true}
+test_integrado_debug.js:438 📭 Deseleccionando - no se clickeó en unidad
+RadialMenu.js:358 🖱️ Document click detected en: CANVAS isVisible: false justShown: false
+RadialMenu.js:362 🎭 Menú no visible, ignorando click
+test_integrado_debug.js:185 🎯 CANVAS DOBLE CLICK DIRECTO: 582 613
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 582 613
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:188:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:188
+test_integrado_debug.js:307 🎯 Doble click detectado en canvas
+test_integrado_debug.js:1310 🎯 DOBLE CLICK DETECTADO en posición: 582 613
+test_integrado_debug.js:1325 🎯 Doble click en terreno detectado
+test_integrado_debug.js:1335 Uncaught TypeError: this.showRadialMenu is not a function
+    at MAIRA3DViewAdapter.onDoubleClick (test_integrado_debug.js:1335:18)
+    at HTMLCanvasElement.<anonymous> (test_integrado_debug.js:309:18)
+onDoubleClick @ test_integrado_debug.js:1335
+(anónimo) @ test_integrado_debug.js:309
