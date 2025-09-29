@@ -1399,6 +1399,9 @@
         // Agregar a array de unidades
         this.units.push(model);
 
+        // Sincronizar con el mapa
+        this.syncUnitsToMap();
+        
         console.log(`Unidad ${name} asignada como ${model.userData.unitType} (${model.userData.faction})`);
     }
 
@@ -1936,6 +1939,9 @@
         // Agregar a array de unidades
         this.units.push(model);
 
+        // Sincronizar con el mapa
+        this.syncUnitsToMap();
+        
         console.log(`Unidad ${name} asignada como ${model.userData.unitType} (${model.userData.faction})`);
     }
 
