@@ -477,8 +477,50 @@
         console.log('🖱️ Right click detectado - mostrando menú radial');
         event.preventDefault();
         
-        // Mostrar menú radial en la posición del click derecho
-        this.showRadialMenu(event.clientX, event.clientY, 'terrain');
+        // Detectar qué se clickeó usando raycasting
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+        let clickedObject = null;
+        let clickedTerrain = false;
+
+        // Buscar el primer objeto intersectado que sea relevante
+        for (const intersect of intersects) {
+            if (intersect.object.userData.type === 'terrain' || intersect.object === this.terrain) {
+                clickedTerrain = true;
+                console.log('🌍 Right click en terreno detectado');
+                break;
+            } else if (intersect.object.userData.type === 'unit' || intersect.object.userData.isUnit) {
+                clickedObject = intersect.object;
+                console.log('🎖️ Right click en unidad detectado:', intersect.object.userData.name);
+                break;
+            }
+        }
+
+        if (clickedTerrain) {
+            // Click derecho en terreno
+            this.showRadialMenu(event.clientX, event.clientY, 'terrain');
+            console.log('🎯 Menú radial: terreno clickeado con right click');
+        } else if (clickedObject) {
+            // Click derecho en unidad
+            this.selectObject(clickedObject);
+
+            // Determinar si es unidad propia o enemiga basada en facción
+            const isOwnUnit = clickedObject.userData.faction !== 'enemigo';
+            const context = isOwnUnit ? 'unidadPropia' : 'unidadEnemiga';
+
+            this.radialMenu.setContext(context, 'juegoGuerra');
+            this.radialMenu.show(event.clientX, event.clientY, context);
+            console.log(`🎯 Menú radial: unidad clickeada con right click (${context})`);
+        } else {
+            // Click derecho en espacio vacío
+            this.showRadialMenu(event.clientX, event.clientY, 'terrain');
+            console.log('🎯 Menú radial: espacio vacío clickeado con right click');
+        }
     }
 
     onDoubleClick(event) {
@@ -614,14 +656,15 @@
     }
 
     // Métodos de selección y manipulación
-        selectObject(object, multiSelect = false) {
-            // Si no es selección múltiple, deseleccionar todo
-            if (!multiSelect) {
-                this.deselectAll();
-                this.selectedUnits = [];
-            }
-
-            // Verificar si el objeto ya está seleccionado
+    selectObject(object, multiSelect = false) {
+        console.log('🎯 selectObject llamado para:', object.userData.name, 'multiSelect:', multiSelect);
+        
+        // Si no es selección múltiple, deseleccionar todo
+        if (!multiSelect) {
+            console.log('📭 Deseleccionando todo antes de nueva selección');
+            this.deselectAll();
+            this.selectedUnits = [];
+        }            // Verificar si el objeto ya está seleccionado
             const isAlreadySelected = this.selectedUnits.includes(object);
 
             if (multiSelect && isAlreadySelected) {
@@ -727,8 +770,11 @@
     }
 
     createSelectionRing(object) {
+        console.log('🎯 Creando anillo de selección para:', object.userData.name);
+        
         // Eliminar anillo anterior si existe
         if (object.userData.selectionCircle) {
+            console.log('🗑️ Eliminando anillo anterior');
             object.remove(object.userData.selectionCircle);
             object.userData.selectionCircle = null;
         }
@@ -757,6 +803,8 @@
         object.add(selectionRing);
         object.userData.selectionCircle = selectionRing;
 
+        console.log('✅ Anillo de selección creado y agregado');
+
         // Animación del anillo (opcional)
         this.animateSelectionRing(selectionRing);
     }
@@ -771,6 +819,16 @@
             }
         };
         animate();
+    }
+
+    clearSelectionRings() {
+        // Limpiar anillos de selección de todas las unidades seleccionadas
+        this.selectedUnits.forEach(unit => {
+            if (unit.userData && unit.userData.selectionCircle) {
+                unit.remove(unit.userData.selectionCircle);
+                unit.userData.selectionCircle = null;
+            }
+        });
     }
 
     showRadialMenu(x, y, context = 'terrain') {
@@ -1116,6 +1174,7 @@
                     const point = terrainIntersects[0].point;
                     this.giveMoveOrder(this.pendingOrder.unit, [point]);
                     this.updateStatus(`${this.pendingOrder.unit.userData.name} moviéndose al punto seleccionado`, 'success');
+                    this.clearSelectionRings(); // Limpiar anillos después de dar orden
                     this.pendingOrder = null;
                     if (this.radialMenu) this.radialMenu.hide();
                 } else {
@@ -1138,6 +1197,7 @@
                     // Ejecutar ataque inmediato
                     this.giveAttackOrder(this.pendingOrder.unit, target);
                     this.updateStatus(`${this.pendingOrder.unit.userData.name} atacando a ${target.userData.name}`, 'warning');
+                    this.clearSelectionRings(); // Limpiar anillos después de dar orden
 
                     // Dibujar círculo de visión si existe la función
                     if (typeof this.drawVisionCircle === 'function') {
@@ -1411,7 +1471,7 @@
         const faction = unitData.faction || 'amigo';
         const health = unitData.health || 100;
         const maxHealth = unitData.maxHealth || 100;
-        const ammo = unitData.ammo || 'N/A';
+        const ammo = unitData.currentAmmo !== undefined ? unitData.currentAmmo : (unitData.ammo || 0);
         const maxAmmo = unitData.maxAmmo || 100;
         const position = unit.position;
 
@@ -1477,6 +1537,83 @@
         };
 
         this.updateStatus(`Información de ${name} mostrada`, 'info');
+    }
+
+    showEnemyInfo(unit) {
+        if (!unit) return;
+
+        const modal = document.getElementById('unit-info-modal');
+        const title = document.getElementById('unit-info-title');
+        const content = document.getElementById('unit-info-content');
+
+        if (!modal || !title || !content) {
+            console.warn('Modal de información de unidad no encontrado');
+            return;
+        }
+
+        // Obtener datos de la unidad enemiga (información limitada)
+        const unitData = unit.userData;
+        const name = unitData.name || 'Unidad Desconocida';
+        const unitType = unitData.unitType || 'Desconocido';
+        const faction = unitData.faction || 'enemigo';
+        const health = unitData.health || 100;
+        const maxHealth = unitData.maxHealth || 100;
+        const position = unit.position;
+
+        // Actualizar título
+        title.textContent = `Información Enemiga: ${name}`;
+
+        // Crear contenido del modal con información limitada
+        content.innerHTML = `
+            <div class="unit-stat">
+                <span class="unit-stat-label">Tipo estimado:</span>
+                <span class="unit-stat-value">${unitType}</span>
+            </div>
+            <div class="unit-stat">
+                <span class="unit-stat-label">Facción:</span>
+                <span class="unit-stat-value" style="color: #ff6666;">ENEMIGA</span>
+            </div>
+            <div class="unit-stat">
+                <span class="unit-stat-label">Estado aproximado:</span>
+                <span class="unit-stat-value">${health > 70 ? 'Operativo' : health > 30 ? 'Dañado' : 'Crítico'}</span>
+            </div>
+            <div class="health-bar">
+                <div class="health-fill ${health < 30 ? 'low' : ''}" style="width: ${(health / maxHealth) * 100}%"></div>
+            </div>
+            <div class="unit-stat">
+                <span class="unit-stat-label">Posición aproximada:</span>
+                <span class="unit-stat-value">(${position.x.toFixed(0)}, ${position.z.toFixed(0)})</span>
+            </div>
+            <div class="unit-stat">
+                <span class="unit-stat-label">Rotación:</span>
+                <span class="unit-stat-value">${(unit.rotation.y * 180 / Math.PI).toFixed(1)}°</span>
+            </div>
+            <div class="enemy-info-notice">
+                <small style="color: #ff6666; font-style: italic;">
+                    ℹ️ Información limitada disponible para unidades enemigas
+                </small>
+            </div>
+        `;
+
+        // Mostrar modal
+        modal.style.display = 'block';
+
+        // Configurar cierre del modal
+        const closeBtn = modal.querySelector('.modal-close');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                modal.style.display = 'none';
+            };
+        }
+
+        // Cerrar al hacer click fuera del modal
+        modal.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        this.updateStatus(`Información enemiga de ${name} mostrada`, 'info');
     }
 
     /**
@@ -1874,6 +2011,7 @@
             if (intersects.length > 0) {
                 const point = intersects[0].point;
                 this.giveMoveOrder(this.selectedObject, point);
+                this.clearSelectionRings(); // Limpiar anillos después de dar orden
                 this.updateStatus(`${this.selectedObject.userData.name} moviéndose`, 'success');
             }
         }
@@ -2123,7 +2261,7 @@
     }
 
     processMoveOrder(unit, order, deltaTime = 0.016) {
-        const moveSpeed = 5.0; // Unidades por segundo
+        const moveSpeed = 15.0; // Unidades por segundo (aumentado para movimiento más realista)
         let target;
 
         // Determinar el objetivo actual
@@ -2228,7 +2366,7 @@
                 order.lastAttack = Date.now();
 
                 // Verificar munición antes de atacar
-                const currentAmmo = unit.userData.currentAmmo || 0;
+                const currentAmmo = unit.userData.municion || 0;
                 if (currentAmmo <= 0) {
                     this.updateStatus(`🚫 ${unit.userData.name} sin munición!`, 'error');
                     return;
@@ -2239,12 +2377,12 @@
                 
                 if (attackResult.hit) {
                     // Consumir munición
-                    unit.userData.currentAmmo = currentAmmo - 1;
+                    unit.userData.municion = Math.max(0, currentAmmo - 1);
                     
                     // Aplicar daño al objetivo
                     const actualDamage = this.applyDamage(order.target, attackResult.damage, unit);
                     
-                    this.updateStatus(`💥 ${unit.userData.name} atacó a ${order.target.userData.name} con ${attackResult.weapon} (${actualDamage} daño, ${unit.userData.currentAmmo} munición)`, 'warning');
+                    this.updateStatus(`💥 ${unit.userData.name} atacó a ${order.target.userData.name} con ${attackResult.weapon} (${actualDamage} daño, ${unit.userData.municion} munición)`, 'warning');
                     
                     // Visual feedback de ataque en el atacante
                     if (unit.material) {
