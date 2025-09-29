@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAIRA 4.0 - Test Integrado 3D</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome para iconos del menú radial -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Scripts Three.js -->
+    <script src="../Client/Libs/mythree/three.min.js"></script>
+    <script src="../Client/Libs/mythree/Object3d.js"></script>
+    <script src="../Client/Libs/mythree/GLTFLoader.js"></script>
+    <script src="../Client/Libs/mythree/OrbitControlsBrowser.js"></script>
+    <script src="../Client/Libs/mythree/RadialMenu.js"></script>
+    <!-- Leaflet JS para el mapa -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Script fusionado -->
+    <script src="test_integrado_debug.js" defer></script>
+</head>
+<body>
+    <div id="ui-panel">
+        <div id="status">Iniciando MAIRA 4.0 Integrado...</div>
+        
+        <div class="control-group">
+            <label>🗺️ Mapas</label>
+            <div class="model-grid">
+                <button class="model-btn" onclick="MAIRA.setMapType('plano')">Plano</button>
+                <button class="model-btn" onclick="MAIRA.setMapType('colinas')">Colinas</button>
+                <button class="model-btn" onclick="MAIRA.setMapType('montanas')">Montañas</button>
+                <button class="model-btn" onclick="MAIRA.setMapType('desierto')">Desierto</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>🌍 Terreno Base</label>
+            <button onclick="MAIRA.createTerrain()">Crear Terreno</button>
+            <button onclick="MAIRA.clearTerrain()">Limpiar Terreno</button>
+        </div>
+        
+        <div class="control-group">
+            <label>💡 Iluminación</label>
+            <div class="slider-container">
+                <label>Intensidad Ambiente: <span id="ambientValue">0.6</span></label>
+                <input type="range" id="ambientSlider" min="0" max="2" step="0.1" value="0.6" onchange="MAIRA.updateAmbientLight(this.value)">
+            </div>
+            <div class="slider-container">
+                <label>Intensidad Direccional: <span id="directionalValue">1.0</span></label>
+                <input type="range" id="directionalSlider" min="0" max="3" step="0.1" value="1.0" onchange="MAIRA.updateDirectionalLight(this.value)">
+            </div>
+            <button onclick="MAIRA.resetLighting()">Restablecer Luces</button>
+        </div>
+        <div class="control-group">
+            <label>📦 Cargar Modelos</label>
+            <input type="file" id="fileInput" accept=".glb,.gltf" multiple onchange="MAIRA.loadSelectedFiles(this.files)">
+            <input type="file" id="folderInput" webkitdirectory directory multiple onchange="MAIRA.loadFolder(this.files)">
+            <button onclick="document.getElementById('folderInput').click()">Seleccionar Directorio</button>
+            <button onclick="MAIRA.loadAllModelsInFolder()">Cargar GLB Predefinidos</button>
+            <div id="folder-info" style="font-size: 10px; color: #aaa; margin-top: 5px;">
+                Selecciona directorio con carpetas de modelos GLTF
+            </div>
+        </div>
+        <div class="control-group">
+            <label>🚗 Modelos Predefinidos</label>
+            <div class="model-grid">
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/humvee.glb', 'jeep', 5.0)">Jeep</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/m113.glb', 'M113', 2.0)">M113</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/tam_tank.glb', 'TAM', 2.0)">TAM Tank</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/tam_2c_war_thunder.glb', 'TAM 2C', 2.0)">TAM 2C</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/tam_2ip_war_thunder.glb', 'TAM 2IP', 2.0)">TAM 2IP</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/a_solider_poin_weapon.glb', 'Soldado', 2.0)">Soldado</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/russian_soldier.glb', 'Soldado Ruso', 2.0)">Soldado Ruso</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/fsb_operator.glb', 'FSB Operator', 2.0)">FSB Operator</button>
+                <button class="model-btn" onclick="MAIRA.loadModel('../Client/assets/models/gbl_new/low_poly_humvee_vehicle.glb', 'hunvee', 5.0)">hunvee</button>
+            </div>
+        </div>
+        <div class="control-group" id="loaded-models-section" style="display: none;">
+            <label>📁 Modelos Cargados</label>
+            <div id="loaded-models-grid" class="model-grid"></div>
+            <button onclick="MAIRA.clearLoadedModels()">Limpiar Lista</button>
+        </div>
+        <div class="control-group">
+            <label>⚔️ Tipo de Unidad</label>
+            <div>
+                <label><input type="radio" name="unitType" value="amigo" checked> Amigo</label>
+                <label><input type="radio" name="unitType" value="enemigo"> Enemigo</label>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>🎯 Selección Actual</label>
+            <div id="selection-info">Ningún objeto seleccionado</div>
+            <div class="transform-controls">
+                <button onclick="MAIRA.moveSelected('up')">↑</button>
+                <button onclick="MAIRA.rotateSelected('y', 0.1)">↻Y</button>
+                <button onclick="MAIRA.scaleSelected(1.1)">+</button>
+                <button onclick="MAIRA.moveSelected('left')">←</button>
+                <button onclick="MAIRA.deleteSelected()">🗑️</button>
+                <button onclick="MAIRA.moveSelected('right')">→</button>
+                <button onclick="MAIRA.scaleSelected(0.9)">-</button>
+                <button onclick="MAIRA.rotateSelected('y', -0.1)">↺Y</button>
+                <button onclick="MAIRA.moveSelected('down')">↓</button>
+            </div>
+            <div style="margin-top: 8px;">
+                <button onclick="MAIRA.changeSelectedUnitFaction('amigo')" style="background: #2196f3; color: white; border: none; padding: 4px 8px; border-radius: 4px; margin-right: 4px;">Marcar Amigo</button>
+                <button onclick="MAIRA.changeSelectedUnitFaction('enemigo')" style="background: #ff2222; color: white; border: none; padding: 4px 8px; border-radius: 4px;">Marcar Enemigo</button>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>🎮 Controles y Órdenes</label>
+            <div style="font-size: 11px; color: #cccccc; line-height: 1.4;">
+                <strong>Selección:</strong> Click izquierdo en modelo<br>
+                <strong>Órdenes:</strong> Click derecho en terreno (con unidad seleccionada)<br>
+                <strong>Movimiento:</strong> WASD (con unidad seleccionada)<br>
+                <strong>Rotación:</strong> Q/E (con unidad seleccionada)<br>
+                <strong>Eliminar:</strong> Supr/Delete (con unidad seleccionada)
+            </div>
+        </div>
+        <div class="control-group">
+            <label>�️ Mapa Integrado</label>
+            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.toggleMap()">Mostrar/Ocultar Mapa</button>
+            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.activate3DViewFromMap()">Vista 3D desde Mapa</button>
+            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.syncUnitsToMap()">Sincronizar Unidades</button>
+        </div>
+    </div>
+    
+    <!-- Contenedor del mapa Leaflet -->
+    <div id="map-container" style="position: absolute; top: 0; right: 0; width: 400px; height: 300px; z-index: 1000; border: 2px solid #00ff00; display: none;">
+        <div id="map" style="width: 100%; height: 100%;"></div>
+        <button id="toggle-map-btn" style="position: absolute; top: 5px; right: 5px; z-index: 1001; background: #00ff00; color: black; border: none; padding: 5px 10px; cursor: pointer;">🗺️ Mapa</button>
+    </div>
+    
+    <script>
+        // Inicializar MAIRA al final de la carga
+        window.addEventListener('load', function() {
+            console.log('📦 Window load event triggered');
+            // Esperar a que MAIRA3DViewAdapter esté definido globalmente
+            if (typeof window.MAIRA3DViewAdapter === 'function') {
+                console.log('📦 Creating MAIRA3DViewAdapter...');
+                window.MAIRA = new window.MAIRA3DViewAdapter();
+                console.log('📦 MAIRA object created:', window.MAIRA);
+                console.log('📦 Calling MAIRA.init()...');
+                window.MAIRA.init();
+                console.log('✅ MAIRA inicializado:', window.MAIRA);
+            } else {
+                console.error('❌ MAIRA3DViewAdapter no está definido. Verifica que test_integrado_debug.js se cargue correctamente.');
+            }
+        });
+    </script>
+
+    <!-- Modal de información de unidad -->
+    <div id="unit-info-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="unit-info-title">Información de Unidad</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body" id="unit-info-content">
+                <!-- Contenido se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Estilos del modal -->
+    <style>
+        .modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 10% auto;
+            padding: 0;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            color: white;
+        }
+
+        .modal-header {
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-bottom: 1px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #00ff00;
+        }
+
+        .modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #00ff00;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .unit-stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px;
+            border-bottom: 1px solid #333;
+        }
+
+        .unit-stat-label {
+            font-weight: bold;
+            color: #cccccc;
+        }
+
+        .unit-stat-value {
+            color: #00ff00;
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .health-fill {
+            height: 100%;
+            background-color: #00ff00;
+            transition: width 0.3s ease;
+        }
+
+        .health-fill.low {
+            background-color: #ff4444;
+        }
+
+        .ammo-bar {
+            width: 100%;
+            height: 15px;
+            background-color: #333;
+            border-radius: 7px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .ammo-fill {
+            height: 100%;
+            background-color: #6666ff;
+            transition: width 0.3s ease;
+        }
+        
+        /* Estilos para el mapa Leaflet */
+        #map-container {
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        #toggle-map-btn {
+            font-size: 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        #toggle-map-btn:hover {
+            background-color: #00cc00 !important;
+        }
+        
+        .unit-marker {
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+
+</body>
+</html>
