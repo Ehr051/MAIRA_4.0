@@ -19,7 +19,7 @@ class VisorMapa3DMejorado {
         this.currentLat = -34.61315;
         this.currentLng = -58.37723;
         this.currentZoom = 12;
-        this.mapRadius = 5; // km
+        this.mapRadius = 2; // km
         this.mapDetail = 512;
         this.heightScale = 2.0;
         this.mapSource = 'osm';

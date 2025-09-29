@@ -129,7 +129,7 @@ class TileExtractor {
     getTarUrls(dataType, region, tileName) {
         const baseUrls = {
             elevation: [
-                '/opt/render/project/src/static/tiles/data_argentina/Altimetria'
+                '/opt/render/project/src/static/tiles/data_argentina/Altimetria/'
             ],
             vegetation: [
                 '/opt/render/project/src/static/tiles/data_argentina/vegetation/'

@@ -4,34 +4,8 @@
 // URL base para GitHub Releases mini-tiles v3.0
 const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
 
-// URLs de fallback para GitHub Releases (corregido: MAIRA_4.0 con underscore)
-const MINI_TILES_FALLBACK_URLS = [
-    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/',
-    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/',
-    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v2.0/'
-];
-
-// Lista de URLs corregidas - RENDER PRIMERO, LUEGO REMOTE
-const urls = [
-    // 🚀 PRIORIDAD MÁXIMA: Servidor Render (NUEVO)
-    'https://maira-4-0.onrender.com/static/tiles/data_argentina/master_mini_tiles_index.json',
-    
-    // 🎯 PRIORIDAD: GitHub Release correcto (con underscore)
-    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/master_mini_tiles_index.json',
-    
-    // 🔄 FALLBACK: GitHub Release v3.0
-    'https://github.com/Ehr051/MAIRA_4.0/releases/download/v3.0/master_mini_tiles_index.json',
-    
-    // 🌐 FALLBACK 2: GitHub Releases (si existe el release)
-    'https://github.com/Ehr051/MAIRA-4.0/raw/main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_mini_tiles_index.json',
-    
-    // ⚠️ FALLBACKS ADICIONALES (deprecated pero mantenidos por compatibilidad)
-    `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
-    ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
-];
-
 // Ruta para tiles clásicos (legacy)
-const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
+const TILE_FOLDER_PATH = '/opt/render/project/src/static/tiles/data_argentina/vegetation_master_index.json';
 
 // Índice de tiles
 let tileIndex;
@@ -53,13 +27,9 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
   // Lista de URLs para intentar - SOLO GITHUB RELEASES v4.0
   const urls = [
     // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
-    'https://github.com/Ehr051/MAIRA-4.0/releases/download/v4.0/master_mini_tiles_index.json',
-    
-    // 🔄 FALLBACK: GitHub Release v3.0 (Solo Altura - Legacy)
-    'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/master_mini_tiles_index.json',
-    
+    '/'
     // � FALLBACKS ADICIONALES
-    `${TERRAIN_GITHUB_RELEASES_BASE}/master_mini_tiles_index.json`,
+    `/Users/mac/Documents/GitHub/MAIRA-WORKSPACE/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json`,
     ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
   ];
   

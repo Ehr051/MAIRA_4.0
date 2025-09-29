@@ -18,11 +18,12 @@ database/migrations/
 *.db
 
 # Archivos grandes de modelos 3D (exceden límite GitHub)
-Client/assets/models/*.zip
-Client/assets/models/**/*.bin
-Client/assets/models/humvee.zip
-Client/assets/models/russian_soldier.zip
-Client/assets/models/gltf_new/humvee/scene.bin
+Client/assets/models/*.glb
+Client/assets/models/*.gltf
+Client/assets/models/**/*.glb
+Client/assets/models/**/*.gltf
+Client/assets/models/**/*.zip
+Client/assets/models/**/*.bin       
 
 # Archivos de debug y desarrollo (no subir a producción)
 tools/static-debug/

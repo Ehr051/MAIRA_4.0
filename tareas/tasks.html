@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Tareas del Proyecto</title>
+    <link rel="stylesheet" href="tasks.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <h1><i class="fa-solid fa-diagram-project"></i> Tablero de Tareas: TecnoBolsa</h1>
+    </header>
+
+    <main class="task-board">
+        <div class="board-column" data-status="planned">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-list-check"></i> Tareas Planeadas</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="in_progress">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-person-digging"></i> En Progreso</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="completed">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-flag-checkered"></i> Terminadas</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="undefined">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-circle-question"></i> Sin Definir / Testing</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('tasks.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(tasks => {
+                    // Mapeo de estado a columna
+                    const statusMap = {
+                        'planned': 'planned',
+                        'in_progress': 'in_progress',
+                        'completed': 'completed',
+                        'undefined': 'undefined'
+                    };
+
+                    tasks.forEach(task => {
+                        // La tarea "TESTING Y DEPURACIÓN" la movemos a la última columna
+                        const targetStatus = task.title === 'TESTING Y DEPURACIÓN' ? 'undefined' : (statusMap[task.status] || 'undefined');
+                        const column = document.querySelector(`.board-column[data-status="${targetStatus}"] .column-content`);
+
+                        if (column) {
+                            const taskCard = createTaskCard(task);
+                            column.appendChild(taskCard);
+                        }
+                    });
+
+                    updateTaskCounts();
+                })
+                .catch(error => {
+                    console.error('Error al cargar las tareas:', error);
+                    alert('No se pudieron cargar las tareas. Revisa el archivo tasks.json y la consola para más detalles.');
+                });
+        });
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.setAttribute('data-id', task.id);
+
+            let assignedHTML = '';
+            if (task.assigned_to && task.assigned_to.length > 0) {
+                assignedHTML = `<div class="assigned-users">
+                     ${task.assigned_to.map(user => `<span class="user-avatar" title="${user}">${user.substring(0, 2).toUpperCase()}</span>`).join('')}
+                 </div>`;
+            }
+
+            let subtasksHTML = '';
+            if (task.subtasks && task.subtasks.length > 0) {
+                subtasksHTML = `<div class="subtasks">
+                     <h4>Subtareas:</h4>
+                     <ul>
+                         ${task.subtasks.map(sub => `<li class="subtask-${sub.status}">${sub.title}</li>`).join('')}
+                     </ul>
+                 </div>`;
+            }
+
+            let notesHTML = '';
+            if (task.notes) {
+                notesHTML = `<div class="task-notes"><i class="fa-solid fa-thumbtack"></i> ${task.notes}</div>`;
+            }
+
+            card.innerHTML = `
+                 <div class="card-header">
+                     <h3 class="task-title">${task.title}</h3>
+                     ${assignedHTML}
+                 </div>
+                 ${subtasksHTML}
+                 ${notesHTML}
+             `;
+
+            return card;
+        }
+
+        function updateTaskCounts() {
+            document.querySelectorAll('.board-column').forEach(column => {
+                const count = column.querySelectorAll('.task-card').length;
+                column.querySelector('.task-count').textContent = count;
+            });
+        }
+    </script>
+
+</body>
+
+</html>
