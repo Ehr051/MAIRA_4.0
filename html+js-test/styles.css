@@ -7,25 +7,18 @@ body {
     color: white; 
     overflow: hidden;
     position: relative;
+    display: flex;
 }
 
 #ui-panel { 
-    position: fixed !important; 
-    top: 10px; 
-    left: 10px; 
-    width: 320px !important; 
-    max-width: 320px !important;
-    min-height: 200px !important;
-    background: rgba(255, 0, 0, 0.9) !important; 
-    border: 5px solid #fff !important;
+    width: 350px !important; 
+    height: 100vh !important;
+    background: rgba(26, 26, 26, 0.95) !important; 
+    border-right: 2px solid #00ff00 !important;
     padding: 15px; 
-    border-radius: 8px; 
-    z-index: 10000 !important; 
-    max-height: calc(100vh - 40px);
+    box-sizing: border-box;
     overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #666 #222;
+    z-index: 200 !important; 
 }
 
 #ui-panel::-webkit-scrollbar {

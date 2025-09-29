@@ -3166,19 +3166,49 @@ class MAIRAMapIntegration {
         this.map.on('moveend', () => this.onMapMove());
         this.map.on('zoomend', () => this.onMapZoom());
         
+        // Ajustar canvas 3D inicialmente para layout con mapa
+        setTimeout(() => {
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.style.position = 'absolute';
+                canvas.style.left = '350px';
+                canvas.style.width = '50%';
+                canvas.style.height = '100%';
+                canvas.style.top = '0';
+            }
+        }, 100);
+        
         console.log('✅ Mapa Leaflet inicializado');
     }
     
     toggleMap() {
         this.isVisible = !this.isVisible;
-        this.mapContainer.style.display = this.isVisible ? 'block' : 'none';
         
         if (this.isVisible) {
-            // Actualizar mapa cuando se muestra
+            // Mostrar mapa
+            this.mapContainer.style.display = 'block';
+            this.mapContainer.style.width = '50%';
+            document.getElementById('toggle-map-btn').textContent = '🗺️ Ocultar Mapa';
+            // Ajustar canvas 3D para que ocupe el espacio restante
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.style.width = '50%';
+                canvas.style.left = '350px'; // Ancho del panel UI
+            }
             setTimeout(() => {
                 this.map.invalidateSize();
                 this.syncUnitsToMap();
             }, 100);
+        } else {
+            // Ocultar mapa - vista 3D fullscreen
+            this.mapContainer.style.display = 'none';
+            document.getElementById('toggle-map-btn').textContent = '🗺️ Mostrar Mapa';
+            // Canvas 3D fullscreen
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                canvas.style.width = 'calc(100% - 350px)';
+                canvas.style.left = '350px';
+            }
         }
         
         console.log(`🗺️ Mapa ${this.isVisible ? 'mostrado' : 'ocultado'}`);
