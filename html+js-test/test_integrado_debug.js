@@ -745,14 +745,13 @@
         const selectionRing = new THREE.Mesh(ringGeometry, ringMaterial);
         selectionRing.rotation.x = -Math.PI / 2; // Rotar para que esté plano en el suelo
 
-        // Ajustar posición Y basada en el bounding box del objeto para que esté sobre el suelo
+        // Calcular la posición Y del anillo basada en el bounding box del objeto
         const bbox = new THREE.Box3().setFromObject(object);
-        const objectHeight = bbox.max.y - bbox.min.y;
         const objectBottom = bbox.min.y;
 
-        // Posicionar el anillo en el suelo (Y=0) para que siempre sea visible
-        // Ajustar ligeramente hacia arriba para evitar clipping con el suelo
-        selectionRing.position.y = 0.05; // Pequeño offset sobre el suelo
+        // Posicionar el anillo ligeramente por encima de la base del objeto
+        // para que sea visible incluso si el objeto está elevado
+        selectionRing.position.y = objectBottom - 0.1; // 0.1 unidades por debajo de la base del objeto
 
         // Agregar al objeto
         object.add(selectionRing);
@@ -1070,28 +1069,36 @@
     }
 
     // Sistema de órdenes
-    giveMoveOrder(unit, waypoints) {
-        // Si waypoints es un array, crear orden de ruta
-        if (Array.isArray(waypoints)) {
-            const order = {
-                type: 'move',
-                waypoints: waypoints,
-                currentWaypoint: 0,
-                timestamp: Date.now(),
-                status: 'active'
-            };
-            unit.userData.orders = [order];
+    giveMoveOrder(unit, targetPosition) {
+        // Manejar diferentes formatos de targetPosition
+        let waypoints = [];
+        if (Array.isArray(targetPosition)) {
+            // Si es un array de waypoints
+            waypoints = targetPosition;
+        } else if (targetPosition && typeof targetPosition === 'object') {
+            // Si es un solo punto (Vector3 u objeto con x,y,z)
+            waypoints = [targetPosition];
         } else {
-            // Si es un solo punto, crear orden simple
-            const order = {
-                type: 'move',
-                target: waypoints,
-                timestamp: Date.now(),
-                status: 'active'
-            };
-            unit.userData.orders = [order];
+            console.error('❌ targetPosition inválido:', targetPosition);
+            return;
         }
+
+        // Crear orden de movimiento
+        const order = {
+            type: 'move',
+            waypoints: waypoints,
+            currentWaypoint: 0,
+            timestamp: Date.now(),
+            status: 'active'
+        };
+
+        // Asignar orden a la unidad
+        unit.userData.orders = [order];
+
+        // Actualizar visuales
         this.updateOrderVisual(unit);
+
+        console.log(`📍 Orden de movimiento asignada a ${unit.userData.name}:`, waypoints);
     }
 
     processPendingOrder(event) {
@@ -2067,114 +2074,7 @@
         this.updateSelectionInfo();
     }
 
-    // Sistema de órdenes
-    giveMoveOrder(unit, targetPosition) {
-        const unitId = unit.uuid;
-        
-        // Manejar diferentes formatos de targetPosition
-        let target;
-        if (Array.isArray(targetPosition)) {
-            // Si es un array de waypoints, tomar el primer punto
-            target = targetPosition[0] && targetPosition[0].clone ? targetPosition[0].clone() : new THREE.Vector3().copy(targetPosition[0]);
-        } else if (targetPosition && targetPosition.clone) {
-            // Si es un Vector3
-            target = targetPosition.clone();
-        } else if (targetPosition) {
-            // Si es un objeto plano con x,y,z
-            target = new THREE.Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
-        } else {
-            console.error('❌ targetPosition inválido:', targetPosition);
-            return;
-        }
-        
-        // Crear orden de movimiento
-        const order = {
-            type: 'move',
-            target: target,
-            status: 'active'
-        };
-        
-        // Si no hay órdenes para esta unidad, crear array
-        if (!this.orders.has(unitId)) {
-            this.orders.set(unitId, []);
-        }
-        
-        // Agregar orden (por ahora solo una orden por unidad)
-        this.orders.get(unitId).length = 0; // Limpiar órdenes anteriores
-        this.orders.get(unitId).push(order);
-        
-        // Crear visual feedback
-        this.createOrderVisual(unit, targetPosition);
-        
-        this.updateStatus(`Orden de movimiento dada a ${unit.userData.name}`, 'success');
-    }
 
-    createOrderVisual(unit, targetPosition) {
-        // Limpiar visuales anteriores para esta unidad
-        this.clearOrderVisuals(unit);
-        
-        // Crear línea desde la unidad al punto objetivo
-        const geometry = new THREE.BufferGeometry().setFromPoints([
-            unit.position.clone(),
-            targetPosition.clone()
-        ]);
-        
-        const material = new THREE.LineBasicMaterial({ 
-            color: 0x00ff00, 
-            linewidth: 3,
-            transparent: true,
-            opacity: 0.8
-        });
-        
-        const line = new THREE.Line(geometry, material);
-        line.userData.unitId = unit.uuid;
-        line.userData.type = 'orderLine';
-        
-        this.scene.add(line);
-        this.orderLines.push(line);
-        
-        // Crear waypoint en el punto objetivo
-        const waypointGeometry = new THREE.RingGeometry(1, 1.5, 16);
-        const waypointMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x00ff00, 
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.6
-        });
-        
-        const waypoint = new THREE.Mesh(waypointGeometry, waypointMaterial);
-        waypoint.position.copy(targetPosition);
-        waypoint.position.y += 0.1; // Ligeramente sobre el terreno
-        waypoint.rotation.x = -Math.PI / 2;
-        waypoint.userData.unitId = unit.uuid;
-        waypoint.userData.type = 'waypoint';
-        
-        this.scene.add(waypoint);
-        this.waypoints.push(waypoint);
-    }
-
-    clearOrderVisuals(unit) {
-        const unitId = unit.uuid;
-        // Inicializar arrays si no existen
-        if (!Array.isArray(this.orderLines)) this.orderLines = [];
-        if (!Array.isArray(this.waypoints)) this.waypoints = [];
-        // Limpiar líneas
-        this.orderLines = this.orderLines.filter(line => {
-            if (line && line.userData && line.userData.unitId === unitId) {
-                this.scene.remove(line);
-                return false;
-            }
-            return true;
-        });
-        // Limpiar waypoints
-        this.waypoints = this.waypoints.filter(waypoint => {
-            if (waypoint && waypoint.userData && waypoint.userData.unitId === unitId) {
-                this.scene.remove(waypoint);
-                return false;
-            }
-            return true;
-        });
-    }
 
     clearOrders(unit) {
         const unitId = unit.uuid;
