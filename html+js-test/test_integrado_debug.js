@@ -2088,6 +2088,7 @@
             if (!unit.userData.orders || unit.userData.orders.length === 0) return;
 
             const currentOrder = unit.userData.orders[0];
+            console.log(`📋 Procesando orden para ${unit.userData.name}:`, currentOrder.type, currentOrder.status);
 
             switch (currentOrder.type) {
                 case 'move':
@@ -2097,6 +2098,7 @@
                     break;
                 case 'attack':
                     if (currentOrder.status === 'active') {
+                        console.log(`🎯 Procesando ataque de ${unit.userData.name} a ${currentOrder.target?.userData?.name}`);
                         this.processAttackOrder(unit, currentOrder, deltaTime);
                     }
                     break;
