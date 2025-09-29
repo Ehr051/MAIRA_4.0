@@ -682,6 +682,8 @@
                 // Agregar a array de unidades si no está
                 if (!this.units.includes(object)) {
                     this.units.push(object);
+                    // Sincronizar con el mapa
+                    this.syncUnitsToMap();
                 }
 
                 // Visual feedback de selección
@@ -829,6 +831,13 @@
                 unit.userData.selectionCircle = null;
             }
         });
+    }
+
+    // Método para sincronizar unidades con el mapa integrado
+    syncUnitsToMap() {
+        if (this.mapIntegration) {
+            this.mapIntegration.syncUnitsToMap();
+        }
     }
 
     showRadialMenu(x, y, context = 'terrain') {
@@ -3103,5 +3112,208 @@
 window.MAIRA3DViewAdapter = MAIRA3DViewAdapter;
 
 console.log('MAIRA3DViewAdapter cargado y listo');
+
+// ===== INTEGRACIÓN DE MAPA LEAFLET =====
+
+class MAIRAMapIntegration {
+    constructor(maira3dInstance) {
+        this.maira3d = maira3dInstance;
+        this.map = null;
+        this.mapContainer = null;
+        this.isVisible = false;
+        this.unitMarkers = new Map(); // Mapa para rastrear marcadores de unidades
+        this.baseLatLng = { lat: -34.6037, lng: -58.3816 }; // Buenos Aires como centro por defecto
+        this.scale = 1000; // Escala: 1 unidad 3D = 1000 metros
+        
+        this.init();
+    }
+    
+    init() {
+        console.log('🗺️ Inicializando integración de mapa...');
+        
+        // Obtener referencias del DOM
+        this.mapContainer = document.getElementById('map-container');
+        const toggleBtn = document.getElementById('toggle-map-btn');
+        
+        if (!this.mapContainer) {
+            console.error('❌ Contenedor del mapa no encontrado');
+            return;
+        }
+        
+        // Configurar botón de toggle
+        toggleBtn.addEventListener('click', () => this.toggleMap());
+        
+        // Inicializar mapa Leaflet
+        this.map = L.map('map', {
+            center: [this.baseLatLng.lat, this.baseLatLng.lng],
+            zoom: 13,
+            zoomControl: true
+        });
+        
+        // Agregar capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(this.map);
+        
+        // Configurar eventos del mapa
+        this.map.on('moveend', () => this.onMapMove());
+        this.map.on('zoomend', () => this.onMapZoom());
+        
+        console.log('✅ Mapa Leaflet inicializado');
+    }
+    
+    toggleMap() {
+        this.isVisible = !this.isVisible;
+        this.mapContainer.style.display = this.isVisible ? 'block' : 'none';
+        
+        if (this.isVisible) {
+            // Actualizar mapa cuando se muestra
+            setTimeout(() => {
+                this.map.invalidateSize();
+                this.syncUnitsToMap();
+            }, 100);
+        }
+        
+        console.log(`🗺️ Mapa ${this.isVisible ? 'mostrado' : 'ocultado'}`);
+    }
+    
+    // Convertir coordenadas 3D a lat/lng
+    worldToLatLng(worldPos) {
+        // Escala: 1 unidad 3D = 1000 metros
+        const metersPerUnit = this.scale;
+        
+        // Calcular offset en metros
+        const offsetX = worldPos.x * metersPerUnit;
+        const offsetZ = worldPos.z * metersPerUnit;
+        
+        // Convertir a grados (aproximado)
+        const latOffset = offsetZ / 111320; // metros por grado de latitud
+        const lngOffset = offsetX / (111320 * Math.cos(this.baseLatLng.lat * Math.PI / 180)); // metros por grado de longitud
+        
+        return {
+            lat: this.baseLatLng.lat + latOffset,
+            lng: this.baseLatLng.lng + lngOffset
+        };
+    }
+    
+    // Convertir lat/lng a coordenadas 3D
+    latLngToWorld(latLng) {
+        // Calcular offset en grados
+        const latOffset = latLng.lat - this.baseLatLng.lat;
+        const lngOffset = latLng.lng - this.baseLatLng.lng;
+        
+        // Convertir a metros
+        const offsetZ = latOffset * 111320; // metros por grado de latitud
+        const offsetX = lngOffset * (111320 * Math.cos(this.baseLatLng.lat * Math.PI / 180)); // metros por grado de longitud
+        
+        // Convertir a unidades 3D
+        const metersPerUnit = this.scale;
+        
+        return {
+            x: offsetX / metersPerUnit,
+            z: offsetZ / metersPerUnit
+        };
+    }
+    
+    syncUnitsToMap() {
+        if (!this.isVisible || !this.map) return;
+        
+        console.log('🔄 Sincronizando unidades al mapa...');
+        
+        // Limpiar marcadores existentes
+        this.unitMarkers.forEach(marker => {
+            this.map.removeLayer(marker);
+        });
+        this.unitMarkers.clear();
+        
+        // Agregar marcadores para todas las unidades
+        this.maira3d.units.forEach(unit => {
+            if (unit.userData && unit.userData.name) {
+                const latLng = this.worldToLatLng(unit.position);
+                
+                // Crear icono basado en el tipo de unidad
+                const iconColor = unit.userData.faction === 'enemigo' ? 'red' : 'blue';
+                const icon = L.divIcon({
+                    className: 'unit-marker',
+                    html: `<div style="background: ${iconColor}; border: 2px solid white; border-radius: 50%; width: 12px; height: 12px;"></div>`,
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+                
+                const marker = L.marker([latLng.lat, latLng.lng], { icon })
+                    .addTo(this.map)
+                    .bindPopup(`${unit.userData.name} (${unit.userData.faction})`);
+                
+                this.unitMarkers.set(unit, marker);
+            }
+        });
+        
+        console.log(`✅ ${this.unitMarkers.size} unidades sincronizadas al mapa`);
+    }
+    
+    onMapMove() {
+        // Podría actualizar la vista 3D cuando el mapa se mueva
+        console.log('📍 Mapa movido');
+    }
+    
+    onMapZoom() {
+        // Podría ajustar la escala de la vista 3D
+        console.log('🔍 Zoom del mapa cambiado');
+    }
+    
+    // Método para centrar el mapa en una posición 3D
+    centerMapOnWorldPos(worldPos) {
+        if (!this.map) return;
+        
+        const latLng = this.worldToLatLng(worldPos);
+        this.map.setView([latLng.lat, latLng.lng], this.map.getZoom());
+        
+        console.log('📍 Mapa centrado en posición 3D:', worldPos);
+    }
+    
+    // Método para activar vista 3D desde el mapa
+    activate3DViewFromMap() {
+        if (!this.map) return;
+        
+        const center = this.map.getCenter();
+        const worldPos = this.latLngToWorld(center);
+        
+        // Mover la cámara 3D a la posición del mapa
+        if (this.maira3d.camera) {
+            this.maira3d.camera.position.set(worldPos.x, 50, worldPos.z);
+            this.maira3d.camera.lookAt(worldPos.x, 0, worldPos.z);
+            
+            if (this.maira3d.controls) {
+                this.maira3d.controls.target.set(worldPos.x, 0, worldPos.z);
+                this.maira3d.controls.update();
+            }
+        }
+        
+        console.log('🎥 Vista 3D activada desde mapa en posición:', worldPos);
+    }
+}
+
+// Variable global para la integración del mapa
+let mapIntegration = null;
+
+// Función para inicializar la integración del mapa después de que MAIRA esté listo
+function initMapIntegration() {
+    if (window.MAIRA && !mapIntegration) {
+        console.log('🔗 Inicializando integración de mapa con MAIRA...');
+        mapIntegration = new MAIRAMapIntegration(window.MAIRA);
+        
+        // Agregar método al objeto MAIRA para acceder al mapa
+        window.MAIRA.mapIntegration = mapIntegration;
+        
+        console.log('✅ Integración de mapa completada');
+    }
+}
+
+// Inicializar mapa cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar un poco para que MAIRA se inicialice
+    setTimeout(initMapIntegration, 1000);
+});
 
 // Inicialización automática removida - se maneja desde el HTML
