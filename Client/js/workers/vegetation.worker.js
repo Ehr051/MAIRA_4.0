@@ -4,7 +4,7 @@
  * Sigue el patrón de elevation.worker.js para consistencia arquitectónica
  */
 
-importScripts('/Client/Libs/geotiff.js');
+importScripts('/node_modules/geotiff/dist-browser/geotiff.js');
 
 // Cache de datos de vegetación en el worker
 const vegetationCache = new Map();
@@ -17,11 +17,10 @@ const VEGETATION_CONFIG = {
     ndviRange: [-1, 1]
 };
 
-// URLs de fallback para mini-tiles - RUTA RENDER ESTÁTICA
+// URLs de fallback para mini-tiles - COMPATIBLE CON DESARROLLO Y PRODUCCIÓN
 const VEGETATION_URLS = [
-    '/opt/render/project/src/static/tiles/data_argentina/vegetation/',  // 🚀 PRIORIDAD 1: Directorio Render estático
-    '/static/tiles/data_argentina/vegetation/',
-    'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
+    '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',  // 🚀 PRIORIDAD 1: Directorio local
+    '/api/proxy/github/maira_vegetacion_tiles.tar.gz',      // Fallback a GitHub releases
 ];
 
 /**

@@ -1,7 +1,16 @@
-// elevation.worker.js
-const carpetaBase = '/opt/render/project/src/static/tiles/data_argentina/Altimetria';
+// elevation.worker.js - MAIRA 4.0
+// Worker para procesamiento de datos de elevación usando GeoTIFF
+
+// Importar GeoTIFF para procesamiento de archivos .tif
+importScripts('/node_modules/geotiff/dist-browser/geotiff.js');
+
+// Configuración del worker
+const CONFIG = {
+    cacheMaxSize: 20,
+    tileBaseUrl: '/api/tiles/elevation'
+};
+
 let tileCache = new Map();
-const CACHE_SIZE_LIMIT = 10;
 
 onmessage = async function(e) {
     console.group('🤖 WORKER SUPER DEBUGGER');
@@ -54,14 +63,19 @@ onmessage = async function(e) {
                     const punto = puntos[i];
                     console.log(`🔄 Procesando punto ${i}:`, punto);
                     try {
-                        // 🎯 USAR DATOS REALES DE ELEVACIÓN
+                        // 🎯 PROCESAR ELEVACIÓN EN WORKER
+                        // El worker debe recibir los datos de elevación como parámetro
                         let elevation = null;
-                        
-                        // Intentar obtener elevación de los datos de tiles disponibles
-                        if (typeof MAIRA !== 'undefined' && MAIRA.Elevacion) {
-                            elevation = await MAIRA.Elevacion.getElevation(punto.lat, punto.lng);
+
+                        // Si se pasaron datos de elevación en el mensaje, usarlos
+                        if (data.datosElevacion && data.datosElevacion.length > 0) {
+                            // Buscar el tile correspondiente a las coordenadas
+                            const tileEncontrado = encontrarTileParaCoordenadas(punto.lat, punto.lng, data.datosElevacion);
+                            if (tileEncontrado) {
+                                elevation = calcularElevacion(punto.lat, punto.lng, tileEncontrado);
+                            }
                         }
-                        
+
                         // Si no tenemos datos reales, usar interpolación basada en posición geográfica
                         if (elevation === null) {
                             // Usar topografía básica de Argentina como fallback
@@ -147,40 +161,69 @@ function calcularElevacionBasica(lat, lng) {
 }
 
 async function cargarYProcesarTile(tileName, url) {
+    // Verificar caché primero
     if (tileCache.has(tileName)) {
+        console.log(`✅ Tile ${tileName} desde caché del worker`);
         return tileCache.get(tileName);
     }
 
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        console.log(`📡 Cargando tile ${tileName} desde: ${url}`);
+
+        // Si no se proporciona URL, construirla usando el endpoint del servidor
+        if (!url) {
+            url = `${CONFIG.tileBaseUrl}/${tileName}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} for ${url}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        console.log(`📦 Tile descargado: ${(arrayBuffer.byteLength / 1024).toFixed(1)}KB`);
+
+        const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+        const image = await tiff.getImage();
+        const rasters = await image.readRasters();
+        const metadata = await image.getFileDirectory();
+
+        const tileData = {
+            data: rasters[0],
+            width: image.getWidth(),
+            height: image.getHeight(),
+            tiepoint: metadata.ModelTiepoint,
+            scale: metadata.ModelPixelScale
+        };
+
+        // Gestionar caché del worker
+        if (tileCache.size >= CONFIG.cacheMaxSize) {
+            const firstKey = tileCache.keys().next().value;
+            tileCache.delete(firstKey);
+            console.log(`🗑️ Cache worker: eliminado ${firstKey}`);
+        }
+        tileCache.set(tileName, tileData);
+        console.log(`💾 Tile ${tileName} guardado en caché del worker`);
+
+        return tileData;
+
+    } catch (error) {
+        console.error(`❌ Error cargando tile ${tileName}:`, error);
+        throw error;
     }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-    const image = await tiff.getImage();
-    const rasters = await image.readRasters();
-    const metadata = await image.getFileDirectory();
-
-    const tileData = {
-        data: rasters[0],
-        width: image.getWidth(),
-        height: image.getHeight(),
-        tiepoint: metadata.ModelTiepoint,
-        scale: metadata.ModelPixelScale
-    };
-
-    // Gestionar caché
-    if (tileCache.size >= CACHE_SIZE_LIMIT) {
-        const firstKey = tileCache.keys().next().value;
-        tileCache.delete(firstKey);
-    }
-    tileCache.set(tileName, tileData);
-
-    return tileData;
 }
 
-function calcularElevacion(lat, lng, tileData) {
+function encontrarTileParaCoordenadas(lat, lng, tilesCargados) {
+    // Buscar en los tiles cargados cuál contiene las coordenadas dadas
+    for (const tile of tilesCargados) {
+        if (tile.bounds &&
+            lat >= tile.bounds.south && lat <= tile.bounds.north &&
+            lng >= tile.bounds.west && lng <= tile.bounds.east) {
+            return tile.tileData;
+        }
+    }
+    return null;
+}
     const { data, width, height, tiepoint, scale } = tileData;
     
     const x = Math.floor((lng - tiepoint[3]) / scale[0]);
@@ -191,6 +234,18 @@ function calcularElevacion(lat, lng, tileData) {
         return isFinite(elevation) ? elevation : null;
     }
     
+    return null;
+}
+
+function encontrarTileParaCoordenadas(lat, lng, tilesCargados) {
+    // Buscar en los tiles cargados cuál contiene las coordenadas dadas
+    for (const tile of tilesCargados) {
+        if (tile.bounds &&
+            lat >= tile.bounds.south && lat <= tile.bounds.north &&
+            lng >= tile.bounds.west && lng <= tile.bounds.east) {
+            return tile.tileData;
+        }
+    }
     return null;
 }
 
