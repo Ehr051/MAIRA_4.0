@@ -891,9 +891,9 @@ actualizarListaUnidadesDisponibles() {
         console.log('[GestorInterfaz] Actualizando panel de fase:', datos);
         
         try {
-            // Si existe el panel unificado, usarlo
-            if (window.panelUnificado) {
-                window.panelUnificado.actualizarFase(datos);
+            // Si existe el panel inferior unificado, usarlo
+            if (window.panelInferiorUnificado) {
+                window.panelInferiorUnificado.actualizarControlesPorFase(datos.fase, datos.subfase);
             }
             
             // Actualizar también el estado general

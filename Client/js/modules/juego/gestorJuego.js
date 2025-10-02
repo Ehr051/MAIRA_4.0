@@ -80,6 +80,14 @@ class GestorJuego extends GestorBase {
             // Inicializar gestores con la configuración completa
             await this.inicializarGestores(configCompleta);
 
+            // Actualizar interfaz con el estado inicial
+            if (this.gestorInterfaz) {
+                await this.gestorInterfaz.actualizarPanelFase({
+                    fase: this.estado.fase,
+                    subfase: this.estado.subfase
+                });
+            }
+
             // Si tenemos un equipo, actualizar el SIDC
             if (window.equipoJugador) {
                 const caracter = window.equipoJugador === 'azul' ? 'F' : 'J';

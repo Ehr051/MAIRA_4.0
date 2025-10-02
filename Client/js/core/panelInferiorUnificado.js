@@ -42,10 +42,16 @@ class PanelInferiorUnificado {
             // Conectar con gestores para datos reales
             this.conectarConGestores();
             
+            // Inicializar con estado del gestor de fases si existe
+            if (window.gestorFases) {
+                this.estado.fase = window.gestorFases.fase || 'preparacion';
+                this.estado.subFase = window.gestorFases.subfase || 'definicion_sector';
+            }
+            
             this.actualizarDisplay();
             
-            // Inicializar con controles dinámicos por defecto (se actualiza con datos reales si están disponibles)
-            this.actualizarControlesPorFase('preparacion', 'inicial');
+            // Inicializar controles con el estado actual
+            this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
             
             console.log('✅ Panel Inferior Unificado inicializado correctamente');
             return true;
@@ -115,11 +121,25 @@ class PanelInferiorUnificado {
     }
 
     /**
+     * Actualiza el estado del panel y refresca los controles
+     */
+    actualizarEstado(fase, subFase = null, turno = null) {
+        this.estado.fase = fase;
+        this.estado.subFase = subFase || this.estado.subFase;
+        if (turno !== null) {
+            this.estado.turno = turno;
+        }
+        this.actualizarDisplay();
+        this.actualizarControlesPorFase(fase, subFase);
+    }
+
+    /**
      * Actualiza la información mostrada en el panel
      */
     actualizarDisplay() {
         this.actualizarInfoFase();
         this.actualizarTiempo();
+        this.actualizarInfoTurno();
     }
 
     /**
@@ -132,10 +152,53 @@ class PanelInferiorUnificado {
 
         if (faseNumero) faseNumero.textContent = `FASE ${this.obtenerNumeroFase()}`;
         if (faseNombre) faseNombre.textContent = this.estado.fase.toUpperCase();
-        if (turnoNumero) turnoNumero.textContent = this.estado.turno;
+        if (turnoNumero && this.estado.fase === 'combate') {
+            turnoNumero.textContent = this.estado.jugadorActual ? `TURNO: ${this.estado.jugadorActual.nombre || 'Jugador'}` : 'TURNO';
+        } else if (turnoNumero) {
+            turnoNumero.textContent = this.estado.turno || '1';
+        }
     }
 
     /**
+     * Actualiza la información de turno durante combate
+     */
+    actualizarInfoTurno() {
+        if (this.estado.fase !== 'combate') return;
+
+        const turnoInfo = document.querySelector('.turno-info');
+        if (!turnoInfo) {
+            // Crear elemento de información de turno si no existe
+            const panel = document.getElementById('panelInferiorUnificado');
+            if (panel) {
+                const turnoDiv = document.createElement('div');
+                turnoDiv.className = 'turno-info';
+                turnoDiv.innerHTML = `
+                    <div class="jugador-actual">Jugador: <span class="jugador-nombre">-</span></div>
+                    <div class="equipo-actual">Equipo: <span class="equipo-nombre">-</span></div>
+                `;
+                panel.appendChild(turnoDiv);
+            }
+        }
+
+        // Actualizar información
+        const jugadorNombre = document.querySelector('.jugador-nombre');
+        const equipoNombre = document.querySelector('.equipo-nombre');
+
+        if (jugadorNombre && this.estado.jugadorActual) {
+            jugadorNombre.textContent = this.estado.jugadorActual.nombre || 'Desconocido';
+        }
+        if (equipoNombre && this.estado.jugadorActual) {
+            equipoNombre.textContent = this.estado.jugadorActual.equipo || 'Desconocido';
+        }
+    }
+
+    /**
+     * Muestra información específica de turno durante combate
+     */
+    mostrarInfoTurnoCombate() {
+        this.actualizarInfoTurno();
+        this.mostrarMensajeTemporary('Usa el menú radial para dar órdenes a tus unidades', 'info');
+    }    /**
      * Actualiza el display de tiempo
      */
     actualizarTiempo() {
@@ -322,39 +385,51 @@ class PanelInferiorUnificado {
         switch(fase.toLowerCase()) {
             case 'preparacion':
             case 'planeamiento':
-                if (!subFase || subFase === 'inicial') {
+                // Manejar diferentes nombres de subfase
+                if (!subFase || subFase === 'inicial' || subFase === 'definicion_sector') {
                     botones = [
-                        { id: 'btnDefinirSector', icon: 'fa-crosshairs', text: 'Definir Sector', action: () => this.definirSector() }
+                        { id: 'btnDefinirSector', icon: 'fa-crosshairs', text: 'Delimitar Sector', action: () => this.definirSector() },
+                        { id: 'btnConfirmarSector', icon: 'fa-check', text: 'Confirmar Sector', action: () => this.confirmarSector() }
                     ];
-                } else if (subFase === 'sector_definido') {
+                } else if (subFase === 'sector_definido' || subFase === 'definicion_zonas') {
                     botones = [
                         { id: 'btnDefinirZonaRoja', icon: 'fa-square', text: 'Zona Roja', action: () => this.definirZonaRoja() },
-                        { id: 'btnDefinirZonaAzul', icon: 'fa-square', text: 'Zona Azul', action: () => this.definirZonaAzul() }
+                        { id: 'btnDefinirZonaAzul', icon: 'fa-square', text: 'Zona Azul', action: () => this.definirZonaAzul() },
+                        { id: 'btnConfirmarZonas', icon: 'fa-check', text: 'Confirmar Zonas', action: () => this.confirmarZonas() }
                     ];
-                } else if (subFase === 'zonas_definidas') {
-                    botones = [
-                        { id: 'btnConfirmarPlaneamiento', icon: 'fa-check', text: 'Confirmar Plan', action: () => this.confirmarPlaneamiento() },
-                        { id: 'btnCancelarPlaneamiento', icon: 'fa-times', text: 'Reiniciar', action: () => this.cancelarPlaneamiento() }
-                    ];
+                } else if (subFase === 'zonas_definidas' || subFase === 'confirmacion_planeamiento') {
+                    // Después de confirmar zonas, pasar automáticamente a despliegue
+                    // No mostrar "Confirmar Plan" - transición automática
+                    this.estado.fase = 'despliegue';
+                    this.estado.subFase = 'inicial';
+                    this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+                    return;
                 }
                 break;
 
             case 'despliegue':
-                botones = [
-                    { id: 'btnDesplegarTropas', icon: 'fa-users', text: 'Desplegar', action: () => this.desplegarTropas() },
-                    { id: 'btnFormaciones', icon: 'fa-th-large', text: 'Formaciones', action: () => this.gestionarFormaciones() }
-                ];
+                if (!subFase || subFase === 'inicial') {
+                    botones = [
+                        { id: 'btnDesplegarTropas', icon: 'fa-users', text: 'Desplegar', action: () => this.desplegarTropas() },
+                        { id: 'btnFormaciones', icon: 'fa-th-large', text: 'Formaciones', action: () => this.gestionarFormaciones() },
+                        { id: 'btnConfirmarDespliegue', icon: 'fa-check', text: 'Confirmar Despliegue', action: () => this.confirmarDespliegue() }
+                    ];
+                } else if (subFase === 'esperando_equipos') {
+                    botones = [
+                        { id: 'btnEsperandoEquipos', icon: 'fa-clock', text: 'Esperando equipos...', action: () => {} }
+                    ];
+                }
                 // Mostrar elementos del jugador durante despliegue
                 this.mostrarElementosJugador(true);
                 break;
 
             case 'combate':
-                botones = [
-                    { id: 'btnDarOrdenes', icon: 'fa-bullhorn', text: 'Órdenes', action: () => this.darOrdenes() },
-                    { id: 'btnGestionBatalla', icon: 'fa-sword', text: 'Batalla', action: () => this.gestionBatalla() }
-                ];
-                // Mostrar elementos del jugador durante combate
+                // En combate no hay botones - las órdenes se dan con menú radial
+                botones = [];
+                // Mostrar elementos del jugador como cards durante combate
                 this.mostrarElementosJugador(true);
+                // Mostrar información de turno y tiempo
+                this.mostrarInfoTurnoCombate();
                 break;
 
             case 'evaluacion':
@@ -421,30 +496,60 @@ class PanelInferiorUnificado {
 
         // Datos de ejemplo - en implementación real vendría del gestor de juego
         const elementos = [
-            { id: 'unidad1', nombre: '1° Pel. Inf.', tipo: 'Infantería', estado: 'listo', icono: 'fa-users' },
-            { id: 'unidad2', nombre: '2° Pel. Inf.', tipo: 'Infantería', estado: 'moviendo', icono: 'fa-users' },
-            { id: 'tanque1', nombre: 'Tanque A', tipo: 'Blindado', estado: 'listo', icono: 'fa-tank' },
-            { id: 'artilleria1', nombre: 'Batería 1', tipo: 'Artillería', estado: 'combate', icono: 'fa-cannon' }
+            { id: 'unidad1', nombre: '1° Pel. Inf.', tipo: 'Infantería', estado: 'listo', icono: 'fa-users', cantidad: 120 },
+            { id: 'unidad2', nombre: '2° Pel. Inf.', tipo: 'Infantería', estado: 'moviendo', icono: 'fa-users', cantidad: 95 },
+            { id: 'tanque1', nombre: 'Tanque A', tipo: 'Blindado', estado: 'listo', icono: 'fa-tank', cantidad: 4 },
+            { id: 'artilleria1', nombre: 'Batería 1', tipo: 'Artillería', estado: 'combate', icono: 'fa-cannon', cantidad: 6 }
         ];
 
         contenedor.innerHTML = '';
 
         elementos.forEach(elemento => {
             const elementDiv = document.createElement('div');
-            elementDiv.className = `elemento-jugador ${elemento.estado}`;
+            elementDiv.className = `elemento-jugador card ${elemento.estado} ${this.estado.fase === 'combate' ? 'combate-mode' : ''}`;
             elementDiv.id = elemento.id;
-            elementDiv.innerHTML = `
-                <div class="elemento-icono">
-                    <i class="fas ${elemento.icono}"></i>
-                </div>
-                <div class="elemento-info">
-                    <div class="elemento-nombre">${elemento.nombre}</div>
-                    <div class="elemento-tipo">${elemento.tipo}</div>
-                    <div class="elemento-estado">${this.traducirEstado(elemento.estado)}</div>
-                </div>
-            `;
-            
-            elementDiv.addEventListener('click', () => this.seleccionarElemento(elemento.id));
+
+            if (this.estado.fase === 'combate') {
+                // Modo combate: mostrar como cards más detalladas
+                elementDiv.innerHTML = `
+                    <div class="card-header">
+                        <div class="elemento-icono">
+                            <i class="fas ${elemento.icono}"></i>
+                        </div>
+                        <div class="elemento-cantidad">${elemento.cantidad}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="elemento-nombre">${elemento.nombre}</div>
+                        <div class="elemento-tipo">${elemento.tipo}</div>
+                        <div class="elemento-estado">${this.traducirEstado(elemento.estado)}</div>
+                    </div>
+                `;
+            } else {
+                // Modo normal: mostrar de forma compacta
+                elementDiv.innerHTML = `
+                    <div class="elemento-icono">
+                        <i class="fas ${elemento.icono}"></i>
+                    </div>
+                    <div class="elemento-info">
+                        <div class="elemento-nombre">${elemento.nombre}</div>
+                        <div class="elemento-tipo">${elemento.tipo}</div>
+                        <div class="elemento-estado">${this.traducirEstado(elemento.estado)}</div>
+                    </div>
+                `;
+            }
+
+            elementDiv.addEventListener('click', () => {
+                this.seleccionarElemento(elemento.id);
+                // Comunicar selección al gestor de unidades
+                if (window.gestorUnidades && window.gestorUnidades.seleccionarUnidad) {
+                    window.gestorUnidades.seleccionarUnidad(elemento.id);
+                }
+                // En combate, mostrar mensaje de órdenes con menú radial
+                if (this.estado.fase === 'combate') {
+                    this.mostrarMensajeTemporary('Usa el menú radial para dar órdenes a esta unidad', 'info');
+                }
+            });
+
             contenedor.appendChild(elementDiv);
         });
     }
@@ -509,22 +614,68 @@ class PanelInferiorUnificado {
         if (window.gestorFases && window.gestorFases.iniciarDefinicionSector) {
             window.gestorFases.iniciarDefinicionSector();
         }
-        this.mostrarMensajeTemporary('Haz clic en el mapa para definir el sector', 'info');
+        this.mostrarMensajeTemporary('Haz clic en el mapa para delimitar el sector', 'info');
+    }
+
+    confirmarSector() {
+        console.log('✅ Confirmando sector...');
+        if (window.gestorFases && window.gestorFases.confirmarSector) {
+            window.gestorFases.confirmarSector();
+        } else {
+            // Transición automática a definición de zonas
+            this.estado.subFase = 'definicion_zonas';
+            this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+        }
+        this.mostrarMensajeTemporary('Sector confirmado - Define las zonas de despliegue', 'success');
     }
 
     definirZonaRoja() {
         console.log('🔴 Definiendo zona roja...');
+        if (window.gestorFases && window.gestorFases.iniciarDefinicionZona) {
+            window.gestorFases.iniciarDefinicionZona('rojo');
+        }
         this.mostrarMensajeTemporary('Selecciona el área de la zona roja', 'info');
     }
 
     definirZonaAzul() {
         console.log('🔵 Definiendo zona azul...');
+        if (window.gestorFases && window.gestorFases.iniciarDefinicionZona) {
+            window.gestorFases.iniciarDefinicionZona('azul');
+        }
         this.mostrarMensajeTemporary('Selecciona el área de la zona azul', 'info');
+    }
+
+    confirmarZonas() {
+        console.log('🎯 Confirmando zonas...');
+        if (window.gestorFases && window.gestorFases.confirmarZonas) {
+            const resultado = window.gestorFases.confirmarZonas();
+            if (resultado) {
+                // Transición automática a despliegue
+                this.estado.fase = 'despliegue';
+                this.estado.subFase = 'inicial';
+                this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+                this.mostrarMensajeTemporary('Zonas confirmadas - Iniciando despliegue por equipos', 'success');
+            }
+        } else {
+            // Fallback: cambiar fase localmente
+            this.estado.fase = 'despliegue';
+            this.estado.subFase = 'inicial';
+            this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+            this.mostrarMensajeTemporary('Zonas confirmadas - Iniciando despliegue por equipos', 'success');
+        }
     }
 
     confirmarPlaneamiento() {
         console.log('✅ Confirmando planeamiento...');
-        this.actualizarControlesPorFase('despliegue');
+        // Transición automática a fase de despliegue
+        if (window.gestorFases && window.gestorFases.avanzarFase) {
+            window.gestorFases.avanzarFase();
+        } else {
+            // Fallback: cambiar fase localmente
+            this.estado.fase = 'despliegue';
+            this.estado.subFase = 'inicial';
+            this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+        }
         this.mostrarMensajeTemporary('Planeamiento confirmado - Iniciando despliegue', 'success');
     }
 
@@ -544,6 +695,18 @@ class PanelInferiorUnificado {
         this.mostrarMensajeTemporary('Panel de formaciones activado', 'info');
     }
 
+    confirmarDespliegue() {
+        console.log('✅ Confirmando despliegue del equipo...');
+        if (window.gestorFases && window.gestorFases.confirmarDespliegueEquipo) {
+            window.gestorFases.confirmarDespliegueEquipo(window.equipoJugador);
+        } else {
+            // Fallback: esperar confirmación de todos los equipos
+            this.mostrarMensajeTemporary('Despliegue confirmado - Esperando otros equipos...', 'info');
+            this.estado.subFase = 'esperando_equipos';
+            this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+        }
+    }
+
     darOrdenes() {
         console.log('📢 Dando órdenes...');
         this.mostrarMensajeTemporary('Selecciona unidad y destino', 'info');
@@ -553,6 +716,17 @@ class PanelInferiorUnificado {
         console.log('⚔️ Gestión de batalla...');
         if (window.location.pathname.includes('juegodeguerra.html')) {
             window.location.href = 'gestionbatalla.html';
+        }
+    }
+
+    pasarTurno() {
+        console.log('⏭️ Pasando turno manualmente...');
+        if (window.gestorTurnos && window.gestorTurnos.siguienteTurno) {
+            window.gestorTurnos.siguienteTurno();
+        } else if (window.gestorFases && window.gestorFases.pasarTurnoAutomatico) {
+            window.gestorFases.pasarTurnoAutomatico();
+        } else {
+            this.mostrarMensajeTemporary('Pasando turno...', 'info');
         }
     }
 
@@ -577,41 +751,35 @@ class PanelInferiorUnificado {
     conectarConGestores() {
         try {
             // Suscribirse a eventos del GestorFases
-            if (window.gestorFases && window.gestorFases.eventos) {
-                window.gestorFases.eventos.on('cambioFase', (fase, subfase) => {
-                    this.estado.fase = fase;
-                    this.estado.subFase = subfase;
-                    this.actualizarControlesPorFase(fase, subfase);
-                    console.log(`🎮 Fase actualizada: ${fase} - ${subfase}`);
+            if (window.gestorFases && window.gestorFases.emisorEventos) {
+                window.gestorFases.emisorEventos.on('cambioFase', (fase, subfase) => {
+                    console.log(`🎮 Evento cambioFase recibido: ${fase} - ${subfase}`);
+                    this.actualizarEstado(fase, subfase);
                 });
             }
 
             // Suscribirse a eventos del GestorTurnos
-            if (window.gestorTurnos && window.gestorTurnos.eventos) {
-                window.gestorTurnos.eventos.on('cambioTurno', (turno, jugador) => {
+            if (window.gestorTurnos && window.gestorTurnos.emisorEventos) {
+                window.gestorTurnos.emisorEventos.on('cambioTurno', (turno, jugador) => {
                     this.estado.turno = turno;
                     this.estado.jugadorActual = jugador;
                     this.actualizarDisplay();
-                    console.log(`🎯 Turno actualizado: ${turno} - Jugador: ${jugador?.nombre || 'N/A'}`);
-                });
-
-                window.gestorTurnos.eventos.on('tiempoActualizado', (tiempoRestante) => {
-                    this.estado.tiempoRestante = this.formatearTiempo(tiempoRestante);
-                    this.actualizarTiempo();
+                    console.log(`� Turno actualizado: ${turno} - Jugador: ${jugador}`);
                 });
             }
 
-            // Suscribirse a eventos del GestorUnidades (para elementos del jugador)
-            if (window.gestorUnidades && window.gestorUnidades.eventos) {
-                window.gestorUnidades.eventos.on('unidadesActualizadas', (unidades) => {
-                    this.actualizarElementosJugadorDesdeGestor(unidades);
+            // Suscribirse a eventos del GestorJuego
+            if (window.gestorJuego && window.gestorJuego.emisorEventos) {
+                window.gestorJuego.emisorEventos.on('estadoActualizado', (estado) => {
+                    if (estado.fase || estado.subfase) {
+                        this.actualizarEstado(estado.fase, estado.subfase, estado.turno);
+                    }
                 });
             }
 
-            console.log('🔗 Conexión con gestores establecida');
-            this.obtenerEstadoInicialGestores();
+            console.log('✅ Panel conectado con gestores del sistema');
         } catch (error) {
-            console.error('❌ Error al conectar con gestores:', error);
+            console.error('❌ Error conectando con gestores:', error);
         }
     }
 
@@ -622,7 +790,7 @@ class PanelInferiorUnificado {
         // Obtener estado inicial del GestorFases
         if (window.gestorFases) {
             this.estado.fase = window.gestorFases.fase || 'preparacion';
-            this.estado.subFase = window.gestorFases.subfase || 'inicial';
+            this.estado.subFase = window.gestorFases.subfase || 'definicion_sector';
         }
 
         // Obtener estado inicial del GestorTurnos

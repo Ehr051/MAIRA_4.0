@@ -32,6 +32,9 @@ class InicializadorJuegoGuerra {
             await this.configurarVista3D();
             await this.configurarEventos();
             
+            // Inicializar Panel Inferior Unificado
+            await this.inicializarPanelInferior();
+            
             this.sistemasInicializados = true;
             console.log('✅ Inicialización completa exitosa');
             
@@ -304,6 +307,33 @@ class InicializadorJuegoGuerra {
         }
         
         console.log('✅ Sistemas de paneles integrados');
+    }
+    
+    async inicializarPanelInferior() {
+        try {
+            if (typeof PanelInferiorUnificado !== 'undefined') {
+                window.panelInferiorUnificado = new PanelInferiorUnificado();
+                const resultado = window.panelInferiorUnificado.inicializar();
+                
+                if (resultado) {
+                    console.log('✅ Panel Inferior Unificado inicializado correctamente');
+                    
+                    // Forzar actualización con el estado actual del gestor de fases
+                    setTimeout(() => {
+                        if (window.panelInferiorUnificado && window.panelInferiorUnificado.forzarActualizacionCompleta) {
+                            window.panelInferiorUnificado.forzarActualizacionCompleta();
+                            console.log('🔄 Panel actualizado con estado inicial del juego');
+                        }
+                    }, 500);
+                } else {
+                    console.warn('⚠️ Panel Inferior Unificado no se pudo inicializar');
+                }
+            } else {
+                console.warn('⚠️ Clase PanelInferiorUnificado no disponible');
+            }
+        } catch (error) {
+            console.error('❌ Error inicializando Panel Inferior Unificado:', error);
+        }
     }
     
     actualizarBotonesControlJuego(fase, subfase) {

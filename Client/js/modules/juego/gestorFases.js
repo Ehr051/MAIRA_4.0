@@ -1063,6 +1063,9 @@ cambiarFase(fase, subfase) {
     this.fase = fase;
     this.subfase = subfase;
     
+    // Emitir evento de cambio de fase
+    this.emisorEventos.emit('cambioFase', fase, subfase);
+    
     // Notificar al gestor de turnos sobre el cambio de fase
     if (this.gestorJuego?.gestorTurnos?.actualizarSegunFase) {
         console.log(`[GestorFases] Notificando cambio de fase a GestorTurnos: ${fase}/${subfase}`);
@@ -1926,6 +1929,326 @@ todosJugadoresListos() {
         
         // Ocultar botones de preparación y mostrar controles de combate
         this.actualizarBotonesFase();
+    }
+
+    /**
+     * Confirma que las zonas de despliegue han sido definidas
+     */
+    confirmarZonas() {
+        console.log('🎯 Confirmando zonas de despliegue...');
+
+        // Verificar que ambas zonas estén definidas
+        const zonaRoja = this.zonasLayers?.rojo || this.zonasDespliegue?.rojo;
+        const zonaAzul = this.zonasLayers?.azul || this.zonasDespliegue?.azul;
+
+        if (!zonaRoja || !zonaAzul) {
+            this.mostrarMensajeAyuda('Debes definir ambas zonas de despliegue (roja y azul)');
+            return false;
+        }
+
+        try {
+            // Cambiar directamente a fase de despliegue
+            this.cambiarFase('despliegue', 'inicial');
+            this.actualizarBotonesFase();
+
+            // Emitir evento para actualizar panel inferior
+            this.emisorEventos.emit('cambioFase', 'despliegue', 'inicial');
+
+            this.mostrarMensajeAyuda('Zonas confirmadas - Iniciando despliegue por equipos');
+            return true;
+
+        } catch (error) {
+            console.error('Error al confirmar zonas:', error);
+            this.mostrarMensajeAyuda('Error al confirmar las zonas');
+            return false;
+        }
+    }
+
+    /**
+     * Confirma el despliegue de un equipo específico
+     */
+    confirmarDespliegueEquipo(equipo) {
+        console.log(`✅ Confirmando despliegue del equipo ${equipo}`);
+
+        if (!this.desplieguesConfirmados) {
+            this.desplieguesConfirmados = { azul: false, rojo: false };
+        }
+
+        this.desplieguesConfirmados[equipo] = true;
+
+        // Verificar si todos los equipos han confirmado
+        const todosConfirmados = Object.values(this.desplieguesConfirmados).every(confirmado => confirmado);
+
+        if (todosConfirmados) {
+            // Todos los equipos han confirmado - iniciar combate
+            console.log('🎯 Todos los equipos han confirmado despliegue - Iniciando combate');
+            this.avanzarFase();
+        } else {
+            // Esperar al otro equipo
+            this.mostrarMensajeAyuda(`Equipo ${equipo} ha confirmado despliegue - Esperando al otro equipo...`);
+
+            // Emitir evento para actualizar panel
+            this.emisorEventos.emit('cambioFase', 'despliegue', 'esperando_equipos');
+        }
+
+        return true;
+    }
+
+    /**
+     * Avanza automáticamente a la siguiente fase del juego
+     */
+    avanzarFase() {
+        console.log('⏭️ Avanzando fase automáticamente...');
+
+        try {
+            const faseActual = this.fase.toLowerCase();
+            let nuevaFase, nuevaSubfase;
+
+            switch (faseActual) {
+                case 'preparacion':
+                case 'planeamiento':
+                    // De preparación a despliegue
+                    nuevaFase = 'despliegue';
+                    nuevaSubfase = 'inicial';
+                    break;
+
+                case 'despliegue':
+                    // De despliegue a combate
+                    nuevaFase = 'combate';
+                    nuevaSubfase = 'inicial';
+                    this.iniciarTurnosCombate();
+                    break;
+
+                case 'combate':
+                    // De combate a evaluación
+                    nuevaFase = 'evaluacion';
+                    nuevaSubfase = 'inicial';
+                    break;
+
+                case 'evaluacion':
+                    // De evaluación de vuelta a preparación (nuevo turno)
+                    nuevaFase = 'preparacion';
+                    nuevaSubfase = 'definicion_sector';
+                    break;
+
+                default:
+                    console.warn('Fase desconocida:', faseActual);
+                    return false;
+            }
+
+            // Cambiar fase
+            this.cambiarFase(nuevaFase, nuevaSubfase);
+            this.actualizarBotonesFase();
+
+            // Emitir evento para actualizar panel inferior
+            this.emisorEventos.emit('cambioFase', nuevaFase, nuevaSubfase);
+
+            console.log(`✅ Fase avanzada: ${this.fase} - ${this.subfase}`);
+            return true;
+
+        } catch (error) {
+            console.error('Error al avanzar fase:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Inicia el sistema de turnos para la fase de combate
+     */
+    iniciarTurnosCombate() {
+        console.log('⚔️ Iniciando sistema de turnos para combate...');
+
+        // Inicializar estado de turnos por equipos
+        this.turnosEquipos = {
+            azul: { jugadores: [], turnoActual: 0, ordenesPendientes: [] },
+            rojo: { jugadores: [], turnoActual: 0, ordenesPendientes: [] }
+        };
+
+        // Obtener jugadores de cada equipo
+        if (this.gestorJuego?.configuracion?.jugadores) {
+            this.gestorJuego.configuracion.jugadores.forEach(jugador => {
+                if (jugador.equipo === 'azul') {
+                    this.turnosEquipos.azul.jugadores.push(jugador);
+                } else if (jugador.equipo === 'rojo') {
+                    this.turnosEquipos.rojo.jugadores.push(jugador);
+                }
+            });
+        }
+
+        // Iniciar con el primer equipo (azul)
+        this.equipoTurnoActual = 'azul';
+        this.jugadorTurnoActual = 0;
+
+        // Iniciar turno del primer jugador
+        this.iniciarTurnoJugador();
+
+        // Actualizar interfaz de combate
+        this.actualizarInterfazCombate();
+    }
+
+    /**
+     * Inicia el turno de un jugador específico
+     */
+    iniciarTurnoJugador() {
+        const equipo = this.turnosEquipos[this.equipoTurnoActual];
+        const jugador = equipo.jugadores[this.jugadorTurnoActual];
+
+        if (!jugador) {
+            console.warn('No hay jugador para el turno actual');
+            return;
+        }
+
+        console.log(`🎯 Turno del jugador: ${jugador.nombre} (${this.equipoTurnoActual})`);
+
+        // Actualizar panel inferior con información del turno
+        if (window.panelInferiorUnificado) {
+            window.panelInferiorUnificado.estado.jugadorActual = jugador;
+            window.panelInferiorUnificado.actualizarInfoTurno();
+        }
+
+        // Iniciar temporizador de turno
+        this.iniciarTemporizadorTurno();
+
+        // Mostrar mensaje
+        this.mostrarMensajeAyuda(`Turno de ${jugador.nombre} (${this.equipoTurnoActual}). Usa el menú radial para dar órdenes.`);
+    }
+
+    /**
+     * Finaliza el turno del jugador actual y ejecuta órdenes si es el último del equipo
+     */
+    finalizarTurnoJugador() {
+        console.log('🏁 Finalizando turno del jugador actual...');
+
+        // Cancelar temporizador
+        if (this.temporizadorTurno) {
+            clearInterval(this.temporizadorTurno);
+            this.temporizadorTurno = null;
+        }
+
+        const equipo = this.turnosEquipos[this.equipoTurnoActual];
+
+        // Verificar si hay más jugadores en el equipo
+        if (this.jugadorTurnoActual < equipo.jugadores.length - 1) {
+            // Pasar al siguiente jugador del mismo equipo
+            this.jugadorTurnoActual++;
+            this.iniciarTurnoJugador();
+        } else {
+            // Último jugador del equipo - ejecutar órdenes y pasar al otro equipo
+            console.log(`🎯 Fin del turno del equipo ${this.equipoTurnoActual} - Ejecutando órdenes...`);
+            this.ejecutarOrdenesEquipo(this.equipoTurnoActual);
+
+            // Cambiar al otro equipo
+            this.equipoTurnoActual = this.equipoTurnoActual === 'azul' ? 'rojo' : 'azul';
+            this.jugadorTurnoActual = 0;
+
+            // Pequeña pausa antes de iniciar el siguiente equipo
+            setTimeout(() => {
+                this.iniciarTurnoJugador();
+            }, 2000);
+        }
+    }
+
+    /**
+     * Ejecuta todas las órdenes pendientes de un equipo
+     */
+    ejecutarOrdenesEquipo(equipo) {
+        const ordenes = this.turnosEquipos[equipo].ordenesPendientes;
+        console.log(`⚔️ Ejecutando ${ordenes.length} órdenes del equipo ${equipo}`);
+
+        // Aquí iría la lógica para ejecutar las órdenes
+        // Por ahora, solo limpiamos las órdenes pendientes
+        this.turnosEquipos[equipo].ordenesPendientes = [];
+
+        this.mostrarMensajeAyuda(`Órdenes del equipo ${equipo} ejecutadas`);
+    }
+
+    /**
+     * Inicia el temporizador para el turno actual
+     */
+    iniciarTemporizadorTurno() {
+        // Cancelar temporizador anterior
+        if (this.temporizadorTurno) {
+            clearInterval(this.temporizadorTurno);
+        }
+
+        // Duración por defecto (5 minutos)
+        this.tiempoRestanteTurno = 300; // segundos
+        this.temporizadorTurno = setInterval(() => {
+            this.tiempoRestanteTurno--;
+
+            if (this.tiempoRestanteTurno <= 0) {
+                // Tiempo agotado - pasar turno automáticamente
+                this.pasarTurnoAutomatico();
+            } else {
+                // Actualizar display de tiempo
+                this.actualizarDisplayTiempo();
+            }
+        }, 1000);
+    }
+
+    /**
+     * Pasa el turno automáticamente cuando se agota el tiempo
+     */
+    pasarTurnoAutomatico() {
+        console.log('⏰ Tiempo agotado - pasando turno automáticamente...');
+
+        if (this.temporizadorTurno) {
+            clearInterval(this.temporizadorTurno);
+            this.temporizadorTurno = null;
+        }
+
+        // Usar el nuevo sistema de turnos
+        this.finalizarTurnoJugador();
+    }
+
+    /**
+     * Registra una orden dada por un jugador durante su turno
+     */
+    registrarOrdenJugador(jugadorId, orden) {
+        if (this.fase !== 'combate') return false;
+
+        const equipo = this.equipoTurnoActual;
+        const jugadorActual = this.turnosEquipos[equipo].jugadores[this.jugadorTurnoActual];
+
+        if (!jugadorActual || jugadorActual.id !== jugadorId) {
+            console.warn('Intento de registrar orden fuera de turno');
+            return false;
+        }
+
+        // Agregar orden a la lista pendiente del equipo
+        this.turnosEquipos[equipo].ordenesPendientes.push({
+            jugador: jugadorId,
+            orden: orden,
+            timestamp: Date.now()
+        });
+
+        console.log(`📝 Orden registrada para ${jugadorActual.nombre}:`, orden);
+        return true;
+    }
+
+    /**
+     * Actualiza el display del tiempo restante
+     */
+    actualizarDisplayTiempo() {
+        const minutos = Math.floor(this.tiempoRestanteTurno / 60);
+        const segundos = this.tiempoRestanteTurno % 60;
+        const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+
+        // Actualizar panel inferior si existe
+        if (window.panelInferiorUnificado && window.panelInferiorUnificado.estado) {
+            window.panelInferiorUnificado.estado.tiempoRestante = tiempoFormateado;
+            window.panelInferiorUnificado.actualizarTiempo();
+        }
+
+        // Cambiar color según urgencia
+        if (this.tiempoRestanteTurno <= 30) {
+            // Últimos 30 segundos - mostrar mensaje urgente
+            const equipo = this.equipoTurnoActual;
+            const jugador = this.turnosEquipos[equipo].jugadores[this.jugadorTurnoActual];
+            if (jugador) {
+                this.mostrarMensajeAyuda(`¡${this.tiempoRestanteTurno} segundos, ${jugador.nombre}!`, 'warning');
+            }
+        }
     }
 }
 
