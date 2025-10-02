@@ -2,7 +2,7 @@
 
 import os
 import sys
-from flask import Flask, request, jsonify, make_response, send_from_directory
+from flask import Flask, request, jsonify, make_response, send_from_directory, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 import pymysql
@@ -18,6 +18,7 @@ import subprocess
 import signal
 import ssl
 from dotenv import load_dotenv
+import requests
 from datetime import datetime, timedelta
 from config import SERVER_URL, CLIENT_URL, SERVER_IP
 
@@ -3388,6 +3389,82 @@ def calibrar_gestos():
         return jsonify({"status": "error", "message": f"Error al iniciar calibración: {str(e)}"})
     
 
+
+
+# 🚀 PROXY PARA GITHUB RELEASES - PARA DESCARGAR DATOS DE ELEVACIÓN
+@app.route('/api/proxy/github/<path:filename>')
+def proxy_github_release(filename):
+    """
+    Proxy para descargar archivos desde GitHub releases.
+    Evita problemas de CORS en el frontend.
+    """
+    try:
+        # Configuración del repositorio de GitHub
+        GITHUB_REPO = 'Ehr051/MAIRA_4.0'
+        GITHUB_RELEASE_TAG = 'v4.0'  # Tag del release
+        
+        # Construir URL de GitHub release
+        github_url = f'https://github.com/{GITHUB_REPO}/releases/download/{GITHUB_RELEASE_TAG}/{filename}'
+        
+        print(f'🔗 Proxy GitHub: Descargando {filename} desde {github_url}')
+        
+        # Hacer la petición a GitHub
+        response = requests.get(github_url, stream=True, timeout=30)
+        
+        if response.status_code == 200:
+            # Determinar el content type basado en la extensión
+            content_type = 'application/octet-stream'
+            if filename.endswith('.json'):
+                content_type = 'application/json'
+            elif filename.endswith('.tar.gz') or filename.endswith('.tgz'):
+                content_type = 'application/gzip'
+            elif filename.endswith('.tif') or filename.endswith('.tiff'):
+                content_type = 'image/tiff'
+            
+            # Crear respuesta Flask con el contenido de GitHub
+            flask_response = Response(
+                response.iter_content(chunk_size=8192),
+                content_type=content_type,
+                status=200
+            )
+            
+            # Copiar headers importantes
+            if 'content-length' in response.headers:
+                flask_response.headers['content-length'] = response.headers['content-length']
+            if 'last-modified' in response.headers:
+                flask_response.headers['last-modified'] = response.headers['last-modified']
+            
+            print(f'✅ Proxy exitoso: {filename} ({response.headers.get("content-length", "tamaño desconocido")} bytes)')
+            return flask_response
+            
+        elif response.status_code == 404:
+            print(f'❌ Archivo no encontrado en GitHub: {filename}')
+            return jsonify({
+                'error': 'Archivo no encontrado',
+                'filename': filename,
+                'github_url': github_url
+            }), 404
+        else:
+            print(f'❌ Error GitHub ({response.status_code}): {filename}')
+            return jsonify({
+                'error': f'Error del servidor GitHub: {response.status_code}',
+                'filename': filename
+            }), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        print(f'❌ Error de conexión con GitHub: {e}')
+        return jsonify({
+            'error': 'Error de conexión con GitHub',
+            'details': str(e)
+        }), 500
+    except Exception as e:
+        print(f'❌ Error interno del proxy: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'details': str(e)
+        }), 500
 
 
 # actualizacion la sección de ejecución para usar SSL:

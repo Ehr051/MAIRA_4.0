@@ -1,7 +1,7 @@
 // elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v4.0
 
 // 🎯 NUEVA ESTRATEGIA: Usar archivos tar.gz locales tanto en desarrollo como en Render
-const ELEVATION_LOCAL_BASE = 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
+const ELEVATION_LOCAL_BASE = '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
 
 // 🚀 BASE URL PROXY para GitHub Release v4.0 - CONFIRMADO FUNCIONANDO
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
@@ -10,10 +10,17 @@ const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
 let elevationTileIndex;
 let elevationHandlerIndiceCargado = false;
 
-// 🔧 URLs de índices principales - USANDO PROXY PARA EVITAR CORS
+// 🔧 URLs de índices principales - RUTAS RELATIVAS AL HTML
 const ELEVATION_INDEX_URLS = [
-  // 🚀 PRIORIDAD 1: Proxy local para evitar CORS
-  '/opt/render/project/src/static/tiles/data_argentina/Altimetria'
+  // 🏠 DESARROLLO LOCAL: Rutas relativas desde html+js-test/
+  '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
+  '../Client/Libs/datos_argentina/master_mini_tiles_index.json',
+  // 📁 Ruta relativa desde html+js-test
+  '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
+  '../Client/Libs/datos_argentina/master_mini_tiles_index.json',
+  // 🌐 RELEASE DE GITHUB: Índices disponibles en el release v4.0
+  '/api/proxy/github/master_mini_tiles_index.json',
+  '/api/proxy/github/master_index.json'
 ];
 
 // Configuración de las provincias con sus archivos tar.gz locales
@@ -45,22 +52,23 @@ const ELEVATION_PROVINCES_CONFIG = {
     }
 };
 
-// 🚀 ESTRATEGIA v4.0: GitHub Releases usando proxy Flask
+// 🚀 ESTRATEGIA v4.0: GitHub Releases usando proxy para evitar CORS
 const ELEVATION_RELEASE_ASSETS = {
-    // Altimetría (altura) - usando proxy para evitar CORS
+    // Altimetría (altura) - usando endpoint del servidor para descompresión automática
+    ALTIMETRIA_BASE_URL: '/api/tiles/elevation',
     ALTIMETRIA_TAR_GZ: '/api/proxy/github/maira_altimetria_tiles.tar.gz',
-    
+
     // Vegetación (nueva en v4.0) - usando proxy para evitar CORS
     VEGETACION_TAR_GZ: '/api/proxy/github/maira_vegetacion_tiles.tar.gz',
-    
+
     // Manifesto y configuración - usando proxy para evitar CORS
     MANIFEST: '/api/proxy/github/release_manifest.json',
     INDEX: '/api/proxy/github/master_mini_tiles_index.json'
-};
-
-        // URLs de fallback para ELEVATION HANDLER - MANIFEST v4.0 COMPATIBLE
+};// URLs de fallback para ELEVATION HANDLER - MANIFEST v4.0 COMPATIBLE
 // Solo se necesita para compatibilidad con código legacy
-const ELEVATION_TILES_FALLBACK_URLS = [ELEVATION_HANDLERS_GITHUB_BASE];// Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
+const ELEVATION_TILES_FALLBACK_URLS = [ELEVATION_HANDLERS_GITHUB_BASE];
+
+// Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
 const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
 
 // Índice de tiles - variables ya declaradas arriba
@@ -236,28 +244,28 @@ async function cargarDatosElevacion(bounds) {
 // 🚀 NUEVA: Función para cargar .tif directo desde GitHub Release v4.0
 async function extractTileDirectFromRelease(tileInfo) {
   try {
-    console.log(`📦 Intentando cargar ${tileInfo.filename} directo desde Release v4.0`);
-    
-    // Construir URL directa al .tif en Release v4.0
+    console.log(`📦 Intentando cargar ${tileInfo.filename} desde servidor local`);
+
+    // Usar el endpoint del servidor que maneja la descompresión automática
     const provincia = tileInfo.provincia;
-    const directTifUrl = `${ELEVATION_HANDLERS_GITHUB_BASE}/${provincia}/${tileInfo.filename}`;
-    
-    console.log(`📡 Cargando .tif directo: ${directTifUrl}`);
-    
+    const directTifUrl = `${ELEVATION_RELEASE_ASSETS.ALTIMETRIA_BASE_URL}/${provincia}/${tileInfo.filename}`;
+
+    console.log(`📡 Cargando .tif desde servidor: ${directTifUrl}`);
+
     const response = await fetch(directTifUrl);
-    
+
     if (!response.ok) {
-      console.log(`⚠️ .tif directo falló (${response.status}): ${directTifUrl}`);
+      console.log(`⚠️ .tif desde servidor falló (${response.status}): ${directTifUrl}`);
       return null;
     }
-    
+
     const tileData = await response.arrayBuffer();
-    console.log(`✅ Tile .tif cargado directo: ${(tileData.byteLength / 1024).toFixed(1)}KB`);
-    
+    console.log(`✅ Tile .tif cargado desde servidor: ${(tileData.byteLength / 1024).toFixed(1)}KB`);
+
     return tileData;
-    
+
   } catch (error) {
-    console.error(`❌ Error cargando .tif directo ${tileInfo.filename}:`, error);
+    console.error(`❌ Error cargando .tif desde servidor ${tileInfo.filename}:`, error);
     return null;
   }
 }
@@ -1149,7 +1157,84 @@ window.MAIRA.Elevacion = {
     
     version: '1.0.0'
 };
-// ✅ AUTO-INICIALIZACIÓN
+
+// ✅ DEFINICIÓN DE MAIRA.Elevacion - ESPERAR A QUE MAIRA ESTÉ DISPONIBLE
+function initializeMAIRAElevation() {
+    if (typeof window.MAIRA !== 'undefined') {
+        window.MAIRA.Elevacion = {
+            instancia: window.elevationHandler,
+            inicializar: async function() {
+                console.log('🔄 Inicializando Elevation Handler...');
+                try {
+                    // Aquí iría la lógica de inicialización si fuera necesaria
+                    console.log('✅ Elevation Handler inicializado');
+                    return true;
+                } catch (error) {
+                    console.warn('⚠️ Error inicializando Elevation Handler:', error);
+                    return false;
+                }
+            },
+            integracion: {
+                conectarConVegetacion: function() {
+                    console.log('🔗 Conectando Elevation con Vegetación...');
+                    if (window.MAIRA?.Vegetacion) {
+                        console.log('✅ Conexión Elevation-Vegetación establecida');
+                    } else {
+                        console.log('⚠️ Vegetación no disponible para conexión');
+                    }
+                }
+            },
+            obtenerElevacion: async function(lat, lng) {
+                try {
+                    return await window.elevationHandler.obtenerElevacion(lat, lng);
+                } catch (error) {
+                    console.warn('⚠️ Error obteniendo elevación:', error);
+                    return null;
+                }
+            },
+            calcularPerfilElevacion: async function(puntos) {
+                try {
+                    return await window.elevationHandler.calcularPerfilElevacion(puntos);
+                } catch (error) {
+                    console.warn('⚠️ Error calculando perfil de elevación:', error);
+                    return null;
+                }
+            },
+            obtenerEstadoSistema: function() {
+                try {
+                    return window.elevationHandler.obtenerEstadoSistema();
+                } catch (error) {
+                    console.warn('⚠️ Error obteniendo estado del sistema:', error);
+                    return { error: 'No disponible' };
+                }
+            },
+            limpiarCache: function() {
+                try {
+                    if (window.elevationData) {
+                        window.elevationData = null;
+                    }
+                    console.log('🧹 Cache de elevación limpiado');
+                } catch (error) {
+                    console.warn('⚠️ Error limpiando cache:', error);
+                }
+            }
+        };
+        console.log('✅ MAIRA.Elevacion definido correctamente');
+    } else {
+        // Si MAIRA no está disponible, intentar de nuevo en 100ms
+        setTimeout(initializeMAIRAElevation, 100);
+    }
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 Elevation Handler cargado, esperando MAIRA...');
+    initializeMAIRAElevation();
+});
+
+// ✅ AUTO-INICIALIZACIÓN - DESACTIVADA PARA EVITAR CONFLICTOS
+// El elevationHandler se inicializará manualmente desde MAIRA
+/*
 document.addEventListener('DOMContentLoaded', async function() {
     try {
         await window.MAIRA.Elevacion.inicializar();
@@ -1163,3 +1248,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.warn('⚠️ Error inicializando MAIRA.Elevacion:', error);
     }
 });
+*/

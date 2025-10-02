@@ -9,6 +9,8 @@ import time
 import traceback
 import subprocess
 import requests
+import tarfile
+import io
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory, send_file, Response
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -596,6 +598,167 @@ def clean_tiles_cache():
             
     except Exception as e:
         print(f"❌ Error limpiando cache: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# 🚀 PROXY PARA GITHUB RELEASES - PARA DESCARGAR DATOS DE ELEVACIÓN
+@app.route('/api/proxy/github/<path:filename>')
+def proxy_github_release(filename):
+    """
+    Proxy para descargar archivos desde GitHub releases.
+    Evita problemas de CORS en el frontend y permite cache local.
+    """
+    try:
+        # Configuración del repositorio de GitHub
+        GITHUB_REPO = 'Ehr051/MAIRA_4.0'
+        GITHUB_RELEASE_TAG = 'v4.0'  # Tag del release
+        
+        # Construir URL de GitHub release
+        github_url = f'https://github.com/{GITHUB_REPO}/releases/download/{GITHUB_RELEASE_TAG}/{filename}'
+        
+        print(f'🔗 Proxy GitHub: Descargando {filename} desde {github_url}')
+        
+        # Hacer la petición a GitHub
+        response = requests.get(github_url, stream=True, timeout=30)
+        
+        if response.status_code == 200:
+            # Determinar el content type basado en la extensión
+            content_type = 'application/octet-stream'
+            if filename.endswith('.json'):
+                content_type = 'application/json'
+            elif filename.endswith('.tar.gz') or filename.endswith('.tgz'):
+                content_type = 'application/gzip'
+            elif filename.endswith('.tif') or filename.endswith('.tiff'):
+                content_type = 'image/tiff'
+            
+            # Crear respuesta Flask con el contenido de GitHub
+            flask_response = Response(
+                response.iter_content(chunk_size=8192),
+                content_type=content_type,
+                status=200
+            )
+            
+            # Copiar headers importantes
+            if 'content-length' in response.headers:
+                flask_response.headers['content-length'] = response.headers['content-length']
+            if 'last-modified' in response.headers:
+                flask_response.headers['last-modified'] = response.headers['last-modified']
+            
+            # Headers CORS para desarrollo local
+            flask_response.headers['Access-Control-Allow-Origin'] = '*'
+            flask_response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+            flask_response.headers['Access-Control-Allow-Methods'] = 'GET'
+            
+            print(f'✅ Proxy exitoso: {filename} ({response.headers.get("content-length", "tamaño desconocido")} bytes)')
+            return flask_response
+            
+        elif response.status_code == 404:
+            print(f'❌ Archivo no encontrado en GitHub: {filename}')
+            return jsonify({
+                'error': 'Archivo no encontrado',
+                'filename': filename,
+                'github_url': github_url
+            }), 404
+        else:
+            print(f'❌ Error GitHub ({response.status_code}): {filename}')
+            return jsonify({
+                'error': f'Error del servidor GitHub: {response.status_code}',
+                'filename': filename
+            }), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        print(f'❌ Error de conexión con GitHub: {e}')
+        return jsonify({
+            'error': 'Error de conexión con GitHub',
+            'details': str(e)
+        }), 500
+    except Exception as e:
+        print(f'❌ Error interno del proxy: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'details': str(e)
+        }), 500
+
+# 🗺️ SISTEMA DE DESCARGA Y DESCOMPRESIÓN DE TILES DE ELEVACIÓN
+@app.route('/api/tiles/elevation/<path:filepath>')
+def serve_elevation_tile(filepath):
+    """
+    Sirve tiles de elevación desde GitHub releases.
+    Si no existe localmente, descarga y descomprime el .tar.gz correspondiente.
+    """
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        tiles_dir = os.path.join(base_dir, 'static', 'tiles', 'data_argentina', 'Altimetria')
+        tile_path = os.path.join(tiles_dir, filepath)
+
+        # Verificar si el archivo ya existe localmente
+        if os.path.exists(tile_path):
+            print(f'✅ Sirviendo tile desde cache local: {filepath}')
+            return send_from_directory(tiles_dir, filepath)
+
+        # Si no existe, necesitamos descargarlo y descomprimirlo
+        print(f'📦 Tile no encontrado localmente, descargando: {filepath}')
+
+        # Determinar la provincia del archivo
+        if filepath.startswith('centro_norte/'):
+            provincia = 'centro_norte'
+        elif filepath.startswith('centro/'):
+            provincia = 'centro'
+        elif filepath.startswith('norte/'):
+            provincia = 'norte'
+        elif filepath.startswith('patagonia/'):
+            provincia = 'patagonia'
+        elif filepath.startswith('sur/'):
+            provincia = 'sur'
+        else:
+            return jsonify({'error': f'No se pudo determinar la provincia para {filepath}'}), 400
+
+        # Descargar el .tar.gz de altimetría desde GitHub
+        tar_gz_url = f'https://github.com/Ehr051/MAIRA_4.0/releases/download/v4.0/maira_altimetria_tiles.tar.gz'
+        print(f'📥 Descargando {tar_gz_url} para extraer {filepath}')
+
+        response = requests.get(tar_gz_url, stream=True, timeout=300)
+        if not response.ok:
+            return jsonify({'error': f'Error descargando tar.gz: {response.status_code}'}), 500
+
+        # Crear directorio si no existe
+        os.makedirs(tiles_dir, exist_ok=True)
+
+        # Procesar el archivo tar.gz y extraer el archivo específico
+        with tarfile.open(fileobj=io.BytesIO(response.content), mode='r:gz') as tar:
+            # Buscar el archivo específico dentro del tar
+            for member in tar.getmembers():
+                # Buscar archivos que terminen con el filepath o que coincidan exactamente
+                if member.name.endswith(filepath) or member.name == filepath or f'Altimetria_Mini_Tiles/{filepath}' in member.name:
+                    print(f'📂 Extrayendo {member.name} a {tile_path}')
+
+                    # Extraer el archivo con la ruta correcta
+                    # Si el member tiene la ruta completa, extraerlo directamente
+                    if member.name.startswith('Altimetria_Mini_Tiles/'):
+                        # Crear el directorio padre si no existe
+                        os.makedirs(os.path.dirname(tile_path), exist_ok=True)
+                        # Extraer solo el contenido del archivo
+                        with tar.extractfile(member) as source, open(tile_path, 'wb') as target:
+                            target.write(source.read())
+                    else:
+                        # Extraer normalmente
+                        tar.extract(member, tiles_dir)
+
+                    # Verificar que se extrajo correctamente
+                    if os.path.exists(tile_path):
+                        print(f'✅ Tile extraído exitosamente: {filepath}')
+                        return send_from_directory(tiles_dir, filepath)
+                    else:
+                        return jsonify({'error': f'Error extrayendo archivo: {filepath}'}), 500
+
+        # Si no se encontró el archivo en el tar
+        return jsonify({'error': f'Archivo no encontrado en tar.gz: {filepath}'}), 404
+
+    except Exception as e:
+        print(f'❌ Error sirviendo tile de elevación {filepath}: {e}')
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 # �🔍 RUTA DE DEBUG: Verificar estado de node_modules

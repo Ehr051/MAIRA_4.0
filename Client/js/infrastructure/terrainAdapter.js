@@ -27,7 +27,7 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
   // Lista de URLs para intentar - SOLO GITHUB RELEASES v4.0
   const urls = [
     // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
-    '/'
+    // URL removida - será definida dinámicamente
     // � FALLBACKS ADICIONALES
     `/Users/mac/Documents/GitHub/MAIRA-WORKSPACE/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json`,
     ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)

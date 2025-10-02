@@ -8,17 +8,14 @@ body {
     overflow: hidden;
     position: relative;
     display: flex;
+    height: 100vh;
 }
 
-#ui-panel { 
-    width: 350px !important; 
-    height: 100vh !important;
-    background: rgba(26, 26, 26, 0.95) !important; 
-    border-right: 2px solid #00ff00 !important;
-    padding: 15px; 
-    box-sizing: border-box;
-    overflow-y: auto;
-    z-index: 200 !important; 
+#3d-view { 
+    position: relative;
+    background: #000;
+    border-right: 2px solid #00ff00;
+    height: 100vh;
 }
 
 #ui-panel::-webkit-scrollbar {
@@ -136,4 +133,103 @@ input[type="range"] {
 .transform-controls button {
     font-size: 10px;
     padding: 4px;
+}
+
+#map-container {
+    width: 50%;
+    height: 100vh;
+    position: relative;
+    border-left: 2px solid #00ff00;
+}
+
+/* Estilos para el modal flotante */
+.ui-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ui-modal-content {
+    background: #2a2a2a;
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    background: rgba(0, 100, 0, 0.3);
+    border-radius: 6px 6px 0 0;
+}
+
+.ui-modal-header h3 {
+    margin: 0;
+    color: #00ff00;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.ui-modal-close {
+    color: #ff4444;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.ui-modal-close:hover {
+    background: rgba(255, 68, 68, 0.2);
+}
+
+.ui-modal-body {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(80vh - 80px);
+}
+
+.ui-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ui-modal-body::-webkit-scrollbar-track {
+    background: #222;
+    border-radius: 4px;
+}
+
+.ui-modal-body::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 4px;
+}
+
+.ui-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+/* Estilos para el botón flotante */
+#toggle-ui-btn {
+    transition: all 0.2s ease;
+}
+
+#toggle-ui-btn:hover {
+    background: rgba(0, 255, 0, 1) !important;
+    transform: scale(1.05);
 }

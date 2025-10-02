@@ -161,24 +161,32 @@
 
         // Crear renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Obtener tamaño del contenedor 3D
+        const container = document.getElementById('3d-view');
+        const rect = container.getBoundingClientRect();
+        this.renderer.setSize(rect.width, rect.height);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // Agregar canvas al DOM
-        const container = document.body;
-        console.log('🎨 Intentando agregar canvas a:', container, 'body children:', document.body.children.length);
+        console.log('🎨 Intentando agregar canvas a:', container, 'container children:', container.children.length);
         container.appendChild(this.renderer.domElement);
         
         // Configurar estilos del canvas
         this.renderer.domElement.style.position = 'absolute';
         this.renderer.domElement.style.top = '0';
         this.renderer.domElement.style.left = '0';
+        this.renderer.domElement.style.width = '100%';
+        this.renderer.domElement.style.height = '100%';
         this.renderer.domElement.style.zIndex = '1';
         
-        console.log('🎨 Canvas agregado exitosamente, body children ahora:', document.body.children.length);
+        console.log('🎨 Canvas agregado exitosamente, container children ahora:', container.children.length);
         console.log('🎨 Canvas dimensions:', this.renderer.domElement.width, this.renderer.domElement.height);
         console.log('🎨 Canvas bounding rect:', this.renderer.domElement.getBoundingClientRect());
+
+        // Ajustar tamaño después de agregar al DOM
+        this.onWindowResize();
 
         // Verificar que el canvas sea clickeable
         console.log('🎨 Canvas pointer events:', window.getComputedStyle(this.renderer.domElement).pointerEvents);
@@ -650,14 +658,21 @@
     }
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        const container = document.getElementById('3d-view');
+        if (container) {
+            const rect = container.getBoundingClientRect();
+            this.camera.aspect = rect.width / rect.height;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(rect.width, rect.height);
+        }
     }
 
     // Métodos de selección y manipulación
     selectObject(object, multiSelect = false) {
         console.log('🎯 selectObject llamado para:', object.userData.name, 'multiSelect:', multiSelect);
+        
+        // Limpiar anillos de selección previos para evitar acumulación
+        this.clearSelectionRings();
         
         // Si no es selección múltiple, deseleccionar todo
         if (!multiSelect) {
@@ -1745,6 +1760,211 @@
         }
     }
 
+    // Generar terreno 3D basado en la posición actual del mapa
+    async generateTerrainFromMap() {
+        console.log('🗺️ Generando terreno 3D desde mapa...');
+
+        try {
+            // Verificar que tenemos mapa disponible
+            if (!this.mapIntegration || !this.mapIntegration.map) {
+                throw new Error('Mapa no disponible para generar terreno');
+            }
+
+            const map = this.mapIntegration.map;
+            const bounds = map.getBounds();
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+
+            console.log('📍 Bounds del mapa:', bounds);
+            console.log('🎯 Centro del mapa:', center);
+            console.log('🔍 Zoom del mapa:', zoom);
+
+            // Obtener datos de elevación para el área visible
+            const elevationData = await this.getElevationDataForBounds(bounds);
+
+            if (!elevationData || !elevationData.data) {
+                console.warn('⚠️ No se pudieron obtener datos de elevación, usando terreno plano');
+                this.createTerrain('plano');
+                return;
+            }
+
+            // Crear geometría del terreno basada en datos reales
+            await this.createTerrainFromElevationData(elevationData, bounds);
+
+            // Centrar la vista 3D en el centro del mapa
+            const worldPos = this.latLngToWorld(center);
+            if (this.camera) {
+                this.camera.position.set(worldPos.x, 50, worldPos.z);
+                this.camera.lookAt(worldPos.x, 0, worldPos.z);
+            }
+
+            if (this.controls) {
+                this.controls.target.set(worldPos.x, 0, worldPos.z);
+                this.controls.update();
+            }
+
+            this.updateStatus('Terreno 3D generado desde mapa', 'success');
+            console.log('✅ Terreno 3D generado exitosamente desde mapa');
+
+        } catch (error) {
+            console.error('❌ Error generando terreno desde mapa:', error);
+            this.updateStatus('Error generando terreno desde mapa', 'error');
+            // Fallback a terreno plano
+            this.createTerrain('plano');
+        }
+    }
+
+    // Obtener datos de elevación para un área delimitada
+    async getElevationDataForBounds(bounds) {
+        const size = 128; // Resolución del terreno
+        const data = new Float32Array(size * size);
+
+        try {
+            // Verificar si tenemos ElevationHandler disponible
+            if (!window.elevationHandler && !window.ElevationHandler) {
+                console.warn('⚠️ ElevationHandler no disponible, usando datos sintéticos');
+                return this.generateSyntheticElevationData(bounds, size);
+            }
+
+            const elevationHandler = window.elevationHandler || window.ElevationHandler;
+
+            const latStep = (bounds.getNorth() - bounds.getSouth()) / size;
+            const lonStep = (bounds.getEast() - bounds.getWest()) / size;
+
+            console.log('🔄 Obteniendo datos de elevación para grid', size, 'x', size);
+
+            // Generar grid de elevaciones
+            const promises = [];
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const lat = bounds.getSouth() + (i * latStep);
+                    const lon = bounds.getWest() + (j * lonStep);
+                    promises.push(this.getElevationAt(lat, lon));
+                }
+            }
+
+            const elevations = await Promise.all(promises);
+
+            // Llenar el array de datos
+            for (let i = 0; i < size * size; i++) {
+                data[i] = elevations[i] || 0;
+            }
+
+            console.log('✅ Datos de elevación obtenidos');
+            console.log(`📊 Elevación min: ${Math.min(...data)}m, max: ${Math.max(...data)}m`);
+
+            return {
+                data: data,
+                width: size,
+                height: size,
+                bounds: bounds
+            };
+
+        } catch (error) {
+            console.error('❌ Error obteniendo datos de elevación:', error);
+            return this.generateSyntheticElevationData(bounds, size);
+        }
+    }
+
+    // Obtener elevación en un punto específico
+    async getElevationAt(lat, lon) {
+        try {
+            if (window.elevationHandler && typeof window.elevationHandler.getElevation === 'function') {
+                const result = await window.elevationHandler.getElevation(lat, lon);
+                return result && result.elevation !== null ? result.elevation : 0;
+            }
+
+            if (window.ElevationHandler && typeof window.ElevationHandler.getElevation === 'function') {
+                const result = await window.ElevationHandler.getElevation(lat, lon);
+                return result && result.elevation !== null ? result.elevation : 0;
+            }
+
+            // Fallback: elevación sintética basada en coordenadas
+            return Math.sin(lat * 10) * Math.cos(lon * 10) * 50;
+
+        } catch (error) {
+            console.warn('⚠️ Error obteniendo elevación en', lat, lon, ':', error.message);
+            return 0;
+        }
+    }
+
+    // Generar datos de elevación sintéticos para testing
+    generateSyntheticElevationData(bounds, size) {
+        console.log('🎨 Generando datos de elevación sintéticos');
+
+        const data = new Float32Array(size * size);
+        const latRange = bounds.getNorth() - bounds.getSouth();
+        const lonRange = bounds.getEast() - bounds.getWest();
+
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                const lat = bounds.getSouth() + (i / size) * latRange;
+                const lon = bounds.getWest() + (j / size) * lonRange;
+
+                // Generar elevación sintética con algo de variación
+                const elevation = Math.sin(lat * 20) * Math.cos(lon * 20) * 30 +
+                                Math.sin(lat * 5) * Math.cos(lon * 5) * 100;
+
+                data[i * size + j] = Math.max(0, elevation);
+            }
+        }
+
+        return {
+            data: data,
+            width: size,
+            height: size,
+            bounds: bounds
+        };
+    }
+
+    // Crear terreno 3D desde datos de elevación
+    async createTerrainFromElevationData(elevationData, bounds) {
+        const { data, width, height } = elevationData;
+
+        console.log('🏗️ Creando geometría del terreno desde datos de elevación...');
+
+        // Crear geometría del terreno
+        const geometry = new THREE.PlaneGeometry(200, 200, width - 1, height - 1);
+        const vertices = geometry.attributes.position.array;
+
+        // Aplicar datos de elevación a los vértices
+        for (let i = 0; i < vertices.length; i += 3) {
+            const vertexIndex = i / 3;
+            const x = vertexIndex % width;
+            const y = Math.floor(vertexIndex / width);
+
+            // Obtener elevación del data array
+            const elevationIndex = y * width + x;
+            const elevation = data[elevationIndex] || 0;
+
+            // Aplicar elevación (escala para hacer visible)
+            vertices[i + 1] = elevation * 0.01; // Escala de elevación
+        }
+
+        geometry.attributes.position.needsUpdate = true;
+        geometry.computeVertexNormals();
+
+        // Crear material del terreno
+        const material = new THREE.MeshLambertMaterial({
+            color: 0x228B22,
+            transparent: false
+        });
+
+        // Remover terreno anterior si existe
+        if (this.terrain) {
+            this.scene.remove(this.terrain);
+        }
+
+        // Crear y agregar nuevo terreno
+        this.terrain = new THREE.Mesh(geometry, material);
+        this.terrain.rotation.x = -Math.PI / 2; // Rotar para que quede horizontal
+        this.terrain.receiveShadow = true;
+
+        this.scene.add(this.terrain);
+
+        console.log('✅ Terreno 3D creado desde datos de elevación');
+    }
+
     loadModel(path, name, scale = 1.0) {
         this.currentModelPath = path;
         this.currentModelName = name;
@@ -2235,635 +2455,6 @@
         this.clearOrderVisuals(unit);
     }
 
-    processOrders(deltaTime) {
-        // Procesar órdenes de todas las unidades
-        this.units.forEach(unit => {
-            if (!unit.userData.orders || unit.userData.orders.length === 0) return;
-
-            const currentOrder = unit.userData.orders[0];
-            console.log(`📋 Procesando orden para ${unit.userData.name}:`, currentOrder.type, currentOrder.status);
-
-            switch (currentOrder.type) {
-                case 'move':
-                    if (currentOrder.status === 'active') {
-                        this.processMoveOrder(unit, currentOrder, deltaTime);
-                    }
-                    break;
-                case 'attack':
-                    if (currentOrder.status === 'active') {
-                        console.log(`🎯 Procesando ataque de ${unit.userData.name} a ${currentOrder.target?.userData?.name}`);
-                        this.processAttackOrder(unit, currentOrder, deltaTime);
-                    }
-                    break;
-                case 'defend':
-                    if (currentOrder.status === 'active') {
-                        this.processDefendOrder(unit, currentOrder, deltaTime);
-                    }
-                    break;
-                case 'patrol':
-                    if (currentOrder.status === 'active') {
-                        this.processPatrolOrder(unit, currentOrder, deltaTime);
-                    }
-                    break;
-                case 'observe':
-                    if (currentOrder.status === 'active') {
-                        this.processObserveOrder(unit, currentOrder, deltaTime);
-                    }
-                    break;
-                // Otras órdenes avanzadas pueden procesarse aquí cuando sea necesario
-            }
-        });
-    }
-
-    processMoveOrder(unit, order, deltaTime = 0.016) {
-        const moveSpeed = 15.0; // Unidades por segundo (aumentado para movimiento más realista)
-        let target;
-
-        // Determinar el objetivo actual
-        if (order.waypoints && order.waypoints.length > 0) {
-            // Movimiento con waypoints
-            target = order.waypoints[order.currentWaypoint];
-            if (!target) {
-                // No hay más waypoints
-                order.status = 'completed';
-                this.updateOrderVisual(unit);
-                this.updateStatus(`${unit.userData.name} completó la ruta`, 'success');
-                return;
-            }
-        } else if (order.target) {
-            // Movimiento simple
-            target = order.target;
-        } else {
-            // No hay objetivo
-            order.status = 'completed';
-            return;
-        }
-
-        const direction = new THREE.Vector3()
-            .subVectors(target, unit.position)
-            .normalize();
-
-        const distance = unit.position.distanceTo(target);
-
-        if (distance > 0.1) {
-            // Mover hacia el objetivo
-            unit.position.addScaledVector(direction, moveSpeed * deltaTime);
-
-            // Rotar hacia la dirección de movimiento
-            const targetRotation = Math.atan2(direction.x, direction.z);
-            unit.rotation.y = targetRotation;
-        } else {
-            // Llegó al waypoint actual
-            if (order.waypoints && order.waypoints.length > 0) {
-                // Pasar al siguiente waypoint
-                order.currentWaypoint++;
-                if (order.currentWaypoint >= order.waypoints.length) {
-                    // Ruta completada
-                    order.status = 'completed';
-                    this.updateOrderVisual(unit);
-                    this.updateStatus(`${unit.userData.name} completó la ruta`, 'success');
-                } else {
-                    // Continuar con el siguiente waypoint
-                    this.updateStatus(`${unit.userData.name} llegando a punto ${order.currentWaypoint}/${order.waypoints.length}`, 'info');
-                }
-            } else {
-                // Movimiento simple completado
-                order.status = 'completed';
-                this.updateOrderVisual(unit);
-                this.updateStatus(`${unit.userData.name} llegó al destino`, 'success');
-            }
-        }
-    }
-
-    processAttackOrder(unit, order, deltaTime = 0.016) {
-        if (!order.target) return;
-
-        // Calcular distancia al objetivo
-        const distance = unit.position.distanceTo(order.target.position);
-        
-        // Obtener rango de ataque del arma
-        const weaponData = this.getWeaponData(unit.userData.weapons ? unit.userData.weapons[0] : 'FAL');
-        const attackRange = weaponData ? parseInt(weaponData.alcance_maximo) || 2000 : 100; // Convertir a unidades del juego
-        
-        // Convertir de metros a unidades del juego (aproximadamente 1 unidad = 10 metros)
-        const attackRangeUnits = attackRange / 10;
-
-        // Si hay un punto de ataque específico, moverse hacia él primero
-        let targetPosition = order.target.position;
-        if (order.attackPoint) {
-            targetPosition = order.attackPoint;
-        }
-
-        if (distance > attackRangeUnits) {
-            // Moverse hacia el objetivo o punto de ataque
-            const direction = new THREE.Vector3()
-                .subVectors(targetPosition, unit.position)
-                .normalize();
-
-            unit.position.addScaledVector(direction, 3.0 * deltaTime); // Velocidad de aproximación
-
-            // Rotar hacia el objetivo
-            const targetRotation = Math.atan2(direction.x, direction.z);
-            unit.rotation.y = targetRotation;
-        } else {
-            // En rango de ataque - verificar si estamos en posición de ataque correcta
-            if (order.attackPoint) {
-                // Ya estamos en el punto de ataque, ahora apuntar al objetivo real
-                const directionToTarget = new THREE.Vector3()
-                    .subVectors(order.target.position, unit.position)
-                    .normalize();
-                const targetRotation = Math.atan2(directionToTarget.x, directionToTarget.z);
-                unit.rotation.y = targetRotation;
-            }
-
-            // Ejecutar ataque usando el nuevo sistema de combate
-            if (!order.lastAttack || Date.now() - order.lastAttack > 2000) { // Ataque cada 2 segundos
-                order.lastAttack = Date.now();
-
-                // Verificar munición antes de atacar
-                const currentAmmo = unit.userData.municion || 0;
-                if (currentAmmo <= 0) {
-                    this.updateStatus(`🚫 ${unit.userData.name} sin munición!`, 'error');
-                    return;
-                }
-
-                // Calcular daño usando el sistema avanzado
-                const attackResult = this.calculateAttackDamage(unit, order.target, distance * 10, 'primary'); // Convertir distancia de vuelta a metros
-                
-                if (attackResult.hit) {
-                    // Consumir munición
-                    unit.userData.municion = Math.max(0, currentAmmo - 1);
-                    
-                    // Aplicar daño al objetivo
-                    const actualDamage = this.applyDamage(order.target, attackResult.damage, unit);
-                    
-                    this.updateStatus(`💥 ${unit.userData.name} atacó a ${order.target.userData.name} con ${attackResult.weapon} (${actualDamage} daño, ${unit.userData.municion} munición)`, 'warning');
-                    
-                    // Visual feedback de ataque en el atacante
-                    if (unit.material) {
-                        const originalEmissive = unit.material.emissive.clone();
-                        unit.material.emissive.setHex(0xff0000);
-
-                        setTimeout(() => {
-                            unit.material.emissive.copy(originalEmissive);
-                        }, 200);
-                    }
-                    
-                    // Actualizar panel de info si la unidad está seleccionada
-                    if (this.selectedObject === order.target) {
-                        this.updateSelectionInfo();
-                    }
-                } else {
-                    // Fallo del ataque
-                    const reason = attackResult.reason || 'fallo';
-                    this.updateStatus(`❌ ${unit.userData.name} falló el ataque a ${order.target.userData.name} (${reason})`, 'info');
-                    
-                    // Consumir munición igual (tiro fallido)
-                    unit.userData.currentAmmo = currentAmmo - 1;
-                }
-            }
-        }
-    }
-
-    processDefendOrder(unit, order, deltaTime) {
-        // En modo defensivo, la unidad se mantiene en posición
-        // Podríamos agregar lógica de rotación para vigilar amenazas cercanas
-        const vigilanceRange = 15.0;
-
-        // Buscar enemigos cercanos
-        let nearestEnemy = null;
-        let nearestDistance = vigilanceRange;
-
-        this.units.forEach(otherUnit => {
-            if (otherUnit !== unit && otherUnit.userData.faction === 'enemigo') {
-                const distance = unit.position.distanceTo(otherUnit.position);
-                if (distance < nearestDistance) {
-                    nearestEnemy = otherUnit;
-                    nearestDistance = distance;
-                }
-            }
-        });
-
-        if (nearestEnemy) {
-            // Apuntar hacia el enemigo más cercano
-            const direction = new THREE.Vector3()
-                .subVectors(nearestEnemy.position, unit.position)
-                .normalize();
-
-            const targetRotation = Math.atan2(direction.x, direction.z);
-            unit.rotation.y = THREE.MathUtils.lerp(unit.rotation.y, targetRotation, 0.05); // Rotación suave
-        }
-    }
-
-    processPatrolOrder(unit, order, deltaTime) {
-        if (!order.points || order.points.length === 0) return;
-
-        const currentPoint = order.points[order.currentPoint || 0];
-        if (!currentPoint) return;
-
-        const distance = unit.position.distanceTo(currentPoint);
-
-        if (distance > 0.5) {
-            // Mover hacia el punto actual
-            const direction = new THREE.Vector3()
-                .subVectors(currentPoint, unit.position)
-                .normalize();
-
-            unit.position.addScaledVector(direction, 3.0 * deltaTime);
-
-            // Rotar hacia la dirección de movimiento
-            const targetRotation = Math.atan2(direction.x, direction.z);
-            unit.rotation.y = targetRotation;
-        } else {
-            // Llegó al punto, pasar al siguiente
-            order.currentPoint = (order.currentPoint + 1) % order.points.length;
-        }
-    }
-
-    processObserveOrder(unit, order, deltaTime) {
-        if (!order.target) return;
-
-        // Mantener distancia óptima de observación
-        const optimalDistance = 12.0;
-        const distance = unit.position.distanceTo(order.target.position);
-
-        if (Math.abs(distance - optimalDistance) > 1.0) {
-            // Ajustar distancia
-            const direction = new THREE.Vector3()
-                .subVectors(order.target.position, unit.position)
-                .normalize();
-
-            if (distance > optimalDistance) {
-                // Acercarse
-                unit.position.addScaledVector(direction, 2.0 * deltaTime);
-            } else {
-                // Alejarse
-                unit.position.addScaledVector(direction, -2.0 * deltaTime);
-            }
-        }
-
-        // Apuntar hacia el objetivo observado
-        const direction = new THREE.Vector3()
-            .subVectors(order.target.position, unit.position)
-            .normalize();
-
-        const targetRotation = Math.atan2(direction.x, direction.z);
-        unit.rotation.y = THREE.MathUtils.lerp(unit.rotation.y, targetRotation, 0.03); // Rotación suave
-    }
-
-    handleRadialMenuOption(action) {
-        console.log(`🎯 Ejecutando acción del menú radial: ${action}`);
-
-        // NO ocultar automáticamente el menú - dejar que el usuario lo cierre manualmente
-        // if (this.radialMenu) {
-        //     this.radialMenu.hide();
-        // }
-
-        switch (action) {
-            // === ACCIONES PARA TERRENO ===
-            case 'infoTerrenoJG':
-                this.showTerrainInfo();
-                // Después de mostrar info, ocultar el menú
-                setTimeout(() => {
-                    if (this.radialMenu) this.radialMenu.hide();
-                }, 2000); // Dar tiempo para leer la info
-                break;
-
-            case 'marcarObjetivo':
-                this.marcarObjetivo();
-                // Marcar objetivo es una acción inmediata, ocultar menú
-                setTimeout(() => {
-                    if (this.radialMenu) this.radialMenu.hide();
-                }, 500);
-                break;
-
-            case 'moverAqui':
-                if (this.selectedObject) {
-                    this.pendingOrder = {
-                        type: 'move',
-                        unit: this.selectedObject
-                    };
-                    this.updateStatus('Haz click en el terreno para mover la unidad', 'info');
-                    // Mantener menú visible hasta que se complete la acción
-                } else {
-                    this.updateStatus('Selecciona una unidad primero', 'warning');
-                    setTimeout(() => {
-                        if (this.radialMenu) this.radialMenu.hide();
-                    }, 1000);
-                }
-                break;
-
-            // === ACCIONES PARA UNIDADES PROPIAS ===
-            case 'infoUnidad':
-                this.showUnitInfo(this.selectedObject);
-                break;
-
-            case 'moverUnidad':
-                this.pendingOrder = {
-                    type: 'move',
-                    unit: this.selectedObject
-                };
-                this.updateStatus('Haz click en el terreno para mover la unidad', 'info');
-                break;
-
-            case 'atacarCon':
-                this.pendingOrder = {
-                    type: 'attack',
-                    unit: this.selectedObject
-                };
-                this.updateStatus('Haz click en una unidad enemiga para atacar', 'warning');
-                break;
-
-            case 'defenderCon':
-                if (this.selectedObject) {
-                    this.giveDefendOrder(this.selectedObject, this.selectedObject.position.clone());
-                }
-                break;
-
-            case 'reagrupar':
-                this.reagruparUnidad(this.selectedObject);
-                break;
-
-            case 'darOrdenes':
-                this.showAdvancedOrdersMenu(this.selectedObject);
-                break;
-
-            // === ACCIONES PARA UNIDADES ENEMIGAS ===
-            case 'infoEnemigo':
-                this.showEnemyInfo(this.selectedObject);
-                break;
-
-            case 'atacarEnemigo':
-                this.pendingOrder = { type: 'attack', unit: this.selectedObject };
-                this.updateStatus('Haz click en una unidad enemiga para atacar', 'warning');
-                break;
-
-            case 'observarEnemigo':
-                this.observarEnemigo(this.selectedObject);
-                break;
-
-            case 'reportarEnemigo':
-                this.reportarEnemigo(this.selectedObject);
-                break;
-
-            // === ACCIONES PARA ELEMENTOS TÁCTICOS ===
-            case 'infoElemento':
-                this.showElementInfo(this.selectedObject);
-                break;
-
-            case 'editarElemento':
-                this.editarElemento(this.selectedObject);
-                break;
-
-            case 'eliminarElemento':
-                this.eliminarElemento(this.selectedObject);
-                break;
-
-            case 'usarElemento':
-                this.usarElemento(this.selectedObject);
-                break;
-
-            // === ACCIONES DE PLANEAMIENTO ===
-            case 'infoTerreno':
-                this.showTerrainInfo();
-                break;
-
-            case 'marcar':
-                this.marcarTerreno();
-                break;
-
-            case 'editarElemento':
-                this.editarElemento(this.selectedObject);
-                break;
-
-            case 'eliminarElemento':
-                this.eliminarElemento(this.selectedObject);
-                break;
-
-            case 'propiedadesElemento':
-                this.showElementProperties(this.selectedObject);
-                break;
-
-            case 'editarSimbolo':
-                this.editarSimbolo(this.selectedObject);
-                break;
-
-            case 'eliminarSimbolo':
-                this.eliminarSimbolo(this.selectedObject);
-                break;
-
-            case 'cambiarTipoSimbolo':
-                this.cambiarTipoSimbolo(this.selectedObject);
-                break;
-
-            case 'propiedadesSimbolo':
-                this.showSimboloProperties(this.selectedObject);
-                break;
-
-            case 'duplicarSimbolo':
-                this.duplicarSimbolo(this.selectedObject);
-                break;
-
-            // === ACCIÓN GENÉRICA ===
-            case 'close':
-                if (this.radialMenu) {
-                    this.radialMenu.hide();
-                }
-                break;
-
-            default:
-                console.warn(`Acción no implementada: ${action}`);
-                this.updateStatus(`Acción "${action}" no implementada aún`, 'warning');
-        }
-    }
-
-    giveDefendOrder(unit, position) {
-        const order = {
-            type: 'defend',
-            target: position,
-            timestamp: Date.now()
-        };
-
-        unit.userData.orders = [order];
-        this.updateOrderVisual(unit);
-        this.updateStatus(`${unit.userData.name} defendiendo posición`, 'success');
-    }
-
-    clearOrders(unit) {
-        unit.userData.orders = [];
-        this.updateOrderVisual(unit);
-    }
-
-
-
-
-    loadTestCube() {
-        const geometry = new THREE.BoxGeometry(5, 5, 5);
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x00ff00,
-            roughness: 0.7,
-            metalness: 0.3
-        });
-        const cube = new THREE.Mesh(geometry, material);
-
-        cube.position.set(
-            (Math.random() - 0.5) * 50,
-            2.5,
-            (Math.random() - 0.5) * 50
-        );
-        cube.castShadow = true;
-        cube.receiveShadow = true;
-        cube.name = 'TestCube_' + Date.now();
-        cube.userData = {
-            name: 'Cubo de Prueba',
-            selectable: true,
-            type: 'test'
-        };
-
-        this.scene.add(cube);
-        this.placedModels.push(cube);
-
-        this.updateStatus('Cubo de prueba agregado', 'success');
-    }
-
-    clearAllModels() {
-        this.placedModels.forEach(model => {
-            this.scene.remove(model);
-        });
-        this.placedModels = [];
-        this.selectedObject = null;
-        this.updateSelectionInfo();
-        this.updateStatus('Todos los modelos eliminados', 'success');
-    }
-
-    resetCamera() {
-        if (this.camera) {
-            this.camera.position.set(0, 50, 0);
-        }
-        if (this.controls) {
-            this.controls.target.set(0, 0, 0);
-            this.controls.update();
-        }
-        this.updateStatus('Cámara restablecida', 'success');
-    }
-
-    exportScene() {
-        const sceneData = {
-            timestamp: new Date().toISOString(),
-            models: this.placedModels.map(model => ({
-                name: model.userData.name,
-                position: model.position.toArray(),
-                rotation: model.rotation.toArray(),
-                scale: model.scale.toArray(),
-                path: model.userData.path
-            }))
-        };
-
-        const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'maira_scene.json';
-        a.click();
-        URL.revokeObjectURL(url);
-
-        this.updateStatus('Escena exportada', 'success');
-    }
-
-    showDamageText(position, damage) {
-        // Crear elemento DOM para el texto de daño
-        const damageDiv = document.createElement('div');
-        damageDiv.textContent = damage;
-        damageDiv.style.position = 'absolute';
-        damageDiv.style.color = '#ff0000';
-        damageDiv.style.fontSize = '24px';
-        damageDiv.style.fontWeight = 'bold';
-        damageDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
-        damageDiv.style.pointerEvents = 'none';
-        damageDiv.style.zIndex = '1000';
-        damageDiv.style.userSelect = 'none';
-
-        // Convertir posición 3D a pantalla
-        const screenPos = this.worldToScreen(position);
-        damageDiv.style.left = screenPos.x + 'px';
-        damageDiv.style.top = screenPos.y + 'px';
-
-        document.body.appendChild(damageDiv);
-
-        // Animar el texto flotando hacia arriba
-        let opacity = 1;
-        let yOffset = 0;
-        const animate = () => {
-            yOffset -= 2;
-            opacity -= 0.02;
-            damageDiv.style.top = (screenPos.y + yOffset) + 'px';
-            damageDiv.style.opacity = opacity;
-
-            if (opacity > 0) {
-                requestAnimationFrame(animate);
-            } else {
-                document.body.removeChild(damageDiv);
-            }
-        };
-        animate();
-    }
-
-    clearLoadedModels() {
-        this.loadedModels.clear();
-        this.folderFiles.clear();
-
-        const section = document.getElementById('loaded-models-section');
-        const grid = document.getElementById('loaded-models-grid');
-
-        if (grid) grid.innerHTML = '';
-        if (section) section.style.display = 'none';
-
-        this.updateStatus('Lista de modelos cargados limpiada', 'success');
-    }
-
-    // Método para integración de mapas
-    /**
-     * Cambia el tipo de mapa/terreno actual
-     * @param {string} mapType - Tipo de terreno: 'plano', 'colinas', 'montanas', 'desierto'
-     */
-    setMapType(mapType) {
-        this.currentMapType = mapType;
-        this.createTerrain(mapType);
-        this.updateStatus(`Tipo de mapa cambiado a: ${mapType}`, 'info');
-    }
-
-    // Métodos para actualizar iluminación
-    /**
-     * Actualiza la intensidad de la luz ambiente
-     * @param {string|number} intensity - Nueva intensidad (0-2)
-     */
-    updateAmbientLight(intensity) {
-        if (this.ambientLight) {
-            this.ambientLight.intensity = parseFloat(intensity);
-            document.getElementById('ambientValue').textContent = intensity;
-            this.updateStatus(`Intensidad ambiente cambiada a: ${intensity}`, 'info');
-        }
-    }
-
-    /**
-     * Actualiza la intensidad de la luz direccional
-     * @param {string|number} intensity - Nueva intensidad (0-3)
-     */
-    updateDirectionalLight(intensity) {
-        if (this.directionalLight) {
-            this.directionalLight.intensity = parseFloat(intensity);
-            document.getElementById('directionalValue').textContent = intensity;
-            this.updateStatus(`Intensidad direccional cambiada a: ${intensity}`, 'info');
-        }
-    }
-
-    // Métodos auxiliares para compatibilidad
-    placeModelFromFolder(position, modelName) {
-        // Implementación simplificada
-        this.updateStatus(`Función placeModelFromFolder no implementada para ${modelName}`, 'warning');
-    }
-
-    // Sistema de procesamiento de órdenes
     processOrders() {
         if (!Array.isArray(this.units) || this.units.length === 0) {
             // No hay unidades, no procesar nada
@@ -3352,4 +2943,47 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initMapIntegration, 1000);
 });
 
-// Inicialización automática removida - se maneja desde el HTML
+// Funcionalidad del modal flotante
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('ui-modal');
+    const toggleBtn = document.getElementById('toggle-ui-btn');
+    const closeBtn = document.querySelector('.ui-modal-close');
+
+    // Función para mostrar/ocultar modal
+    function toggleModal() {
+        if (modal.style.display === 'none' || modal.style.display === '') {
+            modal.style.display = 'flex';
+            toggleBtn.textContent = '❌ Ocultar';
+        } else {
+            modal.style.display = 'none';
+            toggleBtn.textContent = '⚙️ Panel';
+        }
+    }
+
+    // Event listeners
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleModal);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', toggleModal);
+    }
+
+    // Cerrar modal al hacer click fuera del contenido
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                toggleModal();
+            }
+        });
+    }
+
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.style.display === 'flex') {
+            toggleModal();
+        }
+    });
+
+    console.log('✅ Modal flotante inicializado');
+});

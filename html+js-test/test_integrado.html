@@ -2,12 +2,7 @@
 <html>
 <head>
     <title>MAIRA 4.0 - Test Integrado 3D</title>
-    <link rel="stylesheet" href="style        <div class="control-group">
-            <label>🗺️ Mapa Integrado</label>
-            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.toggleMap()">Ocultar Mapa</button>
-            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.activate3DViewFromMap()">Vista 3D desde Mapa</button>
-            <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.syncUnitsToMap()">Sincronizar Unidades</button>
-        </div>>
+    <link rel="stylesheet" href="styles.css">
     <!-- FontAwesome para iconos del menú radial -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Leaflet CSS para el mapa -->
@@ -20,12 +15,28 @@
     <script src="../Client/Libs/mythree/RadialMenu.js"></script>
     <!-- Leaflet JS para el mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Elevation Handler para datos de elevación -->
+    <script src="../Client/js/handlers/elevationHandler.js"></script>
     <!-- Script fusionado -->
-    <script src="test_integrado_debug.js" defer></script>
+    <script src="test_integrado_debug.js"></script>
 </head>
 <body>
-    <div id="ui-panel">
-        <div id="status">Iniciando MAIRA 4.0 Integrado...</div>
+    <!-- Botón flotante para mostrar/ocultar panel UI -->
+    <button id="toggle-ui-btn" style="position: fixed; top: 10px; left: 10px; z-index: 10000; background: rgba(0, 255, 0, 0.8); color: black; border: 2px solid #00ff00; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">⚙️ Panel</button>
+    
+    <!-- Contenedores principales para mapa y vista 3D -->
+    <div id="3d-view"></div>
+    <div id="map-view"></div>
+    
+    <!-- Modal del panel UI -->
+    <div id="ui-modal" class="ui-modal" style="display: none;">
+        <div class="ui-modal-content">
+            <div class="ui-modal-header">
+                <h3>MAIRA 4.0 - Panel de Control</h3>
+                <span class="ui-modal-close">&times;</span>
+            </div>
+            <div class="ui-modal-body">
+                <div id="status">Iniciando MAIRA 4.0 Integrado...</div>
         
         <div class="control-group">
             <label>🗺️ Mapas</label>
@@ -121,24 +132,25 @@
             </div>
         </div>
         <div class="control-group">
-            <label>�️ Mapa Integrado</label>
+            <label>🗺️ Mapa Integrado</label>
             <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.toggleMap()">Mostrar/Ocultar Mapa</button>
             <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.activate3DViewFromMap()">Vista 3D desde Mapa</button>
+            <button onclick="if(window.MAIRA) window.MAIRA.generateTerrainFromMap()">Generar Terreno desde Mapa</button>
             <button onclick="if(window.MAIRA && window.MAIRA.mapIntegration) window.MAIRA.mapIntegration.syncUnitsToMap()">Sincronizar Unidades</button>
         </div>
-    </div>
-    
-    <!-- Contenedor del mapa Leaflet - Más prominente como en planeamiento.html -->
-    <div id="map-container" style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; z-index: 100; border-left: 2px solid #00ff00; display: block;">
+            </div>
+        </div>
+    </div>    <!-- Contenedor del mapa Leaflet - lado derecho -->
+    <div id="map-container" style="width: 50%; height: 100%; position: relative; border-left: 2px solid #00ff00;">
         <div id="map" style="width: 100%; height: 100%;"></div>
         <button id="toggle-map-btn" style="position: absolute; top: 10px; right: 10px; z-index: 1001; background: rgba(0, 255, 0, 0.8); color: black; border: 2px solid #00ff00; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">🗺️ Ocultar Mapa</button>
     </div>
     
     <script>
-        // Inicializar MAIRA al final de la carga
-        window.addEventListener('load', function() {
-            console.log('📦 Window load event triggered');
-            // Esperar a que MAIRA3DViewAdapter esté definido globalmente
+        // Inicializar MAIRA después de que todos los scripts estén cargados
+        function initializeMAIRA() {
+            console.log('📦 Verificando disponibilidad de MAIRA3DViewAdapter...');
+
             if (typeof window.MAIRA3DViewAdapter === 'function') {
                 console.log('📦 Creating MAIRA3DViewAdapter...');
                 window.MAIRA = new window.MAIRA3DViewAdapter();
@@ -146,10 +158,29 @@
                 console.log('📦 Calling MAIRA.init()...');
                 window.MAIRA.init();
                 console.log('✅ MAIRA inicializado:', window.MAIRA);
+                return true;
             } else {
-                console.error('❌ MAIRA3DViewAdapter no está definido. Verifica que test_integrado_debug.js se cargue correctamente.');
+                console.log('⏳ MAIRA3DViewAdapter aún no disponible, esperando...');
+                return false;
             }
-        });
+        }
+
+        // Intentar inicializar inmediatamente
+        if (!initializeMAIRA()) {
+            // Si no está disponible, intentar cada 100ms hasta 10 segundos
+            let attempts = 0;
+            const maxAttempts = 100;
+
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (initializeMAIRA() || attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    if (attempts >= maxAttempts) {
+                        console.error('❌ MAIRA3DViewAdapter no se cargó después de 10 segundos. Verifica que test_integrado_debug.js se cargue correctamente.');
+                    }
+                }
+            }, 100);
+        }
     </script>
 
     <!-- Modal de información de unidad -->
