@@ -268,7 +268,18 @@ window.agregarMarcador = function(sidc, nombre) {
                 }
             });
         } else {
-            marcador.on('contextmenu', window.mostrarMenuContextual);
+            // Reemplazar menú contextual por menú radial
+            marcador.on('contextmenu', function(e) {
+                L.DomEvent.stopPropagation(e);
+                L.DomEvent.preventDefault(e);
+                if (window.MiRadial) {
+                    window.MiRadial.selectedUnit = this;
+                    window.MiRadial.selectedHex = null;
+                    const point = window.mapa.latLngToContainerPoint(e.latlng);
+                    window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
+                }
+                return false;
+            });
         }
 
         // 7. Agregar al mapa y notificar
@@ -833,7 +844,18 @@ window.agregarMarcadorConCoordenadas = function(sidc, nombre, latlng) {
             }
         });
     } else {
-        marcador.on('contextmenu', window.mostrarMenuContextual);
+        // Reemplazar menú contextual por menú radial
+        marcador.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            if (window.MiRadial) {
+                window.MiRadial.selectedUnit = this;
+                window.MiRadial.selectedHex = null;
+                const point = window.mapa.latLngToContainerPoint(e.latlng);
+                window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
+            }
+            return false;
+        });
     }
 
     // 7. Agregar al mapa y notificar

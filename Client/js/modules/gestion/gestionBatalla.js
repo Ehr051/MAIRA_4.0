@@ -1418,11 +1418,17 @@ function configurarEventosChat() {
                         
                         console.log("Marcador de usuario añadido al mapa");
                         
-                        // Configurar evento de clic para el menú contextual
+                        // Reemplazar menú contextual por menú radial
                         marcadorUsuario.on('contextmenu', function(e) {
-                            if (window.mostrarMenuContextual) {
-                                window.mostrarMenuContextual(e, this);
+                            L.DomEvent.stopPropagation(e);
+                            L.DomEvent.preventDefault(e);
+                            if (window.MiRadial) {
+                                window.MiRadial.selectedUnit = this;
+                                window.MiRadial.selectedHex = null;
+                                const point = window.mapa.latLngToContainerPoint(e.latlng);
+                                window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                             }
+                            return false;
                         });
                     } else {
                         console.error("No se pudo generar el símbolo militar");
@@ -3063,9 +3069,14 @@ function recibirMensajeChat(mensaje) {
                 
                 marcador.on('contextmenu', function(e) {
                     L.DomEvent.stopPropagation(e);
-                    if (window.mostrarMenuContextual) {
-                        window.mostrarMenuContextual(e, this);
+                    L.DomEvent.preventDefault(e);
+                    if (window.MiRadial) {
+                        window.MiRadial.selectedUnit = this;
+                        window.MiRadial.selectedHex = null;
+                        const point = window.mapa.latLngToContainerPoint(e.latlng);
+                        window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                     }
+                    return false;
                 });
                 
                 // Agregar al mapa

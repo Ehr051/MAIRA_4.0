@@ -472,11 +472,13 @@ function inicializarEventosMapa() {
 
     mapa.on('contextmenu', function(e) {
         L.DomEvent.preventDefault(e);
-        // ✅ VERIFICAR QUE LA FUNCIÓN EXISTE:
-        if (typeof window.mostrarMenuContextual === 'function') {
-            window.mostrarMenuContextual(e);
+        // Reemplazar menú contextual por menú radial
+        if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+            window.MiRadial.selectedUnit = null;
+            window.MiRadial.selectedHex = null;
+            window.MiRadial.mostrarMenu(e.containerPoint.x, e.containerPoint.y, 'mapa', e.latlng);
         } else {
-            console.warn('❌ mostrarMenuContextual no disponible');
+            console.warn('❌ MiRadial no disponible para menú contextual del mapa');
         }
     });
 }

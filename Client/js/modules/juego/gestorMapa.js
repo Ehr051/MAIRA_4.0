@@ -72,29 +72,22 @@ class GestorMapa extends GestorBase {
             this.mapa.on('dblclick contextmenu', (e) => {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
-                this.gestorJuego?.gestorAcciones?.mostrarMenuContextual(e);
+                // Reemplazar menú contextual por menú radial
+                if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+                    window.MiRadial.selectedUnit = null;
+                    window.MiRadial.selectedHex = null;
+                    window.MiRadial.mostrarMenu(e.containerPoint.x, e.containerPoint.y, 'mapa', e.latlng);
+                } else {
+                    console.warn('❌ MiRadial no disponible para menú contextual del mapa');
+                }
             });
-        
+
             this.mapa.on('click', (e) => {
                 if (this.dibujandoSector || this.dibujandoZona) {
                     this.gestorJuego?.gestorFases?.manejarClickMapa(e);
                 }
             });
         }
-
-        configurarEventosMapa() {
-    this.mapa.on('dblclick contextmenu', (e) => {
-        L.DomEvent.stopPropagation(e);
-        L.DomEvent.preventDefault(e);
-        this.gestorJuego?.gestorAcciones?.mostrarMenuContextual(e);
-    });
-
-    this.mapa.on('click', (e) => {
-        if (this.dibujandoSector || this.dibujandoZona) {
-            this.gestorJuego?.gestorFases?.manejarClickMapa(e);
-        }
-    });
-}
     crearCalcoGlobal() {
         this.calcoGlobal = L.layerGroup().addTo(this.mapa);
         this.calcoActivo = this.calcoGlobal;
