@@ -1260,6 +1260,14 @@
             if (typeof HexGrid !== 'undefined' && window.mapa) {
                 HexGrid.initialize(window.mapa);
                 console.log('✅ HexGrid inicializado');
+                
+                // Activar selección de hexágonos por defecto
+                if (window.MAIRA && window.MAIRA.DirectorManager) {
+                    setTimeout(() => {
+                        window.MAIRA.DirectorManager.activarSeleccionHexagonos();
+                        console.log('✅ Selección de hexágonos activada por defecto');
+                    }, 1000);
+                }
             } else if (typeof HexGrid !== 'undefined') {
                 console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
             } else {

@@ -151,7 +151,7 @@ class PanelInferiorUnificado {
         const turnoNumero = document.querySelector('.turno-numero');
 
         if (faseNumero) faseNumero.textContent = `FASE ${this.obtenerNumeroFase()}`;
-        if (faseNombre && this.estado.fase) faseNombre.textContent = this.estado.fase.toUpperCase();
+        if (faseNombre && this.estado.fase && typeof this.estado.fase === 'string') faseNombre.textContent = this.estado.fase.toUpperCase();
         if (turnoNumero && this.estado.fase === 'combate') {
             turnoNumero.textContent = this.estado.jugadorActual ? `TURNO: ${this.estado.jugadorActual.nombre || 'Jugador'}` : 'TURNO';
         } else if (turnoNumero) {
@@ -379,6 +379,11 @@ class PanelInferiorUnificado {
     actualizarControlesPorFase(fase, subFase = null) {
         const contenedor = document.getElementById('controlesPrincipales');
         if (!contenedor) return;
+
+        // Si fase es null, usar valor por defecto
+        if (!fase || typeof fase !== 'string') {
+            fase = 'preparacion';
+        }
 
         let botones = [];
 
