@@ -184,7 +184,8 @@ async inicializarGestores(config) {
             configExtra: {
                 fase: 'preparacion',
                 subfase: 'definicion_sector',
-                jugadores: config.jugadores
+                jugadores: config.jugadores,
+                director: config.director
             }
         },
         { 

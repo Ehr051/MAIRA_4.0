@@ -10,7 +10,7 @@
         console.log('🔍 Verificando Font Awesome...');
 
         // Verificar si el CSS está cargado
-        const faLink = document.querySelector('link[href*="fontawesome"]');
+        const faLink = document.querySelector('link[href*="fontawesome"], link[href*="font-awesome"]');
         if (!faLink) {
             console.error('❌ Font Awesome CSS no encontrado');
             return false;

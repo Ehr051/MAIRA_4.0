@@ -11,12 +11,78 @@ class PanelInferiorUnificado {
             fase: null,
             subFase: null,
             turno: null,
-            tiempoRestante: null,
+            tiempoRestante: this.obtenerDuracionTurnoInicial(), // Obtener duración real del turno
             jugadorActual: null
             // pausado y velocidad eliminados - duración fija por turno
         };
         this.timers = new Map();
         this.controlActivo = 'btnDefinirSector';
+    }
+
+    /**
+     * Obtiene la duración inicial del turno desde los datos de la partida
+     */
+    obtenerDuracionTurnoInicial() {
+        try {
+            // Intentar obtener datos de la partida desde sessionStorage primero
+            let datosPartida = null;
+            const datosSession = sessionStorage.getItem('datosPartidaActual');
+            if (datosSession) {
+                const parsed = JSON.parse(datosSession);
+                datosPartida = parsed.partidaActual || parsed;
+            }
+
+            // Si no está en sessionStorage, intentar localStorage
+            if (!datosPartida) {
+                const datosLocal = localStorage.getItem('datosPartida');
+                if (datosLocal) {
+                    datosPartida = JSON.parse(datosLocal);
+                }
+            }
+
+            // Si no está en localStorage, intentar configuración temporal
+            if (!datosPartida) {
+                const configTemp = localStorage.getItem('configuracionPartidaTemporal');
+                if (configTemp) {
+                    datosPartida = { configuracion: JSON.parse(configTemp) };
+                }
+            }
+
+            // Si no hay datos de partida, usar valor por defecto
+            if (!datosPartida || !datosPartida.configuracion) {
+                console.log('⚠️ No se encontraron datos de partida, usando duración por defecto');
+                console.log('Datos encontrados:', datosPartida);
+                return '10:00';
+            }
+
+            // Obtener duración del turno (en segundos o minutos)
+            let duracionTurno = datosPartida.configuracion.duracionTurno;
+            if (!duracionTurno) {
+                console.log('⚠️ Duración del turno no especificada, usando valor por defecto');
+                return '10:00';
+            }
+
+            // Convertir a número si es string
+            duracionTurno = parseInt(duracionTurno);
+
+            // Si es menor a 100, asumir que está en minutos y convertir a segundos
+            if (duracionTurno < 100) {
+                duracionTurno *= 60;
+            }
+
+            // Convertir segundos a formato MM:SS
+            const minutos = Math.floor(duracionTurno / 60);
+            const segundos = duracionTurno % 60;
+
+            const tiempoFormateado = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            console.log(`⏱️ Duración inicial del turno: ${tiempoFormateado} (${duracionTurno}s)`);
+
+            return tiempoFormateado;
+
+        } catch (error) {
+            console.error('❌ Error obteniendo duración del turno:', error);
+            return '10:00'; // Valor por defecto en caso de error
+        }
     }
 
     /**
@@ -198,25 +264,31 @@ class PanelInferiorUnificado {
     mostrarInfoTurnoCombate() {
         this.actualizarInfoTurno();
         this.mostrarMensajeTemporary('Usa el menú radial para dar órdenes a tus unidades', 'info');
-    }    /**
+    }
+
+    /**
      * Actualiza el display de tiempo
      */
     actualizarTiempo() {
         const tiempoValor = document.querySelector('.tiempo-valor');
-        if (tiempoValor) {
+        if (tiempoValor && this.estado.tiempoRestante) {
             tiempoValor.textContent = this.estado.tiempoRestante;
             
             // Cambiar color según tiempo restante
-            const minutos = parseInt(this.estado.tiempoRestante.split(':')[0]);
-            if (minutos <= 2) {
-                tiempoValor.style.color = '#FF4444';
-                tiempoValor.style.textShadow = '0 0 10px rgba(255, 68, 68, 0.8)';
-            } else if (minutos <= 5) {
-                tiempoValor.style.color = '#FFB800';
-                tiempoValor.style.textShadow = '0 0 10px rgba(255, 184, 0, 0.8)';
-            } else {
-                tiempoValor.style.color = '#00FF00';
-                tiempoValor.style.textShadow = '0 0 5px rgba(0, 255, 0, 0.3)';
+            const tiempoStr = String(this.estado.tiempoRestante);
+            const minutos = parseInt(tiempoStr.split(':')[0]);
+            
+            if (!isNaN(minutos)) {
+                if (minutos <= 2) {
+                    tiempoValor.style.color = '#FF4444';
+                    tiempoValor.style.textShadow = '0 0 10px rgba(255, 68, 68, 0.8)';
+                } else if (minutos <= 5) {
+                    tiempoValor.style.color = '#FFB800';
+                    tiempoValor.style.textShadow = '0 0 10px rgba(255, 184, 0, 0.8)';
+                } else {
+                    tiempoValor.style.color = '#00FF00';
+                    tiempoValor.style.textShadow = '0 0 5px rgba(0, 255, 0, 0.3)';
+                }
             }
         }
     }
@@ -376,52 +448,84 @@ class PanelInferiorUnificado {
     /**
      * Actualiza los controles según la fase actual del juego
      */
-    actualizarControlesPorFase(fase, subFase = null) {
+    actualizarControlesPorFase(fase = null, subFase = null) {
         const contenedor = document.getElementById('controlesPrincipales');
         if (!contenedor) return;
 
-        // Si fase es null, usar valor por defecto
-        if (!fase || typeof fase !== 'string') {
-            fase = 'preparacion';
+        // Obtener estado real del gestor de fases si está disponible
+        let estadoReal = null;
+        if (window.gestorFases) {
+            estadoReal = {
+                fase: window.gestorFases.fase,
+                subFase: window.gestorFases.subfase,
+                sectorConfirmado: window.gestorFases.sectorConfirmado,
+                zonasDefinidas: window.gestorFases.zonasDefinidas || {},
+                esDirector: window.gestorFases.esDirector(window.userId)
+            };
+            console.log('🎮 Estado real del gestor de fases:', estadoReal);
         }
+
+        // Usar estado real si está disponible, sino usar parámetros o estado interno
+        const faseActual = estadoReal?.fase || fase || this.estado.fase || 'preparacion';
+        const subFaseActual = estadoReal?.subFase || subFase || this.estado.subFase || 'definicion_sector';
+
+        // Actualizar estado interno para consistencia
+        this.estado.fase = faseActual;
+        this.estado.subFase = subFaseActual;
+
+        console.log('🎛️ Actualizando controles para fase:', faseActual, 'subfase:', subFaseActual);
 
         let botones = [];
 
-        switch(fase.toLowerCase()) {
+        switch(faseActual.toLowerCase()) {
             case 'preparacion':
             case 'planeamiento':
-                // Manejar diferentes nombres de subfase
-                if (!subFase || subFase === 'inicial' || subFase === 'definicion_sector') {
+                // Solo mostrar botones si el usuario es director
+                if (estadoReal && !estadoReal.esDirector) {
                     botones = [
-                        { id: 'btnDefinirSector', icon: 'fa-crosshairs', text: 'Delimitar Sector', action: () => this.definirSector() },
-                        { id: 'btnConfirmarSector', icon: 'fa-check', text: 'Confirmar Sector', action: () => this.confirmarSector() }
+                        { id: 'btnEsperando', icon: 'fa-clock', text: 'Esperando al director...', action: () => {} }
                     ];
-                } else if (subFase === 'sector_definido' || subFase === 'definicion_zonas') {
-                    botones = [
-                        { id: 'btnDefinirZonaRoja', icon: 'fa-square', text: 'Zona Roja', action: () => this.definirZonaRoja() },
-                        { id: 'btnDefinirZonaAzul', icon: 'fa-square', text: 'Zona Azul', action: () => this.definirZonaAzul() },
-                        { id: 'btnConfirmarZonas', icon: 'fa-check', text: 'Confirmar Zonas', action: () => this.confirmarZonas() }
-                    ];
-                } else if (subFase === 'zonas_definidas' || subFase === 'confirmacion_planeamiento') {
-                    // Después de confirmar zonas, pasar automáticamente a despliegue
-                    // No mostrar "Confirmar Plan" - transición automática
-                    this.estado.fase = 'despliegue';
-                    this.estado.subFase = 'inicial';
-                    this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
-                    return;
+                } else {
+                    // Lógica progresiva basada en el estado real
+                    if (!estadoReal?.sectorConfirmado) {
+                        // Fase inicial: definir sector
+                        botones = [
+                            { id: 'btnDefinirSector', icon: 'fa-crosshairs', text: 'Delimitar Sector', action: () => this.definirSector() },
+                            { id: 'btnConfirmarSector', icon: 'fa-check', text: 'Confirmar Sector', action: () => this.confirmarSector() }
+                        ];
+                    } else if (!estadoReal?.zonasDefinidas?.rojo || !estadoReal?.zonasDefinidas?.azul) {
+                        // Sector confirmado, definir zonas
+                        botones = [];
+                        if (!estadoReal?.zonasDefinidas?.rojo) {
+                            botones.push({ id: 'btnDefinirZonaRoja', icon: 'fa-square', text: 'Zona Roja', action: () => this.definirZonaRoja() });
+                        }
+                        if (!estadoReal?.zonasDefinidas?.azul) {
+                            botones.push({ id: 'btnDefinirZonaAzul', icon: 'fa-square', text: 'Zona Azul', action: () => this.definirZonaAzul() });
+                        }
+                        botones.push({ id: 'btnConfirmarZonas', icon: 'fa-check', text: 'Confirmar Zonas', action: () => this.confirmarZonas() });
+                    } else {
+                        // Zonas definidas, pasar automáticamente a despliegue
+                        console.log('🏁 Zonas completas, cambiando a despliegue...');
+                        if (window.gestorFases) {
+                            window.gestorFases.cambiarFase('preparacion', 'despliegue');
+                        }
+                        this.estado.fase = 'despliegue';
+                        this.estado.subFase = 'inicial';
+                        this.actualizarControlesPorFase();
+                        return;
+                    }
                 }
                 break;
 
             case 'despliegue':
-                if (!subFase || subFase === 'inicial') {
-                    botones = [
-                        { id: 'btnDesplegarTropas', icon: 'fa-users', text: 'Desplegar', action: () => this.desplegarTropas() },
-                        { id: 'btnFormaciones', icon: 'fa-th-large', text: 'Formaciones', action: () => this.gestionarFormaciones() },
-                        { id: 'btnConfirmarDespliegue', icon: 'fa-check', text: 'Confirmar Despliegue', action: () => this.confirmarDespliegue() }
-                    ];
-                } else if (subFase === 'esperando_equipos') {
+                if (subFaseActual === 'esperando_equipos') {
                     botones = [
                         { id: 'btnEsperandoEquipos', icon: 'fa-clock', text: 'Esperando equipos...', action: () => {} }
+                    ];
+                } else {
+                    // Solo confirmar despliegue - elementos se agregan desde menú "Agregar Elemento"
+                    botones = [
+                        { id: 'btnConfirmarDespliegue', icon: 'fa-check', text: 'Confirmar Despliegue', action: () => this.confirmarDespliegue() }
                     ];
                 }
                 // Mostrar elementos del jugador durante despliegue
@@ -429,30 +533,30 @@ class PanelInferiorUnificado {
                 break;
 
             case 'combate':
-                // En combate no hay botones - las órdenes se dan con menú radial
-                botones = [];
-                // Mostrar elementos del jugador como cards durante combate
-                this.mostrarElementosJugador(true);
-                // Mostrar información de turno y tiempo
-                this.mostrarInfoTurnoCombate();
-                break;
-
-            case 'evaluacion':
+                // Solo terminar turno - órdenes se dan desde mapa/menú radial
                 botones = [
-                    { id: 'btnVerResultados', icon: 'fa-chart-bar', text: 'Resultados', action: () => this.verResultados() },
-                    { id: 'btnSiguienteTurno', icon: 'fa-forward', text: 'Siguiente', action: () => this.siguienteTurno() }
+                    { id: 'btnTerminarTurno', icon: 'fa-check', text: 'Terminar Turno', action: () => this.terminarTurno() }
                 ];
-                // Ocultar elementos del jugador durante evaluación
-                this.mostrarElementosJugador(false);
                 break;
 
             default:
                 botones = [
-                    { id: 'btnDefinirSector', icon: 'fa-crosshairs', text: 'Definir Sector', action: () => this.definirSector() }
+                    { id: 'btnDefault', icon: 'fa-question', text: 'Estado Desconocido', action: () => {} }
                 ];
         }
 
-        this.generarBotonesDinamicos(botones);
+        // Limpiar contenedor y crear botones
+        contenedor.innerHTML = '';
+        botones.forEach(boton => {
+            const btnElement = document.createElement('button');
+            btnElement.id = boton.id;
+            btnElement.className = 'btn-control-principal';
+            btnElement.innerHTML = `<i class="${boton.icon}"></i><span>${boton.text}</span>`;
+            btnElement.onclick = boton.action;
+            contenedor.appendChild(btnElement);
+        });
+
+        console.log(`🎛️ Controles actualizados: ${botones.length} botones para ${faseActual}/${subFaseActual}`);
     }
 
     /**
@@ -467,12 +571,9 @@ class PanelInferiorUnificado {
         botones.forEach(boton => {
             const btnElement = document.createElement('button');
             btnElement.id = boton.id;
-            btnElement.className = 'btn-control';
-            btnElement.innerHTML = `
-                <i class="fas ${boton.icon}"></i>
-                <span>${boton.text}</span>
-            `;
-            btnElement.addEventListener('click', boton.action);
+            btnElement.className = 'btn-control-principal';
+            btnElement.innerHTML = `<i class="${boton.icon}"></i><span>${boton.text}</span>`;
+            btnElement.onclick = boton.action;
             contenedor.appendChild(btnElement);
         });
     }
@@ -499,64 +600,92 @@ class PanelInferiorUnificado {
         const contenedor = document.getElementById('elementosJugadores');
         if (!contenedor) return;
 
-        // Datos de ejemplo - en implementación real vendría del gestor de juego
-        const elementos = [
-            { id: 'unidad1', nombre: '1° Pel. Inf.', tipo: 'Infantería', estado: 'listo', icono: 'fa-users', cantidad: 120 },
-            { id: 'unidad2', nombre: '2° Pel. Inf.', tipo: 'Infantería', estado: 'moviendo', icono: 'fa-users', cantidad: 95 },
-            { id: 'tanque1', nombre: 'Tanque A', tipo: 'Blindado', estado: 'listo', icono: 'fa-tank', cantidad: 4 },
-            { id: 'artilleria1', nombre: 'Batería 1', tipo: 'Artillería', estado: 'combate', icono: 'fa-cannon', cantidad: 6 }
-        ];
+        // TODO: Conectar con gestorUnidades para obtener elementos reales
+        // Por ahora, simulamos elementos basados en el equipo del jugador
+        const equipoJugador = window.equipoJugador || 'azul';
+        const elementos = this.obtenerElementosPorEquipo(equipoJugador);
 
         contenedor.innerHTML = '';
+
+        if (elementos.length === 0) {
+            contenedor.innerHTML = '<div class="no-elementos">No hay elementos disponibles</div>';
+            return;
+        }
 
         elementos.forEach(elemento => {
             const elementDiv = document.createElement('div');
             elementDiv.className = `elemento-jugador card ${elemento.estado} ${this.estado.fase === 'combate' ? 'combate-mode' : ''}`;
             elementDiv.id = elemento.id;
+            elementDiv.onclick = () => this.seleccionarElemento(elemento.id);
 
-            if (this.estado.fase === 'combate') {
-                // Modo combate: mostrar como cards más detalladas
+            if (this.estado.fase === 'combate' || this.estado.fase === 'despliegue') {
+                // Modo cards detalladas para combate y despliegue
                 elementDiv.innerHTML = `
                     <div class="card-header">
                         <div class="elemento-icono">
                             <i class="fas ${elemento.icono}"></i>
                         </div>
                         <div class="elemento-cantidad">${elemento.cantidad}</div>
+                        <div class="elemento-estado-badge ${elemento.estado}">${this.traducirEstado(elemento.estado)}</div>
                     </div>
                     <div class="card-body">
                         <div class="elemento-nombre">${elemento.nombre}</div>
                         <div class="elemento-tipo">${elemento.tipo}</div>
-                        <div class="elemento-estado">${this.traducirEstado(elemento.estado)}</div>
+                        <div class="elemento-stats">
+                            <div class="stat salud">
+                                <i class="fas fa-heart"></i> ${elemento.salud}%
+                            </div>
+                            <div class="stat municion">
+                                <i class="fas fa-bullet"></i> ${elemento.municion}%
+                            </div>
+                        </div>
                     </div>
                 `;
             } else {
-                // Modo normal: mostrar de forma compacta
+                // Modo compacto para otras fases
                 elementDiv.innerHTML = `
                     <div class="elemento-icono">
                         <i class="fas ${elemento.icono}"></i>
                     </div>
                     <div class="elemento-info">
                         <div class="elemento-nombre">${elemento.nombre}</div>
-                        <div class="elemento-tipo">${elemento.tipo}</div>
-                        <div class="elemento-estado">${this.traducirEstado(elemento.estado)}</div>
+                        <div class="elemento-cantidad">${elemento.cantidad}</div>
                     </div>
                 `;
             }
 
-            elementDiv.addEventListener('click', () => {
-                this.seleccionarElemento(elemento.id);
-                // Comunicar selección al gestor de unidades
-                if (window.gestorUnidades && window.gestorUnidades.seleccionarUnidad) {
-                    window.gestorUnidades.seleccionarUnidad(elemento.id);
-                }
-                // En combate, mostrar mensaje de órdenes con menú radial
-                if (this.estado.fase === 'combate') {
-                    this.mostrarMensajeTemporary('Usa el menú radial para dar órdenes a esta unidad', 'info');
-                }
-            });
-
             contenedor.appendChild(elementDiv);
         });
+
+        console.log(`📋 Cargados ${elementos.length} elementos para el equipo ${equipoJugador}`);
+    }
+
+    /**
+     * Obtiene elementos del jugador desde el gestor de unidades
+     * Los elementos se agregan durante la fase de despliegue desde el menú "Agregar Elemento"
+     */
+    obtenerElementosPorEquipo(equipo) {
+        // Intentar obtener elementos reales del gestor de unidades
+        if (window.gestorUnidades && window.gestorUnidades.obtenerUnidadesPorEquipo) {
+            return window.gestorUnidades.obtenerUnidadesPorEquipo(equipo);
+        }
+
+        // Si no hay gestor disponible, intentar obtener desde sessionStorage
+        try {
+            const datosPartida = sessionStorage.getItem('datosPartidaActual');
+            if (datosPartida) {
+                const parsed = JSON.parse(datosPartida);
+                const partida = parsed.partidaActual || parsed;
+                if (partida.elementos && partida.elementos[equipo]) {
+                    return partida.elementos[equipo];
+                }
+            }
+        } catch (error) {
+            console.warn('Error obteniendo elementos desde sessionStorage:', error);
+        }
+
+        // Retornar vacío - los elementos se agregan durante despliegue
+        return [];
     }
 
     /**
@@ -702,13 +831,38 @@ class PanelInferiorUnificado {
 
     confirmarDespliegue() {
         console.log('✅ Confirmando despliegue del equipo...');
-        if (window.gestorFases && window.gestorFases.confirmarDespliegueEquipo) {
-            window.gestorFases.confirmarDespliegueEquipo(window.equipoJugador);
-        } else {
-            // Fallback: esperar confirmación de todos los equipos
-            this.mostrarMensajeTemporary('Despliegue confirmado - Esperando otros equipos...', 'info');
-            this.estado.subFase = 'esperando_equipos';
+
+        // Verificar si estamos en modo local
+        const modoJuego = window.gestorJuego?.estado?.modoJuego || 'local';
+
+        if (modoJuego === 'local') {
+            // En modo local, pasar directamente al combate
+            console.log('🎮 Modo local: Iniciando combate directamente');
+            this.mostrarMensajeTemporary('Despliegue confirmado - Iniciando combate', 'success');
+
+            // Cambiar a fase de combate
+            this.estado.fase = 'combate';
+            this.estado.subFase = 'inicial';
+            this.estado.turno = 1;
+
+            // Inicializar primer turno
+            if (window.gestorTurnos && window.gestorTurnos.iniciarCombate) {
+                window.gestorTurnos.iniciarCombate();
+            }
+
+            // Actualizar interfaz
             this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+            this.actualizarDisplay();
+
+        } else {
+            // Modo online: esperar confirmación de todos los equipos
+            if (window.gestorFases && window.gestorFases.confirmarDespliegueEquipo) {
+                window.gestorFases.confirmarDespliegueEquipo(window.equipoJugador);
+            } else {
+                this.mostrarMensajeTemporary('Despliegue confirmado - Esperando otros equipos...', 'info');
+                this.estado.subFase = 'esperando_equipos';
+                this.actualizarControlesPorFase(this.estado.fase, this.estado.subFase);
+            }
         }
     }
 

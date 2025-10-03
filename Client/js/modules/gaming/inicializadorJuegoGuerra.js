@@ -71,7 +71,58 @@ class InicializadorJuegoGuerra {
     
     obtenerConfiguracionPartida() {
         try {
-            // Intentar obtener configuración desde localStorage
+            // Obtener código de partida desde URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const codigoPartida = urlParams.get('codigo');
+
+            if (codigoPartida) {
+                console.log('🔍 Buscando partida con código:', codigoPartida);
+
+                // Buscar en sessionStorage primero
+                const datosSession = sessionStorage.getItem('datosPartidaActual');
+                if (datosSession) {
+                    const parsed = JSON.parse(datosSession);
+                    const datosPartida = parsed.partidaActual || parsed;
+
+                    if (datosPartida && datosPartida.codigo === codigoPartida) {
+                        console.log('✅ Partida encontrada en sessionStorage');
+                        return this.convertirDatosPartidaAConfiguracion(datosPartida);
+                    }
+                }
+
+                // Buscar en localStorage
+                const datosLocal = localStorage.getItem('datosPartida');
+                if (datosLocal) {
+                    const datosPartida = JSON.parse(datosLocal);
+
+                    if (datosPartida && datosPartida.codigo === codigoPartida) {
+                        console.log('✅ Partida encontrada en localStorage');
+                        return this.convertirDatosPartidaAConfiguracion(datosPartida);
+                    }
+                }
+
+                // Si no se encuentra por código, buscar cualquier partida reciente
+                console.log('⚠️ Partida no encontrada por código, buscando datos recientes...');
+
+                // Intentar sessionStorage
+                if (datosSession) {
+                    const parsed = JSON.parse(datosSession);
+                    const datosPartida = parsed.partidaActual || parsed;
+                    console.log('📋 Usando datos de sessionStorage:', datosPartida.nombre || 'Sin nombre');
+                    return this.convertirDatosPartidaAConfiguracion(datosPartida);
+                }
+
+                // Intentar localStorage
+                if (datosLocal) {
+                    const datosPartida = JSON.parse(datosLocal);
+                    console.log('📋 Usando datos de localStorage:', datosPartida.nombre || 'Sin nombre');
+                    return this.convertirDatosPartidaAConfiguracion(datosPartida);
+                }
+            } else {
+                console.log('⚠️ No se especificó código de partida en URL');
+            }
+
+            // Intentar obtener configuración desde localStorage (configuración genérica)
             const config = localStorage.getItem('configuracionPartida');
             if (config) {
                 return JSON.parse(config);
@@ -98,6 +149,20 @@ class InicializadorJuegoGuerra {
                 zoomInicial: 13
             };
         }
+    }
+
+    convertirDatosPartidaAConfiguracion(datosPartida) {
+        return {
+            modo: 'juego_guerra',
+            nombrePartida: datosPartida.nombre,
+            codigo: datosPartida.codigo,
+            duracionTurno: datosPartida.configuracion?.duracionTurno || 300,
+            mapaCentro: datosPartida.configuracion?.centro || [-34.6037, -58.3816],
+            zoomInicial: datosPartida.configuracion?.zoom || 13,
+            jugadores: datosPartida.jugadores || [],
+            director: datosPartida.director,
+            modoJuego: datosPartida.modoJuego || 'local'
+        };
     }
     
     async inicializarUserIdentity() {
@@ -130,7 +195,7 @@ class InicializadorJuegoGuerra {
             try {
                 window.gestorJuego = new GestorJuego();
                 if (this.configuracionPartida) {
-                    await window.gestorJuego.configurar(this.configuracionPartida);
+                    await window.gestorJuego.inicializar(this.configuracionPartida);
                 }
                 console.log('✅ GestorJuego inicializado');
             } catch (error) {

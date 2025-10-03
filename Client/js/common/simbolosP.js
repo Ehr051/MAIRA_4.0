@@ -683,6 +683,169 @@ setTimeout(function() {
 window.buscarSimbolo = buscarSimbolo;
 window.actualizarSidc = actualizarSidc;
 window.agregarMarcador = agregarMarcador;
+window.agregarMarcadorConCoordenadas = agregarMarcadorConCoordenadas;
 window.agregarPuntoControl = agregarPuntoControl;
+
+/**
+ * Agregar marcador con coordenadas específicas (para planeamiento)
+ */
+window.agregarMarcadorConCoordenadas = function(sidc, nombre, latlng) {
+    // 1. Validación inicial modo y permisos
+    const modoJuegoGuerra = window.gestorJuego?.gestorAcciones !== undefined;
+    if (modoJuegoGuerra) {
+        const fase = window.gestorJuego?.gestorFases?.fase;
+        const subfase = window.gestorJuego?.gestorFases?.subfase;
+        
+        if (fase !== 'preparacion' || subfase !== 'despliegue') {
+            window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                'Solo puedes agregar unidades en fase de despliegue', 
+                'error'
+            );
+            return;
+        }
+        
+        if (!window.gestorJuego.gestorAcciones.validarDespliegueUnidad()) {
+            return;
+        }
+    }
+
+    // 2. Usar coordenadas proporcionadas en lugar de esperar click
+    // 3. Validación zona despliegue
+    if (modoJuegoGuerra) {
+        const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
+        if (!zonaEquipo?.contains(latlng)) {
+            window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                'Solo puedes desplegar unidades en tu zona asignada',
+                'error'
+            );
+            return;
+        }
+    }
+
+    // 4. Configuración SIDC y símbolo
+    let sidcFormateado = sidc.padEnd(15, '-');
+    if (modoJuegoGuerra) {
+        const sidcArray = sidcFormateado.split('');
+        sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'H';
+        sidcFormateado = sidcArray.join('');
+    }
+
+    // Verificar que milsymbol esté disponible
+    if (typeof ms === 'undefined' || !ms.Symbol) {
+        console.error('❌ Milsymbol no está disponible. Verificar carga de librería.');
+        return null;
+    }
+
+    const sym = new ms.Symbol(sidcFormateado, { 
+        size: 35,
+    });
+
+    // 5. Crear marcador con propiedades específicas según modo
+    const marcador = L.marker(latlng, {
+        icon: L.divIcon({
+            className: modoJuegoGuerra ? 
+                `custom-div-icon equipo-${window.equipoJugador}` : 
+                'elemento-militar',
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        }),
+        draggable: modoJuegoGuerra ? 
+            window.gestorJuego?.gestorFases?.fase === 'preparacion' : 
+            true,
+        sidc: sidcFormateado,
+        nombre: nombre || '',
+        ...(modoJuegoGuerra && {
+            jugador: window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId,
+            equipo: window.equipoJugador,
+            id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            designacion: '',
+            dependencia: '',
+            magnitud: sidcFormateado.charAt(11) || '-',
+            estado: 'operativo'
+        })
+    });
+
+    // 6. Configurar eventos según modo
+    marcador.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        window.elementoSeleccionado = this;
+        window.seleccionarElemento(this);
+    });
+
+    // ✅ AGREGAR EVENTO DE DOBLE CLICK PARA EDICIÓN EN GB
+    if (!modoJuegoGuerra) {
+        // En modo GB (gestión de batalla), doble click para editar
+        marcador.on('dblclick', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            window.elementoSeleccionado = this;
+            window.elementoSeleccionadoGB = this;
+            console.log('🎯 Doble click en elemento para editar:', this);
+            if (window.editarElementoSeleccionado) {
+                window.editarElementoSeleccionado();
+            } else {
+                console.warn('Función editarElementoSeleccionado no disponible');
+            }
+        });
+    }
+
+    if (modoJuegoGuerra) {
+        // Eventos específicos juego guerra
+        marcador.on('dblclick', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            window.elementoSeleccionado = this;
+            if (window.MiRadial) {
+                window.MiRadial.selectedUnit = this;
+                window.MiRadial.selectedHex = null;
+                const point = window.mapa.latLngToContainerPoint(e.latlng);
+                window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
+            }
+        });
+
+        marcador.on('contextmenu', (e) => {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            return false;
+        });
+
+        marcador.on('dragstart', function() {
+            if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
+                return false;
+            }
+            this._origLatLng = this.getLatLng();
+        });
+
+        marcador.on('drag', function(e) {
+            if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
+                this.setLatLng(this._origLatLng);
+                return;
+            }
+            const nuevaPosicion = e.latlng;
+            const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
+            if (!zonaEquipo?.contains(nuevaPosicion)) {
+                this.setLatLng(this._origLatLng);
+                window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                    'No puedes mover unidades fuera de tu zona', 
+                    'warning'
+                );
+            }
+        });
+    } else {
+        marcador.on('contextmenu', window.mostrarMenuContextual);
+    }
+
+    // 7. Agregar al mapa y notificar
+    window.calcoActivo.addLayer(marcador);
+    
+    // Actualizar lista de elementos del calco
+    if (typeof window.actualizarElementosCalco === 'function') {
+        window.actualizarElementosCalco();
+    }
+
+    console.log('✅ Marcador agregado con coordenadas específicas:', sidc, nombre, latlng);
+    return marcador;
+};
 
 

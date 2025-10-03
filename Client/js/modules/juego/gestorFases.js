@@ -63,6 +63,29 @@ class GestorFases extends GestorBase {
             zonaRoja: null,
             zonaAzul: null
         };
+
+        // Inicializar herramientas de dibujo cuando el mapa esté listo
+        this.inicializarHerramientasCuandoMapaListo();
+    }
+
+    /**
+     * Inicializa las herramientas de dibujo cuando el mapa esté disponible
+     */
+    inicializarHerramientasCuandoMapaListo() {
+        // Esperar a que el mapa esté disponible
+        const intentarInicializar = () => {
+            if (window.mapa && window.calcoActivo) {
+                this.inicializarHerramientasDibujo();
+                this.configurarEventos();
+                console.log('✅ Herramientas de dibujo inicializadas automáticamente');
+            } else {
+                // Reintentar en 500ms
+                setTimeout(intentarInicializar, 500);
+            }
+        };
+
+        // Iniciar el proceso de inicialización
+        setTimeout(intentarInicializar, 1000);
     }
 
     // Función auxiliar para obtener el jugador propietario correcto
@@ -267,8 +290,15 @@ class GestorFases extends GestorBase {
             this.jugadores = config.jugadores;
             this.gestorJuego = config.gestorJuego;
             
-            // Determinar director
-            this.establecerDirector();
+            // Establecer director desde configuración si está disponible
+            if (config.director) {
+                this.director = config.director;
+                this.esDirectorTemporal = false;
+                console.log('👑 Director establecido desde configuración:', this.director);
+            } else {
+                // Determinar director automáticamente
+                this.establecerDirector();
+            }
             
             await this.inicializarHerramientasDibujo();
             this.configurarEventos();
@@ -333,6 +363,40 @@ class GestorFases extends GestorBase {
         } catch (error) {
             console.error('Error al inicializar herramientas de dibujo:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Maneja clicks normales en el mapa para mostrar menú radial
+     */
+    manejarClickMapa(e) {
+        console.log('🎯 Click en mapa detectado:', e.latlng);
+
+        try {
+            // Si MiRadial está disponible, mostrar menú radial
+            if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+                const point = window.mapa.latLngToContainerPoint(e.latlng);
+                window.MiRadial.mostrarMenu(point.x, point.y, 'mapa', e.latlng);
+                console.log('📋 Menú radial mostrado en posición:', point);
+                return;
+            }
+
+            // Si no hay MiRadial, intentar mostrar info básica del hexágono
+            if (window.HexGrid) {
+                const hexagono = window.HexGrid.getHexagonAt(e.latlng);
+                if (hexagono) {
+                    console.log('🔸 Hexágono clickeado:', hexagono);
+                    // Aquí podríamos mostrar info del hexágono o marcarlo
+                    if (window.HexGrid.selectHexagon) {
+                        window.HexGrid.selectHexagon(hexagono.key, hexagono.polygon);
+                    }
+                } else {
+                    console.log('📍 Click en posición sin hexágono:', e.latlng);
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Error manejando click en mapa:', error);
         }
     }
 

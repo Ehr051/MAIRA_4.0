@@ -495,6 +495,122 @@ function iniciarJuego(data) {
     }
 }
 
+/**
+ * Inicia un juego local guardando la configuración temporalmente
+ */
+function iniciarJuegoLocal() {
+    try {
+        console.log('🎮 Iniciando juego local...');
+
+        // Recopilar configuración de la interfaz
+        const configuracion = recopilarConfiguracionPartida();
+
+        if (!validarConfiguracionGeneral(configuracion)) {
+            return;
+        }
+
+        // Guardar configuración temporal en localStorage
+        localStorage.setItem('configuracionPartidaTemporal', JSON.stringify(configuracion));
+        console.log('💾 Configuración guardada temporalmente:', configuracion);
+
+        // Crear datos de partida local simulados
+        const datosPartidaLocal = {
+            codigo: 'LOCAL_' + Date.now(),
+            configuracion: configuracion,
+            jugadores: [],
+            creadorId: userId,
+            modo: 'local'
+        };
+
+        // Guardar datos de partida en sessionStorage
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+            partidaActual: datosPartidaLocal,
+            userId: userId,
+            userName: userName,
+            modo: 'local'
+        }));
+
+        // Redirigir a juegodeguerra.html
+        window.location.href = 'juegodeguerra.html?modo=local';
+
+    } catch (error) {
+        console.error('❌ Error al iniciar juego local:', error);
+        mostrarError('Error al iniciar el juego local');
+    }
+}
+
+/**
+ * Recopila la configuración de la partida desde la interfaz
+ */
+function recopilarConfiguracionPartida() {
+    const duracionPartida = parseInt(document.getElementById('duracionPartida')?.value) || 30;
+    const duracionTurno = parseInt(document.getElementById('duracionTurno')?.value) || 1;
+    const nombrePartida = document.getElementById('nombrePartida')?.value || 'Partida Local';
+    const objetivoPartida = document.getElementById('objetivoPartida')?.value || 'Objetivo no especificado';
+
+    return {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modo: 'local',
+        fechaCreacion: new Date().toISOString()
+    };
+}
+
+/**
+ * Valida la configuración general de la partida
+ */
+function validarConfiguracionGeneral(config) {
+    if (!config.nombrePartida || config.nombrePartida.trim() === '') {
+        mostrarError('El nombre de la partida es obligatorio');
+        return false;
+    }
+
+    if (config.duracionTurno < 1 || config.duracionTurno > 60) {
+        mostrarError('La duración del turno debe estar entre 1 y 60 minutos');
+        return false;
+    }
+
+    if (config.duracionPartida < 10 || config.duracionPartida > 480) {
+        mostrarError('La duración de la partida debe estar entre 10 y 480 minutos');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Maneja el clic en el botón "Iniciar Juego Local" desde la UI
+ */
+function iniciarJuegoLocalDesdeUI() {
+    console.log('🎮 Iniciando juego local desde UI...');
+
+    // Validar configuración de jugadores
+    if (!validarConfiguracionJugadores()) {
+        return;
+    }
+
+    // Iniciar juego local
+    iniciarJuegoLocal();
+}
+
+/**
+ * Valida la configuración de jugadores para partida local
+ */
+function validarConfiguracionJugadores() {
+    const cantidadJugadores = parseInt(document.getElementById('cantidadJugadoresLocal')?.value) || 2;
+
+    if (cantidadJugadores < 2 || cantidadJugadores > 4) {
+        mostrarError('La cantidad de jugadores debe estar entre 2 y 4');
+        return false;
+    }
+
+    // Aquí se pueden agregar más validaciones según sea necesario
+
+    return true;
+}
+
 
 async function inicializarSocket() {
     // Verificar que SERVER_URL esté disponible

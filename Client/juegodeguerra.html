@@ -1220,12 +1220,24 @@
         
         // Esperar a que el mapa esté inicializado antes de inicializar el sistema de juego
         esperarMapaInicializado().then(() => {
-            // Inicializar el sistema de juego
-            inicializarSistemaJuego();
+            // Usar el inicializador principal en lugar de código personalizado
+            if (typeof InicializadorJuegoGuerra !== 'undefined') {
+                const inicializador = new InicializadorJuegoGuerra();
+                inicializador.inicializar().then(exito => {
+                    if (exito) {
+                        console.log('✅ Sistema de juego inicializado correctamente con InicializadorJuegoGuerra');
+                    } else {
+                        console.warn('⚠️ Falló la inicialización con InicializadorJuegoGuerra');
+                    }
+                });
+            } else {
+                console.warn('⚠️ InicializadorJuegoGuerra no disponible, usando inicialización básica');
+                inicializarSistemaJuego();
+            }
             
             // Solo verificar que el sistema esté limpio después de la inicialización
             setTimeout(function() {
-                console.log('🧹 Sistema iniciado limpio - Sin elementos automáticos');
+                console.log('🧹 Sistema iniciado - Verificando estado');
                 
                 // Verificar estado del mapa
                 if (typeof window.mapa !== 'undefined') {
