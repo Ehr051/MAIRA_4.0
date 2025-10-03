@@ -258,86 +258,37 @@ class ElevationProfileService {
     }
 
     /**
-     * Crea el contenedor del gráfico
+     * Crea el contenedor del gráfico usando el sistema de paneles de MAIRA
      */
     crearContenedorGrafico() {
-        // Buscar contenedor existente
-        let contenedor = document.getElementById('perfil-elevacion-container');
-        
-        if (!contenedor) {
-            // Crear contenedor
-            contenedor = document.createElement('div');
-            contenedor.id = 'perfil-elevacion-container';
-            contenedor.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background: white;
-                border: 2px solid #333;
-                border-radius: 8px;
-                padding: 20px;
-                z-index: 1000;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-                max-width: 850px;
-                max-height: 500px;
-                overflow: auto;
-            `;
-            
-            // Crear header con botón cerrar
-            const header = document.createElement('div');
-            header.style.cssText = `
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 10px;
-                border-bottom: 1px solid #eee;
-                padding-bottom: 10px;
-            `;
-            
-            const titulo = document.createElement('h3');
-            titulo.textContent = 'Perfil de Elevación';
-            titulo.style.margin = '0';
-            
-            const btnCerrar = document.createElement('button');
-            btnCerrar.textContent = '×';
-            btnCerrar.style.cssText = `
-                background: #ff4444;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-                cursor: pointer;
-                font-size: 20px;
-                line-height: 1;
-            `;
-            
-            btnCerrar.onclick = () => this.cerrarGrafico();
-            
-            header.appendChild(titulo);
-            header.appendChild(btnCerrar);
-            contenedor.appendChild(header);
-            
-            // Crear área del gráfico
-            const chartArea = document.createElement('div');
-            chartArea.id = 'perfil-elevacion-chart';
-            contenedor.appendChild(chartArea);
-            
-            // Crear área de estadísticas
-            const statsArea = document.createElement('div');
-            statsArea.id = 'perfil-elevacion-stats';
-            statsArea.style.cssText = `
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid #eee;
-                font-size: 14px;
-            `;
-            contenedor.appendChild(statsArea);
-            
-            document.body.appendChild(contenedor);
+        // Usar el panel existente de MAIRA
+        const panel = document.getElementById('perfilElevacionDisplay');
+        if (!panel) {
+            console.error('❌ Panel perfilElevacionDisplay no encontrado');
+            return;
         }
-        
-        this.contenedorGrafico = contenedor;
+
+        // Mostrar el panel
+        panel.style.display = 'block';
+        panel.classList.add('show');
+
+        // Buscar o crear el contenedor del gráfico dentro del panel
+        let chartContainer = document.getElementById('perfil-elevacion-chart');
+        if (!chartContainer) {
+            const displayContent = panel.querySelector('.display-content');
+            if (displayContent) {
+                displayContent.style.display = 'block';
+
+                // Crear contenedor SVG dentro del display-content
+                chartContainer = document.createElement('div');
+                chartContainer.id = 'perfil-elevacion-chart';
+                chartContainer.className = 'svg-container';
+                displayContent.appendChild(chartContainer);
+            }
+        }
+
+        this.contenedorGrafico = chartContainer;
+        console.log('✅ Contenedor del gráfico de elevación listo');
     }
 
     /**
@@ -445,16 +396,25 @@ class ElevationProfileService {
     }
 
     /**
-     * Cierra el gráfico
+     * Cierra el gráfico usando el sistema de paneles de MAIRA
      */
     cerrarGrafico() {
-        if (this.contenedorGrafico) {
-            this.contenedorGrafico.remove();
-            this.contenedorGrafico = null;
+        // Usar la función cerrarPanel del sistema de MAIRA
+        if (typeof cerrarPanel === 'function') {
+            cerrarPanel('perfilElevacionDisplay');
+        } else {
+            // Fallback: ocultar manualmente
+            const panel = document.getElementById('perfilElevacionDisplay');
+            if (panel) {
+                panel.style.display = 'none';
+                panel.classList.remove('show');
+            }
         }
         
         // Limpiar tooltips
         d3.selectAll('.elevation-tooltip').remove();
+        
+        this.contenedorGrafico = null;
     }
 
     /**
