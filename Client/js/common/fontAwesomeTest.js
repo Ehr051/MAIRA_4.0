@@ -22,11 +22,13 @@
         const faIcons = document.querySelectorAll('[class*="fa-"]');
         console.log(`📋 ${faIcons.length} iconos Font Awesome encontrados en DOM`);
 
-        // Test de renderizado de iconos específicos
+        // Test de renderizado de iconos específicos - INCLUYENDO LOS DE PLANEAMIENTO
         const testIcons = [
             'fa-eye', 'fa-mountain', 'fa-road', 'fa-satellite-dish', 
             'fa-bus', 'fa-tree', 'fa-tools', 'fa-search', 
-            'fa-ruler-combined', 'fa-chart-line'
+            'fa-ruler-combined', 'fa-chart-line', 'fa-cube', 'fa-route',
+            'fa-hand-paper', 'fa-plus', 'fa-question', 'fa-layer-group',
+            'fa-upload', 'fa-save', 'fa-print'
         ];
 
         const problemIcons = [];
@@ -77,12 +79,20 @@
                     console.log(`🔄 Reemplazado ${iconClass} por ${replacement}`);
                 });
             } else {
-                // Fallback a icono genérico
+                // Fallback más agresivo - reemplazar completamente el elemento
                 elements.forEach(el => {
-                    if (!el.textContent.trim()) {
-                        el.textContent = '●'; // Bullet como fallback visual
-                        el.style.fontFamily = 'monospace';
-                        console.log(`🔄 Fallback aplicado a ${iconClass}`);
+                    const parent = el.parentNode;
+                    if (parent) {
+                        // Crear un nuevo elemento con texto descriptivo
+                        const fallbackText = el.textContent.trim() || el.className.split(' ').find(cls => cls.startsWith('fa-'))?.replace('fa-', '') || 'icon';
+                        const fallbackEl = document.createElement('span');
+                        fallbackEl.textContent = `[${fallbackText}]`;
+                        fallbackEl.style.fontFamily = 'monospace';
+                        fallbackEl.style.fontSize = '12px';
+                        fallbackEl.style.color = '#666';
+                        fallbackEl.title = `Icono ${iconClass} no disponible`;
+                        parent.replaceChild(fallbackEl, el);
+                        console.log(`🔄 Fallback completo aplicado a ${iconClass}`);
                     }
                 });
             }
@@ -109,11 +119,35 @@
         });
     }
 
-    // Auto-ejecutar cuando el DOM esté listo
+    // Auto-ejecutar cuando el DOM esté listo Y después de un delay para controles dinámicos
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', ensureFontAwesome);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delay adicional para que se inicialicen los controles dinámicos
+            setTimeout(ensureFontAwesome, 2000);
+            // Ejecutar periódicamente durante los primeros 10 segundos por si hay controles muy tardíos
+            let checkCount = 0;
+            const periodicCheck = setInterval(() => {
+                checkCount++;
+                if (checkCount <= 5) { // 5 checks cada 2 segundos = 10 segundos
+                    ensureFontAwesome();
+                } else {
+                    clearInterval(periodicCheck);
+                }
+            }, 2000);
+        });
     } else {
-        ensureFontAwesome();
+        // Delay adicional para que se inicialicen los controles dinámicos
+        setTimeout(ensureFontAwesome, 2000);
+        // Ejecutar periódicamente durante los primeros 10 segundos
+        let checkCount = 0;
+        const periodicCheck = setInterval(() => {
+            checkCount++;
+            if (checkCount <= 5) {
+                ensureFontAwesome();
+            } else {
+                clearInterval(periodicCheck);
+            }
+        }, 2000);
     }
 
     // Exportar función para uso manual
