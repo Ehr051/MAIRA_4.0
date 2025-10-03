@@ -923,40 +923,178 @@ class PanelInferiorUnificado {
             }
         }
     }
+
+    /**
+     * Conecta el panel con los gestores cuando estén disponibles
+     */
+    conectarGestores() {
+        console.log('🔗 Conectando Panel Inferior Unificado con gestores...');
+        
+        try {
+            // Obtener estado inicial de todos los gestores
+            this.obtenerEstadoInicialGestores();
+            
+            // Configurar listeners para cambios en gestores
+            this.configurarListenersGestores();
+            
+            // Actualizar controles iniciales
+            this.actualizarControlesPorFase('preparacion', 'inicial');
+            
+            console.log('✅ Panel Inferior Unificado conectado exitosamente');
+        } catch (error) {
+            console.error('❌ Error conectando panel con gestores:', error);
+        }
+    }
+
+    /**
+     * Configura listeners para eventos de los gestores
+     */
+    configurarListenersGestores() {
+        console.log('👂 Configurando listeners para gestores...');
+        
+        // Listener para cambios de fase (evento personalizado)
+        document.addEventListener('cambioFase', (event) => {
+            console.log('📡 Panel recibió cambio de fase:', event.detail);
+            this.actualizarControlesPorFase(event.detail.fase, event.detail.subfase);
+        });
+        
+        // Listener para cambios de turno (evento personalizado)
+        document.addEventListener('cambioTurno', (event) => {
+            console.log('📡 Panel recibió cambio de turno:', event.detail);
+            this.actualizarPanelTurno(event.detail);
+        });
+        
+        // Listener para actualizaciones de unidades (evento personalizado)
+        document.addEventListener('unidadesActualizadas', (event) => {
+            console.log('📡 Panel recibió actualización de unidades:', event.detail?.length || 'datos');
+            this.actualizarElementosJugadorDesdeGestor(event.detail);
+        });
+        
+        console.log('✅ Listeners de gestores configurados');
+    }
+
+    /**
+     * Actualiza el panel cuando cambia el turno
+     */
+    actualizarPanelTurno(datos) {
+        console.log('🔄 Actualizando panel de turno:', datos);
+        
+        try {
+            // Actualizar indicador de turno si existe
+            const turnoElement = document.getElementById('turnoActual');
+            if (turnoElement && datos.jugadorActual) {
+                turnoElement.textContent = `Turno: ${datos.jugadorActual}`;
+            }
+            
+            // Actualizar temporizador si existe
+            const tiempoElement = document.getElementById('tiempoRestante');
+            if (tiempoElement && datos.tiempoRestante) {
+                tiempoElement.textContent = `Tiempo: ${datos.tiempoRestante}s`;
+            }
+            
+            // Cambiar estilo visual según el turno del jugador actual
+            this.actualizarEstiloTurno(datos.jugadorActual);
+            
+        } catch (error) {
+            console.error('❌ Error actualizando panel de turno:', error);
+        }
+    }
+
+    /**
+     * Actualiza el estilo visual según el turno actual
+     */
+    actualizarEstiloTurno(jugadorActual) {
+        const panel = document.getElementById('panelInferiorUnificado');
+        if (!panel) return;
+        
+        // Remover clases de turno anteriores
+        panel.classList.remove('turno-rojo', 'turno-azul', 'turno-espera');
+        
+        // Agregar clase según el turno
+        if (jugadorActual) {
+            if (jugadorActual.toLowerCase().includes('rojo')) {
+                panel.classList.add('turno-rojo');
+            } else if (jugadorActual.toLowerCase().includes('azul')) {
+                panel.classList.add('turno-azul');
+            }
+        } else {
+            panel.classList.add('turno-espera');
+        }
+    }
+
+    /**
+     * Actualiza el panel con el estado general del juego (llamado por gestorInterfaz)
+     */
+    actualizarEstadoJuego(estado) {
+        console.log('🎮 Panel Inferior actualizando estado del juego:', estado);
+        
+        try {
+            // Actualizar controles por fase si hay información de fase
+            if (estado.fase && estado.subfase) {
+                this.actualizarControlesPorFase(estado.fase, estado.subfase);
+            }
+            
+            // Actualizar información de turno si existe
+            if (estado.jugadorActual || estado.tiempoRestante) {
+                this.actualizarPanelTurno({
+                    jugadorActual: estado.jugadorActual,
+                    tiempoRestante: estado.tiempoRestante
+                });
+            }
+            
+            // Actualizar elementos del jugador si hay unidades
+            if (estado.unidades) {
+                this.actualizarElementosJugadorDesdeGestor(estado.unidades);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error actualizando estado del juego en panel:', error);
+        }
+    }
 }
 
 // Inicialización automática cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    // Esperar a que los gestores estén inicializados antes de inicializar el panel
-    const esperarGestores = () => {
-        // Verificar que los gestores críticos estén disponibles
-        const gestoresListos = 
-            window.gestorFases && 
-            window.gestorTurnos && 
-            window.gestorJuego &&
-            window.gestorInterfaz;
+    console.log('🚀 Inicializando Panel Inferior Unificado inmediatamente...');
+    
+    // Inicializar el panel inmediatamente
+    window.panelInferiorUnificado = new PanelInferiorUnificado();
+    if (window.panelInferiorUnificado.inicializar()) {
+        console.log('✅ Panel Inferior Unificado inicializado (esperando gestores para conectar)');
+        
+        // Función para conectar con gestores cuando estén listos
+        const conectarGestores = () => {
+            const gestoresListos = 
+                window.gestorFases && 
+                window.gestorTurnos && 
+                window.gestorJuego &&
+                window.gestorInterfaz;
 
-        if (gestoresListos) {
-            console.log('✅ Gestores críticos detectados, inicializando Panel Inferior Unificado...');
-            window.panelInferiorUnificado = new PanelInferiorUnificado();
-            if (window.panelInferiorUnificado.inicializar()) {
-                console.log('✅ Panel Inferior Unificado listo y conectado a gestores');
+            if (gestoresListos) {
+                console.log('✅ Gestores detectados, conectando Panel Inferior Unificado...');
+                
+                // Conectar el panel con los gestores
+                if (window.panelInferiorUnificado && typeof window.panelInferiorUnificado.conectarGestores === 'function') {
+                    window.panelInferiorUnificado.conectarGestores();
+                }
                 
                 // Notificar a otros sistemas que el panel está listo
-                if (typeof window.dispatchEvent === 'function') {
-                    window.dispatchEvent(new CustomEvent('panelInferiorListo', {
-                        detail: { panel: window.panelInferiorUnificado }
-                    }));
-                }
+                window.dispatchEvent(new CustomEvent('panelInferiorListo', {
+                    detail: { panel: window.panelInferiorUnificado }
+                }));
+                
+                console.log('✅ Panel Inferior Unificado conectado y listo');
+            } else {
+                // Reintentar en 500ms
+                setTimeout(conectarGestores, 500);
             }
-        } else {
-            console.log('⏳ Esperando que gestores estén listos...');
-            setTimeout(esperarGestores, 500);
-        }
-    };
-
-    // Iniciar verificación de gestores después de un breve delay inicial
-    setTimeout(esperarGestores, 1000);
+        };
+        
+        // Iniciar conexión con gestores después de un breve delay
+        setTimeout(conectarGestores, 100);
+    } else {
+        console.error('❌ Error inicializando Panel Inferior Unificado');
+    }
 });
 
 // Agregar estilos para animaciones

@@ -91,12 +91,12 @@
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <!-- Three.js para visualización 3D - Versión local independiente -->
-  <script src="/Client/Libs/three/three.min.js"></script>
+  <!-- Three.js para visualización 3D - DESHABILITADO TEMPORALMENTE -->
+  <!-- <script src="/Client/Libs/three/three.min.js"></script> -->
   <!-- Three.js GLTFLoader para modelos 3D -->
-  <script src="/Client/Libs/three/GLTFLoader.js"></script>
+  <!-- <script src="/Client/Libs/three/GLTFLoader.js"></script> -->
   <!-- Three.js OrbitControls versión compatible MAIRA -->
-  <script src="/Client/Libs/three/OrbitControlsBrowser.js"></script>
+  <!-- <script src="/Client/Libs/three/OrbitControlsBrowser.js"></script> -->
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
   
@@ -113,8 +113,6 @@
 
   <!-- 🔧 UTILS (archivos que existen) -->
   <script src="js/utils/eventemitter.js"></script>
-
-  <script src="js/utils/tiles-checker.js"></script>
 
   <!-- � CONFIGURATION (CRÍTICO PARA SERVER_URL) -->
   <script src="js/utils/config.js"></script>
@@ -208,10 +206,10 @@
   
   <!-- Sistema de Paneles Unificado - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
   
-  <!-- THREE.js para vista 3D integrada -->
-  <script src="Libs/three/three.min.js"></script>
-  <script src="Libs/three/OrbitControls.js"></script>
-  <script src="Libs/three/GLTFLoader.js"></script>
+  <!-- THREE.js para vista 3D integrada - DESHABILITADO TEMPORALMENTE -->
+  <!-- <script src="Libs/three/three.min.js"></script> -->
+  <!-- <script src="Libs/three/OrbitControls.js"></script> -->
+  <!-- <script src="Libs/three/GLTFLoader.js"></script> -->
   
   <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
   <script src="js/modules/gaming/tactico3dIntegration.js"></script>
@@ -1220,61 +1218,98 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('🚀 MAIRA 4.0 - Juego de Guerra (Modo Limpio)');
         
-        // Inicializar el sistema de juego
-        inicializarSistemaJuego();
-        
-        // Solo verificar que el sistema esté limpio después de la inicialización
-        setTimeout(function() {
-            console.log('🧹 Sistema iniciado limpio - Sin elementos automáticos');
+        // Esperar a que el mapa esté inicializado antes de inicializar el sistema de juego
+        esperarMapaInicializado().then(() => {
+            // Inicializar el sistema de juego
+            inicializarSistemaJuego();
             
-            // Verificar estado del mapa
-            if (typeof window.mapa !== 'undefined') {
-                console.log('✅ Mapa principal inicializado:', window.mapa.getCenter());
-            } else {
-                console.warn('⚠️ Mapa no encontrado');
-            }
-            
-            // Verificar funcionalidades básicas
-            if (typeof window.sistemaZoom !== 'undefined') {
-                console.log('✅ Sistema de zoom disponible');
-            }
-            
-            console.log('✅ MAIRA 4.0 listo para usar');
-            
-            // Configurar event listener para Vista 3D
-            const btnVista3D = document.getElementById('btnVista3D');
-            if (btnVista3D) {
-                btnVista3D.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
-                    if (typeof toggleVista3D === 'function') {
-                        toggleVista3D();
-                    } else {
-                        console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
-                    }
-                });
-                console.log('✅ Event listener Vista 3D configurado');
-            }
-            
-            // Inicializar HexGrid si existe
-            if (typeof HexGrid !== 'undefined' && window.mapa) {
-                HexGrid.initialize(window.mapa);
-                console.log('✅ HexGrid inicializado');
+            // Solo verificar que el sistema esté limpio después de la inicialización
+            setTimeout(function() {
+                console.log('🧹 Sistema iniciado limpio - Sin elementos automáticos');
                 
-                // Activar selección de hexágonos por defecto
-                if (window.MAIRA && window.MAIRA.DirectorManager) {
-                    setTimeout(() => {
-                        window.MAIRA.DirectorManager.activarSeleccionHexagonos();
-                        console.log('✅ Selección de hexágonos activada por defecto');
-                    }, 1000);
+                // Verificar estado del mapa
+                if (typeof window.mapa !== 'undefined') {
+                    console.log('✅ Mapa principal inicializado:', window.mapa.getCenter());
+                } else {
+                    console.warn('⚠️ Mapa no encontrado');
                 }
-            } else if (typeof HexGrid !== 'undefined') {
-                console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
-            } else {
-                console.warn('⚠️ HexGrid no disponible');
-            }
-        }, 2000);
+                
+                // Verificar funcionalidades básicas
+                if (typeof window.sistemaZoom !== 'undefined') {
+                    console.log('✅ Sistema de zoom disponible');
+                }
+                
+                console.log('✅ MAIRA 4.0 listo para usar');
+                
+                // Configurar event listener para Vista 3D
+                const btnVista3D = document.getElementById('btnVista3D');
+                if (btnVista3D) {
+                    btnVista3D.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
+                        if (typeof toggleVista3D === 'function') {
+                            toggleVista3D();
+                        } else {
+                            console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
+                        }
+                    });
+                    console.log('✅ Event listener Vista 3D configurado');
+                }
+                
+                // Inicializar HexGrid si existe
+                if (typeof HexGrid !== 'undefined' && window.mapa) {
+                    HexGrid.initialize(window.mapa);
+                    console.log('✅ HexGrid inicializado');
+                    
+                    // Activar selección de hexágonos por defecto
+                    if (window.MAIRA && window.MAIRA.DirectorManager) {
+                        setTimeout(() => {
+                            window.MAIRA.DirectorManager.activarSeleccionHexagonos();
+                            console.log('✅ Selección de hexágonos activada por defecto');
+                        }, 1000);
+                    }
+                } else if (typeof HexGrid !== 'undefined') {
+                    console.warn('⚠️ HexGrid disponible pero mapa no inicializado');
+                } else {
+                    console.warn('⚠️ HexGrid no disponible');
+                }
+            }, 2000);
+        });
     });
+
+    // Función para esperar a que el mapa esté inicializado
+    function esperarMapaInicializado() {
+        return new Promise((resolve) => {
+            // Si el mapa ya está inicializado, resolver inmediatamente
+            if (typeof window.mapa !== 'undefined' && window.mapa && typeof window.mapa.getCenter === 'function') {
+                console.log('✅ Mapa ya inicializado, continuando...');
+                resolve();
+                return;
+            }
+            
+            // Si no, esperar hasta 10 segundos máximo
+            let intentos = 0;
+            const maxIntentos = 100; // 10 segundos (100 * 100ms)
+            
+            const verificarMapa = () => {
+                intentos++;
+                
+                if (typeof window.mapa !== 'undefined' && window.mapa && typeof window.mapa.getCenter === 'function') {
+                    console.log('✅ Mapa inicializado después de esperar, continuando...');
+                    resolve();
+                } else if (intentos >= maxIntentos) {
+                    console.error('❌ Timeout esperando inicialización del mapa');
+                    // Resolver de todos modos para no bloquear la aplicación
+                    resolve();
+                } else {
+                    setTimeout(verificarMapa, 100);
+                }
+            };
+            
+            console.log('⏳ Esperando inicialización del mapa...');
+            verificarMapa();
+        });
+    }
 
     // Función para inicializar el sistema de juego
     async function inicializarSistemaJuego() {

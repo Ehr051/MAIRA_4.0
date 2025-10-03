@@ -226,6 +226,11 @@ class GestorInterfaz extends GestorBase {
             window.sistemaPaneles.actualizarEstado(estado);
         }
         
+        // 🎮 ACTUALIZAR PANEL INFERIOR UNIFICADO si existe
+        if (window.panelInferiorUnificado && typeof window.panelInferiorUnificado.actualizarEstadoJuego === 'function') {
+            window.panelInferiorUnificado.actualizarEstadoJuego(estado);
+        }
+        
         let infoJugador = '';
         if (estado.fase === 'preparacion') {
             if (estado.subfase === 'definicion_sector' || estado.subfase === 'definicion_zonas') {
@@ -890,24 +895,50 @@ actualizarListaUnidadesDisponibles() {
         // Método llamado por gestorJuego para actualizar la fase
         console.log('[GestorInterfaz] Actualizando panel de fase:', datos);
         
+        let reintentos = 0;
+        const maxReintentos = 10; // Máximo 5 segundos de espera
+        
         try {
-            // Si existe el panel inferior unificado, usarlo
-            if (window.panelInferiorUnificado) {
-                window.panelInferiorUnificado.actualizarControlesPorFase(datos.fase, datos.subfase);
-            }
+            // Función para intentar actualizar el panel
+            const intentarActualizarPanel = () => {
+                reintentos++;
+                
+                // Si existe el panel inferior unificado, usarlo
+                if (window.panelInferiorUnificado && typeof window.panelInferiorUnificado.actualizarControlesPorFase === 'function') {
+                    window.panelInferiorUnificado.actualizarControlesPorFase(datos.fase, datos.subfase);
+                    
+                    // Una vez que el panel está listo, actualizar el estado general
+                    this.actualizarEstadoJuego({
+                        fase: datos.fase || datos.faseActual,
+                        subfase: datos.subfase,
+                        tiempoRestante: datos.tiempoRestante,
+                        descripcion: datos.descripcion
+                    });
+                    
+                    // Emitir evento para otros sistemas
+                    document.dispatchEvent(new CustomEvent('cambioFase', {
+                        detail: datos
+                    }));
+                    
+                } else if (reintentos >= maxReintentos) {
+                    console.error('[GestorInterfaz] Panel inferior unificado no se inicializó después de', maxReintentos, 'reintentos');
+                    // Continuar con la actualización del estado general aunque el panel no esté listo
+                    this.actualizarEstadoJuego({
+                        fase: datos.fase || datos.faseActual,
+                        subfase: datos.subfase,
+                        tiempoRestante: datos.tiempoRestante,
+                        descripcion: datos.descripcion
+                    });
+                } else {
+                    console.warn('[GestorInterfaz] Panel inferior unificado no está listo, reintento', reintentos, 'de', maxReintentos);
+                    // Reintentar después de 500ms
+                    setTimeout(intentarActualizarPanel, 500);
+                    return;
+                }
+            };
             
-            // Actualizar también el estado general
-            this.actualizarEstadoJuego({
-                fase: datos.fase || datos.faseActual,
-                subfase: datos.subfase,
-                tiempoRestante: datos.tiempoRestante,
-                descripcion: datos.descripcion
-            });
-            
-            // Emitir evento para otros sistemas
-            document.dispatchEvent(new CustomEvent('cambioFase', {
-                detail: datos
-            }));
+            // Intentar actualizar inmediatamente
+            intentarActualizarPanel();
             
         } catch (error) {
             console.error('[GestorInterfaz] Error actualizando panel de fase:', error);
