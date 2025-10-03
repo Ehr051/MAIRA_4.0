@@ -817,7 +817,7 @@ function activarVista3D() {
         }
         
         // Inicializar vista 3D
-        threeDMapInstance.initialize('canvas3d').then(() => {
+        threeDMapInstance.initialize('canvas3d').then(async () => {
             console.log('✅ Vista 3D activada');
             
             // 🔍 DEBUG: Mostrar información del container

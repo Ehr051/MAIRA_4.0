@@ -1336,18 +1336,20 @@ processElevationInfo: async function (corners, popup) {
                         // Para polígonos/líneas: verificar si el punto está cerca
                         try {
                             const bounds = layer.getBounds();
-                            const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
-                            const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
-                            
-                            // Calcular distancia aproximada al centro del elemento
-                            const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
-                            const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
-                            const centro = { x: centroX, y: centroY };
-                            
-                            distancia = Math.sqrt(
-                                Math.pow(puntoClick.x - centro.x, 2) + 
-                                Math.pow(puntoClick.y - centro.y, 2)
-                            );
+                            if (bounds && bounds.isValid()) {
+                                const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
+                                const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                                
+                                // Calcular distancia aproximada al centro del elemento
+                                const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
+                                const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
+                                const centro = { x: centroX, y: centroY };
+                                
+                                distancia = Math.sqrt(
+                                    Math.pow(puntoClick.x - centro.x, 2) + 
+                                    Math.pow(puntoClick.y - centro.y, 2)
+                                );
+                            }
                         } catch (e) {
                             console.warn('[MiRadial] Error calculando distancia para elemento:', e);
                         }
@@ -1373,17 +1375,19 @@ processElevationInfo: async function (corners, popup) {
                         } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
                             try {
                                 const bounds = layer.getBounds();
-                                const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
-                                const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
-                                
-                                const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
-                                const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
-                                const centro = { x: centroX, y: centroY };
-                                
-                                distancia = Math.sqrt(
-                                    Math.pow(puntoClick.x - centro.x, 2) + 
-                                    Math.pow(puntoClick.y - centro.y, 2)
-                                );
+                                if (bounds && bounds.isValid()) {
+                                    const puntoSuroeste = this.map.latLngToContainerPoint(bounds.getSouthWest());
+                                    const puntoNoreste = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                                    
+                                    const centroX = (puntoSuroeste.x + puntoNoreste.x) / 2;
+                                    const centroY = (puntoSuroeste.y + puntoNoreste.y) / 2;
+                                    const centro = { x: centroX, y: centroY };
+                                    
+                                    distancia = Math.sqrt(
+                                        Math.pow(puntoClick.x - centro.x, 2) + 
+                                        Math.pow(puntoClick.y - centro.y, 2)
+                                    );
+                                }
                             } catch (e) {
                                 console.warn('[MiRadial] Error calculando distancia para elemento:', e);
                             }

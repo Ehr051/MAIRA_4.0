@@ -694,7 +694,6 @@ setTimeout(function() {
 window.buscarSimbolo = buscarSimbolo;
 window.actualizarSidc = actualizarSidc;
 window.agregarMarcador = agregarMarcador;
-window.agregarMarcadorConCoordenadas = agregarMarcadorConCoordenadas;
 window.agregarPuntoControl = agregarPuntoControl;
 
 /**
