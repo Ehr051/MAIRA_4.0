@@ -505,7 +505,7 @@ function iniciarJuegoLocal() {
         // Recopilar configuración de la interfaz
         const configuracion = recopilarConfiguracionPartida();
 
-        if (!validarConfiguracionGeneral(configuracion)) {
+        if (!validarConfiguracionGeneralObjeto(configuracion)) {
             return;
         }
 
@@ -559,9 +559,9 @@ function recopilarConfiguracionPartida() {
 }
 
 /**
- * Valida la configuración general de la partida
+ * Valida la configuración general de la partida desde un objeto
  */
-function validarConfiguracionGeneral(config) {
+function validarConfiguracionGeneralObjeto(config) {
     if (!config.nombrePartida || config.nombrePartida.trim() === '') {
         mostrarError('El nombre de la partida es obligatorio');
         return false;
@@ -601,8 +601,8 @@ function iniciarJuegoLocalDesdeUI() {
 function validarConfiguracionJugadores() {
     const cantidadJugadores = parseInt(document.getElementById('cantidadJugadoresLocal')?.value) || 2;
 
-    if (cantidadJugadores < 2 || cantidadJugadores > 4) {
-        mostrarError('La cantidad de jugadores debe estar entre 2 y 4');
+    if (cantidadJugadores < 2 || cantidadJugadores > 8) {
+        mostrarError('La cantidad de jugadores debe estar entre 2 y 8');
         return false;
     }
 
