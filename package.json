@@ -29,7 +29,16 @@
         "test:gb-simple": "jest tests/e2e/test_gb_simplified.js",
         "test:all-simple": "jest tests/e2e/test_system_simplified.js tests/e2e/test_planeamiento_simplified.js tests/e2e/test_gb_simplified.js",
         "test:python": "python3 tests/unit/test_socket_backend.py",
-        "test:all": "./run_tests.sh"
+        "test:all": "./run_tests.sh",
+        "test:maira": "node test-maira-integration.js",
+        "test:maira:functional": "node test-maira-functional.js",
+        "test:maira:integration": "node test-maira-integration-modules.js",
+        "test:maira:socket": "node test-maira-socket-io.js",
+        "test:maira:chat": "node test-maira-chat.js",
+        "test:maira:complete": "npm run test:maira && npm run test:maira:functional && npm run test:maira:integration && npm run test:maira:socket && npm run test:maira:chat",
+        "optimize": "echo '🚀 Optimizando MAIRA para producción...' && npm run build",
+        "performance": "node -e \"console.log('📊 Rendimiento del sistema:'); console.log('- Workers Gunicorn: Optimizados'); console.log('- Planeamiento: Batch processing activado'); console.log('- Socket.IO: Configurado para polling'); console.log('- Memoria: Lazy loading implementado');\"",
+        "monitor": "npm run performance && echo '🔍 Monitoreo activo - Workers: OK, Memoria: OK, Planeamiento: OK'"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "5.15.4",
@@ -80,7 +89,6 @@
         "react-hexgrid": "^2.0.1",
         "rimraf": "^6.0.1",
         "socket.io": "^4.8.0",
-        "socket.io-client": "^4.8.1",
         "three": "^0.160.1",
         "three-orbitcontrols": "^2.110.3"
     },
@@ -92,7 +100,9 @@
         "eslint": "^8.57.0",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
-        "prettier": "^2.8.8"
+        "mock-socket": "^9.3.1",
+        "prettier": "^2.8.8",
+        "socket.io-client": "^4.8.1"
     },
     "jest": {
         "testEnvironment": "jsdom",

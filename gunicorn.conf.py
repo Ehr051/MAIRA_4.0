@@ -1,44 +1,64 @@
-# Configuración de Gunicorn para Render.com
-# Optimizada para Socket.IO y aplicaciones Flask pesadas
-# Fix: Python 3.13 + gevent compatibility
+# Configuración OPTIMA de Gunicorn para MAIRA 4.0
+# Optimizada para alto rendimiento y Socket.IO
 
 import os
 import multiprocessing
 
-# Configuración del servidor
+# Número de CPUs disponibles
+cpu_count = multiprocessing.cpu_count()
+
+# Configuración del servidor OPTIMIZADA
 bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
-workers = 1  # Solo 1 worker para evitar problemas de sesión con Socket.IO
-worker_class = "sync"  # Worker estándar compatible con todas las versiones
-worker_connections = 100
 
-# Timeouts críticos (incrementados para evitar worker timeouts)
-timeout = 120  # 2 minutos en lugar de 30 segundos
-keepalive = 30
-graceful_timeout = 60
+# WORKERS OPTIMIZADOS: Usar CPU count pero máximo 4 para evitar sobrecarga
+workers = min(cpu_count, 4)
 
-# Configuración de memoria y procesos
-max_requests = 500
+# WORKER CLASS OPTIMO: gevent para async operations
+worker_class = "gevent"
+
+# Conexiones por worker aumentadas
+worker_connections = 1000
+
+# Timeouts optimizados para planeamiento
+timeout = 300  # 5 minutos para operaciones pesadas de planeamiento
+keepalive = 65
+graceful_timeout = 30
+
+# Configuración de memoria y procesos OPTIMIZADA
+max_requests = 1000  # Más requests antes de restart
 max_requests_jitter = 50
+
+# PRELOAD: Cargar app antes de fork para mejor rendimiento
 preload_app = True
 
-# Logs
+# THREADING: Habilitar threads para mejor concurrencia
+threads = 4
+
+# Logs optimizados
 accesslog = "-"
 errorlog = "-"
-loglevel = "info"
-access_log_format = '%(h)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" in %(D)sµs'
+loglevel = "warning"  # Menos verbose para mejor rendimiento
+access_log_format = '%(h)s "%(r)s" %(s)s %(b)s in %(D)sµs'
 
-# Configuración específica para Socket.IO
-worker_tmp_dir = "/dev/shm"  # Usar memoria compartida si está disponible
+# Configuración específica para Socket.IO de alto rendimiento
+worker_tmp_dir = "/dev/shm"  # Memoria compartida si disponible
 
-# Configuración de señales para Socket.IO
+# Configuración avanzada para gevent
+worker_int_class = 'gevent'
+max_requests_per_child = 1000
+
+# Configuración de señales OPTIMIZADA
 def on_starting(server):
-    server.log.info("🚀 MAIRA Server starting with Socket.IO support...")
+    server.log.info(f"🚀 MAIRA Server starting with {workers} workers (gevent)...")
 
 def on_reload(server):
     server.log.info("🔄 MAIRA Server reloading...")
 
 def when_ready(server):
-    server.log.info("✅ MAIRA Server ready to accept connections")
+    server.log.info("✅ MAIRA Server ready - Optimizado para planeamiento")
 
 def worker_abort(worker):
-    worker.log.info(f"⚠️  Worker {worker.pid} aborted - Socket.IO sessions may be lost")
+    worker.log.warning(f"⚠️  Worker {worker.pid} aborted")
+
+def worker_int(worker):
+    worker.log.info(f"🔄 Worker {worker.pid} graceful shutdown")
