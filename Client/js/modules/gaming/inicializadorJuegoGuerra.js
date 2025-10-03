@@ -28,12 +28,15 @@ class InicializadorJuegoGuerra {
             // Inicializar sistemas paso a paso
             await this.inicializarUserIdentity();
             await this.inicializarGameEngine();
+            await this.configurarVista3D(); // Mover antes de GestorJuego
             await this.inicializarGestorJuego();
-            await this.configurarVista3D();
             await this.configurarEventos();
             
             // Inicializar Panel Inferior Unificado
             await this.inicializarPanelInferior();
+            
+            // Inicializar chat si hay socket disponible (modo online)
+            await this.inicializarChat();
             
             this.sistemasInicializados = true;
             console.log('✅ Inicialización completa exitosa');
@@ -140,6 +143,14 @@ class InicializadorJuegoGuerra {
     
     async configurarVista3D() {
         try {
+            // Inicializar mapa base primero (requerido por GestorMapa)
+            if (typeof inicializarMapa === 'function') {
+                inicializarMapa();
+                console.log('✅ Mapa base inicializado');
+            } else {
+                console.warn('⚠️ Función inicializarMapa no disponible');
+            }
+            
             // Inicializar sistema 3D integrado mejorado
             if (typeof Sistema3DIntegrado !== 'undefined') {
                 window.sistema3DIntegrado = new Sistema3DIntegrado('map');
@@ -324,7 +335,7 @@ class InicializadorJuegoGuerra {
                             window.panelInferiorUnificado.forzarActualizacionCompleta();
                             console.log('🔄 Panel actualizado con estado inicial del juego');
                         }
-                    }, 500);
+                    }, 2000); // Aumentar timeout para dar más tiempo a gestores
                 } else {
                     console.warn('⚠️ Panel Inferior Unificado no se pudo inicializar');
                 }
@@ -366,9 +377,41 @@ class InicializadorJuegoGuerra {
     
     // Método para reinicializar si es necesario
     async reinicializar() {
+        console.log('🔄 Reinicializando InicializadorJuegoGuerra...');
         this.sistemasInicializados = false;
         this.dependenciasCargadas = false;
         return await this.inicializar();
+    }
+    
+    async inicializarChat() {
+        try {
+            // Solo inicializar si hay socket disponible (modo online)
+            const socketDisponible = window.socket || window.clientSocket;
+            
+            if (socketDisponible && socketDisponible.connected) {
+                console.log('💬 Inicializando chat para juegodeguerra online...');
+                
+                if (typeof MAIRAChat !== 'undefined') {
+                    const exito = MAIRAChat.inicializar({
+                        socket: socketDisponible,
+                        usuario: window.userName || window.userId || 'Jugador',
+                        modulo: 'juegodeguerra'
+                    });
+                    
+                    if (exito) {
+                        console.log('✅ Chat inicializado correctamente para juegodeguerra online');
+                    } else {
+                        console.warn('⚠️ No se pudo inicializar chat para juegodeguerra online');
+                    }
+                } else {
+                    console.warn('⚠️ MAIRAChat no disponible para juegodeguerra online');
+                }
+            } else {
+                console.log('💬 Modo local detectado - chat ya inicializado por juegodeguerra.html');
+            }
+        } catch (error) {
+            console.error('❌ Error inicializando chat:', error);
+        }
     }
 }
 

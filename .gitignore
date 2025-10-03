@@ -68,6 +68,7 @@ yarn-error.log*
 
 # Archivos temporales del sistema
 .DS_Store
+tareas.txt
 .DS_Store?
 ._*
 .Spotlight-V100

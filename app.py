@@ -1654,6 +1654,7 @@ def actualizar_lista_partidas():
 @socketio.on('connect')
 def handle_connect():
     print(f"Cliente conectado: {request.sid}")
+    join_room('general')  # Unirse a la sala general automáticamente
     emit('conectado', {'mensaje': 'Conectado al servidor'})
 
 @socketio.on('disconnect')
@@ -2101,6 +2102,7 @@ def handle_mensaje_chat(data):
         user_id = user_sid_map.get(request.sid)
         
         print(f"📨 Chat recibido - Usuario: {user_id}, Sala: {sala}, Mensaje: {mensaje[:50]}...")
+        print(f"📨 Datos completos: {data}")
         
         if not user_id or not mensaje:
             print("❌ Chat rechazado - Falta user_id o mensaje")
@@ -2117,9 +2119,9 @@ def handle_mensaje_chat(data):
             'sala': sala
         }
         
-        # Emitir mensaje a la sala
-        print(f"📤 Emitiendo 'nuevoMensajeChat' a sala '{sala}' desde {username}")
-        socketio.emit('nuevoMensajeChat', mensaje_data, room=sala)
+        print(f"📤 Emitiendo 'mensajeChat' a sala '{sala}' desde {username}")
+        print(f"📤 Datos a emitir: {mensaje_data}")
+        socketio.emit('mensajeChat', mensaje_data, room=sala)
         
     except Exception as e:
         print(f"❌ Error manejando mensaje de chat: {e}")

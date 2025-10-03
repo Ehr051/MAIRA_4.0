@@ -1071,6 +1071,35 @@ window.iniciarJuegoLocal = iniciarJuegoLocal;
 window.mostrarSalaEspera = mostrarSalaEspera;
 window.actualizarListaJugadoresSala = actualizarListaJugadoresSala;
 
+// Función para inicializar el chat
+window.inicializarChat = function(socketInstance) {
+    try {
+        console.log('💬 Inicializando chat en iniciarpartida...');
+        
+        if (typeof MAIRAChat !== 'undefined') {
+            const exito = MAIRAChat.inicializar({
+                socket: socketInstance,
+                usuario: userName || 'Usuario',
+                modulo: 'iniciarpartida'
+            });
+            
+            if (exito) {
+                console.log('✅ Chat inicializado correctamente en iniciarpartida');
+                return true;
+            } else {
+                console.warn('⚠️ Falló inicialización del chat en iniciarpartida');
+                return false;
+            }
+        } else {
+            console.error('❌ MAIRAChat no disponible en iniciarpartida');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error al inicializar chat en iniciarpartida:', error);
+        return false;
+    }
+};
+
 // Inicialización cuando se carga la página
 window.onload = function() {
     inicializarInterfazUsuario();

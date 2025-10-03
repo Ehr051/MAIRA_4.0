@@ -1220,6 +1220,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('🚀 MAIRA 4.0 - Juego de Guerra (Modo Limpio)');
         
+        // Inicializar el sistema de juego
+        inicializarSistemaJuego();
+        
         // Solo verificar que el sistema esté limpio después de la inicialización
         setTimeout(function() {
             console.log('🧹 Sistema iniciado limpio - Sin elementos automáticos');
@@ -1264,6 +1267,81 @@
             }
         }, 2000);
     });
+
+    // Función para inicializar el sistema de juego
+    async function inicializarSistemaJuego() {
+        try {
+            console.log('🎮 Inicializando sistema de juego...');
+
+            // Configuración por defecto para modo local
+            const configuracionJuego = {
+                modoJuego: 'local',
+                duracionTurno: 300000, // 5 minutos
+                centro: [-34.6037, -58.3816], // Buenos Aires
+                zoom: 13,
+                jugadores: [
+                    { id: 'jugador1', nombre: 'Jugador Azul', equipo: 'azul' },
+                    { id: 'jugador2', nombre: 'Jugador Rojo', equipo: 'rojo' }
+                ]
+            };
+
+            // Crear e inicializar el gestor de juego
+            if (typeof GestorJuego !== 'undefined') {
+                window.gestorJuego = new GestorJuego();
+                await window.gestorJuego.inicializar(configuracionJuego);
+
+                // Hacer disponibles las referencias globales de los gestores
+                window.gestorFases = window.gestorJuego.gestorFases;
+                window.gestorTurnos = window.gestorJuego.gestorTurnos;
+                window.gestorInterfaz = window.gestorJuego.gestorInterfaz;
+                window.gestorMapa = window.gestorJuego.gestorMapa;
+                window.gestorAcciones = window.gestorJuego.gestorAcciones;
+                window.gestorComunicacion = window.gestorJuego.gestorComunicacion;
+
+                console.log('✅ Sistema de juego inicializado correctamente');
+                console.log('📊 Estado inicial:', {
+                    fase: window.gestorFases?.fase,
+                    subfase: window.gestorFases?.subfase,
+                    jugadorActual: window.gestorTurnos?.jugadorActual
+                });
+
+                // Inicializar chat para modo local
+                inicializarChatLocal();
+            } else {
+                console.error('❌ GestorJuego no encontrado');
+            }
+
+        } catch (error) {
+            console.error('❌ Error al inicializar sistema de juego:', error);
+        }
+    }
+
+    // Función para inicializar chat en modo local
+    function inicializarChatLocal() {
+        try {
+            console.log('💬 Inicializando chat local...');
+
+            // Verificar que MAIRAChat esté disponible
+            if (typeof MAIRAChat !== 'undefined') {
+                // Inicializar chat con configuración para juegodeguerra
+                const exito = MAIRAChat.inicializar({
+                    forzarCreacion: true, // Forzar creación de contenedores
+                    usuario: window.userId || 'Jugador',
+                    socket: null // Modo local, sin socket
+                });
+
+                if (exito) {
+                    console.log('✅ Chat local inicializado correctamente');
+                } else {
+                    console.warn('⚠️ No se pudo inicializar chat local');
+                }
+            } else {
+                console.warn('⚠️ MAIRAChat no disponible');
+            }
+        } catch (error) {
+            console.error('❌ Error al inicializar chat local:', error);
+        }
+    }
   </script>
 </body>
 </html>

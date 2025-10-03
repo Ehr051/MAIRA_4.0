@@ -151,7 +151,7 @@ class PanelInferiorUnificado {
         const turnoNumero = document.querySelector('.turno-numero');
 
         if (faseNumero) faseNumero.textContent = `FASE ${this.obtenerNumeroFase()}`;
-        if (faseNombre) faseNombre.textContent = this.estado.fase.toUpperCase();
+        if (faseNombre && this.estado.fase) faseNombre.textContent = this.estado.fase.toUpperCase();
         if (turnoNumero && this.estado.fase === 'combate') {
             turnoNumero.textContent = this.estado.jugadorActual ? `TURNO: ${this.estado.jugadorActual.nombre || 'Jugador'}` : 'TURNO';
         } else if (turnoNumero) {
@@ -922,20 +922,36 @@ class PanelInferiorUnificado {
 
 // Inicialización automática cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    // Esperar un poco para asegurar que otros sistemas estén inicializados
-    setTimeout(() => {
-        window.panelInferiorUnificado = new PanelInferiorUnificado();
-        if (window.panelInferiorUnificado.inicializar()) {
-            console.log('✅ Panel Inferior Unificado listo y conectado a gestores');
-            
-            // Notificar a otros sistemas que el panel está listo
-            if (typeof window.dispatchEvent === 'function') {
-                window.dispatchEvent(new CustomEvent('panelInferiorListo', {
-                    detail: { panel: window.panelInferiorUnificado }
-                }));
+    // Esperar a que los gestores estén inicializados antes de inicializar el panel
+    const esperarGestores = () => {
+        // Verificar que los gestores críticos estén disponibles
+        const gestoresListos = 
+            window.gestorFases && 
+            window.gestorTurnos && 
+            window.gestorJuego &&
+            window.gestorInterfaz;
+
+        if (gestoresListos) {
+            console.log('✅ Gestores críticos detectados, inicializando Panel Inferior Unificado...');
+            window.panelInferiorUnificado = new PanelInferiorUnificado();
+            if (window.panelInferiorUnificado.inicializar()) {
+                console.log('✅ Panel Inferior Unificado listo y conectado a gestores');
+                
+                // Notificar a otros sistemas que el panel está listo
+                if (typeof window.dispatchEvent === 'function') {
+                    window.dispatchEvent(new CustomEvent('panelInferiorListo', {
+                        detail: { panel: window.panelInferiorUnificado }
+                    }));
+                }
             }
+        } else {
+            console.log('⏳ Esperando que gestores estén listos...');
+            setTimeout(esperarGestores, 500);
         }
-    }, 1000);
+    };
+
+    // Iniciar verificación de gestores después de un breve delay inicial
+    setTimeout(esperarGestores, 1000);
 });
 
 // Agregar estilos para animaciones
