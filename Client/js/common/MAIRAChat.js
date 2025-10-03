@@ -60,65 +60,70 @@ window.MAIRAChat = (function() {
      * Inicializa el chat unificado
      */
     function inicializar(config = {}) {
-        console.log('🚀 Inicializando MAIRAChat v3.0.0');
-        
-        // Limpiar inicialización previa
-        limpiarSistemasAnteriores();
-        
-        // Detectar módulo
-        modulo = detectarModulo();
-        console.log('📱 Módulo detectado:', modulo);
-        
-        // Configurar referencias
-        socket = config.socket;
-        usuario = config.usuario;
-        
-        // ✅ VERIFICAR SI SE DEBE FORZAR CREACIÓN
-        if (config.forzarCreacion && modulo === 'juegodeguerra') {
-            console.log('🔧 Forzando creación de contenedores para juegodeguerra...');
-            const exito = crearContenedoresJuegoDinamicamente();
-            if (exito) {
-                isInitialized = true;
-                configurarEventos();
-                if (socket) {
-                    configurarSocket();
-                    console.log('✅ Socket configurado:', socket.id);
-                }
-                console.log('✅ MAIRAChat inicializado con creación forzada');
-                return true;
-            } else {
-                console.error('❌ Falló la creación forzada de contenedores');
-                return false;
-            }
-        }
-        
-        // Encontrar contenedores normalmente
-        if (!encontrarContenedores()) {
-            console.error('❌ No se pudieron encontrar contenedores necesarios');
+        try {
+            console.log('🚀 Inicializando MAIRAChat v3.0.0');
             
-            // PARA JUEGODEGUERRA: Intentar creación automática
-            if (modulo === 'juegodeguerra') {
-                console.log('🎮 Creando contenedores dinámicamente para juegodeguerra...');
+            // Limpiar inicialización previa
+            limpiarSistemasAnteriores();
+            
+            // Detectar módulo
+            modulo = detectarModulo();
+            console.log('📱 Módulo detectado:', modulo);
+            
+            // Configurar referencias
+            socket = config.socket;
+            usuario = config.usuario;
+            
+            // ✅ VERIFICAR SI SE DEBE FORZAR CREACIÓN
+            if (config.forzarCreacion && modulo === 'juegodeguerra') {
+                console.log('🔧 Forzando creación de contenedores para juegodeguerra...');
                 const exito = crearContenedoresJuegoDinamicamente();
-                if (!exito) {
-                    console.error('❌ Falló la creación dinámica de contenedores');
+                if (exito) {
+                    isInitialized = true;
+                    configurarEventos();
+                    if (socket) {
+                        configurarSocket();
+                        console.log('✅ Socket configurado:', socket.id);
+                    }
+                    console.log('✅ MAIRAChat inicializado con creación forzada');
+                    return true;
+                } else {
+                    console.error('❌ Falló la creación forzada de contenedores');
                     return false;
                 }
-            } else {
-                return false;
             }
+            
+            // Encontrar contenedores normalmente
+            if (!encontrarContenedores()) {
+                console.error('❌ No se pudieron encontrar contenedores necesarios');
+                
+                // PARA JUEGODEGUERRA: Intentar creación automática
+                if (modulo === 'juegodeguerra') {
+                    console.log('🎮 Creando contenedores dinámicamente para juegodeguerra...');
+                    const exito = crearContenedoresJuegoDinamicamente();
+                    if (!exito) {
+                        console.error('❌ Falló la creación dinámica de contenedores');
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            
+            // Configurar eventos y socket
+            configurarEventos();
+            if (socket) {
+                configurarSocket();
+                console.log('✅ Socket configurado:', socket.id);
+            }
+            
+            isInitialized = true;
+            console.log('✅ MAIRAChat inicializado correctamente');
+            return true;
+        } catch (error) {
+            console.error('❌ Error inicializando MAIRAChat:', error);
+            return false;
         }
-        
-        // Configurar eventos y socket
-        configurarEventos();
-        if (socket) {
-            configurarSocket();
-            console.log('✅ Socket configurado:', socket.id);
-        }
-        
-        isInitialized = true;
-        console.log('✅ MAIRAChat inicializado correctamente');
-        return true;
     }
     
     /**
@@ -591,35 +596,42 @@ window.MAIRAChat = (function() {
      * Envía un mensaje
      */
     function enviarMensaje() {
-        if (!contenedores.input || !socket?.connected) {
-            console.warn('❌ No se puede enviar mensaje: input o socket no disponible');
-            return;
+        try {
+            if (!contenedores.input || !socket?.connected) {
+                console.error('❌ No se puede enviar mensaje: input o socket no disponible');
+                return;
+            }
+            
+            const texto = contenedores.input.value;
+            if (!texto || !texto.trim()) {
+                console.warn('⚠️ Mensaje vacío, no se envía');
+                return;
+            }
+            
+            const config = CONFIGURACION_MODULOS[modulo];
+            const mensajeId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Crear objeto mensaje según módulo
+            const mensaje = crearObjetoMensaje(texto.trim(), mensajeId);
+            
+            // Agregar a mensajes enviados ANTES de enviar
+            mensajesEnviados.add(mensajeId);
+            
+            // Mostrar localmente primero
+            mostrarMensajeLocal(mensaje);
+            
+            // Enviar al servidor
+            const eventoEnvio = determinarEventoEnvio(mensaje);
+            socket.emit(eventoEnvio, mensaje);
+            
+            // Limpiar input
+            contenedores.input.value = '';
+            contenedores.input.focus();
+            
+            console.log('📤 Mensaje enviado:', mensajeId);
+        } catch (error) {
+            console.error('❌ Error enviando mensaje:', error);
         }
-        
-        const texto = contenedores.input.value.trim();
-        if (!texto) return;
-        
-        const config = CONFIGURACION_MODULOS[modulo];
-        const mensajeId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Crear objeto mensaje según módulo
-        const mensaje = crearObjetoMensaje(texto, mensajeId);
-        
-        // Agregar a mensajes enviados ANTES de enviar
-        mensajesEnviados.add(mensajeId);
-        
-        // Mostrar localmente primero
-        mostrarMensajeLocal(mensaje);
-        
-        // Enviar al servidor
-        const eventoEnvio = determinarEventoEnvio(mensaje);
-        socket.emit(eventoEnvio, mensaje);
-        
-        // Limpiar input
-        contenedores.input.value = '';
-        contenedores.input.focus();
-        
-        console.log('📤 Mensaje enviado:', mensajeId);
     }
     
     /**
