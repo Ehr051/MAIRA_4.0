@@ -127,12 +127,23 @@ class TileExtractor {
 
     // Determinar URLs de tar.gz para diferentes tipos de datos
     getTarUrls(dataType, region, tileName) {
+        // Detectar si estamos en Render o local
+        const isRender = window.location.hostname.includes('onrender.com');
+
         const baseUrls = {
-            elevation: [
-                '/opt/render/project/src/static/tiles/data_argentina/Altimetria/'
+            elevation: isRender ? [
+                // En Render: usar proxy de GitHub
+                '/api/proxy/github/Altimetria_Mini_Tiles/'
+            ] : [
+                // En local: usar rutas relativas
+                '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/'
             ],
-            vegetation: [
-                '/opt/render/project/src/static/tiles/data_argentina/vegetation/'
+            vegetation: isRender ? [
+                // En Render: usar proxy de GitHub
+                '/api/proxy/github/Vegetacion_Mini_Tiles/'
+            ] : [
+                // En local: usar rutas relativas
+                '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/'
             ]
         };
 

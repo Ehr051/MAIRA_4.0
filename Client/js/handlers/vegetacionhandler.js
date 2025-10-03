@@ -20,11 +20,11 @@ class VegetacionHandler {
         try {
             // URLs a intentar en orden de prioridad - RENDER PATH FIRST
             const indexUrls = [
-                // 🚀 PRIORIDAD MÁXIMA: Directorio Render estático
-                '/opt/render/project/src/static/tiles/data_argentina/vegetation_master_index.json',
-                '/static/tiles/data_argentina/vegetation_master_index.json',
+                // 🚀 PRIORIDAD MÁXIMA: GitHub Release via proxy (funciona en Render)
+                '/api/proxy/github/Vegetacion_Mini_Tiles/vegetation_master_index.json',
 
-                // 🔄 FALLBACKS LOCALES
+                // 🔄 FALLBACKS LOCALES (funcionan en desarrollo)
+                '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'

@@ -1,7 +1,7 @@
 // terrainAdapter.js - Adaptador para datos de terreno
 
 // CONSTANTES DEFINIDAS PRIMERO
-// URL base para GitHub Releases mini-tiles v3.0
+// URL base para GitHub Releases mini-tiles v4.0
 const TERRAIN_GITHUB_RELEASES_BASE = '/api/proxy/github';
 
 // Ruta para tiles clásicos (legacy)
@@ -10,6 +10,12 @@ const TILE_FOLDER_PATH = '/opt/render/project/src/static/tiles/data_argentina/ve
 // Índice de tiles
 let tileIndex;
 let indiceCargado = false;
+
+// URLs de fallback para mini-tiles
+const MINI_TILES_FALLBACK_URLS = [
+  '/api/proxy/github/',
+  '../Client/Libs/datos_argentina/'
+];
 
 // Cargar el índice de tiles al iniciar
 const cargarIndiceTiles = new Promise((resolve, reject) => {
@@ -24,13 +30,13 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
     return response.json();
   };
   
-  // Lista de URLs para intentar - SOLO GITHUB RELEASES v4.0
+  // Lista de URLs para intentar - PRIORIDAD: Render -> Local
   const urls = [
-    // 🚀 PRIORIDAD 1: GitHub Release v4.0 (Altura + Vegetación)
-    // URL removida - será definida dinámicamente
-    // � FALLBACKS ADICIONALES
-    `/Users/mac/Documents/GitHub/MAIRA-WORKSPACE/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json`,
-    ...MINI_TILES_FALLBACK_URLS.map(url => `${url}master_mini_tiles_index.json`)
+    // 🚀 PRIORIDAD 1: GitHub Release v4.0 (funciona en Render)
+    '/api/proxy/github/master_mini_tiles_index.json',
+    // 🏠 FALLBACK: Ruta relativa local (funciona en desarrollo)
+    '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
+    '../Client/Libs/datos_argentina/master_mini_tiles_index.json'
   ];
   
   // Intentar cargar desde cada URL secuencialmente
