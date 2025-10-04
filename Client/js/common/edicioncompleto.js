@@ -513,10 +513,14 @@ function mostrarPanelEdicionEquipo(elemento) {
         document.getElementById('designacionEquipo').value = elemento.options.designacion || '';
         document.getElementById('asignacionEquipo').value = elemento.options.dependencia || '';
         
-        // Cargar tipo de vehículo si existe
-        const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
-        if (tipoVehiculoEquipoSelect && elemento.options.tipoVehiculo) {
-            tipoVehiculoEquipoSelect.value = elemento.options.tipoVehiculo;
+        // Determinar si es personal o vehículo y poblar opciones apropiadas
+        const esPersonal = esEquipoPersonal(elemento.options.sidc);
+        inicializarSelectorTipoEquipo(esPersonal);
+        
+        // Cargar tipo si existe
+        const tipoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+        if (tipoEquipoSelect && elemento.options.tipoVehiculo) {
+            tipoEquipoSelect.value = elemento.options.tipoVehiculo;
         }
     }
     
@@ -653,11 +657,35 @@ function inicializarSelectores() {
     inicializarSelectorTipoVehiculo();
 }
 
-function inicializarSelectorTipoVehiculo() {
-    const tipoVehiculoSelect = document.getElementById('tipoVehiculo');
-    const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+function esEquipoPersonal(sidc) {
+    // Los equipos de personal tienen códigos que empiezan con UCI (Infantería)
+    // Los equipos de vehículos tienen otros códigos
+    const codigoUnidad = sidc.substr(4, 3); // Posiciones 4-6 (E + código de arma)
+    return codigoUnidad === 'ECI' || codigoUnidad === 'E'; // Infantería o genérico
+}
+
+function inicializarSelectorTipoEquipo(esPersonal) {
+    const tipoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
+    const tipoEquipoLabel = document.getElementById('labelTipoEquipo');
     
-    const vehiculosDisponibles = [
+    if (!tipoEquipoSelect) return;
+    
+    // Cambiar el label según el tipo
+    if (tipoEquipoLabel) {
+        tipoEquipoLabel.textContent = esPersonal ? 'Tipo de Personal:' : 'Tipo de Vehículo:';
+    }
+    
+    // Definir opciones según el tipo
+    const opciones = esPersonal ? [
+        { valor: 'TIRADOR', texto: 'Tirador - Soldado con fusil' },
+        { valor: 'TIRADOR_PESADO', texto: 'Tirador Pesado - Ametralladora' },
+        { valor: 'ATAN', texto: 'Arma ATAN - Antitanque' },
+        { valor: 'MORTERO', texto: 'Mortero - Artillería ligera' },
+        { valor: 'SNIPER', texto: 'Francotirador' },
+        { valor: 'MEDICO', texto: 'Médico/Sanitario' },
+        { valor: 'INGENIERO', texto: 'Ingeniero de Combate' },
+        { valor: 'OBSERVADOR', texto: 'Observador/Oteador' }
+    ] : [
         { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
         { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
         { valor: 'SK105', texto: 'SK-105 Kürassier' },
@@ -668,27 +696,14 @@ function inicializarSelectorTipoVehiculo() {
         { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
     ];
     
-    // Poblar selector de unidades
-    if (tipoVehiculoSelect) {
-        tipoVehiculoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
-        vehiculosDisponibles.forEach(vehiculo => {
-            let option = document.createElement('option');
-            option.value = vehiculo.valor;
-            option.textContent = vehiculo.texto;
-            tipoVehiculoSelect.appendChild(option);
-        });
-    }
-    
-    // Poblar selector de equipos
-    if (tipoVehiculoEquipoSelect) {
-        tipoVehiculoEquipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
-        vehiculosDisponibles.forEach(vehiculo => {
-            let option = document.createElement('option');
-            option.value = vehiculo.valor;
-            option.textContent = vehiculo.texto;
-            tipoVehiculoEquipoSelect.appendChild(option);
-        });
-    }
+    // Poblar el selector
+    tipoEquipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
+    opciones.forEach(opcion => {
+        let option = document.createElement('option');
+        option.value = opcion.valor;
+        option.textContent = opcion.texto;
+        tipoEquipoSelect.appendChild(option);
+    });
 }
 
 function actualizarEtiquetaUnidad(elemento) {
@@ -1216,6 +1231,13 @@ function guardarCambiosEquipo() {
 
         const tipoVehiculoEquipo = document.getElementById('tipoVehiculoEquipo')?.value || '';
         
+        // Lógica de modelo por defecto: si es personal y no hay modelo específico, usar SOLDADO_RIFLE
+        let modelo3DAsignado = tipoVehiculoEquipo;
+        if (esEquipoPersonal(elementoSeleccionado) && (!tipoVehiculoEquipo || tipoVehiculoEquipo.trim() === '')) {
+            modelo3DAsignado = 'SOLDADO_RIFLE';
+            console.log('🎯 Asignando modelo por defecto para personal: SOLDADO_RIFLE');
+        }
+        
         const nuevoMarcador = L.marker(posicionActual, {
             icon: icon,
             draggable: true,
@@ -1224,7 +1246,7 @@ function guardarCambiosEquipo() {
             tipo: tipo,
             designacion: designacion,
             dependencia: dependencia,
-            tipoVehiculo: tipoVehiculoEquipo,
+            tipoVehiculo: modelo3DAsignado, // ✅ Usar modelo asignado (con lógica de defecto)
             equipoJugador: equipoElemento,
             jugadorId: obtenerJugadorPropietario(),
             nombre: `${designacion}${dependencia ? '/' + dependencia : ''}` // ✅ CORREGIDO: nombre completo
