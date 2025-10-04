@@ -47,11 +47,14 @@ async function toggleVista3DModular() {
             }
             
             // Inicializar sistema 3D modular
+            // Calcular terreno basado en la vista actual del mapa 2D
+            const terrenoOpciones = calcularTerrenoDesdeMapa();
             await inicializarSistema3D('canvas-3d-flotante', {
                 iluminacion: {
                     ambiente: { intensidad: 1.2 },
                     direccional: { intensidad: 1.5 }
-                }
+                },
+                terreno: terrenoOpciones
             });
             
             // Cargar algunos modelos de ejemplo
@@ -159,6 +162,39 @@ window.cerrarVista3DModular = function() {
     console.log('🔒 Vista 3D modular cerrada completamente - Regreso al mapa 2D');
 };
 
+// Función para calcular opciones de terreno basadas en la vista actual del mapa 2D
+function calcularTerrenoDesdeMapa() {
+    try {
+        if (!window.mapa) {
+            console.warn('Mapa no disponible, usando terreno por defecto');
+            return { width: 1000, height: 1000 };
+        }
+
+        const bounds = window.mapa.getBounds();
+        const zoom = window.mapa.getZoom();
+        const center = window.mapa.getCenter();
+
+        // Calcular el tamaño del terreno basado en el zoom
+        // A mayor zoom, menor área visible, por lo tanto menor terreno
+        const baseSize = 10000; // 10km base
+        const zoomFactor = Math.pow(2, 13 - zoom); // Zoom 13 es el punto de referencia
+        const terrainSize = Math.max(500, Math.min(5000, baseSize * zoomFactor));
+
+        console.log(`🗺️ Terreno 3D calculado - Zoom: ${zoom}, Tamaño: ${terrainSize}m, Centro: ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`);
+
+        return {
+            width: terrainSize,
+            height: terrainSize,
+            center: center,
+            zoom: zoom,
+            bounds: bounds
+        };
+    } catch (error) {
+        console.error('Error calculando terreno desde mapa:', error);
+        return { width: 1000, height: 1000 };
+    }
+}
+
 // Función para inicializar el sistema 3D si no está disponible
 async function inicializarSistema3D(canvasId, opciones = {}) {
     try {
@@ -184,6 +220,7 @@ async function inicializarSistema3D(canvasId, opciones = {}) {
 
 // Exportar funciones globalmente
 window.toggleVista3DModular = toggleVista3DModular;
+window.calcularTerrenoDesdeMapa = calcularTerrenoDesdeMapa;
 window.inicializarSistema3D = inicializarSistema3D;
 
 console.log('✅ Vista3DManager cargado - funciones disponibles globalmente');

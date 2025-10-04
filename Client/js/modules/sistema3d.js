@@ -134,10 +134,15 @@ class Sistema3D {
     /**
      * Crea un terreno realista con elevaciones
      */
-    crearTerreno() {
+    crearTerreno(opciones = {}) {
+        // Usar opciones del terreno o valores por defecto
+        const width = opciones.width || 500;
+        const height = opciones.height || 500;
+        const center = opciones.center || null;
+        
+        console.log(`🏔️ Creando terreno 3D: ${width}x${height}m${center ? `, Centro: ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}` : ''}`);
+        
         // Crear geometría de terreno con subdivisiones para elevación
-        const width = 500;
-        const height = 500;
         const widthSegments = 128;
         const heightSegments = 128;
         

@@ -583,19 +583,22 @@ limpiarInterfazAnterior() {
         const hexagons = document.querySelectorAll('.hex-cell');
         hexagons.forEach(hex => {
             hex.classList.remove('hex-interactive');
+            hex.classList.add('hex-disabled'); // Añadir clase para forzar pointer-events: none
         });
         console.log('🔸 Hexágonos desactivados para definición de sector/zona');
     }
 
     reactivarHexagonosInteractivos() {
-        // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
-        if (this.fase === 'combate' || window.modoJuego === 'combate') {
-            const hexagons = document.querySelectorAll('.hex-cell');
-            hexagons.forEach(hex => {
+        // Remover la clase disabled y restaurar interactividad si es necesario
+        const hexagons = document.querySelectorAll('.hex-cell');
+        hexagons.forEach(hex => {
+            hex.classList.remove('hex-disabled');
+            // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
+            if (this.fase === 'combate' || window.modoJuego === 'combate') {
                 hex.classList.add('hex-interactive');
-            });
-            console.log('🔸 Hexágonos reactivados para modo combate');
-        }
+            }
+        });
+        console.log('🔸 Hexágonos reactivados para modo combate');
     }
 
     // Métodos de manejo de sector
@@ -1073,11 +1076,12 @@ actualizarBotonesFase() {
             case 'definicion_sector':
                 if (esDirector) {
                     contenido = `
-                        <button id="btn-definir-sector" ${this.dibujandoSector ? 'disabled' : ''}>
-                            Definir Sector
+                        <button class="btn-control" id="btn-definir-sector" ${this.dibujandoSector ? 'disabled' : ''}>
+                            <i class="fas fa-draw-polygon"></i>
+                            <span>Definir Sector</span>
                         </button>
                         ${this.sectorTemporal || this.sectorLayer ? 
-                            '<button id="btn-confirmar-sector">Confirmar Sector</button>' : 
+                            '<button class="btn-control" id="btn-confirmar-sector"><i class="fas fa-check"></i><span>Confirmar Sector</span></button>' : 
                             ''}
                     `;
                 } else {
@@ -1088,13 +1092,15 @@ actualizarBotonesFase() {
             case 'definicion_zonas':
                 if (esDirector) {
                     contenido = `
-                        <button id="btn-zona-roja" class="btn btn-danger" 
+                        <button class="btn-control zona-roja" id="btn-zona-roja"
                             ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
-                            Definir Zona Roja
+                            <i class="fas fa-square" style="color: #f44336;"></i>
+                            <span>Definir Zona Roja</span>
                         </button>
-                        <button id="btn-zona-azul" class="btn btn-primary"
+                        <button class="btn-control zona-azul" id="btn-zona-azul"
                             ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
-                            Definir Zona Azul
+                            <i class="fas fa-square" style="color: #2196F3;"></i>
+                            <span>Definir Zona Azul</span>
                         </button>
                     `;
                 } else {

@@ -120,6 +120,12 @@
     cursor: pointer;
 }
 
+/* Estilos para hexágonos desactivados durante dibujo */
+.hex-disabled {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
 /* Estilos para hexágonos con línea de visión */
 .hex-los {
     fill: rgba(255, 255, 0, 0.2);
