@@ -423,11 +423,59 @@ function desactivarDobleClickZoom() {
     mapa.doubleClickZoom.disable();
     mapa.scrollWheelZoom.enable();
 }
-// Función para desactivar el menú contextual del clic derecho
+
+// Función para determinar el contexto del mapa basado en el evento
+function determinarContextoMapa(event) {
+    // Verificar si hay elementos bajo el cursor
+    const elementsAtPoint = [];
+    mapa.eachLayer(function(layer) {
+        if (layer instanceof L.Marker || layer instanceof L.Polyline || layer instanceof L.Polygon) {
+            try {
+                if (layer instanceof L.Marker && layer.getBounds) {
+                    if (layer.getBounds().contains(event.latlng)) {
+                        elementsAtPoint.push(layer);
+                    }
+                } else if (layer instanceof L.Polyline || layer instanceof L.Polygon) {
+                    if (layer.getBounds && layer.getBounds().contains(event.latlng)) {
+                        elementsAtPoint.push(layer);
+                    }
+                }
+            } catch (error) {
+                console.warn('Error checking layer bounds:', error);
+            }
+        }
+    });
+
+    // Determinar contexto basado en elementos encontrados
+    if (elementsAtPoint.length > 0) {
+        const element = elementsAtPoint[0]; // Tomar el primer elemento
+
+        if (element instanceof L.Marker) {
+            // Verificar si es una unidad (cualquier marcador con SIDC)
+            if (element.options && element.options.sidc) {
+                return 'unidad'; // Para unidades
+            }
+        } else if (element instanceof L.Polyline || element instanceof L.Polygon) {
+            return 'elemento'; // Para elementos gráficos
+        }
+    }
+
+    return 'terreno'; // Por defecto, terreno
+}
+
+// Función para desactivar el menú contextual del clic derecho - REEMPLAZADO POR MENÚ RADIAL
 function desactivarClickDerecho() {
     mapa.on('contextmenu', function(e) {
         L.DomEvent.preventDefault(e);
-        mostrarMenuContextual(e);
+
+        // Usar menú radial en lugar del contextual tradicional
+        if (window.MAIRARadialMenu) {
+            const context = determinarContextoMapa(e);
+            window.MAIRARadialMenu.show(e.originalEvent.clientX, e.originalEvent.clientY, context);
+        } else {
+            // Fallback al menú contextual tradicional si no está disponible
+            mostrarMenuContextual(e);
+        }
     });
 }
 

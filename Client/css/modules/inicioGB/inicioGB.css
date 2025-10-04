@@ -66,17 +66,25 @@ header h1 {
 
 .list-group-item {
     background-color: #2a2a2a;
-    border-color: #333;
-    color: #ddd;
+    border-color: #444;
+    color: #ffffff;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .list-group-item:hover {
-    background-color: #333;
+    background-color: #3a3a3a;
+    border-color: #0281a8;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(2, 129, 168, 0.2);
 }
 
 .list-group-item.active {
     background-color: #0281a8;
     border-color: #0281a8;
+    color: #ffffff;
+    font-weight: 600;
 }
 
 footer {
