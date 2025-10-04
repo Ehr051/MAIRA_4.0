@@ -1501,19 +1501,39 @@ class MAIRA3DMaster {
      * CREAR CONTENEDOR 3D PARA VISTA FULLSCREEN
      */
     crearContenedor3D() {
+        // Detectar si estamos en modo juegodeguerra
+        const isJuegoGuerra = window.location.pathname.includes('juegodeguerra.html');
+        
         this.container3D = document.createElement('div');
         this.container3D.id = 'vista3DContainer';
-        this.container3D.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #001133;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-        `;
+        
+        if (isJuegoGuerra) {
+            // En juegodeguerra: contenedor sobre el mapa, dejando panel inferior visible
+            this.container3D.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: calc(100vh - 200px); /* Dejar espacio para panel inferior */
+                background: #001133;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+            `;
+        } else {
+            // En planeamiento: pantalla completa
+            this.container3D.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: #001133;
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+            `;
+        }
 
         this.container3D.innerHTML = `
             <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; gap: 10px; align-items: center;">
@@ -2116,3 +2136,12 @@ class MAIRA3DMaster {
 // ========================================
 
 /**
+ * INICIALIZACIÓN GLOBAL DEL SISTEMA 3D MAIRA
+ */
+(function() {
+    // Crear instancia global del sistema 3D
+    window.maira3DSystem = new MAIRA3DMaster();
+    window.maira3DMaster = window.maira3DSystem; // Alias para compatibilidad
+    
+    console.log('🎮 Sistema 3D MAIRA Master inicializado globalmente');
+})();

@@ -577,8 +577,11 @@ function agregarControles3DAlMenu() {
         btn3D.innerHTML = '🌐 Vista 3D';
         btn3D.title = 'Cambiar a vista 3D del terreno';
         btn3D.onclick = () => {
-            if (window.visorMapa3D && typeof window.visorMapa3D.initialize === 'function') {
-                window.visorMapa3D.initialize();
+            // ✅ USAR SISTEMA UNIFICADO MAIRA 3D MASTER
+            if (window.maira3DSystem && typeof window.maira3DSystem.cambiarAVista3D === 'function') {
+                window.maira3DSystem.cambiarAVista3D();
+            } else {
+                console.warn('⚠️ Sistema 3D MAIRA no disponible');
             }
         };
         
@@ -602,8 +605,11 @@ function crearControlAlternativo3D() {
         btn3D.innerHTML = '🌐';
         btn3D.onclick = (e) => {
             e.preventDefault();
-            if (window.visorMapa3D && typeof window.visorMapa3D.initialize === 'function') {
-                window.visorMapa3D.initialize();
+            // ✅ USAR SISTEMA UNIFICADO MAIRA 3D MASTER
+            if (window.maira3DSystem && typeof window.maira3DSystem.cambiarAVista3D === 'function') {
+                window.maira3DSystem.cambiarAVista3D();
+            } else {
+                console.warn('⚠️ Sistema 3D MAIRA no disponible');
             }
         };
         

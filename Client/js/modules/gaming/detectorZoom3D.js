@@ -221,6 +221,16 @@ class DetectorZoom3D {
     activarVista3D() {
         console.log('🚀 Activando vista 3D...');
         
+        // Prioridad 1: Sistema MAIRA 3D Master unificado
+        if (window.maira3DSystem && typeof window.maira3DSystem.cambiarAVista3D === 'function') {
+            try {
+                window.maira3DSystem.cambiarAVista3D();
+                console.log('✅ Sistema MAIRA 3D Master activado');
+                return;
+            } catch (error) {
+                console.warn('⚠️ Error activando Sistema MAIRA 3D Master:', error);
+            }
+        }
         
         // Prioridad 2: Visor Mapa 3D Mejorado instanciado
         if (window.visorMapa3DMejorado && typeof window.visorMapa3DMejorado.cambiarAVista3D === 'function') {

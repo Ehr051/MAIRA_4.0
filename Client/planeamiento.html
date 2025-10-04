@@ -1101,25 +1101,11 @@ function configurarEventosPlaneamiento() {
     if (btnVista3D) {
         btnVista3D.addEventListener('click', function(e) {
             e.preventDefault();
-            // ✅ USAR SISTEMA 3D INTEGRADO COMPLETO
-            if (typeof toggleVista3D === 'function') {
-                toggleVista3D();
-
-                // Sincronizar elementos del mapa actual
-                if (window.maira3DSystem && window.maira3DSystem.syncWithMap2D) {
-                    const elementosMapa = window.obtenerElementosDelMapa ?
-                        window.obtenerElementosDelMapa() : [];
-                    window.maira3DSystem.syncWithMap2D(elementosMapa);
-                }
-
-                // Mostrar panel de control después de un breve delay
-                setTimeout(() => {
-                    if (window.MAIRA3DIntegration && window.MAIRA3DIntegration.toggleControlPanel) {
-                        window.MAIRA3DIntegration.toggleControlPanel();
-                    }
-                }, 1000);
+            // ✅ USAR SISTEMA UNIFICADO MAIRA 3D MASTER
+            if (window.maira3DSystem && typeof window.maira3DSystem.cambiarAVista3D === 'function') {
+                window.maira3DSystem.cambiarAVista3D();
             } else {
-                console.warn('⚠️ Sistema 3D no disponible');
+                console.warn('⚠️ Sistema 3D MAIRA no disponible - maira3DMaster.js no cargado');
             }
         });
     }

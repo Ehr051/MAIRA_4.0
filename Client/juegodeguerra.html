@@ -1266,11 +1266,11 @@
                 if (btnVista3D) {
                     btnVista3D.addEventListener('click', function(e) {
                         e.preventDefault();
-                        // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
-                        if (typeof toggleVista3D === 'function') {
-                            toggleVista3D();
+                        // ✅ USAR SISTEMA UNIFICADO MAIRA 3D MASTER
+                        if (window.maira3DSystem && typeof window.maira3DSystem.cambiarAVista3D === 'function') {
+                            window.maira3DSystem.cambiarAVista3D();
                         } else {
-                            console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
+                            console.warn('⚠️ Sistema 3D MAIRA no disponible - maira3DMaster.js no cargado');
                         }
                     });
                     console.log('✅ Event listener Vista 3D configurado');
