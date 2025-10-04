@@ -1802,3 +1802,79 @@ html, body {
     outline: 2px solid #007bff;
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
+
+/* === ESTILOS PARA VALIDACIONES EN TIEMPO REAL === */
+.campo-valido {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.campo-invalido {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.tooltip-validacion {
+    position: absolute;
+    background: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    white-space: nowrap;
+    animation: fadeInTooltip 0.3s ease-in-out;
+}
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === MEJORAS VISUALES PARA SELECTORES === */
+#tipoVehiculoEquipo option:hover {
+    background-color: #f8f9fa;
+}
+
+#tipoVehiculoEquipo option:checked {
+    background-color: #007bff;
+    color: white;
+}
+
+/* === ESTILOS PARA FEEDBACK VISUAL === */
+.panel-edicion-completo input:focus,
+.panel-edicion-completo select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Indicadores de estado para botones */
+.btn-estado-valido {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-estado-valido:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-estado-invalido {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-estado-invalido:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}

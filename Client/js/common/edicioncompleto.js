@@ -2137,17 +2137,208 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
     }
 }
 
-function initializeTabs() {
-    var tabs = document.querySelectorAll('.tablinks');
-    tabs.forEach(function(tab) {
-        tab.addEventListener('click', function(event) {
-            openTab(event, this.getAttribute('data-tab'));
+function inicializarValidacionesTiempoReal() {
+    // Validaciones para panel de unidades
+    const camposUnidad = ['designacion', 'dependencia', 'magnitud'];
+    camposUnidad.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.addEventListener('input', () => validarCampoUnidad(campoId));
+            campo.addEventListener('blur', () => validarCampoUnidad(campoId));
+        }
+    });
+
+    // Validaciones para panel de equipos
+    const camposEquipo = ['designacionEquipo', 'asignacionEquipo'];
+    camposEquipo.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.addEventListener('input', () => validarCampoEquipo(campoId));
+            campo.addEventListener('blur', () => validarCampoEquipo(campoId));
+        }
+    });
+
+    // Validación del selector de tipo de vehículo/equipo
+    const tipoVehiculoSelect = document.getElementById('tipoVehiculoEquipo');
+    if (tipoVehiculoSelect) {
+        tipoVehiculoSelect.addEventListener('change', () => validarTipoVehiculo());
+    }
+}
+
+function validarCampoUnidad(campoId) {
+    const campo = document.getElementById(campoId);
+    if (!campo) return;
+
+    const valor = campo.value.trim();
+    const esRequerido = ['designacion', 'dependencia', 'magnitud'].includes(campoId);
+
+    // Remover clases de validación previas
+    campo.classList.remove('campo-valido', 'campo-invalido');
+
+    if (esRequerido && valor === '') {
+        campo.classList.add('campo-invalido');
+        mostrarTooltipCampo(campo, 'Este campo es obligatorio');
+    } else if (esRequerido && valor !== '') {
+        campo.classList.add('campo-valido');
+        ocultarTooltipCampo(campo);
+    }
+}
+
+function validarCampoEquipo(campoId) {
+    const campo = document.getElementById(campoId);
+    if (!campo) return;
+
+    const valor = campo.value.trim();
+    const esRequerido = ['designacionEquipo', 'asignacionEquipo'].includes(campoId);
+
+    // Remover clases de validación previas
+    campo.classList.remove('campo-valido', 'campo-invalido');
+
+    if (esRequerido && valor === '') {
+        campo.classList.add('campo-invalido');
+        mostrarTooltipCampo(campo, 'Este campo es obligatorio');
+    } else if (esRequerido && valor !== '') {
+        campo.classList.add('campo-valido');
+        ocultarTooltipCampo(campo);
+    }
+}
+
+function validarTipoVehiculo() {
+    const select = document.getElementById('tipoVehiculoEquipo');
+    if (!select) return;
+
+    select.classList.remove('campo-valido', 'campo-invalido');
+
+    if (select.value && select.value !== '') {
+        select.classList.add('campo-valido');
+        ocultarTooltipCampo(select);
+    } else {
+        // No marcar como inválido si no hay selección, solo como válido si hay
+        ocultarTooltipCampo(select);
+    }
+}
+
+function mostrarTooltipCampo(campo, mensaje) {
+    // Remover tooltip existente
+    ocultarTooltipCampo(campo);
+
+    // Crear nuevo tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip-validacion';
+    tooltip.textContent = mensaje;
+    tooltip.style.cssText = `
+        position: absolute;
+        background: #ff6b6b;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        pointer-events: none;
+        white-space: nowrap;
+    `;
+
+    // Posicionar tooltip
+    const rect = campo.getBoundingClientRect();
+    tooltip.style.left = rect.left + 'px';
+    tooltip.style.top = (rect.top - 30) + 'px';
+
+    document.body.appendChild(tooltip);
+    campo._tooltipValidacion = tooltip;
+
+    // Auto-ocultar después de 3 segundos
+    setTimeout(() => ocultarTooltipCampo(campo), 3000);
+}
+
+function inicializarTooltipsInformativos() {
+    // Tooltips para tipos de personal
+    const opcionesPersonal = [
+        { selector: 'option[value="TIRADOR"]', tooltip: 'Soldado con fusil de asalto estándar' },
+        { selector: 'option[value="TIRADOR_PESADO"]', tooltip: 'Soldado equipado con ametralladora ligera' },
+        { selector: 'option[value="ATAN"]', tooltip: 'Especialista en armas antitanque' },
+        { selector: 'option[value="MORTERO"]', tooltip: 'Operador de mortero de infantería' },
+        { selector: 'option[value="SNIPER"]', tooltip: 'Tirador de precisión de largo alcance' },
+        { selector: 'option[value="MEDICO"]', tooltip: 'Personal médico de combate' },
+        { selector: 'option[value="INGENIERO"]', tooltip: 'Ingeniero de combate' },
+        { selector: 'option[value="OBSERVADOR"]', tooltip: 'Observador avanzado/oteador' }
+    ];
+
+    // Tooltips para tipos de vehículos
+    const opcionesVehiculos = [
+        { selector: 'option[value="TAM"]', tooltip: 'Tanque Argentino Mediano - Blindado principal' },
+        { selector: 'option[value="TAM2C"]', tooltip: 'TAM 2C - Versión mejorada con mayor potencia de fuego' },
+        { selector: 'option[value="SK105"]', tooltip: 'SK-105 Kürassier - Tanque ligero austríaco' },
+        { selector: 'option[value="VCTP"]', tooltip: 'Vehículo de Combate de Transporte de Personal' },
+        { selector: 'option[value="M113"]', tooltip: 'M113 - Transporte blindado de personal' },
+        { selector: 'option[value="HUMVEE"]', tooltip: 'Vehículo multipropósito de alta movilidad' },
+        { selector: 'option[value="UNIMOG"]', tooltip: 'Vehículo logístico todo terreno' },
+        { selector: 'option[value="MERCEDES"]', tooltip: 'Vehículo de apoyo logístico' }
+    ];
+
+    // Agregar tooltips a opciones de personal
+    opcionesPersonal.forEach(item => {
+        const opciones = document.querySelectorAll(`#tipoVehiculoEquipo ${item.selector}`);
+        opciones.forEach(opcion => {
+            opcion.title = item.tooltip;
         });
     });
-    // Abrir la primera pestaña por defecto
-    if (tabs.length > 0) {
-        openTab({ currentTarget: tabs[0] }, tabs[0].getAttribute('data-tab'));
-    }
+
+    // Agregar tooltips a opciones de vehículos
+    opcionesVehiculos.forEach(item => {
+        const opciones = document.querySelectorAll(`#tipoVehiculoEquipo ${item.selector}`);
+        opciones.forEach(opcion => {
+            opcion.title = item.tooltip;
+        });
+    });
+
+    // Tooltips para campos de formulario
+    const camposConTooltip = [
+        { id: 'designacion', tooltip: 'Nombre o identificación del elemento (ej: "Batallón Alpha", "Compañía 1")' },
+        { id: 'dependencia', tooltip: 'Unidad superior o dependencia (ej: "Brigada 1", "División A")' },
+        { id: 'magnitud', tooltip: 'Tamaño de la unidad (ej: "1", "2", "3" para compañía, batallón, regimiento)' },
+        { id: 'designacionEquipo', tooltip: 'Nombre del equipo o grupo (ej: "Pelotón Alfa", "Sección Bravo")' },
+        { id: 'asignacionEquipo', tooltip: 'Unidad a la que pertenece (ej: "Compañía A", "Batallón 1")' }
+    ];
+
+    camposConTooltip.forEach(item => {
+        const campo = document.getElementById(item.id);
+        if (campo) {
+            campo.title = item.tooltip;
+        }
+    });
+}
+
+function inicializarAtajosTeclado() {
+    document.addEventListener('keydown', function(event) {
+        // Solo procesar atajos si hay un panel de edición abierto
+        const panelAbierto = document.querySelector('.panel-edicion-completo.show');
+        if (!panelAbierto) return;
+
+        // Ctrl+Enter: Guardar cambios
+        if (event.ctrlKey && event.key === 'Enter') {
+            event.preventDefault();
+
+            if (panelAbierto.id === 'panelEdicionUnidad') {
+                guardarCambiosUnidad();
+            } else if (panelAbierto.id === 'panelEdicionEquipo') {
+                guardarCambiosEquipo();
+            } else if (panelAbierto.id === 'panelEdicionLinea') {
+                guardarCambiosLinea();
+            } else if (panelAbierto.id === 'panelEdicionMCC') {
+                guardarCambiosMCC(window.elementoSeleccionado, determinarTipoMCC(window.elementoSeleccionado));
+            }
+
+            console.log('🎯 Atajo Ctrl+Enter: Guardando cambios');
+        }
+
+        // Escape: Cerrar panel
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cerrarTodosPaneles();
+            console.log('🎯 Atajo Escape: Cerrando panel');
+        }
+    });
 }
 
 function openTab(evt, tabName) {
@@ -2168,6 +2359,9 @@ function openTab(evt, tabName) {
 // Inicialización cuando el DOM está completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
     inicializarSelectores();
+    inicializarValidacionesTiempoReal(); // ✅ Agregar validaciones en tiempo real
+    inicializarTooltipsInformativos(); // ✅ Agregar tooltips informativos
+    inicializarAtajosTeclado(); // ✅ Agregar atajos de teclado
 
     document.getElementById('arma').addEventListener('change', function() {
         actualizarTipos(this.value);
