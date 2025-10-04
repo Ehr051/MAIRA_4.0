@@ -13,8 +13,8 @@ bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
 # WORKERS OPTIMIZADOS: Usar CPU count pero máximo 4 para evitar sobrecarga
 workers = min(cpu_count, 4)
 
-# WORKER CLASS OPTIMO: gevent para async operations
-worker_class = "gevent"
+# WORKER CLASS OPTIMO: gthread para async operations (sin dependencias externas)
+worker_class = "gthread"
 
 # Conexiones por worker aumentadas
 worker_connections = 1000
@@ -43,13 +43,13 @@ access_log_format = '%(h)s "%(r)s" %(s)s %(b)s in %(D)sµs'
 # Configuración específica para Socket.IO de alto rendimiento
 worker_tmp_dir = "/dev/shm"  # Memoria compartida si disponible
 
-# Configuración avanzada para gevent
-worker_int_class = 'gevent'
+# Configuración avanzada para gthread
+worker_int_class = 'gthread'
 max_requests_per_child = 1000
 
 # Configuración de señales OPTIMIZADA
 def on_starting(server):
-    server.log.info(f"🚀 MAIRA Server starting with {workers} workers (gevent)...")
+    server.log.info(f"🚀 MAIRA Server starting with {workers} workers (gthread)...")
 
 def on_reload(server):
     server.log.info("🔄 MAIRA Server reloading...")
