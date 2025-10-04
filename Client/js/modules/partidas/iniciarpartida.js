@@ -356,6 +356,12 @@ function emitirUnirseAPartida(codigo) {
         // Guardar datos para transición a juegodeguerra.html
         partidaActual = datosPartida;
         
+        // ✅ GUARDAR EN LOCALSTORAGE PARA GESTORJUEGO.JS
+        if (datosPartida && datosPartida.configuracion) {
+            localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
+            console.log('💾 Configuración guardada en localStorage al unirse:', datosPartida.configuracion);
+        }
+        
         // Encontrar el equipo del jugador
         const miJugador = datosPartida.jugadores.find(j => j.id === userId);
         const equipoJugador = miJugador ? miJugador.equipo : null;
@@ -939,6 +945,21 @@ function crearPartidaOnline() {
         clearTimeout(timeoutId); // ✅ Limpiar timeout al recibir respuesta
         console.log('✅ Partida creada exitosamente:', datosPartida);
         partidaActual = datosPartida;
+        
+        // ✅ GUARDAR CONFIGURACIÓN EN LOCALSTORAGE PARA GESTORJUEGO.JS
+        if (datosPartida && datosPartida.configuracion) {
+            localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
+            console.log('💾 Configuración guardada en localStorage:', datosPartida.configuracion);
+            
+            // ✅ TAMBIÉN GUARDAR EN SESSIONSTORAGE PARA CONSISTENCIA
+            sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+                partidaActual: datosPartida,
+                userId: userId,
+                userName: userName,
+                equipoJugador: 'sin_equipo'  // Valor por defecto para partida nueva
+            }));
+            console.log('💾 Datos completos guardados en sessionStorage');
+        }
         
         // Limpiar formulario
         limpiarFormularioCrearPartida();
