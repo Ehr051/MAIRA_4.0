@@ -38,11 +38,11 @@ function inicializarAplicacion() {
     }
     
     // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
-    const userData = MAIRA.UserIdentity.obtenerUsuario();
+    const userData = MAIRA.UserIdentity.getUserData();
     
     if (userData && userData.id) {
         userId = userData.id;
-        userName = userData.nombre;
+        userName = userData.nombre || userData.username;
         
         // Sincronizar con localStorage
         localStorage.setItem('userId', userId);
@@ -263,6 +263,46 @@ function continuarConfiguracionJugadores() {
         document.getElementById('configuracionJugadoresLocal').style.display = 'block';
         actualizarListaJugadoresLocal();
     }
+}
+
+function validarConfiguracionGeneral() {
+    const nombrePartida = document.getElementById('nombrePartidaLocal').value.trim();
+    const duracionPartida = parseInt(document.getElementById('duracionPartidaLocal').value);
+    const duracionTurno = parseInt(document.getElementById('duracionTurnoLocal').value);
+    const objetivoPartida = document.getElementById('objetivoPartidaLocal').value.trim();
+    const cantidadJugadores = parseInt(document.getElementById('cantidadJugadoresLocal').value);
+
+    // Validar nombre de partida
+    if (!nombrePartida || nombrePartida.length < 3) {
+        mostrarError('El nombre de la partida debe tener al menos 3 caracteres');
+        return false;
+    }
+
+    // Validar duración de partida
+    if (!duracionPartida || duracionPartida < 10 || duracionPartida > 480) {
+        mostrarError('La duración de la partida debe estar entre 10 y 480 minutos');
+        return false;
+    }
+
+    // Validar duración del turno
+    if (!duracionTurno || duracionTurno < 1 || duracionTurno > 60) {
+        mostrarError('La duración del turno debe estar entre 1 y 60 minutos');
+        return false;
+    }
+
+    // Validar objetivo de partida
+    if (!objetivoPartida || objetivoPartida.length < 5) {
+        mostrarError('El objetivo de la partida debe tener al menos 5 caracteres');
+        return false;
+    }
+
+    // Validar cantidad de jugadores
+    if (!cantidadJugadores || cantidadJugadores < 2 || cantidadJugadores > 6) {
+        mostrarError('La cantidad de jugadores debe estar entre 2 y 6');
+        return false;
+    }
+
+    return true;
 }
 
 function volverConfiguracionGeneral() {

@@ -62,7 +62,28 @@
                 return;
             }
             
-            // 🔌 CARGAR SOCKET.IO si está disponible  
+            // � INICIALIZAR USER IDENTITY
+            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity) {
+                try {
+                    // Intentar cargar desde storage primero
+                    const userData = MAIRA.UserIdentity.loadFromStorage();
+                    if (userData) {
+                        console.log('✅ UserIdentity cargado desde storage:', userData);
+                    } else {
+                        // Si no hay datos, inicializar con datos básicos
+                        const userId = localStorage.getItem('userId') || 'user_' + Date.now();
+                        const username = localStorage.getItem('username') || 'Usuario';
+                        MAIRA.UserIdentity.initialize(userId, username);
+                        console.log('✅ UserIdentity inicializado con datos básicos');
+                    }
+                } catch(e) {
+                    console.warn('⚠️ Error inicializando UserIdentity:', e);
+                }
+            } else {
+                console.warn('⚠️ UserIdentity no disponible');
+            }
+            
+            // �🔌 CARGAR SOCKET.IO si está disponible  
             if (typeof io !== 'undefined') {
                 try {
                     window.socket = io();
