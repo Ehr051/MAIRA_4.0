@@ -309,19 +309,20 @@ class SistemaTerrenoRealista {
         }
 
         try {
-            // Cargar el tile padre completo
-            const tilePadreData = await this.elevationHandler.getElevationTile(
-                subTile.tilePadre.x,
-                subTile.tilePadre.y,
-                subTile.tilePadre.z
-            );
+            // Cargar datos de elevación directamente para los bounds del sub-tile
+            const elevationData = await this.elevationHandler.cargarDatosElevacion(subTile.bounds);
 
-            if (!tilePadreData || !tilePadreData.elevations) {
+            if (!elevationData || !elevationData.elevations) {
                 return null;
             }
 
-            // Extraer la porción correspondiente al sub-tile
-            const subTileData = this.extraerSubTileDeTilePadre(tilePadreData, subTile);
+            // Los datos ya están en el formato correcto para el sub-tile
+            const subTileData = {
+                elevations: elevationData.elevations,
+                bounds: subTile.bounds,
+                width: elevationData.width || 64, // Asumir tamaño estándar de sub-tile
+                height: elevationData.height || 64
+            };
 
             // Cachear el sub-tile
             if (!this.cacheSubTiles) {
@@ -622,7 +623,7 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * OPTIMIZACIÓN: Obtener datos de vegetación de forma inteligente
+     * 🚀 OPTIMIZACIÓN: Obtener datos de vegetación con SUB-TILES
      */
     async obtenerDatosVegetacionOptimizado(bounds) {
         // Lógica optimizada para obtener vegetación solo donde es necesario
@@ -630,25 +631,23 @@ class SistemaTerrenoRealista {
             areas: []
         };
 
-        // Calcular tiles de vegetación necesarios (menos tiles que elevación)
-        const tiles = this.calcularTilesVegetacionOptimizado(bounds);
+        // 🚀 NUEVO: Calcular SUB-TILES de vegetación necesarios
+        const subTiles = this.calcularSubTilesVegetacion(bounds);
 
-        // Limitar concurrencia para performance
-        const concurrenciaMaxima = 2;
-        for (let i = 0; i < tiles.length; i += concurrenciaMaxima) {
-            const batch = tiles.slice(i, i + concurrenciaMaxima);
-            const promises = batch.map(async (tile) => {
+        console.log(`🌿 Calculando ${subTiles.length} sub-tiles de vegetación necesarios`);
+
+        // Limitar concurrencia para performance (vegetación es menos crítica)
+        const concurrenciaMaxima = 3; // Menos que elevación
+        for (let i = 0; i < subTiles.length; i += concurrenciaMaxima) {
+            const batch = subTiles.slice(i, i + concurrenciaMaxima);
+            const promises = batch.map(async (subTile) => {
                 try {
-                    const tileData = await this.vegetationHandler.getVegetationTile(tile.x, tile.y);
-                    if (tileData) {
-                        return {
-                            ...tile,
-                            ndvi: tileData.ndvi,
-                            tipo: this.clasificarVegetacion(tileData.ndvi)
-                        };
+                    const subTileData = await this.cargarSubTileVegetacion(subTile);
+                    if (subTileData) {
+                        return subTileData;
                     }
                 } catch (error) {
-                    console.warn(`⚠️ Error cargando vegetación tile ${tile.x}_${tile.y}:`, error);
+                    console.warn(`⚠️ Error cargando sub-tile vegetación ${subTile.parentTile}_${subTile.subX}_${subTile.subY}:`, error);
                 }
                 return null;
             });
@@ -658,6 +657,180 @@ class SistemaTerrenoRealista {
         }
 
         return datosVegetacion;
+    }
+
+    /**
+     * 🚀 Calcular sub-tiles de vegetación (misma lógica que elevación)
+     */
+    calcularSubTilesVegetacion(bounds) {
+        const subTiles = [];
+        const subdivision = this.config.tileSubdivision || 4; // Misma subdivisión que elevación
+
+        // Calcular tiles padre de vegetación (más grandes que elevación)
+        const tilesPadre = this.calcularTilesVegetacionOptimizado(bounds);
+
+        // Para cada tile padre, generar sub-tiles
+        for (const tilePadre of tilesPadre) {
+            // Convertir coordenadas del tile padre a bounds geográficos
+            const tileSizeDegrees = 0.02; // Mismo tamaño que antes
+            const tileBounds = {
+                north: (tilePadre.y + 1) * tileSizeDegrees - 90, // Ajuste para coordenadas
+                south: tilePadre.y * tileSizeDegrees - 90,
+                east: (tilePadre.x + 1) * tileSizeDegrees - 180,
+                west: tilePadre.x * tileSizeDegrees - 180
+            };
+
+            const subTileSizeDegrees = tileSizeDegrees / subdivision;
+
+            for (let subY = 0; subY < subdivision; subY++) {
+                for (let subX = 0; subX < subdivision; subX++) {
+                    const subTileBounds = {
+                        north: tileBounds.south + (subY + 1) * subTileSizeDegrees,
+                        south: tileBounds.south + subY * subTileSizeDegrees,
+                        east: tileBounds.west + (subX + 1) * subTileSizeDegrees,
+                        west: tileBounds.west + subX * subTileSizeDegrees
+                    };
+
+                    // Solo incluir sub-tiles que intersecten con bounds objetivo
+                    if (this.boundsIntersectan(subTileBounds, bounds)) {
+                        subTiles.push({
+                            parentTile: `${tilePadre.x}_${tilePadre.y}`,
+                            subX: subX,
+                            subY: subY,
+                            bounds: subTileBounds,
+                            tilePadre: tilePadre
+                        });
+                    }
+                }
+            }
+        }
+
+        return subTiles;
+    }
+
+    /**
+     * 🚀 Cargar un sub-tile específico de vegetación
+     */
+    async cargarSubTileVegetacion(subTile) {
+        // Intentar cargar desde cache primero
+        const cacheKey = `veg_${subTile.parentTile}_${subTile.subX}_${subTile.subY}`;
+        if (this.cacheSubTiles && this.cacheSubTiles.has(cacheKey)) {
+            return this.cacheSubTiles.get(cacheKey);
+        }
+
+        try {
+            // Para vegetación, usamos una aproximación diferente:
+            // Muestreamos puntos NDVI dentro del sub-tile
+            const subTileData = await this.cargarDatosVegetacionSubTile(subTile);
+
+            if (!subTileData) {
+                return null;
+            }
+
+            // Cachear el sub-tile de vegetación
+            if (!this.cacheSubTiles) {
+                this.cacheSubTiles = new Map();
+            }
+            this.cacheSubTiles.set(cacheKey, subTileData);
+
+            return subTileData;
+
+        } catch (error) {
+            console.warn(`⚠️ Error cargando sub-tile vegetación ${cacheKey}:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * 🚀 Cargar datos de vegetación para un sub-tile mediante muestreo optimizado
+     */
+    async cargarDatosVegetacionSubTile(subTile) {
+        if (!this.vegetationHandler || !this.vegetationHandler.getNDVI) {
+            console.warn('⚠️ VegetationHandler no disponible para sub-tile');
+            return null;
+        }
+
+        try {
+            const bounds = subTile.bounds;
+            const sampleSize = 4; // Reducir a 4x4 = 16 puntos para mejor performance
+            const ndvi = [];
+
+            // Calcular espaciado entre muestras
+            const latStep = (bounds.north - bounds.south) / (sampleSize - 1);
+            const lngStep = (bounds.east - bounds.west) / (sampleSize - 1);
+
+            // Muestrear puntos NDVI en paralelo para mejor performance
+            const promises = [];
+            for (let y = 0; y < sampleSize; y++) {
+                for (let x = 0; x < sampleSize; x++) {
+                    const lat = bounds.south + y * latStep;
+                    const lng = bounds.west + x * lngStep;
+                    promises.push(
+                        this.vegetationHandler.getNDVI(lat, lng)
+                            .catch(error => {
+                                console.warn(`⚠️ Error NDVI ${lat},${lng}:`, error);
+                                return 0; // Valor por defecto
+                            })
+                    );
+                }
+            }
+
+            // Esperar todos los resultados en paralelo
+            const results = await Promise.all(promises);
+
+            // Organizar en matriz 2D
+            for (let i = 0; i < results.length; i++) {
+                ndvi.push(results[i] !== null ? results[i] : 0);
+            }
+
+            return {
+                ndvi: ndvi,
+                bounds: bounds,
+                width: sampleSize,
+                height: sampleSize
+            };
+
+        } catch (error) {
+            console.warn('⚠️ Error cargando datos de vegetación para sub-tile:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 🚀 Extraer datos de sub-tile del tile padre de vegetación
+     */
+    extraerSubTileDeTileVegetacion(tilePadreData, subTile) {
+        const subdivision = this.config.tileSubdivision || 4;
+        const tileSize = 256; // Asumir tamaño estándar de tile de vegetación
+        const subTileSize = tileSize / subdivision;
+
+        const ndvi = tilePadreData.ndvi;
+        const subTileNdvi = [];
+
+        // Calcular offsets para el sub-tile dentro del tile padre
+        const offsetY = subTile.subY * subTileSize;
+        const offsetX = subTile.subX * subTileSize;
+
+        // Extraer la porción correspondiente
+        for (let y = 0; y < subTileSize; y++) {
+            for (let x = 0; x < subTileSize; x++) {
+                const padreIndex = (offsetY + y) * tileSize + (offsetX + x);
+                if (padreIndex < ndvi.length) {
+                    subTileNdvi.push(ndvi[padreIndex]);
+                } else {
+                    subTileNdvi.push(0); // Valor por defecto
+                }
+            }
+        }
+
+        // Calcular NDVI promedio del sub-tile
+        const avgNdvi = subTileNdvi.reduce((sum, val) => sum + val, 0) / subTileNdvi.length;
+
+        return {
+            ...subTile,
+            ndvi: avgNdvi,
+            tipo: this.clasificarVegetacion(avgNdvi)
+        };
     }
 
     /**
@@ -1186,12 +1359,13 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * OPTIMIZACIÓN: Obtener estadísticas de performance mejoradas
+     * 🚀 OPTIMIZACIÓN: Obtener estadísticas de performance mejoradas
      */
     obtenerEstadisticasPerformance() {
         const stats = {
             terrenosEnCache: this.cacheTerrenos ? this.cacheTerrenos.size : 0,
-            subTilesEnCache: this.cacheSubTiles ? this.cacheSubTiles.size : 0,
+            subTilesElevacionEnCache: this.contarSubTilesPorTipo('elev'),
+            subTilesVegetacionEnCache: this.contarSubTilesPorTipo('veg'),
             vegetacionInstancias: this.vegetacionMeshes ? this.vegetacionMeshes.reduce((total, mesh) => total + (mesh.count || 0), 0) : 0,
             memoriaEstimada: this.calcularMemoriaEstimada(),
             tiempoPromedioGeneracion: this.calcularTiempoPromedioGeneracion(),
@@ -1199,8 +1373,25 @@ class SistemaTerrenoRealista {
             maxSubTiles: this.config.maxSubTiles || 32
         };
 
-        console.log('📊 Estadísticas de Performance del Terreno (Optimizado):', stats);
+        console.log('📊 Estadísticas de Performance del Terreno (Sub-Tiles Completo):', stats);
         return stats;
+    }
+
+    /**
+     * 🚀 Contar sub-tiles por tipo (elevación vs vegetación)
+     */
+    contarSubTilesPorTipo(tipo) {
+        if (!this.cacheSubTiles) return 0;
+
+        let count = 0;
+        for (const key of this.cacheSubTiles.keys()) {
+            if (tipo === 'elev' && !key.startsWith('veg_')) {
+                count++;
+            } else if (tipo === 'veg' && key.startsWith('veg_')) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
