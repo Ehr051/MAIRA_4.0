@@ -261,6 +261,13 @@ class SistemaTerrenoRealista {
      * 🚀 Calcular sub-tiles necesarios (división granular)
      */
     calcularSubTilesNecesarios(bounds) {
+        // Usar el método del elevationHandler si está disponible
+        if (this.elevationHandler && this.elevationHandler.calcularSubTilesElevacion) {
+            return this.elevationHandler.calcularSubTilesElevacion(bounds);
+        }
+
+        // Fallback: lógica original
+        console.log('⚠️ Usando fallback para calcular sub-tiles de elevación');
         const subTiles = [];
         const subdivision = this.config.tileSubdivision || 4; // 4x4 = 16 sub-tiles por tile
 
@@ -309,18 +316,32 @@ class SistemaTerrenoRealista {
         }
 
         try {
-            // Cargar datos de elevación directamente para los bounds del sub-tile
+            // Usar el método del elevationHandler para cargar sub-tile
+            if (this.elevationHandler && this.elevationHandler.cargarSubTileElevacion) {
+                const subTileData = await this.elevationHandler.cargarSubTileElevacion(subTile);
+
+                if (subTileData) {
+                    // Cachear el sub-tile
+                    if (!this.cacheSubTiles) {
+                        this.cacheSubTiles = new Map();
+                    }
+                    this.cacheSubTiles.set(cacheKey, subTileData);
+                    return subTileData;
+                }
+            }
+
+            // Fallback: usar el método original de cargarDatosElevacion
+            console.log('⚠️ Usando fallback para cargar sub-tile de elevación');
             const elevationData = await this.elevationHandler.cargarDatosElevacion(subTile.bounds);
 
             if (!elevationData || !elevationData.elevations) {
                 return null;
             }
 
-            // Los datos ya están en el formato correcto para el sub-tile
             const subTileData = {
                 elevations: elevationData.elevations,
                 bounds: subTile.bounds,
-                width: elevationData.width || 64, // Asumir tamaño estándar de sub-tile
+                width: elevationData.width || 64,
                 height: elevationData.height || 64
             };
 
@@ -663,6 +684,13 @@ class SistemaTerrenoRealista {
      * 🚀 Calcular sub-tiles de vegetación (misma lógica que elevación)
      */
     calcularSubTilesVegetacion(bounds) {
+        // Usar el método del vegetationHandler si está disponible
+        if (this.vegetationHandler && this.vegetationHandler.calcularSubTilesVegetacion) {
+            return this.vegetationHandler.calcularSubTilesVegetacion(bounds);
+        }
+
+        // Fallback: lógica original
+        console.log('⚠️ Usando fallback para calcular sub-tiles de vegetación');
         const subTiles = [];
         const subdivision = this.config.tileSubdivision || 4; // Misma subdivisión que elevación
 
@@ -719,8 +747,22 @@ class SistemaTerrenoRealista {
         }
 
         try {
-            // Para vegetación, usamos una aproximación diferente:
-            // Muestreamos puntos NDVI dentro del sub-tile
+            // Usar el método del vegetationHandler para cargar sub-tile
+            if (this.vegetationHandler && this.vegetationHandler.cargarSubTileVegetacion) {
+                const subTileData = await this.vegetationHandler.cargarSubTileVegetacion(subTile);
+
+                if (subTileData) {
+                    // Cachear el sub-tile
+                    if (!this.cacheSubTiles) {
+                        this.cacheSubTiles = new Map();
+                    }
+                    this.cacheSubTiles.set(cacheKey, subTileData);
+                    return subTileData;
+                }
+            }
+
+            // Fallback: usar muestreo optimizado
+            console.log('⚠️ Usando fallback para cargar sub-tile de vegetación');
             const subTileData = await this.cargarDatosVegetacionSubTile(subTile);
 
             if (!subTileData) {
@@ -1477,6 +1519,361 @@ class SistemaTerrenoRealista {
         const vegetationMultiplier = this.config.vegetacionDensidad * 200; // ms por densidad
 
         return (baseTime + tileMultiplier + vegetationMultiplier) + ' ms';
+    }
+
+    /**
+     * 🚀 NUEVA: Generar terreno usando handlers optimizados con sub-tiles
+     */
+    async generarTerrenoConHandlersOptimizados(bounds, opciones = {}) {
+        console.log('🏔️ Generando terreno con handlers optimizados...');
+
+        // Usar elevationHandler con sub-tiles si está disponible
+        if (this.elevationHandler?.cargarDatosElevacionOptimizado) {
+            console.log('✅ Usando elevationHandler optimizado con sub-tiles');
+
+            const subTileSize = opciones.subTileSize || 4;
+            const elevationData = await this.elevationHandler.cargarDatosElevacionOptimizado(bounds, {
+                subTileSize: subTileSize,
+                maxSubTiles: opciones.maxSubTiles || 16
+            });
+
+            if (elevationData && elevationData.length > 0) {
+                return this.crearTerrenoDesdeSubTiles(elevationData, bounds, opciones);
+            }
+        }
+
+        // Fallback al método original
+        console.log('🔄 Fallback a método original de sub-tiles');
+        return this.generarTerrenoRealista(bounds, opciones);
+    }
+
+    /**
+     * 🚀 NUEVA: Crear terreno 3D desde datos de sub-tiles
+     */
+    crearTerrenoDesdeSubTiles(subTilesData, bounds, opciones) {
+        console.log(`🎯 Creando terreno desde ${subTilesData.length} sub-tiles`);
+
+        // Combinar todos los sub-tiles en un terreno unificado
+        const geometry = new THREE.PlaneGeometry(
+            bounds.east - bounds.west,
+            bounds.north - bounds.south,
+            256, 256
+        );
+
+        const vertices = geometry.attributes.position.array;
+
+        // Aplicar elevaciones de sub-tiles a la geometría
+        for (let i = 0; i < vertices.length; i += 3) {
+            const x = vertices[i];
+            const z = vertices[i + 2];
+
+            // Convertir coordenadas del plano a coordenadas geográficas
+            const lng = bounds.west + (x / (bounds.east - bounds.west)) * (bounds.east - bounds.west);
+            const lat = bounds.north - (z / (bounds.north - bounds.south)) * (bounds.north - bounds.south);
+
+            // Encontrar el sub-tile correspondiente
+            const subTile = this.encontrarSubTileParaCoordenadas(subTilesData, lat, lng);
+            if (subTile && subTile.data) {
+                const elevation = this.interpolarElevacionEnSubTile(subTile, lat, lng);
+                vertices[i + 1] = elevation * opciones.escalaElevacion || 1;
+            }
+        }
+
+        geometry.attributes.position.needsUpdate = true;
+        geometry.computeVertexNormals();
+
+        const material = new THREE.MeshLambertMaterial({
+            color: opciones.color || 0x8B4513,
+            wireframe: opciones.wireframe || false
+        });
+
+        const terrainMesh = new THREE.Mesh(geometry, material);
+        terrainMesh.rotation.x = -Math.PI / 2;
+
+        return terrainMesh;
+    }
+
+    /**
+     * 🔧 Encontrar sub-tile que contiene las coordenadas dadas
+     */
+    encontrarSubTileParaCoordenadas(subTilesData, lat, lng) {
+        return subTilesData.find(subTile => {
+            const bounds = subTile.bounds;
+            return lat >= bounds.south && lat <= bounds.north &&
+                   lng >= bounds.west && lng <= bounds.east;
+        });
+    }
+
+    /**
+     * 🔧 Interpolar elevación dentro de un sub-tile
+     */
+    interpolarElevacionEnSubTile(subTile, lat, lng) {
+        const bounds = subTile.bounds;
+        const data = subTile.data.elevations;
+        const width = subTile.data.width;
+        const height = subTile.data.height;
+
+        // Convertir coordenadas geográficas a índices del array
+        const x = ((lng - bounds.west) / (bounds.east - bounds.west)) * (width - 1);
+        const y = ((bounds.north - lat) / (bounds.north - bounds.south)) * (height - 1);
+
+        const x0 = Math.floor(x);
+        const y0 = Math.floor(y);
+        const x1 = Math.min(x0 + 1, width - 1);
+        const y1 = Math.min(y0 + 1, height - 1);
+
+        // Bilinear interpolation
+        const q00 = data[y0 * width + x0] || 0;
+        const q01 = data[y0 * width + x1] || 0;
+        const q10 = data[y1 * width + x0] || 0;
+        const q11 = data[y1 * width + x1] || 0;
+
+        const fx = x - x0;
+        const fy = y - y0;
+
+        return (q00 * (1 - fx) * (1 - fy) +
+                q01 * fx * (1 - fy) +
+                q10 * (1 - fx) * fy +
+                q11 * fx * fy);
+    }
+
+    /**
+     * 🚀 NUEVA: Generar vegetación usando VegetacionHandler optimizado
+     */
+    async generarVegetacionConHandlerOptimizado(bounds, opciones = {}) {
+        console.log('🌿 Generando vegetación con handler optimizado...');
+
+        // Verificar si VegetacionHandler está disponible
+        if (typeof VegetacionHandler !== 'undefined' && VegetacionHandler.cargarDatosVegetacion) {
+            console.log('✅ Usando VegetacionHandler optimizado');
+
+            try {
+                const vegetacionData = await VegetacionHandler.cargarDatosVegetacion(bounds, {
+                    incluirNDVI: opciones.incluirNDVI || true,
+                    calidad: opciones.calidad || 'media',
+                    maxTiles: opciones.maxTiles || 8
+                });
+
+                if (vegetacionData && vegetacionData.length > 0) {
+                    return this.crearVegetacionDesdeTiles(vegetacionData, bounds, opciones);
+                }
+            } catch (error) {
+                console.warn('⚠️ Error usando VegetacionHandler optimizado:', error);
+            }
+        }
+
+        // Fallback al método original
+        console.log('🔄 Fallback a método original de vegetación');
+        return this.generarVegetacionRealista(bounds, opciones);
+    }
+
+    /**
+     * 🚀 NUEVA: Crear vegetación 3D desde tiles optimizados
+     */
+    crearVegetacionDesdeTiles(tilesData, bounds, opciones) {
+        console.log(`🌱 Creando vegetación desde ${tilesData.length} tiles`);
+
+        const vegetacionGroup = new THREE.Group();
+
+        tilesData.forEach(tile => {
+            if (tile.ndvi && tile.ndvi.length > 0) {
+                const tileVegetacion = this.crearVegetacionParaTile(tile, opciones);
+                if (tileVegetacion) {
+                    vegetacionGroup.add(tileVegetacion);
+                }
+            }
+        });
+
+        return vegetacionGroup;
+    }
+
+    /**
+     * 🔧 Crear vegetación para un tile específico
+     */
+    crearVegetacionParaTile(tile, opciones) {
+        const tileGroup = new THREE.Group();
+        const bounds = tile.bounds;
+        const ndvi = tile.ndvi;
+        const width = tile.width || 256;
+        const height = tile.height || 256;
+
+        // Crear vegetación basada en NDVI
+        for (let y = 0; y < height; y += opciones.densidad || 8) {
+            for (let x = 0; x < width; x += opciones.densidad || 8) {
+                const index = y * width + x;
+                const ndviValue = ndvi[index];
+
+                if (ndviValue && ndviValue > opciones.umbralNDVI || 0.3) {
+                    // Convertir coordenadas del tile a coordenadas geográficas
+                    const lng = bounds.west + (x / width) * (bounds.east - bounds.west);
+                    const lat = bounds.north - (y / height) * (bounds.north - bounds.south);
+
+                    // Crear instancia de vegetación
+                    const vegetacionMesh = this.crearInstanciaVegetacion(lat, lng, ndviValue, opciones);
+                    if (vegetacionMesh) {
+                        tileGroup.add(vegetacionMesh);
+                    }
+                }
+            }
+        }
+
+        return tileGroup.children.length > 0 ? tileGroup : null;
+    }
+
+    /**
+     * 🔧 Crear instancia individual de vegetación
+     */
+    crearInstanciaVegetacion(lat, lng, ndviValue, opciones) {
+        // Determinar tipo de vegetación basado en NDVI
+        const tipoVegetacion = this.determinarTipoVegetacion(ndviValue);
+
+        // Crear geometría básica
+        let geometry, material;
+
+        switch (tipoVegetacion) {
+            case 'arbol':
+                geometry = new THREE.ConeGeometry(0.5, 2, 8);
+                material = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+                break;
+            case 'arbusto':
+                geometry = new THREE.SphereGeometry(0.3, 6, 6);
+                material = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+                break;
+            case 'hierba':
+                geometry = new THREE.PlaneGeometry(0.2, 0.2);
+                material = new THREE.MeshLambertMaterial({
+                    color: 0x90EE90,
+                    side: THREE.DoubleSide
+                });
+                break;
+            default:
+                return null;
+        }
+
+        const mesh = new THREE.Mesh(geometry, material);
+
+        // Posicionar en coordenadas geográficas
+        mesh.position.set(lng, 0, lat);
+
+        // Escalar basado en NDVI
+        const escala = 0.5 + ndviValue * 0.5;
+        mesh.scale.setScalar(escala);
+
+        return mesh;
+    }
+
+    /**
+     * 🔧 Determinar tipo de vegetación basado en NDVI
+     */
+    determinarTipoVegetacion(ndviValue) {
+        if (ndviValue > 0.7) return 'arbol';
+        if (ndviValue > 0.5) return 'arbusto';
+        return 'hierba';
+    }
+
+    /**
+     * 🚀 NUEVA: Procesar sub-tiles usando worker optimizado
+     */
+    async procesarSubTilesConWorker(bounds, opciones = {}) {
+        console.log('⚡ Procesando sub-tiles con worker optimizado...');
+
+        if (!this.elevationWorker) {
+            console.warn('⚠️ Worker de elevación no disponible');
+            return null;
+        }
+
+        const subTileSize = opciones.subTileSize || 4;
+        const subTiles = this.calcularSubTilesParaBounds(bounds, subTileSize);
+
+        console.log(`📦 Procesando ${subTiles.length} sub-tiles en paralelo`);
+
+        // Enviar mensaje al worker para procesar sub-tiles
+        const workerPromise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject(new Error('Timeout procesando sub-tiles en worker'));
+            }, 30000); // 30 segundos timeout
+
+            const messageHandler = (event) => {
+                if (event.data.type === 'SUB_TILES_LOADED') {
+                    clearTimeout(timeout);
+                    this.elevationWorker.removeEventListener('message', messageHandler);
+                    resolve(event.data.subTilesData);
+                } else if (event.data.type === 'ERROR') {
+                    clearTimeout(timeout);
+                    this.elevationWorker.removeEventListener('message', messageHandler);
+                    reject(new Error(event.data.error));
+                }
+            };
+
+            this.elevationWorker.addEventListener('message', messageHandler);
+
+            // Enviar mensaje al worker
+            this.elevationWorker.postMessage({
+                type: 'LOAD_SUB_TILES',
+                bounds: bounds,
+                subTiles: subTiles,
+                opciones: opciones
+            });
+        });
+
+        try {
+            const subTilesData = await workerPromise;
+            console.log(`✅ Worker procesó ${subTilesData.length} sub-tiles exitosamente`);
+            return subTilesData;
+        } catch (error) {
+            console.error('❌ Error procesando sub-tiles en worker:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 🚀 NUEVA: Método unificado para generar terreno completo con optimizaciones
+     */
+    async generarTerrenoCompletoOptimizado(bounds, opciones = {}) {
+        console.log('🌍 Generando terreno completo optimizado...');
+
+        const startTime = performance.now();
+
+        try {
+            // 1. Procesar elevación con worker si disponible
+            let elevationData = null;
+            if (this.elevationWorker) {
+                elevationData = await this.procesarSubTilesConWorker(bounds, opciones);
+            }
+
+            // 2. Si no hay worker, usar elevationHandler optimizado
+            if (!elevationData && this.elevationHandler?.cargarDatosElevacionOptimizado) {
+                elevationData = await this.elevationHandler.cargarDatosElevacionOptimizado(bounds, opciones);
+            }
+
+            // 3. Fallback al método original
+            if (!elevationData) {
+                console.log('🔄 Usando método original para elevación');
+                elevationData = await this.generarTerrenoRealista(bounds, opciones);
+                return elevationData; // Retornar mesh directamente
+            }
+
+            // 4. Crear terreno desde sub-tiles
+            const terrenoMesh = this.crearTerrenoDesdeSubTiles(elevationData, bounds, opciones);
+
+            // 5. Agregar vegetación si está habilitada
+            if (opciones.incluirVegetacion) {
+                const vegetacionGroup = await this.generarVegetacionConHandlerOptimizado(bounds, opciones);
+                if (vegetacionGroup) {
+                    terrenoMesh.add(vegetacionGroup);
+                }
+            }
+
+            const endTime = performance.now();
+            console.log(`✅ Terreno completo generado en ${(endTime - startTime).toFixed(2)}ms`);
+
+            return terrenoMesh;
+
+        } catch (error) {
+            console.error('❌ Error generando terreno completo optimizado:', error);
+            // Fallback completo al método original
+            return this.generarTerrenoRealista(bounds, opciones);
+        }
     }
 }
 

@@ -363,6 +363,202 @@ class VegetacionHandler {
         }
     }
 
+    /**
+     * 🚀 Cargar datos de vegetación para un área completa (equivalente a cargarDatosElevacion)
+     */
+    async cargarDatosVegetacion(bounds) {
+        console.log(`🌿 Cargando datos de vegetación para bounds:`, bounds);
+
+        // Encontrar tile que cubre el área
+        const tileInfo = this.getTileForBounds(bounds);
+        if (!tileInfo) {
+            console.warn('⚠️ No se encontró tile de vegetación para el área');
+            return null;
+        }
+
+        // Cargar tile completo
+        const tileData = await this.loadTile(tileInfo);
+        if (!tileData) {
+            console.warn('⚠️ No se pudo cargar tile de vegetación');
+            return null;
+        }
+
+        return {
+            ndvi: this.extractNDVIFromTile(tileData, bounds),
+            bounds: bounds,
+            tileInfo: tileInfo
+        };
+    }
+
+    /**
+     * 🔧 Encontrar tile que cubre un área completa
+     */
+    getTileForBounds(bounds) {
+        if (this.vegetationIndex && this.vegetationIndex.batches) {
+            for (const batch of this.vegetationIndex.batches) {
+                if (batch.tiles) {
+                    for (const tile of batch.tiles) {
+                        // Verificar si el tile cubre completamente el bounds solicitado
+                        if (tile.bounds.north >= bounds.north &&
+                            tile.bounds.south <= bounds.south &&
+                            tile.bounds.east >= bounds.east &&
+                            tile.bounds.west <= bounds.west) {
+                            return {
+                                ...tile,
+                                batch: batch.name
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback: usar el centro del bounds
+        const centerLat = (bounds.north + bounds.south) / 2;
+        const centerLng = (bounds.east + bounds.west) / 2;
+        return this.getTileForCoordinates(centerLat, centerLng);
+    }
+
+    /**
+     * 🚀 Extraer NDVI para un área completa del tile
+     */
+    extractNDVIFromTile(tileData, bounds) {
+        // Crear una cuadrícula de puntos dentro del bounds
+        const sampleSize = 16; // 16x16 = 256 puntos
+        const ndvi = [];
+
+        const latStep = (bounds.north - bounds.south) / (sampleSize - 1);
+        const lngStep = (bounds.east - bounds.west) / (sampleSize - 1);
+
+        for (let y = 0; y < sampleSize; y++) {
+            for (let x = 0; x < sampleSize; x++) {
+                const lat = bounds.south + y * latStep;
+                const lng = bounds.west + x * lngStep;
+
+                const ndviValue = this.extractNDVIFromTile(tileData, lat, lng, this.getTileForCoordinates(lat, lng));
+                ndvi.push(ndviValue !== null ? ndviValue : 0);
+            }
+        }
+
+        return ndvi;
+    }
+
+    /**
+     * 🚀 MÉTODOS PARA SISTEMA DE SUB-TILES - VEGETATION HANDLER
+     */
+
+    /**
+     * Cargar datos de vegetación para un sub-tile específico
+     * @param {Object} subTile - Información del sub-tile {bounds, subX, subY, parentTile}
+     * @returns {Promise<Object|null>} Datos del sub-tile o null si falla
+     */
+    async cargarSubTileVegetacion(subTile) {
+        try {
+            console.log(`🌿 VegetationHandler: Cargando sub-tile ${subTile.subX}_${subTile.subY} para bounds:`, subTile.bounds);
+
+            // Usar el método existente cargarDatosVegetacion con los bounds del sub-tile
+            const vegetationData = await this.cargarDatosVegetacion(subTile.bounds);
+
+            if (!vegetationData || !vegetationData.ndvi) {
+                console.warn(`⚠️ VegetationHandler: No se pudieron cargar datos para sub-tile ${subTile.subX}_${subTile.subY}`);
+                return null;
+            }
+
+            // Retornar en el formato esperado por el sistema de sub-tiles
+            return {
+                ndvi: vegetationData.ndvi,
+                bounds: subTile.bounds,
+                width: Math.sqrt(vegetationData.ndvi.length), // Asumir cuadrado
+                height: Math.sqrt(vegetationData.ndvi.length),
+                tileInfo: vegetationData.tileInfo
+            };
+
+        } catch (error) {
+            console.error(`❌ VegetationHandler: Error cargando sub-tile ${subTile.subX}_${subTile.subY}:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * Calcular sub-tiles necesarios para una región de vegetación
+     * @param {Object} bounds - Bounds de la región {north, south, east, west}
+     * @param {Object} opciones - Opciones de subdivisión {subdivision: 4}
+     * @returns {Array} Array de sub-tiles con sus bounds
+     */
+    calcularSubTilesVegetacion(bounds, opciones = {}) {
+        const subdivision = opciones.subdivision || 4; // 4x4 = 16 sub-tiles
+        const subTiles = [];
+
+        // Calcular tiles padre (simplificado para vegetation)
+        const tileSize = 0.02; // Tiles más grandes para vegetación
+        const tilesPadre = [];
+
+        const minLat = Math.floor(bounds.south / tileSize);
+        const maxLat = Math.ceil(bounds.north / tileSize);
+        const minLng = Math.floor(bounds.west / tileSize);
+        const maxLng = Math.ceil(bounds.east / tileSize);
+
+        for (let lat = minLat; lat <= maxLat; lat++) {
+            for (let lng = minLng; lng <= maxLng; lng++) {
+                const tileBounds = {
+                    north: (lat + 1) * tileSize,
+                    south: lat * tileSize,
+                    east: (lng + 1) * tileSize,
+                    west: lng * tileSize
+                };
+
+                // Solo incluir tiles que intersecten con bounds objetivo
+                if (this.boundsIntersectan(tileBounds, bounds)) {
+                    tilesPadre.push({
+                        x: lng,
+                        y: lat,
+                        bounds: tileBounds
+                    });
+                }
+            }
+        }
+
+        // Para cada tile padre, generar sub-tiles
+        for (const tilePadre of tilesPadre) {
+            const subTileSizeDegrees = (tilePadre.bounds.north - tilePadre.bounds.south) / subdivision;
+            const subTileSizeLngDegrees = (tilePadre.bounds.east - tilePadre.bounds.west) / subdivision;
+
+            for (let subY = 0; subY < subdivision; subY++) {
+                for (let subX = 0; subX < subdivision; subX++) {
+                    const subTileBounds = {
+                        north: tilePadre.bounds.south + (subY + 1) * subTileSizeDegrees,
+                        south: tilePadre.bounds.south + subY * subTileSizeDegrees,
+                        east: tilePadre.bounds.west + (subX + 1) * subTileSizeLngDegrees,
+                        west: tilePadre.bounds.west + subX * subTileSizeLngDegrees
+                    };
+
+                    // Solo incluir sub-tiles que intersecten con bounds objetivo
+                    if (this.boundsIntersectan(subTileBounds, bounds)) {
+                        subTiles.push({
+                            parentTile: `${tilePadre.x}_${tilePadre.y}`,
+                            subX: subX,
+                            subY: subY,
+                            bounds: subTileBounds,
+                            tilePadre: tilePadre
+                        });
+                    }
+                }
+            }
+        }
+
+        console.log(`🌿 VegetationHandler: Calculados ${subTiles.length} sub-tiles de vegetación`);
+        return subTiles;
+    }
+
+    /**
+     * Función auxiliar para verificar intersección de bounds
+     */
+    boundsIntersectan(bounds1, bounds2) {
+        return !(bounds1.west > bounds2.east ||
+                 bounds1.east < bounds2.west ||
+                 bounds1.south > bounds2.north ||
+                 bounds1.north < bounds2.south);
+    }
 }
 
 // Exportar para uso global
@@ -373,7 +569,13 @@ if (typeof window !== 'undefined') {
     if (!window.vegetationHandler) {
         window.vegetationHandler = new VegetacionHandler();
         window.vegetacionHandler = window.vegetationHandler; // Alias en español para compatibilidad
-        console.log('🌿 VegetationHandler inicializado automáticamente');
+
+        // ✅ Agregar métodos adicionales al handler global
+        window.vegetationHandler.cargarDatosVegetacion = VegetacionHandler.prototype.cargarDatosVegetacion.bind(window.vegetationHandler);
+        window.vegetationHandler.cargarSubTileVegetacion = VegetacionHandler.prototype.cargarSubTileVegetacion.bind(window.vegetationHandler);
+        window.vegetationHandler.calcularSubTilesVegetacion = VegetacionHandler.prototype.calcularSubTilesVegetacion.bind(window.vegetationHandler);
+
+        console.log('🌿 VegetationHandler inicializado automáticamente con métodos extendidos');
     }
 }
 

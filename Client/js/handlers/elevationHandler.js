@@ -278,7 +278,7 @@ async function extractVegetationTileFromRelease(tileInfo) {
     // URLs posibles para vegetación en Release v4.0
     const vegetationUrls = [
       `${ELEVATION_HANDLERS_GITHUB_BASE}/vegetacion/${tileInfo.filename}`,
-      `${ELEVATION_HANDLERS_GITHUB_BASE}/vegetation/${tileInfo.filename}`,
+      `${ELEVATION_HANDLERS_GITHUB_BASE}/vegetacion/${tileInfo.filename}`,
       `${ELEVATION_HANDLERS_GITHUB_BASE}/maira_vegetacion_tiles.tar.gz` // Fallback a tar.gz
     ];
     
@@ -552,7 +552,7 @@ async function buscarTileEnProvincias(bounds) {
       let provincialUrl;
       
       // Intentar URL local primero
-      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
+      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/index.json`;
       
       console.log(`📡 Cargando índice provincial desde: ${provincialUrl}`);
       
@@ -573,7 +573,7 @@ async function buscarTileEnProvincias(bounds) {
       } catch (localError) {
         // Si falla local, intentar GitHub CDN
         console.log(`⚠️ Error con URL local, intentando GitHub CDN...`);
-        provincialUrl = `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
+        provincialUrl = `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/index.json`;
         
         const response = await fetch(provincialUrl);
         if (!response.ok) {
@@ -819,6 +819,128 @@ function obtenerEstadoSistema() {
   };
 }
 
+/**
+ * 🚀 MÉTODOS PARA SISTEMA DE SUB-TILES - ELEVATION HANDLER
+ * Extensión del elevationHandler para manejar sub-tiles eficientemente
+ */
+
+/**
+ * Cargar datos de elevación para un sub-tile específico
+ * @param {Object} subTile - Información del sub-tile {bounds, subX, subY, parentTile}
+ * @returns {Promise<Object|null>} Datos del sub-tile o null si falla
+ */
+async function cargarSubTileElevacion(subTile) {
+  try {
+    console.log(`🏔️ ElevationHandler: Cargando sub-tile ${subTile.subX}_${subTile.subY} para bounds:`, subTile.bounds);
+
+    // Usar el método existente cargarDatosElevacion con los bounds del sub-tile
+    const elevationData = await cargarDatosElevacion(subTile.bounds);
+
+    if (!elevationData || !elevationData.data) {
+      console.warn(`⚠️ ElevationHandler: No se pudieron cargar datos para sub-tile ${subTile.subX}_${subTile.subY}`);
+      return null;
+    }
+
+    // Retornar en el formato esperado por el sistema de sub-tiles
+    return {
+      elevations: elevationData.data,
+      bounds: subTile.bounds,
+      width: elevationData.width,
+      height: elevationData.height,
+      metadata: {
+        tiepoint: elevationData.tiepoint,
+        scale: elevationData.scale
+      }
+    };
+
+  } catch (error) {
+    console.error(`❌ ElevationHandler: Error cargando sub-tile ${subTile.subX}_${subTile.subY}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Calcular sub-tiles necesarios para una región de elevación
+ * @param {Object} bounds - Bounds de la región {north, south, east, west}
+ * @param {Object} opciones - Opciones de subdivisión {subdivision: 4}
+ * @returns {Array} Array de sub-tiles con sus bounds
+ */
+function calcularSubTilesElevacion(bounds, opciones = {}) {
+  const subdivision = opciones.subdivision || 4; // 4x4 = 16 sub-tiles
+  const subTiles = [];
+
+  // Calcular tiles padre primero (simplificado para elevation)
+  const tileSize = 0.01; // Aproximadamente 1km x 1km
+  const tilesPadre = [];
+
+  const minLat = Math.floor(bounds.south / tileSize);
+  const maxLat = Math.ceil(bounds.north / tileSize);
+  const minLng = Math.floor(bounds.west / tileSize);
+  const maxLng = Math.ceil(bounds.east / tileSize);
+
+  for (let lat = minLat; lat <= maxLat; lat++) {
+    for (let lng = minLng; lng <= maxLng; lng++) {
+      const tileBounds = {
+        north: (lat + 1) * tileSize,
+        south: lat * tileSize,
+        east: (lng + 1) * tileSize,
+        west: lng * tileSize
+      };
+
+      // Solo incluir tiles que intersecten con bounds objetivo
+      if (boundsIntersectan(tileBounds, bounds)) {
+        tilesPadre.push({
+          x: lng,
+          y: lat,
+          z: 12, // Nivel de zoom fijo para mini-tiles
+          bounds: tileBounds
+        });
+      }
+    }
+  }
+
+  // Para cada tile padre, generar sub-tiles
+  for (const tilePadre of tilesPadre) {
+    const subTileSizeDegrees = (tilePadre.bounds.north - tilePadre.bounds.south) / subdivision;
+    const subTileSizeLngDegrees = (tilePadre.bounds.east - tilePadre.bounds.west) / subdivision;
+
+    for (let subY = 0; subY < subdivision; subY++) {
+      for (let subX = 0; subX < subdivision; subX++) {
+        const subTileBounds = {
+          north: tilePadre.bounds.south + (subY + 1) * subTileSizeDegrees,
+          south: tilePadre.bounds.south + subY * subTileSizeDegrees,
+          east: tilePadre.bounds.west + (subX + 1) * subTileSizeLngDegrees,
+          west: tilePadre.bounds.west + subX * subTileSizeLngDegrees
+        };
+
+        // Solo incluir sub-tiles que intersecten con bounds objetivo
+        if (boundsIntersectan(subTileBounds, bounds)) {
+          subTiles.push({
+            parentTile: `${tilePadre.x}_${tilePadre.y}_${tilePadre.z}`,
+            subX: subX,
+            subY: subY,
+            bounds: subTileBounds,
+            tilePadre: tilePadre
+          });
+        }
+      }
+    }
+  }
+
+  console.log(`🏔️ ElevationHandler: Calculados ${subTiles.length} sub-tiles de elevación`);
+  return subTiles;
+}
+
+/**
+ * Función auxiliar para verificar intersección de bounds
+ */
+function boundsIntersectan(bounds1, bounds2) {
+  return !(bounds1.west > bounds2.east ||
+           bounds1.east < bounds2.west ||
+           bounds1.south > bounds2.north ||
+           bounds1.north < bounds2.south);
+}
+
 async function calcularPerfilElevacion(ruta) {
   try {
     console.log('Calculando perfil de elevación para la ruta:', ruta);
@@ -928,6 +1050,9 @@ async function procesarDatosElevacion(puntosInterpolados) {
 // Exponer funciones necesarias en el objeto global
 window.elevationHandler = {
   cargarDatosElevacion,
+  cargarDatosElevacionOptimizado, // ✅ NUEVO: Con sub-tiles
+  cargarSubTileElevacion, // ✅ NUEVO: Para sistema de sub-tiles
+  calcularSubTilesElevacion, // ✅ NUEVO: Para sistema de sub-tiles
   inicializarDatosElevacion,
   procesarDatosElevacion,
   calcularPerfilElevacion,
@@ -1034,6 +1159,73 @@ async function extractFileFromTar(tarData, targetFilename) {
     console.error('❌ Error extrayendo de TAR:', error);
     return null;
   }
+}
+
+
+/**
+ * 🚀 Cargar datos de elevación con soporte para sub-tiles
+ * Si se especifica subTileSize, divide el área en sub-tiles para optimización
+ */
+async function cargarDatosElevacionOptimizado(bounds, opciones = {}) {
+    const { subTileSize = null, maxSubTiles = 16 } = opciones;
+
+    // Si no se solicita sub-tiles, usar método normal
+    if (!subTileSize) {
+        return await cargarDatosElevacion(bounds);
+    }
+
+    console.log(`🎯 Cargando elevación con sub-tiles (${subTileSize}x${subTileSize})`);
+
+    // Calcular sub-tiles necesarios
+    const subTiles = calcularSubTilesParaBounds(bounds, subTileSize, maxSubTiles);
+    const subTileData = [];
+
+    // Cargar sub-tiles en paralelo
+    const promises = subTiles.map(async (subTile) => {
+        try {
+            const data = await cargarDatosElevacion(subTile.bounds);
+            return {
+                ...subTile,
+                data: data
+            };
+        } catch (error) {
+            console.warn(`⚠️ Error cargando sub-tile:`, error);
+            return null;
+        }
+    });
+
+    const results = await Promise.all(promises);
+    return results.filter(result => result !== null);
+}
+
+/**
+ * 🔧 Calcular sub-tiles para un área geográfica
+ */
+function calcularSubTilesParaBounds(bounds, subTileSize, maxSubTiles) {
+    const subTiles = [];
+    const latStep = (bounds.north - bounds.south) / subTileSize;
+    const lngStep = (bounds.east - bounds.west) / subTileSize;
+
+    let count = 0;
+    for (let lat = 0; lat < subTileSize && count < maxSubTiles; lat++) {
+        for (let lng = 0; lng < subTileSize && count < maxSubTiles; lng++) {
+            const subBounds = {
+                north: bounds.south + (lat + 1) * latStep,
+                south: bounds.south + lat * latStep,
+                east: bounds.west + (lng + 1) * lngStep,
+                west: bounds.west + lng * lngStep
+            };
+
+            subTiles.push({
+                x: lng,
+                y: lat,
+                bounds: subBounds
+            });
+            count++;
+        }
+    }
+
+    return subTiles;
 }
 
 
