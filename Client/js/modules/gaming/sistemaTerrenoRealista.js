@@ -12,6 +12,7 @@ class SistemaTerrenoRealista {
         this.terrenoMesh = null;
         this.vegetacionMeshes = [];
         this.cacheTerrenos = new Map();
+        this.cacheSubTiles = new Map(); // 🚀 Cache para sub-tiles
 
         // Configuración del terreno
         this.config = {
@@ -20,7 +21,14 @@ class SistemaTerrenoRealista {
             alturaExageracion: 2.0, // Factor de exageración vertical
             maxCacheTerrenos: 10, // Máximo terrenos en cache
             vegetacionDensidad: 0.3, // Densidad de vegetación (0-1)
-            lodLevels: 4 // Niveles de detalle
+            lodLevels: 4, // Niveles de detalle
+
+            // 🚀 OPTIMIZACIÓN: Sistema de sub-tiles
+            subTileSize: 64, // Tamaño de sub-tile en pixels (256/4 = 64)
+            maxSubTiles: 32, // Máximo sub-tiles a cargar simultáneamente
+            tileSubdivision: 4, // Dividir cada tile en 4x4 = 16 sub-tiles
+            preloadAdjacent: true, // Precargar tiles adyacentes
+            adaptiveResolution: true // Ajustar resolución según distancia
         };
 
         this.init();
@@ -193,7 +201,8 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * OPTIMIZACIÓN: Obtener tiles de elevación de forma inteligente
+     * 🚀 OPTIMIZACIÓN: Sistema de sub-tiles para carga granular
+     * Divide tiles grandes en sub-tiles más pequeños para mejor performance
      */
     async obtenerTilesElevacionOptimizado(bounds) {
         if (!this.elevationHandler) {
@@ -202,53 +211,178 @@ class SistemaTerrenoRealista {
         }
 
         try {
-            // Calcular qué tiles necesitamos con optimización
-            const tiles = this.calcularTilesNecesariosOptimizado(bounds);
+            // Calcular sub-tiles necesarios (más granulares)
+            const subTiles = this.calcularSubTilesNecesarios(bounds);
 
-            console.log(`🎯 Calculando ${tiles.length} tiles necesarios para bounds optimizados`);
+            console.log(`🎯 Calculando ${subTiles.length} sub-tiles necesarios para bounds optimizados`);
 
-            // Limitar número máximo de tiles para performance
-            const maxTiles = this.config.maxTiles || 16;
-            const tilesLimitados = tiles.slice(0, maxTiles);
+            // Limitar número máximo de sub-tiles para performance
+            const maxSubTiles = this.config.maxSubTiles || 32;
+            const subTilesLimitados = subTiles.slice(0, maxSubTiles);
 
-            if (tiles.length > maxTiles) {
-                console.warn(`⚠️ Limitando de ${tiles.length} a ${maxTiles} tiles para performance`);
+            if (subTiles.length > maxSubTiles) {
+                console.warn(`⚠️ Limitando de ${subTiles.length} a ${maxSubTiles} sub-tiles para performance`);
             }
 
-            const tilesData = [];
-            let tilesCargados = 0;
+            const subTilesData = [];
+            let subTilesCargados = 0;
 
-            // Cargar tiles con límite de concurrencia
-            const concurrenciaMaxima = 4;
-            for (let i = 0; i < tilesLimitados.length; i += concurrenciaMaxima) {
-                const batch = tilesLimitados.slice(i, i + concurrenciaMaxima);
-                const promises = batch.map(async (tile) => {
+            // Cargar sub-tiles con concurrencia optimizada
+            const concurrenciaMaxima = 6; // Más concurrencia para sub-tiles pequeños
+            for (let i = 0; i < subTilesLimitados.length; i += concurrenciaMaxima) {
+                const batch = subTilesLimitados.slice(i, i + concurrenciaMaxima);
+                const promises = batch.map(async (subTile) => {
                     try {
-                        const tileData = await this.elevationHandler.getElevationTile(tile.x, tile.y, tile.z);
-                        if (tileData) {
-                            tilesCargados++;
-                            return {
-                                ...tile,
-                                data: tileData
-                            };
+                        const subTileData = await this.cargarSubTileElevacion(subTile);
+                        if (subTileData) {
+                            subTilesCargados++;
+                            return subTileData;
                         }
                     } catch (error) {
-                        console.warn(`⚠️ Error cargando tile ${tile.x}_${tile.y}:`, error);
+                        console.warn(`⚠️ Error cargando sub-tile ${subTile.parentTile}_${subTile.subX}_${subTile.subY}:`, error);
                     }
                     return null;
                 });
 
                 const batchResults = await Promise.all(promises);
-                tilesData.push(...batchResults.filter(tile => tile !== null));
+                subTilesData.push(...batchResults.filter(subTile => subTile !== null));
             }
 
-            console.log(`✅ ${tilesCargados} tiles de elevación cargados`);
-            return tilesData;
+            console.log(`✅ ${subTilesCargados} sub-tiles de elevación cargados`);
+            return subTilesData;
 
         } catch (error) {
-            console.error('❌ Error obteniendo tiles de elevación:', error);
+            console.error('❌ Error obteniendo sub-tiles de elevación:', error);
             return [];
         }
+    }
+
+    /**
+     * 🚀 Calcular sub-tiles necesarios (división granular)
+     */
+    calcularSubTilesNecesarios(bounds) {
+        const subTiles = [];
+        const subdivision = this.config.tileSubdivision || 4; // 4x4 = 16 sub-tiles por tile
+
+        // Calcular tiles padre primero
+        const tilesPadre = this.calcularTilesNecesariosOptimizado(bounds);
+
+        // Para cada tile padre, generar sub-tiles
+        for (const tilePadre of tilesPadre) {
+            const subTileSizeDegrees = (tilePadre.bounds.north - tilePadre.bounds.south) / subdivision;
+            const subTileSizeLngDegrees = (tilePadre.bounds.east - tilePadre.bounds.west) / subdivision;
+
+            for (let subY = 0; subY < subdivision; subY++) {
+                for (let subX = 0; subX < subdivision; subX++) {
+                    const subTileBounds = {
+                        north: tilePadre.bounds.south + (subY + 1) * subTileSizeDegrees,
+                        south: tilePadre.bounds.south + subY * subTileSizeDegrees,
+                        east: tilePadre.bounds.west + (subX + 1) * subTileSizeLngDegrees,
+                        west: tilePadre.bounds.west + subX * subTileSizeLngDegrees
+                    };
+
+                    // Solo incluir sub-tiles que intersecten con bounds objetivo
+                    if (this.boundsIntersectan(subTileBounds, bounds)) {
+                        subTiles.push({
+                            parentTile: `${tilePadre.x}_${tilePadre.y}_${tilePadre.z}`,
+                            subX: subX,
+                            subY: subY,
+                            bounds: subTileBounds,
+                            tilePadre: tilePadre
+                        });
+                    }
+                }
+            }
+        }
+
+        return subTiles;
+    }
+
+    /**
+     * 🚀 Cargar un sub-tile específico de elevación
+     */
+    async cargarSubTileElevacion(subTile) {
+        // Intentar cargar desde cache primero
+        const cacheKey = `${subTile.parentTile}_${subTile.subX}_${subTile.subY}`;
+        if (this.cacheSubTiles && this.cacheSubTiles.has(cacheKey)) {
+            return this.cacheSubTiles.get(cacheKey);
+        }
+
+        try {
+            // Cargar el tile padre completo
+            const tilePadreData = await this.elevationHandler.getElevationTile(
+                subTile.tilePadre.x,
+                subTile.tilePadre.y,
+                subTile.tilePadre.z
+            );
+
+            if (!tilePadreData || !tilePadreData.elevations) {
+                return null;
+            }
+
+            // Extraer la porción correspondiente al sub-tile
+            const subTileData = this.extraerSubTileDeTilePadre(tilePadreData, subTile);
+
+            // Cachear el sub-tile
+            if (!this.cacheSubTiles) {
+                this.cacheSubTiles = new Map();
+            }
+            this.cacheSubTiles.set(cacheKey, subTileData);
+
+            return subTileData;
+
+        } catch (error) {
+            console.warn(`⚠️ Error cargando sub-tile ${cacheKey}:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * 🚀 Extraer datos de sub-tile del tile padre
+     */
+    extraerSubTileDeTilePadre(tilePadreData, subTile) {
+        const subdivision = this.config.tileSubdivision || 4;
+        const tileSize = this.config.tileSize || 256;
+        const subTileSize = tileSize / subdivision; // 64 pixels para subdivision=4
+
+        const elevations = tilePadreData.elevations;
+        const subTileElevations = [];
+
+        // Calcular offsets para el sub-tile dentro del tile padre
+        const offsetY = subTile.subY * subTileSize;
+        const offsetX = subTile.subX * subTileSize;
+
+        // Extraer la porción correspondiente
+        for (let y = 0; y < subTileSize; y++) {
+            for (let x = 0; x < subTileSize; x++) {
+                const padreIndex = (offsetY + y) * tileSize + (offsetX + x);
+                if (padreIndex < elevations.length) {
+                    subTileElevations.push(elevations[padreIndex]);
+                } else {
+                    subTileElevations.push(0); // Valor por defecto
+                }
+            }
+        }
+
+        return {
+            ...subTile,
+            data: {
+                elevations: subTileElevations,
+                width: subTileSize,
+                height: subTileSize,
+                bounds: subTile.bounds
+            }
+        };
+    }
+
+    /**
+     * Verificar si dos bounds se intersectan
+     */
+    boundsIntersectan(bounds1, bounds2) {
+        return !(bounds1.west > bounds2.east ||
+                 bounds1.east < bounds2.west ||
+                 bounds1.south > bounds2.north ||
+                 bounds1.north < bounds2.south);
     }
 
     /**
@@ -313,37 +447,43 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * OPTIMIZACIÓN: Procesar datos de elevación de forma optimizada
+     * OPTIMIZACIÓN: Procesar datos de elevación de sub-tiles
      */
-    async procesarDatosElevacionOptimizado(tiles, bounds, opciones) {
+    async procesarDatosElevacionOptimizado(subTiles, bounds, opciones) {
         const datosProcesados = {
-            width: 128,  // Reducido para mejor performance
+            width: 128,  // Mantener resolución base
             height: 128,
             elevations: [],
             bounds: bounds,
-            tiles: tiles.length
+            subTiles: subTiles.length
         };
 
-        // Procesar elevaciones de forma optimizada
+        // Procesar elevaciones de sub-tiles de forma optimizada
         const elevationsMap = new Map();
 
-        // Consolidar datos de todos los tiles
-        for (const tile of tiles) {
-            if (tile.data && tile.data.elevations) {
-                // Aquí iría la lógica para combinar tiles en una malla unificada
-                // Simplificado para esta implementación
-                datosProcesados.elevations.push(...tile.data.elevations);
+        // Consolidar datos de todos los sub-tiles en una malla unificada
+        for (const subTile of subTiles) {
+            if (subTile.data && subTile.data.elevations) {
+                // Aquí iría la lógica para combinar sub-tiles en una malla unificada
+                // Por simplicidad, concatenamos las elevaciones
+                datosProcesados.elevations.push(...subTile.data.elevations);
             }
         }
 
-        // Limitar y normalizar elevaciones
-        if (datosProcesados.elevations.length > datosProcesados.width * datosProcesados.height) {
-            // Subsample para reducir resolución si es necesario
+        // Limitar y normalizar elevaciones si es necesario
+        const maxElevations = datosProcesados.width * datosProcesados.height;
+        if (datosProcesados.elevations.length > maxElevations) {
+            // Subsample para reducir resolución
             datosProcesados.elevations = this.subsampleElevations(
                 datosProcesados.elevations,
                 datosProcesados.width,
                 datosProcesados.height
             );
+        } else if (datosProcesados.elevations.length < maxElevations) {
+            // Rellenar con ceros si no hay suficientes datos
+            while (datosProcesados.elevations.length < maxElevations) {
+                datosProcesados.elevations.push(0);
+            }
         }
 
         // Calcular estadísticas
@@ -992,6 +1132,9 @@ class SistemaTerrenoRealista {
             mesh.material.dispose();
         });
         this.vegetacionMeshes = [];
+
+        // 🚀 Limpiar cache de sub-tiles
+        this.limpiarCacheSubTiles();
     }
 
     /**
@@ -1043,18 +1186,83 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * OPTIMIZACIÓN: Obtener estadísticas de performance
+     * OPTIMIZACIÓN: Obtener estadísticas de performance mejoradas
      */
     obtenerEstadisticasPerformance() {
         const stats = {
-            terrenosEnCache: this.cacheTerrenos.size,
-            vegetacionInstancias: this.vegetacionMeshes.reduce((total, mesh) => total + (mesh.count || 0), 0),
+            terrenosEnCache: this.cacheTerrenos ? this.cacheTerrenos.size : 0,
+            subTilesEnCache: this.cacheSubTiles ? this.cacheSubTiles.size : 0,
+            vegetacionInstancias: this.vegetacionMeshes ? this.vegetacionMeshes.reduce((total, mesh) => total + (mesh.count || 0), 0) : 0,
             memoriaEstimada: this.calcularMemoriaEstimada(),
-            tiempoPromedioGeneracion: this.calcularTiempoPromedioGeneracion()
+            tiempoPromedioGeneracion: this.calcularTiempoPromedioGeneracion(),
+            subdivisionTiles: this.config.tileSubdivision || 4,
+            maxSubTiles: this.config.maxSubTiles || 32
         };
 
-        console.log('📊 Estadísticas de Performance del Terreno:', stats);
+        console.log('📊 Estadísticas de Performance del Terreno (Optimizado):', stats);
         return stats;
+    }
+
+    /**
+     * 🚀 Limpiar cache de sub-tiles para liberar memoria
+     */
+    limpiarCacheSubTiles() {
+        if (this.cacheSubTiles) {
+            this.cacheSubTiles.clear();
+            console.log('🧹 Cache de sub-tiles limpiado');
+        }
+    }
+
+    /**
+     * 🚀 Optimización avanzada: Precargar sub-tiles adyacentes
+     */
+    async precargarSubTilesAdyacentes(subTileActual) {
+        if (!this.config.preloadAdjacent) return;
+
+        const adyacentes = this.calcularSubTilesAdyacentes(subTileActual);
+
+        // Precargar en background con baja prioridad
+        setTimeout(async () => {
+            for (const adyacente of adyacentes.slice(0, 4)) { // Máximo 4 adyacentes
+                try {
+                    await this.cargarSubTileElevacion(adyacente);
+                } catch (error) {
+                    // Silenciar errores de precarga
+                }
+            }
+        }, 1000); // Esperar 1 segundo antes de precargar
+    }
+
+    /**
+     * Calcular sub-tiles adyacentes para precarga
+     */
+    calcularSubTilesAdyacentes(subTile) {
+        const adyacentes = [];
+        const subdivision = this.config.tileSubdivision || 4;
+
+        // Generar posiciones adyacentes
+        const posicionesAdyacentes = [
+            { subX: subTile.subX - 1, subY: subTile.subY },     // Izquierda
+            { subX: subTile.subX + 1, subY: subTile.subY },     // Derecha
+            { subX: subTile.subX, subY: subTile.subY - 1 },     // Arriba
+            { subX: subTile.subX, subY: subTile.subY + 1 },     // Abajo
+            { subX: subTile.subX - 1, subY: subTile.subY - 1 }, // Diagonal
+            { subX: subTile.subX + 1, subY: subTile.subY + 1 }  // Diagonal
+        ];
+
+        for (const pos of posicionesAdyacentes) {
+            if (pos.subX >= 0 && pos.subX < subdivision &&
+                pos.subY >= 0 && pos.subY < subdivision) {
+
+                adyacentes.push({
+                    ...subTile,
+                    subX: pos.subX,
+                    subY: pos.subY
+                });
+            }
+        }
+
+        return adyacentes;
     }
 
     /**
