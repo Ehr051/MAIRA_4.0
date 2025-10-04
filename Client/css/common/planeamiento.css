@@ -22,6 +22,23 @@ body {
     /* Dark gray background */
 }
 
+/* FIX FontAwesome: Asegurar que los iconos se muestren correctamente */
+.fas, .far, .fab, .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+    font-weight: 900 !important;
+    display: inline-block !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* IDs específicos para iconos críticos - evitar conflictos de clases */
+#fa-eye-icon:before { content: "\f06e" !important; }
+#fa-tools-icon:before { content: "\f7d9" !important; }
+#fa-cube-icon:before { content: "\f1b2" !important; }
+
 /* Variables */
 :root {
     --color-fondo: #222;

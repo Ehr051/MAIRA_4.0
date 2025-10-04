@@ -91,12 +91,22 @@
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <!-- Three.js para visualización 3D - DESHABILITADO TEMPORALMENTE -->
-  <!-- <script src="/Client/Libs/three/three.min.js"></script> -->
-  <!-- Three.js GLTFLoader para modelos 3D -->
-  <!-- <script src="/Client/Libs/three/GLTFLoader.js"></script> -->
-  <!-- Three.js OrbitControls versión compatible MAIRA -->
-  <!-- <script src="/Client/Libs/three/OrbitControlsBrowser.js"></script> -->
+  <!-- Three.js para visualización 3D - Versión local independiente -->
+  <script src="/Client/Libs/three/three.min.js"></script>
+  <script src="/Client/Libs/three/GLTFLoader.js"></script>
+
+  <!-- ECOSISTEMA 3D COMPLETO - Componentes del sistema unificado -->
+  <script src="js/modules/gaming/modelos3DManager.js"></script>
+  <script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
+  <script src="js/modules/gaming/sidcModelo3DBridge.js"></script>
+  <script src="js/modules/gaming/sistemaJerarquicoSIDC.js"></script>
+  <script src="js/modules/gaming/sistemaFormacionesMilitares.js"></script>
+  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
+  <script src="js/modules/gaming/sistemaTerrenoRealista.js"></script>
+
+  <!-- SISTEMA MAESTRO 3D - Integra todo el ecosistema -->
+  <script src="js/services/maira3DMaster.js"></script>
   <script src="/node_modules/pako/dist/pako.min.js"></script>
   <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
   
@@ -211,10 +221,8 @@
   <!-- <script src="Libs/three/OrbitControls.js"></script> -->
   <!-- <script src="Libs/three/GLTFLoader.js"></script> -->
   
-  <!-- ✅ INTEGRACIÓN TÁCTICA 3D -->
-  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
-  <script src="js/modules/gaming/sistema3DIntegrado.js"></script>
-  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
+  <!-- ✅ INTEGRACIÓN TÁCTICA 3D - Sistema Maestro Unificado -->
+  <!-- Los componentes individuales ahora se cargan arriba con el ecosistema completo -->
   
   <!-- 🎯 MÓDULOS MAIRA 4.0 REFACTORIZADOS -->
   <!-- <script src="js/modules/sistema3d.js"></script> ELIMINADO - Conflicto con threeDMapService -->

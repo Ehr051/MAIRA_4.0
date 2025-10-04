@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-10-03T23:58:07.450Z",
+  "summary": {
+    "total": 3,
+    "passed": 2,
+    "failed": 1,
+    "successRate": "66.7%"
+  },
+  "errors": [
+    "Console Error: ❌ Error al inicializar conexión en inicioGB: JSHandle@error",
+    "Console Error: ❌ No se pudo obtener información del usuario",
+    "Page Error: Cannot use import statement outside a module",
+    "Page Error: Cannot use import statement outside a module",
+    "Page Error: Cannot use import statement outside a module",
+    "Console Error: ❌ Error en configuración de eventos: JSHandle@error",
+    "Console Error: WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket&sid=_-nIfSjMSpTKAsyCAAAI' failed: Error during WebSocket handshake: Unexpected response code: 400",
+    "Console Error: Failed to load resource: the server responded with a status of 404 (NOT FOUND)",
+    "Console Error: El objeto map no es una instancia válida de Leaflet: JSHandle@node",
+    "Console Error: Failed to load resource: net::ERR_CONNECTION_REFUSED",
+    "Console Error: ❌ Error al inicializar conexión en inicioGB: JSHandle@error",
+    "Console Error: ❌ No se pudo obtener información del usuario",
+    "Console Error: ❌ Error al inicializar conexión en inicioGB: JSHandle@error",
+    "Console Error: ❌ No se pudo obtener información del usuario",
+    "Page Error: Cannot use import statement outside a module",
+    "Page Error: Cannot use import statement outside a module",
+    "Page Error: Cannot use import statement outside a module",
+    "Console Error: ❌ Error en configuración de eventos: JSHandle@error",
+    "Page Error: Cannot read properties of null (reading 'appendChild')",
+    "Page Error: THREE is not defined",
+    "Console Error: ❌ Error en configuración de eventos: JSHandle@error",
+    "Console Error: Error al inicializar el juego: JSHandle@error",
+    "Console Error: Stack: Error: No se encontraron los datos de la partida\n    at HTMLDocument.<anonymous> (http://localhost:8000/js/modules/juego/gestorJuego.js:912:27)",
+    "Console Error: ❌ Error configurando juego: JSHandle@error",
+    "Console Error: Error al inicializar GestorJuego: JSHandle@error",
+    "Console Error: Error de inicialización: JSHandle@error",
+    "Console Error: Failed to load resource: the server responded with a status of 500 (INTERNAL SERVER ERROR)",
+    "Console Error: Failed to load resource: net::ERR_CONNECTION_REFUSED",
+    "Console Error: Error cargando módulo tactical/MapManager: JSHandle@error",
+    "Console Error: ❌ Error cargando módulo tactical/MapManager: JSHandle@error",
+    "Console Error: ❌ Error inicializando MAIRA Core: JSHandle@error",
+    "Page Error: Failed to fetch dynamically imported module: http://localhost:8000/js/tactical/MapManager.js",
+    "Console Error: Failed to load resource: net::ERR_CONNECTION_REFUSED",
+    "Flujo completo usuario: No element found for selector: #confirmarContrasena"
+  ],
+  "warnings": [
+    "Error en navegación planeamiento: Navigation timeout of 30000 ms exceeded"
+  ]
+}

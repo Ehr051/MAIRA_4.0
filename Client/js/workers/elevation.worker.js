@@ -222,8 +222,7 @@ function encontrarTileParaCoordenadas(lat, lng, tilesCargados) {
             return tile.tileData;
         }
     }
-    return null;
-}
+return null;
     const { data, width, height, tiepoint, scale } = tileData;
     
     const x = Math.floor((lng - tiepoint[3]) / scale[0]);

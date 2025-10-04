@@ -48,6 +48,20 @@
   
   <!-- Three.js para visualización 3D - Versión local independiente -->
   <script src="/Client/Libs/three/three.min.js"></script>
+  <script src="/Client/Libs/three/GLTFLoader.js"></script>
+
+  <!-- ECOSISTEMA 3D COMPLETO - Componentes del sistema unificado -->
+  <script src="js/modules/gaming/modelos3DManager.js"></script>
+  <script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
+  <script src="js/modules/gaming/sidcModelo3DBridge.js"></script>
+  <script src="js/modules/gaming/sistemaJerarquicoSIDC.js"></script>
+  <script src="js/modules/gaming/sistemaFormacionesMilitares.js"></script>
+  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
+  <script src="js/modules/gaming/sistemaTerrenoRealista.js"></script>
+
+  <!-- SISTEMA MAESTRO 3D - Integra todo el ecosistema -->
+  <script src="js/services/maira3DMaster.js"></script>
   <!-- Three.js GLTFLoader para modelos 3D -->
   <script src="/Client/Libs/three/GLTFLoader.js"></script>
   
@@ -152,7 +166,7 @@
 <div id="botones-principales">
   <div class="menu-btn">
     <button id="verBtn" data-toggle="collapse" data-target="#ver-menu" aria-expanded="false" aria-controls="ver-menu">
-      <i class="fas fa-eye"></i> Ver
+      <i class="fas fa-eye" id="fa-eye-icon"></i> Ver
     </button>
     <div id="ver-menu" class="menu collapse">
       <div class="menu-btn">
@@ -204,7 +218,7 @@
   <div class="menu-btn">
     <button id="herramientasBtn" data-toggle="collapse" data-target="#herramientas-menu" aria-expanded="false"
       aria-controls="herramientas-menu">
-      <i class="fas fa-tools"></i> Herramientas
+      <i class="fas fa-tools" id="fa-tools-icon"></i> Herramientas
     </button>
     <div id="herramientas-menu" class="menu collapse">
       <div id="search-container">
@@ -216,7 +230,7 @@
       </div>
         <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
-        <a href="#" id="btnVista3D"><i class="fas fa-cube"></i> Vista 3D</a>
+        <a href="#" id="btnVista3D"><i class="fas fa-cube" id="fa-cube-icon"></i> Vista 3D</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
       </div>
@@ -1030,11 +1044,36 @@ function configurarEventosPlaneamiento() {
     if (btnVista3D) {
         btnVista3D.addEventListener('click', function(e) {
             e.preventDefault();
-            // ✅ USAR SISTEMA UNIFICADO - threeDMapService que funciona bien
+            // ✅ USAR SISTEMA 3D INTEGRADO COMPLETO
             if (typeof toggleVista3D === 'function') {
                 toggleVista3D();
+
+                // Sincronizar elementos del mapa actual
+                if (window.maira3DSystem && window.maira3DSystem.syncWithMap2D) {
+                    const elementosMapa = window.obtenerElementosDelMapa ?
+                        window.obtenerElementosDelMapa() : [];
+                    window.maira3DSystem.syncWithMap2D(elementosMapa);
+                }
+
+                // Mostrar panel de control después de un breve delay
+                setTimeout(() => {
+                    if (window.MAIRA3DIntegration && window.MAIRA3DIntegration.toggleControlPanel) {
+                        window.MAIRA3DIntegration.toggleControlPanel();
+                    }
+                }, 1000);
             } else {
-                console.warn('⚠️ Sistema 3D no disponible - threeDMapService no cargado');
+                console.warn('⚠️ Sistema 3D no disponible');
+            }
+        });
+    }
+
+    // Botón para cerrar vista 3D
+    const btnCerrarVista3D = document.getElementById('cerrar-vista3d');
+    if (btnCerrarVista3D) {
+        btnCerrarVista3D.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.maira3DSystem && window.maira3DSystem.deactivate) {
+                window.maira3DSystem.deactivate();
             }
         });
     }
