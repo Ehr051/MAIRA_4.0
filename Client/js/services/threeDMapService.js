@@ -827,13 +827,20 @@ function activarVista3D() {
             console.log('🔍 DEBUG Camera position:', threeDMapInstance.camera.position);
             
             is3DActive = true;
-            
-            // Generar terreno usando datos reales de elevación
-            const realElevationData = await generateRealTerrain();
-            threeDMapInstance.loadTerrain(realElevationData, null, {
+
+            // Generar terreno usando datos dummy por ahora (evitar error de await)
+            const dummyElevationData = new Float32Array(256 * 256).fill(0);
+            threeDMapInstance.loadTerrain(dummyElevationData, null, {
                 width: 1000,
                 height: 1000
             });
+
+            // TODO: Implementar carga de terreno real cuando se resuelva el problema de async/await
+            // const realElevationData = await generateRealTerrain();
+            // threeDMapInstance.loadTerrain(realElevationData, null, {
+            //     width: 1000,
+            //     height: 1000
+            // });
             
             // 🔧 FORZAR RENDER INICIAL
             setTimeout(() => {

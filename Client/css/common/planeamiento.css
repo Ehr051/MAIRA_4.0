@@ -24,14 +24,20 @@ body {
 
 /* FIX FontAwesome: Asegurar que los iconos se muestren correctamente */
 .fas, .far, .fab, .fa {
-    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Solid" !important;
     font-weight: 900 !important;
-    display: inline-block !important;
     font-style: normal !important;
     font-variant: normal !important;
     text-rendering: auto !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
+    display: inline-block !important;
+    line-height: 1 !important;
+}
+
+/* Asegurar que los elementos i con clases fa- funcionen */
+i.fas:before, i.far:before, i.fab:before, i.fa:before {
+    display: inline-block !important;
 }
 
 /* IDs específicos para iconos críticos - evitar conflictos de clases */

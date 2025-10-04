@@ -991,9 +991,13 @@ function mostrarSalaEspera(datosPartida) {
         // Actualizar información de la partida
         const nombrePartidaSala = document.getElementById('nombrePartidaSala');
         const codigoPartidaSala = document.getElementById('codigoPartidaSala');
-        
-        if (nombrePartidaSala) nombrePartidaSala.textContent = datosPartida.configuracion.nombrePartida;
-        if (codigoPartidaSala) codigoPartidaSala.textContent = datosPartida.codigo;
+
+        if (nombrePartidaSala && datosPartida?.configuracion?.nombrePartida) {
+            nombrePartidaSala.textContent = datosPartida.configuracion.nombrePartida;
+        }
+        if (codigoPartidaSala && datosPartida?.codigo) {
+            codigoPartidaSala.textContent = datosPartida.codigo;
+        }
         
         // Actualizar lista de jugadores
         if (datosPartida.jugadores) {

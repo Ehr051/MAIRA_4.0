@@ -6,6 +6,12 @@
 
 class Modelos3DManager {
     constructor() {
+        // Verificar que THREE.js esté disponible
+        if (typeof THREE === 'undefined') {
+            console.error('❌ THREE.js no está disponible - Modelos3DManager no puede inicializarse');
+            return;
+        }
+
         this.catalogoModelos = this.crearCatalogoModelos();
         this.modelosCache = new Map(); // Cache de modelos cargados
         this.loader = new THREE.GLTFLoader();

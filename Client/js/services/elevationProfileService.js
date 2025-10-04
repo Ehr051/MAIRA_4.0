@@ -258,37 +258,81 @@ class ElevationProfileService {
     }
 
     /**
-     * Crea el contenedor del gráfico usando el sistema de paneles de MAIRA
+     * Crea el contenedor del gráfico usando fixed positioning
      */
     crearContenedorGrafico() {
-        // Usar el panel existente de MAIRA
-        const panel = document.getElementById('perfilElevacionDisplay');
-        if (!panel) {
-            console.error('❌ Panel perfilElevacionDisplay no encontrado');
-            return;
+        // Buscar contenedor existente
+        let contenedor = document.getElementById('perfil-elevacion-container');
+        if (!contenedor) {
+            // Crear contenedor
+            contenedor = document.createElement('div');
+            contenedor.id = 'perfil-elevacion-container';
+            contenedor.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: white;
+                border: 2px solid #333;
+                border-radius: 8px;
+                padding: 20px;
+                z-index: 1000;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                max-width: 850px;
+                max-height: 500px;
+                overflow: auto;
+            `;
+
+            // Crear header con botón cerrar
+            const header = document.createElement('div');
+            header.style.cssText = `
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            `;
+
+            const titulo = document.createElement('h3');
+            titulo.textContent = 'Perfil de Elevación';
+            titulo.style.margin = '0';
+
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = '×';
+            btnCerrar.style.cssText = `
+                background: #ff4444;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                cursor: pointer;
+                font-size: 20px;
+                line-height: 1;
+            `;
+            btnCerrar.onclick = () => this.ocultarPerfil();
+
+            header.appendChild(titulo);
+            header.appendChild(btnCerrar);
+            contenedor.appendChild(header);
+
+            // Crear contenedor del gráfico
+            const chartContainer = document.createElement('div');
+            chartContainer.id = 'perfil-elevacion-chart';
+            chartContainer.style.cssText = `
+                width: 100%;
+                height: 400px;
+            `;
+            contenedor.appendChild(chartContainer);
+
+            // Agregar al body
+            document.body.appendChild(contenedor);
         }
 
-        // Mostrar el panel
-        panel.style.display = 'block';
-        panel.classList.add('show');
-
-        // Buscar o crear el contenedor del gráfico dentro del panel
-        let chartContainer = document.getElementById('perfil-elevacion-chart');
-        if (!chartContainer) {
-            const displayContent = panel.querySelector('.display-content');
-            if (displayContent) {
-                displayContent.style.display = 'block';
-
-                // Crear contenedor SVG dentro del display-content
-                chartContainer = document.createElement('div');
-                chartContainer.id = 'perfil-elevacion-chart';
-                chartContainer.className = 'svg-container';
-                displayContent.appendChild(chartContainer);
-            }
-        }
-
-        this.contenedorGrafico = chartContainer;
-        console.log('✅ Contenedor del gráfico de elevación listo');
+        // Mostrar contenedor
+        contenedor.style.display = 'block';
+        this.contenedorGrafico = document.getElementById('perfil-elevacion-chart');
+        console.log('✅ Contenedor del gráfico de elevación creado con fixed positioning');
     }
 
     /**
@@ -393,6 +437,22 @@ class ElevationProfileService {
                 </div>
             `;
         }
+    }
+
+    /**
+     * Oculta el perfil de elevación (para fixed positioning)
+     */
+    ocultarPerfil() {
+        const contenedor = document.getElementById('perfil-elevacion-container');
+        if (contenedor) {
+            contenedor.style.display = 'none';
+        }
+
+        // Limpiar tooltips
+        d3.selectAll('.elevation-tooltip').remove();
+
+        this.contenedorGrafico = null;
+        console.log('✅ Perfil de elevación ocultado');
     }
 
     /**

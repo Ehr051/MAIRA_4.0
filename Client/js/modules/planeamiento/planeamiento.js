@@ -327,10 +327,10 @@ class PlaneamientoManager {
     }
 
     mostrarElementoEnMapa(elemento) {
-        // Integración con el mapa principal usando agregarMarcadorConCoordenadas
-        if (window.agregarMarcadorConCoordenadas && elemento.propiedades?.sidc) {
+        // Integración con el mapa principal usando agregarMarcador con coordenadas
+        if (window.agregarMarcador && elemento.propiedades?.sidc) {
             const latlng = L.latLng(elemento.posicion.lat, elemento.posicion.lng);
-            window.agregarMarcadorConCoordenadas(elemento.propiedades.sidc, elemento.propiedades.nombre || elemento.tipo, latlng);
+            window.agregarMarcador(elemento.propiedades.sidc, elemento.propiedades.nombre || elemento.tipo, latlng);
         } else {
             console.warn('⚠️ No se puede mostrar elemento en mapa - faltan funciones o datos');
         }
