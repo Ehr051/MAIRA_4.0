@@ -1765,8 +1765,21 @@ class MAIRA3DMaster {
         const radius = circle.getRadius(); // en metros
         const center3D = this.latLngToPosition(center.lat, center.lng);
 
+        // Obtener texto del popup si existe (para PC, PI, PT, etc.)
+        let text = null;
+        if (circle.getPopup && circle.getPopup()) {
+            const popup = circle.getPopup();
+            if (popup.getContent) {
+                text = popup.getContent();
+                // Limpiar HTML si es necesario
+                if (typeof text === 'string') {
+                    text = text.replace(/<[^>]*>/g, '').trim();
+                }
+            }
+        }
+
         // Crear representación 3D del círculo
-        const circle3D = this.createCalcoCircle3D(center3D, radius, circle.options);
+        const circle3D = this.createCalcoCircle3D(center3D, radius, circle.options, text);
 
         if (circle3D) {
             // Almacenar referencia
@@ -1931,7 +1944,7 @@ class MAIRA3DMaster {
     /**
      * CREAR CÍRCULO 3D PARA EL CALCO
      */
-    createCalcoCircle3D(center, radius, options = {}) {
+    createCalcoCircle3D(center, radius, options = {}, text = null) {
         try {
             // Convertir radio de metros a unidades 3D (aproximadamente)
             const radius3D = radius / 10; // Escala aproximada
@@ -1955,9 +1968,61 @@ class MAIRA3DMaster {
 
             mesh.receiveShadow = true;
 
+            // Si hay texto (PC, PI, PT, etc.), crear cartel vertical
+            if (text && (text.includes('PC') || text.includes('PI') || text.includes('PT') || text.includes('PE') || text.includes('PD'))) {
+                const labelSprite = this.createVerticalLabel(text, center);
+                if (labelSprite) {
+                    mesh.add(labelSprite); // Agregar como hijo del círculo
+                }
+            }
+
             return mesh;
         } catch (error) {
             console.warn('⚠️ Error creando círculo 3D del calco:', error);
+            return null;
+        }
+    }
+
+    /**
+     * CREAR CARTEL VERTICAL PARA ETIQUETAS DE MEDIDAS (PC, PI, etc.)
+     */
+    createVerticalLabel(text, position) {
+        try {
+            // Crear canvas para renderizar el texto
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+
+            // Configurar texto
+            context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = 'white';
+            context.font = 'bold 48px Arial';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            // Crear textura
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.generateMipmaps = false;
+            texture.minFilter = THREE.LinearFilter;
+
+            // Crear sprite
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                alphaTest: 0.1
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Posicionar verticalmente sobre el círculo
+            sprite.position.set(0, 15, 0); // 15 unidades arriba del centro del círculo
+            sprite.scale.set(20, 10, 1); // Escala apropiada
+
+            return sprite;
+        } catch (error) {
+            console.warn('⚠️ Error creando cartel vertical:', error);
             return null;
         }
     }

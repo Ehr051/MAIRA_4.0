@@ -1103,16 +1103,133 @@ class SistemaTerrenoRealista {
     }
 
     crearMaterialTerreno(datosTerreno) {
-        // Crear material con texturas basadas en elevación
+        // Obtener tipo de mapa actual para texturas
+        const mapType = this.obtenerTipoMapaActual();
+
+        // Crear material con texturas basadas en tipo de mapa
         const material = new THREE.MeshLambertMaterial({
-            color: 0x8B7355, // Color base tierra
             transparent: false
         });
 
-        // Podrías agregar texturas basadas en elevación
-        // material.map = this.generarTexturaTerreno(datosTerreno);
+        // Aplicar textura según tipo de mapa
+        material.map = this.generarTexturaMapaBase(mapType, datosTerreno);
 
         return material;
+    }
+
+    obtenerTipoMapaActual() {
+        // Obtener tipo de mapa desde mapaP.js
+        if (typeof window.getCurrentMapType === 'function') {
+            return window.getCurrentMapType();
+        }
+        return 'osm'; // Default
+    }
+
+    generarTexturaMapaBase(mapType, datosTerreno) {
+        try {
+            const width = datosTerreno.width || 512;
+            const height = datosTerreno.height || 512;
+
+            // Crear canvas para generar textura
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Colores base según tipo de mapa
+            let baseColor, secondaryColor;
+
+            switch (mapType) {
+                case 'satelite':
+                    baseColor = '#4A5D23'; // Verde oliva para satélite
+                    secondaryColor = '#8B7355'; // Tierra
+                    break;
+                case 'calles':
+                    baseColor = '#F5F5DC'; // Beige claro para calles
+                    secondaryColor = '#228B22'; // Verde para áreas verdes
+                    break;
+                case 'terrain':
+                    baseColor = '#8B7355'; // Tierra
+                    secondaryColor = '#228B22'; // Verde
+                    break;
+                case 'osm':
+                default:
+                    baseColor = '#F0F8FF'; // Azul claro para OSM
+                    secondaryColor = '#228B22'; // Verde
+                    break;
+            }
+
+            // Crear patrón simple basado en elevación
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const x = (i / 4) % width;
+                const y = Math.floor(i / 4 / width);
+
+                // Usar elevación para variar el color si está disponible
+                let color = baseColor;
+                if (datosTerreno.elevation && datosTerreno.elevation[y] && datosTerreno.elevation[y][x] !== undefined) {
+                    const elevation = datosTerreno.elevation[y][x];
+                    const normalizedElevation = Math.min(Math.max(elevation / 1000, 0), 1); // Normalizar 0-1000m
+
+                    if (normalizedElevation > 0.5) {
+                        color = this.interpolateColor(baseColor, '#8B4513', normalizedElevation); // Marrón para alturas
+                    } else {
+                        color = this.interpolateColor(baseColor, secondaryColor, normalizedElevation);
+                    }
+                }
+
+                // Convertir color hex a RGB
+                const r = parseInt(color.slice(1, 3), 16);
+                const g = parseInt(color.slice(3, 5), 16);
+                const b = parseInt(color.slice(5, 7), 16);
+
+                data[i] = r;     // R
+                data[i + 1] = g; // G
+                data[i + 2] = b; // B
+                data[i + 3] = 255; // A
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Crear textura Three.js
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.needsUpdate = true;
+
+            return texture;
+
+        } catch (error) {
+            console.warn('⚠️ Error generando textura mapa base:', error);
+            // Retornar textura por defecto
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(0, 0, 256, 256);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+    }
+
+    interpolateColor(color1, color2, factor) {
+        const r1 = parseInt(color1.slice(1, 3), 16);
+        const g1 = parseInt(color1.slice(3, 5), 16);
+        const b1 = parseInt(color1.slice(5, 7), 16);
+
+        const r2 = parseInt(color2.slice(1, 3), 16);
+        const g2 = parseInt(color2.slice(3, 5), 16);
+        const b2 = parseInt(color2.slice(5, 7), 16);
+
+        const r = Math.round(r1 + (r2 - r1) * factor);
+        const g = Math.round(g1 + (g2 - g1) * factor);
+        const b = Math.round(b1 + (b2 - b1) * factor);
+
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     }
 
     posicionarTerreno(mesh, bounds) {

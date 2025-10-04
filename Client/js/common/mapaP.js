@@ -1054,6 +1054,11 @@ function crearCapaGK(options) {
 
 
 
+// FUNCIONES GLOBALES
+function getCurrentMapType() {
+    return currentMapType;
+}
+
 window.mostrarMenuContextual = mostrarMenuContextual;
 window.actualizarEstiloCuadricula = actualizarEstiloCuadricula;
 window.cambiarCuadricula = cambiarCuadricula;
@@ -1061,4 +1066,5 @@ window.habilitarDobleClicEnElementos = habilitarDobleClicEnElementos;
 window.patronesRelleno = {}; // Inicializa el objeto para los patrones
 window.inicializarMapa = inicializarMapa;
 window.cambiarTipoMapa = cambiarTipoMapa;
+window.getCurrentMapType = getCurrentMapType;
 
