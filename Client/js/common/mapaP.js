@@ -12,6 +12,7 @@ var calcos = {};
 var mapaInicializado = false;
 var sidc;
 var currentCoordinateSystem = null;
+var currentMapType = 'osm'; // Tipo de mapa base actual
 
 // definiciones de las fajas
 proj4.defs("EPSG:5344", "+proj=tmerc +lat_0=-90 +lon_0=-72 +k=1 +x_0=1500000 +y_0=0 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
@@ -627,6 +628,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Función para cambiar el tipo de mapa
 function cambiarTipoMapa(mapType) {
     console.log("Cambiando tipo de mapa a: " + mapType);
+    currentMapType = mapType; // Actualizar tipo actual
+    
     mapa.eachLayer(function (layer) {
         if (layer instanceof L.TileLayer) {
             mapa.removeLayer(layer);

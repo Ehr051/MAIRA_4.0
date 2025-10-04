@@ -583,22 +583,19 @@ limpiarInterfazAnterior() {
         const hexagons = document.querySelectorAll('.hex-cell');
         hexagons.forEach(hex => {
             hex.classList.remove('hex-interactive');
-            hex.classList.add('hex-disabled'); // Añadir clase para forzar pointer-events: none
         });
         console.log('🔸 Hexágonos desactivados para definición de sector/zona');
     }
 
     reactivarHexagonosInteractivos() {
-        // Remover la clase disabled y restaurar interactividad si es necesario
-        const hexagons = document.querySelectorAll('.hex-cell');
-        hexagons.forEach(hex => {
-            hex.classList.remove('hex-disabled');
-            // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
-            if (this.fase === 'combate' || window.modoJuego === 'combate') {
+        // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
+        if (this.fase === 'combate' || window.modoJuego === 'combate') {
+            const hexagons = document.querySelectorAll('.hex-cell');
+            hexagons.forEach(hex => {
                 hex.classList.add('hex-interactive');
-            }
-        });
-        console.log('🔸 Hexágonos reactivados para modo combate');
+            });
+            console.log('🔸 Hexágonos reactivados para modo combate');
+        }
     }
 
     // Métodos de manejo de sector

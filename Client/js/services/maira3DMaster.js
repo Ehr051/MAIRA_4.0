@@ -1461,6 +1461,9 @@ class MAIRA3DMaster {
         // Configurar navegación táctica
         this.configurarNavegacionTactica();
 
+        // Sincronizar elementos del calco activo
+        this.syncCalcoActivo();
+
         // Cargar formación si no hay modelos
         if (this.loadedModels.size === 0) {
             this.cargarFormacionTactica();
@@ -1623,60 +1626,428 @@ class MAIRA3DMaster {
         }
         return 0;
     }
-}
+
+    /**
+     * 🗺️ SINCRONIZACIÓN DEL CALCO ACTIVO EN 3D
+     * Convierte elementos del calco 2D (unidades, líneas, polígonos) a representaciones 3D
+     */
+    syncCalcoActivo() {
+        try {
+            console.log('🔄 Sincronizando calco activo con vista 3D...');
+
+            if (!window.calcoActivo) {
+                console.warn('⚠️ calcoActivo no disponible');
+                return false;
+            }
+
+            // Limpiar elementos 3D existentes del calco
+            this.clearCalco3DElements();
+
+            // Procesar cada layer del calco activo
+            window.calcoActivo.eachLayer((layer) => {
+                this.processCalcoLayer(layer);
+            });
+
+            console.log('✅ Calco sincronizado con vista 3D');
+            return true;
+
+        } catch (error) {
+            console.error('❌ Error sincronizando calco activo:', error);
+            return false;
+        }
+    }
+
+    /**
+     * PROCESAR UN LAYER INDIVIDUAL DEL CALCO
+     */
+    processCalcoLayer(layer) {
+        try {
+            // Determinar tipo de layer y procesar apropiadamente
+            if (layer instanceof L.Marker) {
+                // Marcador militar (unidad)
+                this.processCalcoMarker(layer);
+            } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+                // Línea (medida de coordinación, eje de avance)
+                this.processCalcoPolyline(layer);
+            } else if (layer instanceof L.Polygon) {
+                // Polígono (sector, zona, área)
+                this.processCalcoPolygon(layer);
+            } else if (layer instanceof L.Circle) {
+                // Círculo (zona de influencia, alcance)
+                this.processCalcoCircle(layer);
+            } else {
+                console.log('ℹ️ Tipo de layer no soportado para 3D:', layer.constructor.name);
+            }
+        } catch (error) {
+            console.warn('⚠️ Error procesando layer del calco:', error);
+        }
+    }
+
+    /**
+     * PROCESAR MARCADOR MILITAR (UNIDAD)
+     */
+    processCalcoMarker(marker) {
+        const latlng = marker.getLatLng();
+        const position3D = this.latLngToPosition(latlng.lat, latlng.lng);
+
+        // Obtener propiedades del marcador
+        const sidc = marker.options.sidc;
+        const nombre = marker.options.nombre || marker.options.designacion || '';
+        const equipo = marker.options.equipo || (sidc && sidc.charAt(1) === 'F' ? 'amigo' : 'enemigo');
+
+        // Crear representación 3D de la unidad
+        const unit3D = this.createCalcoUnit3D(position3D, sidc, nombre, equipo, marker);
+
+        if (unit3D) {
+            // Almacenar referencia para actualizaciones
+            if (!this.calco3DElements) this.calco3DElements = new Map();
+            this.calco3DElements.set(marker._leaflet_id, {
+                type: 'marker',
+                element3D: unit3D,
+                originalLayer: marker
+            });
+
+            this.scene.add(unit3D);
+        }
+    }
+
+    /**
+     * PROCESAR POLILÍNEA (LÍNEA DE COORDINACIÓN)
+     */
+    processCalcoPolyline(polyline) {
+        const latlngs = polyline.getLatLngs();
+        const positions3D = latlngs.map(latlng => this.latLngToPosition(latlng.lat, latlng.lng));
+
+        // Crear línea 3D
+        const line3D = this.createCalcoLine3D(positions3D, polyline.options);
+
+        if (line3D) {
+            // Almacenar referencia
+            if (!this.calco3DElements) this.calco3DElements = new Map();
+            this.calco3DElements.set(polyline._leaflet_id, {
+                type: 'polyline',
+                element3D: line3D,
+                originalLayer: polyline
+            });
+
+            this.scene.add(line3D);
+        }
+    }
+
+    /**
+     * PROCESAR POLÍGONO (SECTOR, ZONA)
+     */
+    processCalcoPolygon(polygon) {
+        const latlngs = polygon.getLatLngs()[0]; // Polígonos tienen coordenadas anidadas
+        const positions3D = latlngs.map(latlng => this.latLngToPosition(latlng.lat, latlng.lng));
+
+        // Crear polígono 3D (área sombreada)
+        const polygon3D = this.createCalcoPolygon3D(positions3D, polygon.options);
+
+        if (polygon3D) {
+            // Almacenar referencia
+            if (!this.calco3DElements) this.calco3DElements = new Map();
+            this.calco3DElements.set(polygon._leaflet_id, {
+                type: 'polygon',
+                element3D: polygon3D,
+                originalLayer: polygon
+            });
+
+            this.scene.add(polygon3D);
+        }
+    }
+
+    /**
+     * PROCESAR CÍRCULO (ZONA DE INFLUENCIA)
+     */
+    processCalcoCircle(circle) {
+        const center = circle.getLatLng();
+        const radius = circle.getRadius(); // en metros
+        const center3D = this.latLngToPosition(center.lat, center.lng);
+
+        // Crear representación 3D del círculo
+        const circle3D = this.createCalcoCircle3D(center3D, radius, circle.options);
+
+        if (circle3D) {
+            // Almacenar referencia
+            if (!this.calco3DElements) this.calco3DElements = new Map();
+            this.calco3DElements.set(circle._leaflet_id, {
+                type: 'circle',
+                element3D: circle3D,
+                originalLayer: circle
+            });
+
+            this.scene.add(circle3D);
+        }
+    }
+
+    /**
+     * CREAR UNIDAD 3D PARA EL CALCO
+     */
+    createCalcoUnit3D(position, sidc, nombre, equipo, originalMarker) {
+        try {
+            // Determinar tipo de modelo basado en SIDC
+            const modelType = this.getModelTypeFromSIDC(sidc);
+
+            // Crear geometría básica si no hay modelo 3D
+            let geometry, material;
+
+            if (modelType) {
+                // Intentar cargar modelo real
+                return this.loadModel(modelType, position);
+            } else {
+                // Crear representación simbólica
+                const isFriend = equipo === 'amigo' || (sidc && sidc.charAt(1) === 'F');
+                const color = isFriend ? 0x0000ff : 0xff0000;
+
+                // Diferentes formas según tipo de unidad
+                if (sidc && sidc.includes('T')) {
+                    // Tanque - caja rectangular
+                    geometry = new THREE.BoxGeometry(8, 4, 12);
+                } else if (sidc && sidc.includes('I')) {
+                    // Infantería - cilindro
+                    geometry = new THREE.CylinderGeometry(1, 1, 6, 6);
+                } else {
+                    // Otro - esfera
+                    geometry = new THREE.SphereGeometry(3, 8, 8);
+                }
+
+                material = new THREE.MeshLambertMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(position.x, position.y + 2, position.z); // Elevar ligeramente
+
+                // Agregar propiedades
+                mesh.userData = {
+                    type: 'calco_unit',
+                    sidc: sidc,
+                    nombre: nombre,
+                    equipo: equipo,
+                    originalMarker: originalMarker,
+                    selectable: true
+                };
+
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+
+                return mesh;
+            }
+        } catch (error) {
+            console.warn('⚠️ Error creando unidad 3D del calco:', error);
+            return null;
+        }
+    }
+
+    /**
+     * CREAR LÍNEA 3D PARA EL CALCO
+     */
+    createCalcoLine3D(positions, options = {}) {
+        try {
+            // Crear geometría de línea
+            const geometry = new THREE.BufferGeometry().setFromPoints(positions);
+
+            // Material según tipo de línea
+            const color = options.color || 0xff0000;
+            const material = new THREE.LineBasicMaterial({
+                color: color,
+                linewidth: 3,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const line = new THREE.Line(geometry, material);
+
+            // Elevar ligeramente sobre el terreno
+            line.position.y += 0.5;
+
+            line.userData = {
+                type: 'calco_line',
+                originalOptions: options
+            };
+
+            return line;
+        } catch (error) {
+            console.warn('⚠️ Error creando línea 3D del calco:', error);
+            return null;
+        }
+    }
+
+    /**
+     * CREAR POLÍGONO 3D PARA EL CALCO
+     */
+    createCalcoPolygon3D(positions, options = {}) {
+        try {
+            // Crear forma 2D primero
+            const shape = new THREE.Shape();
+            positions.forEach((pos, index) => {
+                if (index === 0) {
+                    shape.moveTo(pos.x, pos.z);
+                } else {
+                    shape.lineTo(pos.x, pos.z);
+                }
+            });
+            shape.lineTo(positions[0].x, positions[0].z); // Cerrar forma
+
+            // Crear geometría extruida
+            const extrudeSettings = {
+                depth: 0.2,
+                bevelEnabled: false
+            };
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+            // Material semitransparente
+            const color = options.color || 0x00ff00;
+            const material = new THREE.MeshLambertMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+
+            // Posicionar en altura del terreno
+            const avgY = positions.reduce((sum, pos) => sum + pos.y, 0) / positions.length;
+            mesh.position.y = avgY;
+
+            mesh.userData = {
+                type: 'calco_polygon',
+                originalOptions: options
+            };
+
+            mesh.receiveShadow = true;
+
+            return mesh;
+        } catch (error) {
+            console.warn('⚠️ Error creando polígono 3D del calco:', error);
+            return null;
+        }
+    }
+
+    /**
+     * CREAR CÍRCULO 3D PARA EL CALCO
+     */
+    createCalcoCircle3D(center, radius, options = {}) {
+        try {
+            // Convertir radio de metros a unidades 3D (aproximadamente)
+            const radius3D = radius / 10; // Escala aproximada
+
+            const geometry = new THREE.CircleGeometry(radius3D, 32);
+            const material = new THREE.MeshLambertMaterial({
+                color: options.color || 0xffff00,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(center.x, center.y + 0.1, center.z);
+            mesh.rotation.x = -Math.PI / 2; // Orientar horizontalmente
+
+            mesh.userData = {
+                type: 'calco_circle',
+                originalOptions: options
+            };
+
+            mesh.receiveShadow = true;
+
+            return mesh;
+        } catch (error) {
+            console.warn('⚠️ Error creando círculo 3D del calco:', error);
+            return null;
+        }
+    }
+
+    /**
+     * LIMPIAR ELEMENTOS 3D DEL CALCO
+     */
+    clearCalco3DElements() {
+        if (!this.calco3DElements) return;
+
+        this.calco3DElements.forEach((elementData) => {
+            if (elementData.element3D && elementData.element3D.parent) {
+                elementData.element3D.parent.remove(elementData.element3D);
+            }
+        });
+
+        this.calco3DElements.clear();
+        console.log('🧹 Elementos 3D del calco limpiados');
+    }
+
+    /**
+     * ACTUALIZAR ELEMENTO 3D DEL CALCO
+     */
+    updateCalcoElement(layerId) {
+        if (!this.calco3DElements || !this.calco3DElements.has(layerId)) return;
+
+        const elementData = this.calco3DElements.get(layerId);
+        const layer = elementData.originalLayer;
+
+        // Remover elemento 3D anterior
+        if (elementData.element3D && elementData.element3D.parent) {
+            elementData.element3D.parent.remove(elementData.element3D);
+        }
+
+        // Reprocesar layer
+        this.processCalcoLayer(layer);
+    }
+
+    /**
+     * REMOVER ELEMENTO 3D DEL CALCO
+     */
+    removeCalcoElement(layerId) {
+        if (!this.calco3DElements || !this.calco3DElements.has(layerId)) return;
+
+        const elementData = this.calco3DElements.get(layerId);
+
+        // Remover de escena 3D
+        if (elementData.element3D && elementData.element3D.parent) {
+            elementData.element3D.parent.remove(elementData.element3D);
+        }
+
+        // Remover de mapa de elementos
+        this.calco3DElements.delete(layerId);
+    }
+
+    /**
+     * CONVERSIÓN MEJORADA DE COORDENADAS LAT/LNG A POSICIÓN 3D
+     * Considera el centro del mapa actual para mejor precisión
+     */
+    latLngToPosition(lat, lng) {
+        // Usar centro del mapa si está disponible
+        const centerLat = this.centerLat || (window.map && window.map.getCenter ? window.map.getCenter().lat : 0);
+        const centerLng = this.centerLng || (window.map && window.map.getCenter ? window.map.getCenter().lng : 0);
+
+        // Conversión más precisa usando distancia real
+        const R = 6371000; // Radio terrestre en metros
+
+        const dLat = (lat - centerLat) * Math.PI / 180;
+        const dLng = (lng - centerLng) * Math.PI / 180;
+
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(centerLat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        const distance = R * c; // Distancia en metros
+
+        // Calcular dirección
+        const y = distance * Math.cos(Math.atan2(dLng, dLat));
+        const x = distance * Math.sin(Math.atan2(dLng, dLat));
+
+        // Obtener elevación del terreno
+        const elevation = this.getTerrainHeightAt(x, y) || 0;
+
+        return new THREE.Vector3(x, elevation, y);
+    }
+};
 
 // ========================================
 // FUNCIONES GLOBALES DE COMPATIBILIDAD
 // ========================================
 
 /**
- * Toggle Vista 3D - Función global para compatibilidad
- */
-window.toggleVista3D = function() {
-    if (!window.maira3DMaster) {
-        // Inicializar sistema maestro
-        window.maira3DMaster = new MAIRA3DMaster();
-
-        window.maira3DMaster.initialize().then(() => {
-            window.maira3DMaster.setViewMode('3d');
-        }).catch(error => {
-            console.error('Error inicializando MAIRA 3D Master:', error);
-        });
-    } else {
-        // Toggle entre 2D y 3D
-        if (window.maira3DMaster.viewMode === '2d') {
-            window.maira3DMaster.setViewMode('3d');
-        } else {
-            window.maira3DMaster.setViewMode('2d');
-        }
-    }
-};
-
-/**
- * Sincronizar con mapa 2D - Función global
- */
-window.sync3DWith2D = function() {
-    if (window.maira3DMaster && window.maira3DMaster.syncWith2DMap) {
-        window.maira3DMaster.syncWith2DMap();
-    }
-};
-
-// ========================================
-// INICIALIZACIÓN AUTOMÁTICA
-// ========================================
-
-// Inicializar cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('🎯 MAIRA 3D Master - DOM listo, sistema preparado');
-    });
-} else {
-    console.log('🎯 MAIRA 3D Master - Sistema preparado');
-}
-
-// Exportar para módulos ES6 si es necesario
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MAIRA3DMaster;
-}
-
-console.log('🎯 MAIRA 3D Master - Sistema maestro cargado y listo');

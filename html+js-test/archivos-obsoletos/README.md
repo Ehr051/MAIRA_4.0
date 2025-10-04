@@ -1,8 +1,11 @@
 # 📁 Archivos Obsoletos - Sistema 3D MAIRA
 
-Esta carpeta contiene archivos que quedaron fuera de uso después de la **consolidación del Sistema 3D Maestro Unificado**.
+Esta carpeta contiene archivos que quedaron fuera de uso después de la **consolidación del Sistema 3D Maestro Unificado** y **limpieza de servicios no utilizados**.
 
 ## 📋 Archivos Movidos
+
+### 🔧 Servicios No Utilizados
+- `DeploymentService.js` - Servicio de despliegue dinámico de unidades (421 líneas) - **NO SE USABA EN NINGÚN LADO**
 
 ### 🔧 Sistemas 3D Anteriores (Consolidados)
 - `maira3DSystem.js` - Sistema 3D anterior, reemplazado por `maira3DMaster.js`
@@ -23,6 +26,7 @@ Después de unificar **6+ sistemas 3D fragmentados** en un **sistema maestro ún
 - Funcionalidades obsoletas
 - Tests redundantes
 - Versiones de desarrollo no necesarias
+- **Servicios implementados pero nunca utilizados**
 
 ## 📖 Sistema Actual
 
@@ -30,6 +34,7 @@ El sistema 3D actual está compuesto por:
 - `maira3DMaster.js` - Sistema maestro unificado
 - Componentes del ecosistema en `js/modules/gaming/`
 - Tests unificados en `html+js-test/`
+- **8 servicios utilizados activamente** en `/Client/js/services/`
 
 ## ⚠️ Importante
 

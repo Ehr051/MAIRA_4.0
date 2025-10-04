@@ -828,19 +828,34 @@ function activarVista3D() {
             
             is3DActive = true;
 
-            // Generar terreno usando datos dummy por ahora (evitar error de await)
-            const dummyElevationData = new Float32Array(256 * 256).fill(0);
-            threeDMapInstance.loadTerrain(dummyElevationData, null, {
-                width: 1000,
-                height: 1000
-            });
+            // Generar terreno usando datos reales de elevación
+            try {
+                console.log('🗻 Generando terreno con datos reales de elevación...');
+                const realElevationData = await generateRealTerrain();
 
-            // TODO: Implementar carga de terreno real cuando se resuelva el problema de async/await
-            // const realElevationData = await generateRealTerrain();
-            // threeDMapInstance.loadTerrain(realElevationData, null, {
-            //     width: 1000,
-            //     height: 1000
-            // });
+                if (realElevationData && realElevationData.data) {
+                    console.log('✅ Terreno real cargado exitosamente');
+                    threeDMapInstance.loadTerrain(realElevationData.data, null, {
+                        width: realElevationData.width,
+                        height: realElevationData.height
+                    });
+                } else {
+                    console.warn('⚠️ No se pudieron cargar datos reales, usando terreno plano');
+                    const dummyElevationData = new Float32Array(256 * 256).fill(0);
+                    threeDMapInstance.loadTerrain(dummyElevationData, null, {
+                        width: 256,
+                        height: 256
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error cargando terreno real:', error);
+                console.log('🔄 Fallback a terreno plano');
+                const dummyElevationData = new Float32Array(256 * 256).fill(0);
+                threeDMapInstance.loadTerrain(dummyElevationData, null, {
+                    width: 256,
+                    height: 256
+                });
+            }
             
             // 🔧 FORZAR RENDER INICIAL
             setTimeout(() => {
@@ -913,12 +928,12 @@ async function generateRealTerrain() {
         console.log('🗻 Generando terreno real para bounds:', bounds);
 
         // Verificar si tenemos el handler de elevación
-        if (!window.getElevation && !window.ElevationHandler) {
+        if (!window.getElevation && !window.elevationHandler) {
             console.warn('⚠️ Handler de elevación no disponible, usando terreno sintético');
             return generateBasicTerrain();
         }
 
-        const elevationHandler = window.ElevationHandler || { getElevation: window.getElevation };
+        const elevationHandler = window.ElevationHandler || window.elevationHandler || { getElevation: window.getElevation };
         const latStep = (bounds.north - bounds.south) / size;
         const lonStep = (bounds.east - bounds.west) / size;
 
