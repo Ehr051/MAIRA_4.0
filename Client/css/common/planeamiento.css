@@ -33,6 +33,7 @@ body {
     -moz-osx-font-smoothing: grayscale !important;
     display: inline-block !important;
     line-height: 1 !important;
+    color: #fff !important; /* Asegurar que TODOS los íconos sean visibles */
 }
 
 /* Asegurar que los elementos i con clases fa- funcionen */
@@ -41,9 +42,9 @@ i.fas:before, i.far:before, i.fab:before, i.fa:before {
 }
 
 /* IDs específicos para iconos críticos - evitar conflictos de clases */
-#fa-eye-icon:before { content: "\f06e" !important; }
-#fa-tools-icon:before { content: "\f7d9" !important; }
-#fa-cube-icon:before { content: "\f1b2" !important; }
+#fa-eye-icon:before { content: "\f06e" !important; color: #fff !important; }
+#fa-tools-icon:before { content: "\f7d9" !important; color: #fff !important; }
+#fa-cube-icon:before { content: "\f1b2" !important; color: #fff !important; }
 
 /* Variables */
 :root {
@@ -448,6 +449,7 @@ main {
     /* Adjust icon size as needed */
     margin-right: 5px;
     /* Add spacing between icon and text */
+    color: #fff !important; /* Asegurar que los íconos sean visibles */
 }
 
 /* Fullscreen Button */

@@ -460,6 +460,11 @@ function determinarContextoMapa(event) {
         }
     }
 
+    // En modo planeamiento, no mostrar menú de terreno si no hay elementos
+    if (window.sistemaPl) {
+        return 'nada'; // No mostrar menú en modo planeamiento sin elementos
+    }
+
     return 'terreno'; // Por defecto, terreno
 }
 
@@ -471,7 +476,57 @@ function desactivarClickDerecho() {
         // Usar menú radial en lugar del contextual tradicional
         if (window.MAIRARadialMenu) {
             const context = determinarContextoMapa(e);
-            window.MAIRARadialMenu.show(e.originalEvent.clientX, e.originalEvent.clientY, context);
+            let element = null;
+
+            // Buscar elemento bajo el cursor para centrar el menú
+            const elementsAtPoint = [];
+            mapa.eachLayer(function(layer) {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline || layer instanceof L.Polygon) {
+                    try {
+                        if (layer instanceof L.Marker && layer.getBounds) {
+                            if (layer.getBounds().contains(e.latlng)) {
+                                elementsAtPoint.push(layer);
+                            }
+                        } else if (layer instanceof L.Polyline || layer instanceof L.Polygon) {
+                            if (layer.getBounds && layer.getBounds().contains(e.latlng)) {
+                                elementsAtPoint.push(layer);
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Error checking layer bounds:', error);
+                    }
+                }
+            });
+
+            // Si hay elementos, calcular posición centrada en el primer elemento
+            let x = e.originalEvent.clientX;
+            let y = e.originalEvent.clientY;
+
+            if (elementsAtPoint.length > 0) {
+                const targetElement = elementsAtPoint[0];
+                element = targetElement;
+
+                try {
+                    if (targetElement instanceof L.Marker) {
+                        // Para marcadores, obtener la posición del pixel en pantalla
+                        const pixelPoint = mapa.latLngToContainerPoint(targetElement.getLatLng());
+                        x = pixelPoint.x;
+                        y = pixelPoint.y;
+                    } else if (targetElement instanceof L.Polyline || targetElement instanceof L.Polygon) {
+                        // Para polígonos/polylines, obtener el centro de los bounds
+                        const bounds = targetElement.getBounds();
+                        const center = bounds.getCenter();
+                        const pixelPoint = mapa.latLngToContainerPoint(center);
+                        x = pixelPoint.x;
+                        y = pixelPoint.y;
+                    }
+                } catch (error) {
+                    console.warn('Error calculando posición del elemento:', error);
+                    // Mantener posición del mouse como fallback
+                }
+            }
+
+            window.MAIRARadialMenu.show(x, y, context, element);
         } else {
             // Fallback al menú contextual tradicional si no está disponible
             mostrarMenuContextual(e);

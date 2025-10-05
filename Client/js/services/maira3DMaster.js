@@ -758,7 +758,23 @@ class MAIRA3DMaster {
             return model;
 
         } catch (error) {
-            console.error(`❌ Error cargando modelo ${modelType}:`, error);
+            console.warn(`⚠️ Modelo GLTF ${modelType} falló, usando símbolo vertical como alternativa:`, error);
+            
+            // Fallback: Crear símbolo vertical usando SIDC del modelType
+            const sidc = this.getSIDCFromModelType(modelType);
+            const positionVector = new THREE.Vector3(position.x, position.y, position.z);
+            const verticalSymbol = this.createVerticalSymbol(sidc, positionVector, {
+                size: 30,
+                height: 12,
+                scaleX: 12,
+                scaleY: 16
+            });
+            
+            if (verticalSymbol) {
+                console.log(`✅ Símbolo vertical creado para ${modelType} (SIDC: ${sidc})`);
+                return verticalSymbol;
+            }
+            
             return null;
         }
     }
@@ -797,6 +813,25 @@ class MAIRA3DMaster {
         }
 
         return 'soldier'; // Default
+    }
+
+    /**
+     * CONVERTIR TIPO DE MODELO A SIDC PARA SÍMBOLOS VERTICALES
+     */
+    getSIDCFromModelType(modelType) {
+        const sidcMap = {
+            'tank_tam': 'SFGPUCII------',      // Tanque amigo
+            'tank_tam_war': 'SFGPUCII------',  // Tanque amigo
+            'm113': 'SFGPUCV-------',          // APC amigo
+            'ural': 'SFGPUCR-------',           // Camión amigo
+            'humvee': 'SFGPUCR-------',         // Vehículo ligero amigo
+            'soldier': 'SHGPUCII------',        // Infantería amiga
+            'russian_soldier': 'SFGPUCII------', // Infantería enemiga (usando tanque como ejemplo)
+            'tent_military': 'GHGPGPA-------',  // Tienda militar
+            'medical_tent': 'GHGPGPA-------'    // Tienda médica
+        };
+
+        return sidcMap[modelType] || 'SHGPUCII------'; // Default: infantería amiga
     }
 
     /**
@@ -2128,6 +2163,133 @@ class MAIRA3DMaster {
         const elevation = this.getTerrainHeightAt(x, y) || 0;
 
         return new THREE.Vector3(x, elevation, y);
+    }
+
+    /**
+     * CREAR SÍMBOLO MILITAR VERTICAL COMO ALTERNATIVA A MODELOS 3D ROTOS
+     * Usa milsymbol para crear representaciones visuales verticales
+     */
+    createVerticalSymbol(sidc, position, options = {}) {
+        try {
+            // Verificar que milsymbol esté disponible
+            if (typeof ms === 'undefined' && typeof milsymbol === 'undefined') {
+                console.warn('⚠️ Milsymbol no disponible, creando símbolo básico');
+                return this.createBasicVerticalSymbol(sidc, position, options);
+            }
+
+            const symbolLib = typeof ms !== 'undefined' ? ms : milsymbol;
+
+            // Crear símbolo con milsymbol
+            const symbolOptions = {
+                size: options.size || 35,
+                fill: options.fill !== false,
+                frame: options.frame !== false,
+                strokeWidth: options.strokeWidth || 2,
+                ...options
+            };
+
+            const symbol = new symbolLib.Symbol(sidc, symbolOptions);
+
+            // Convertir SVG a canvas
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = symbolOptions.size * 2;
+            canvas.height = symbolOptions.size * 2.5; // Espacio extra para el poste vertical
+
+            // Dibujar poste vertical (línea al piso)
+            context.strokeStyle = '#000000';
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(canvas.width / 2, symbolOptions.size);
+            context.lineTo(canvas.width / 2, canvas.height);
+            context.stroke();
+
+            // Dibujar símbolo arriba del poste
+            const img = new Image();
+            img.onload = () => {
+                context.drawImage(img, 0, 0, symbolOptions.size, symbolOptions.size);
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(symbol.asSVG());
+
+            // Crear textura y sprite
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.generateMipmaps = false;
+            texture.minFilter = THREE.LinearFilter;
+
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                alphaTest: 0.1
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Posicionar verticalmente
+            sprite.position.copy(position);
+            sprite.position.y += options.height || 10; // Altura sobre el terreno
+            sprite.scale.set(options.scaleX || 15, options.scaleY || 20, 1);
+
+            return sprite;
+
+        } catch (error) {
+            console.warn('⚠️ Error creando símbolo vertical con milsymbol:', error);
+            return this.createBasicVerticalSymbol(sidc, position, options);
+        }
+    }
+
+    /**
+     * CREAR SÍMBOLO BÁSICO VERTICAL CUANDO MILSMBOL NO ESTÁ DISPONIBLE
+     */
+    createBasicVerticalSymbol(sidc, position, options = {}) {
+        try {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 128;
+            canvas.height = 192; // Espacio para símbolo + poste
+
+            // Fondo transparente
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar poste vertical
+            context.strokeStyle = '#000000';
+            context.lineWidth = 3;
+            context.beginPath();
+            context.moveTo(canvas.width / 2, 64);
+            context.lineTo(canvas.width / 2, canvas.height);
+            context.stroke();
+
+            // Dibujar símbolo básico (cuadrado para unidades terrestres)
+            context.fillStyle = '#4CAF50'; // Verde para friendly
+            context.fillRect(32, 16, 64, 48);
+
+            // Texto SIDC simplificado
+            context.fillStyle = '#FFFFFF';
+            context.font = 'bold 12px Arial';
+            context.textAlign = 'center';
+            context.fillText(sidc.substring(0, 4), canvas.width / 2, 40);
+
+            // Crear textura y sprite
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.generateMipmaps = false;
+            texture.minFilter = THREE.LinearFilter;
+
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                alphaTest: 0.1
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Posicionar verticalmente
+            sprite.position.copy(position);
+            sprite.position.y += options.height || 8;
+            sprite.scale.set(options.scaleX || 12, options.scaleY || 16, 1);
+
+            return sprite;
+
+        } catch (error) {
+            console.warn('⚠️ Error creando símbolo básico vertical:', error);
+            return null;
+        }
     }
 };
 

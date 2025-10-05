@@ -262,9 +262,14 @@ const HexGrid = {
     },
 
     clearSelection: function() {
-        if (this.currentSelection) {
-            this.currentSelection.polygon.getElement().classList.remove('hex-selected');
-            console.log('🔸 Selección temporal limpiada:', this.currentSelection.hexKey);
+        if (this.currentSelection && this.currentSelection.polygon) {
+            const element = this.currentSelection.polygon.getElement();
+            if (element && element.classList) {
+                element.classList.remove('hex-selected');
+                console.log('🔸 Selección temporal limpiada:', this.currentSelection.hexKey);
+            } else {
+                console.warn('⚠️ Elemento del hexágono no disponible para limpiar selección');
+            }
             this.currentSelection = null;
         }
     },
