@@ -21,17 +21,27 @@ function classifyPixel(r, g, b, thresholds) {
         return 'water';
     }
     
-    // 2. Vegetación (verde predominante)
-    const veg = thresholds.vegetation;
-    if (
-        r >= veg.minR && r <= veg.maxR &&
-        g >= veg.minG && g <= veg.maxG &&
-        b >= veg.minB && b <= veg.maxB &&
-        g > r * veg.minRatio &&
-        g > b
-    ) {
+    // 2. Vegetación SUPER OSCURA (solo árboles densos/bosques)
+    // ⚠️ CRITERIOS EXTREMADAMENTE ESTRICTOS
+    // Queremos: RGB tipo (20-40, 40-70, 20-40) = verde muy oscuro
+    const totalBrightness = r + g + b;
+    const isGreen = g > r && g > b;
+    const isVeryDark = totalBrightness < 120;       // 🔴 SUPER OSCURO (120 en lugar de 150)
+    const hasStrongGreen = g >= 40 && g <= 80;      // 🔴 Verde entre 40-80 (no muy brillante)
+    const lowRed = r < 50;                          // 🔴 Rojo BAJO (menos de 50)
+    const lowBlue = b < 50;                         // 🔴 Azul BAJO (menos de 50)
+    const hasStrongDominance = (g - r) >= 15 && (g - b) >= 15; // 🔴 Dominancia ALTA
+    
+    if (isGreen && isVeryDark && hasStrongGreen && lowRed && lowBlue && hasStrongDominance) {
         return 'vegetation';
     }
+    
+    // 2.5. CÉSPED (verde claro/medio) - DESACTIVADO (quedaba horrible)
+    // const isMediumBright = totalBrightness >= 120 && totalBrightness < 350;
+    // const hasGreenDominance = g > r && g > b && (g - r) >= 8 && (g - b) >= 8;
+    // if (isGreen && isMediumBright && hasGreenDominance) {
+    //     return 'grass';
+    // }
     
     // 3. Caminos (gris uniforme)
     const road = thresholds.road;
@@ -79,6 +89,7 @@ function analyzeImage(imageData, config) {
     
     const features = {
         vegetation: [],
+        grass: [],          // 🌱 NUEVO: césped verde claro
         roads: [],
         buildings: [],
         water: [],

@@ -546,28 +546,33 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // Configuración de densidad por tipo (SOLO ÁRBOLES OSCUROS)
+        // � ESCALA FIJA REALISTA: Árboles de 4-6 metros (sin factor dinámico)
+        // Los árboles deben medir siempre lo mismo independiente del zoom
+        
+        console.log(`📐 Escala FIJA realista: árboles 0.04-0.06m (modelo MUY grande)`);
+        
+        // Configuración de densidad por tipo
         const densityConfig = {
             'vegetation': { 
-                density: 0.00,          // 0% - DESACTIVADO (ignoramos verde medio)
-                type: 'bush', 
-                scale: [0.7, 1.3],      
+                density: 3.00,          // 90% - Densidad alta para vegetación detectada
+                type: 'tree_tall',      // Usa arbol.glb
+                scale: [0.04, 0.08],    // 🌳 0.04-0.06 (modelo arbol.glb es GIGANTE)
                 priority: 2
             },
             'forest': { 
-                density: 0.50,          // 50% - AUMENTADO para que se vean bien los árboles
-                type: 'tree_tall', 
-                scale: [4.0, 6.0],      // 🔴 x5 MÁS GRANDE - Árboles enormes
+                density: 0.30,          // 30% para bosques densos
+                type: 'tree_tall',      // Usa arbol.glb
+                scale: [0.05, 0.08],    // 🌲 0.05-0.08 metros para bosques
                 priority: 1
             },
             'grass': { 
-                density: 0.00,          // 0% - DESACTIVADO (ignoramos verde claro)
+                density: 0.00,          // ❌ DESACTIVADO - Quedaba horrible
                 type: 'grass', 
-                scale: [0.2, 0.4],      
+                scale: [0.0005, 0.001], 
                 priority: 3
             },
             'crops': { 
-                density: 0.00,          // 0% - DESACTIVADO (ignoramos cultivos)
+                density: 0.00,          // 0% - DESACTIVADO
                 type: 'bush', 
                 scale: [0.6, 1.0],
                 priority: 2
@@ -577,7 +582,6 @@ class TerrainGenerator3D {
         console.log(`📊 Configuración de densidad:`, Object.fromEntries(
             Object.entries(densityConfig).map(([k, v]) => [k, `${(v.density * 100).toFixed(0)}%`])
         ));
-        
         // Contador de instancias por tipo
         const instanceCounts = {};
         
@@ -972,7 +976,13 @@ class TerrainGenerator3D {
                 const bbox = geometry.boundingBox;
                 modelYOffset = -bbox.min.y;
                 
-                console.log(`📐 Modelo '${type}': bbox.min.y=${bbox.min.y.toFixed(2)}, offset=${modelYOffset.toFixed(2)}`);
+                // 🌱 AJUSTE ESPECIAL: Césped debe estar pegado al suelo
+                if (type === 'grass') {
+                    modelYOffset = 0; // Forzar que esté exactamente sobre el suelo
+                    console.log(`🌱 Césped: offset forzado a 0 (pegado al suelo)`);
+                } else {
+                    console.log(`📐 Modelo '${type}': bbox.min.y=${bbox.min.y.toFixed(2)}, offset=${modelYOffset.toFixed(2)}`);
+                }
                 
                 // �🚀 OPTIMIZACIÓN: Cachear para reutilizar
                 this.geometryCache.set(type, geometry);

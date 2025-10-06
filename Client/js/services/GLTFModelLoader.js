@@ -21,7 +21,7 @@ class GLTFModelLoader {
         // Mapeo de tipos de vegetación a archivos GLB
         // ✅ OPTIMIZADO: Usar modelos low-poly para mejor rendimiento
         this.vegetationModels = {
-            'tree_tall': 'trees_low.glb',          // 2.4MB - Árboles low poly (optimizado)
+            'tree_tall': 'arbol.glb',              // Árbol simple (TEST)
             'tree_medium': 'trees_low.glb',        // 2.4MB - Árboles low poly
             'tree_oak': 'AnimatedOak.glb',         // 81MB - Oak animado (solo para casos especiales)
             'tree': 'arbol alto.glb',              // 8.9MB - Árbol genérico alto

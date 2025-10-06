@@ -1,0 +1,463 @@
+{
+  "metadata": {
+    "version": "1.1.0",
+    "created_date": "2025-10-06",
+    "description": "Especificaciones técnicas militares detalladas - Elevación de cañón, sensores, LOS",
+    "classification": "RESERVADO",
+    "purpose": "Sistema 3D MAIRA - Cálculos realistas de LOS y combate"
+  },
+  "weapon_systems": {
+    "tam": {
+      "nombre": "TAM (Tanque Argentino Mediano)",
+      "tipo": "Tanque Medio",
+      "armamento_principal": {
+        "arma": "Cañón SK-105/A2",
+        "calibre": "105mm",
+        "tipo": "Rifled Gun",
+        "elevation": {
+          "max": 15,
+          "min": -8,
+          "unidad": "grados",
+          "descripcion": "Depresión -8° / Elevación +15°"
+        },
+        "traverse": {
+          "total": 360,
+          "velocidad": 40,
+          "unidad_velocidad": "grados/segundo"
+        },
+        "alcance": {
+          "efectivo": 2500,
+          "maximo": 3000,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["APFSDS", "HEAT", "HE"],
+          "capacidad_total": 50
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 3000,
+          "alcance_noche": 800,
+          "tipo": "Óptico + Térmico"
+        },
+        "telemetro": {
+          "tipo": "Láser",
+          "alcance": 4000,
+          "precision": 10
+        }
+      },
+      "altura_torre": 2.42,
+      "altura_total": 2.42,
+      "observador_altura": 2.8
+    },
+    "tam2c": {
+      "nombre": "TAM 2C (Modernizado)",
+      "tipo": "Tanque Medio Modernizado",
+      "armamento_principal": {
+        "arma": "Cañón Cockerill 120mm",
+        "calibre": "120mm",
+        "tipo": "Smoothbore",
+        "elevation": {
+          "max": 18,
+          "min": -10,
+          "unidad": "grados",
+          "descripcion": "Depresión -10° / Elevación +18°"
+        },
+        "traverse": {
+          "total": 360,
+          "velocidad": 45,
+          "unidad_velocidad": "grados/segundo"
+        },
+        "alcance": {
+          "efectivo": 3000,
+          "maximo": 4000,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["APFSDS-T", "HEAT-MP", "HE-FRAG"],
+          "capacidad_total": 40
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 4000,
+          "alcance_noche": 2000,
+          "tipo": "Térmico Gen 3 + Óptico"
+        },
+        "telemetro": {
+          "tipo": "Láser",
+          "alcance": 5000,
+          "precision": 5
+        }
+      },
+      "altura_torre": 2.45,
+      "altura_total": 2.45,
+      "observador_altura": 2.9
+    },
+    "sk105": {
+      "nombre": "SK-105 Kürassier",
+      "tipo": "Cazacarros Ligero",
+      "armamento_principal": {
+        "arma": "Cañón SK-105",
+        "calibre": "105mm",
+        "tipo": "Rifled Gun",
+        "elevation": {
+          "max": 12,
+          "min": -6,
+          "unidad": "grados",
+          "descripcion": "Depresión -6° / Elevación +12°"
+        },
+        "traverse": {
+          "total": 360,
+          "velocidad": 35,
+          "unidad_velocidad": "grados/segundo"
+        },
+        "alcance": {
+          "efectivo": 1500,
+          "maximo": 2000,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["HEAT", "HE", "Smoke"],
+          "capacidad_total": 41
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 2000,
+          "alcance_noche": 600,
+          "tipo": "Óptico"
+        },
+        "telemetro": {
+          "tipo": "Óptico",
+          "alcance": 2500,
+          "precision": 20
+        }
+      },
+      "altura_torre": 2.10,
+      "altura_total": 2.10,
+      "observador_altura": 2.5
+    },
+    "artillery_155mm": {
+      "nombre": "Cañón Oto Melara 155mm",
+      "tipo": "Artillería Remolcada",
+      "armamento_principal": {
+        "arma": "Obús 155mm L/33",
+        "calibre": "155mm",
+        "tipo": "Howitzer",
+        "elevation": {
+          "max": 70,
+          "min": -5,
+          "unidad": "grados",
+          "descripcion": "Depresión -5° / Elevación +70° (tiro indirecto)"
+        },
+        "traverse": {
+          "total": 56,
+          "velocidad": 10,
+          "unidad_velocidad": "grados/segundo"
+        },
+        "alcance": {
+          "efectivo": 18000,
+          "maximo": 24000,
+          "maximo_extended": 30000,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["HE", "AP", "HESH", "Smoke", "Iluminación"],
+          "capacidad_total": 40
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 1500,
+          "alcance_noche": 400,
+          "tipo": "Óptico"
+        }
+      },
+      "altura_total": 2.50,
+      "observador_altura": 2.2
+    },
+    "mortar_120mm": {
+      "nombre": "Mortero 120mm",
+      "tipo": "Mortero Pesado",
+      "armamento_principal": {
+        "arma": "Mortero 120mm",
+        "calibre": "120mm",
+        "tipo": "Mortar",
+        "elevation": {
+          "max": 85,
+          "min": 45,
+          "unidad": "grados",
+          "descripcion": "Elevación 45° a 85° (tiro parabólico)"
+        },
+        "traverse": {
+          "total": 360,
+          "velocidad": 5,
+          "unidad_velocidad": "manual"
+        },
+        "alcance": {
+          "minimo": 400,
+          "efectivo": 4000,
+          "maximo": 7000,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["HE", "Smoke", "Iluminación"],
+          "capacidad_total": 30
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 1000,
+          "alcance_noche": 300,
+          "tipo": "Óptico"
+        }
+      },
+      "altura_total": 1.20,
+      "observador_altura": 1.8
+    },
+    "mortar_81mm": {
+      "nombre": "Mortero 81mm",
+      "tipo": "Mortero Medio",
+      "armamento_principal": {
+        "arma": "Mortero 81mm",
+        "calibre": "81mm",
+        "tipo": "Mortar",
+        "elevation": {
+          "max": 85,
+          "min": 45,
+          "unidad": "grados",
+          "descripcion": "Elevación 45° a 85° (tiro parabólico)"
+        },
+        "traverse": {
+          "total": 360,
+          "velocidad": 5,
+          "unidad_velocidad": "manual"
+        },
+        "alcance": {
+          "minimo": 300,
+          "efectivo": 3200,
+          "maximo": 5700,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["HE", "Smoke", "Iluminación"],
+          "capacidad_total": 40
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 800,
+          "alcance_noche": 250,
+          "tipo": "Óptico"
+        }
+      },
+      "altura_total": 0.80,
+      "observador_altura": 1.7
+    },
+    "infantry_soldier": {
+      "nombre": "Soldado de Infantería",
+      "tipo": "Personal",
+      "armamento_principal": {
+        "arma": "FAL",
+        "calibre": "7.62mm",
+        "tipo": "Rifle",
+        "elevation": {
+          "max": 90,
+          "min": -20,
+          "unidad": "grados",
+          "descripcion": "Disparo desde cualquier ángulo"
+        },
+        "alcance": {
+          "efectivo": 400,
+          "maximo": 600,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["Ball", "Tracer", "AP"],
+          "capacidad_cargador": 20,
+          "cargadores_totales": 5
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 500,
+          "alcance_noche": 100,
+          "tipo": "Ojo humano"
+        }
+      },
+      "altura_soldado": 1.75,
+      "observador_altura": 1.7,
+      "observador_agachado": 1.2,
+      "observador_prono": 0.5
+    },
+    "infantry_at": {
+      "nombre": "Soldado Antitanque (AT4/RPG)",
+      "tipo": "Infantería Antitanque",
+      "armamento_principal": {
+        "arma": "AT4/RPG-7",
+        "calibre": "84mm",
+        "tipo": "Lanzacohetes",
+        "elevation": {
+          "max": 30,
+          "min": -10,
+          "unidad": "grados",
+          "descripcion": "Limitado por portabilidad"
+        },
+        "alcance": {
+          "efectivo": 300,
+          "maximo": 500,
+          "unidad": "metros"
+        },
+        "municion": {
+          "tipos": ["HEAT", "HE"],
+          "capacidad_total": 5
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 800,
+          "alcance_noche": 200,
+          "tipo": "Óptico + Mira"
+        }
+      },
+      "altura_soldado": 1.75,
+      "observador_altura": 1.7
+    },
+    "recon_vehicle": {
+      "nombre": "Vehículo de Reconocimiento",
+      "tipo": "Reconocimiento",
+      "armamento_principal": {
+        "arma": "Ametralladora 12.7mm",
+        "calibre": "12.7mm",
+        "tipo": "HMG",
+        "elevation": {
+          "max": 60,
+          "min": -15,
+          "unidad": "grados",
+          "descripcion": "Montaje flexible"
+        },
+        "alcance": {
+          "efectivo": 1500,
+          "maximo": 2000,
+          "unidad": "metros"
+        }
+      },
+      "sensores": {
+        "visual": {
+          "alcance_dia": 5000,
+          "alcance_noche": 3000,
+          "tipo": "Térmico + Óptico avanzado"
+        },
+        "radar": {
+          "tipo": "Ground surveillance",
+          "alcance": 8000
+        },
+        "telemetro": {
+          "tipo": "Láser",
+          "alcance": 6000,
+          "precision": 5
+        }
+      },
+      "altura_total": 2.00,
+      "observador_altura": 3.5
+    }
+  },
+  "los_calculation_rules": {
+    "description": "Reglas para cálculo de Line of Sight esférico 3D",
+    "sphere_resolution": {
+      "horizontal_rays": 64,
+      "vertical_rays": 16,
+      "description": "Rayos para formar esfera de visibilidad completa"
+    },
+    "elevation_rules": {
+      "description": "Reglas de elevación para disparo",
+      "direct_fire": {
+        "descripcion": "Fuego directo (tanques, AT)",
+        "max_elevation": 20,
+        "los_required": true
+      },
+      "indirect_fire": {
+        "descripcion": "Fuego indirecto (artillería, morteros)",
+        "min_elevation": 45,
+        "los_required": false,
+        "spotter_required": true
+      }
+    },
+    "terrain_effects": {
+      "hill_advantage": {
+        "descripcion": "Bonus por altura",
+        "formula": "range_bonus = (altura_propia - altura_objetivo) * 10m",
+        "max_bonus": 500
+      },
+      "dead_ground": {
+        "descripcion": "Terreno muerto (valles ocultos)",
+        "detection": "raycasting con terreno mesh"
+      }
+    },
+    "weather_modifiers": {
+      "clear": {
+        "visual_range": 1.0,
+        "thermal_range": 1.0
+      },
+      "rain": {
+        "visual_range": 0.7,
+        "thermal_range": 0.9
+      },
+      "fog": {
+        "visual_range": 0.3,
+        "thermal_range": 0.6
+      },
+      "night": {
+        "visual_range": 0.2,
+        "thermal_range": 1.0,
+        "nvg_range": 0.8
+      }
+    }
+  },
+  "engagement_zones": {
+    "description": "Zonas de enfrentamiento según tipo de unidad y elevación",
+    "tank_vs_tank": {
+      "optimal_range": {
+        "min": 800,
+        "max": 2500,
+        "unit": "metros"
+      },
+      "hull_down": {
+        "descripcion": "Tanque en posición de casco oculto",
+        "elevation_exposed": "Solo torre visible",
+        "detection_modifier": 0.5
+      }
+    },
+    "infantry_vs_tank": {
+      "optimal_range": {
+        "min": 50,
+        "max": 300,
+        "unit": "metros"
+      },
+      "elevation_advantage": {
+        "descripcion": "Infantería en altura puede atacar techo de tanque",
+        "required_elevation_diff": 15,
+        "damage_bonus": 1.5
+      }
+    },
+    "artillery_fire_missions": {
+      "time_of_flight": {
+        "formula": "TOF = sqrt(2 * alcance / gravedad) * sin(elevation)",
+        "typical_range": {
+          "5km": "30s",
+          "10km": "45s",
+          "20km": "90s"
+        }
+      }
+    }
+  },
+  "notes": {
+    "steel_beasts_inspiration": "Sistema inspirado en Steel Beasts Pro PE",
+    "total_war_hybrid": "Combinación mapa 2D estratégico + 3D táctico como Total War",
+    "realistic_terrain": "Terreno real de Argentina usando datos TIF/DEM",
+    "web_limitations": "Optimizado para navegador, no FPS individual",
+    "tactical_focus": "Énfasis en táctica de formaciones y terreno, no rol individual"
+  }
+}

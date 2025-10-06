@@ -536,7 +536,7 @@ class SatelliteImageAnalyzer {
      */
     async classifyVegetationType(r, g, b, threshold, x = null, y = null) {
         // 🌲 SIMPLIFICADO: Solo detectar VERDE OSCURO = ÁRBOLES
-        // Ignorar verde claro (pasto) completamente
+        // Criterios más PERMISIVOS para detectar más árboles
         
         const totalBrightness = r + g + b;
         
@@ -549,28 +549,28 @@ class SatelliteImageAnalyzer {
             console.log(`🔍 Píxel #${this._classifyDebugCount}: RGB(${r},${g},${b}) → brightness=${totalBrightness}`);
         }
         
-        // ✅ VERDE OSCURO = ÁRBOLES ALTOS
-        // Condiciones ESTRICTAS:
+        // ✅ VERDE = ÁRBOLES (criterios MÁS PERMISIVOS)
+        // Condiciones:
         // 1. Verde debe ser dominante (g > r y g > b)
-        // 2. Brightness BAJO (oscuro) < 200
-        // 3. Verde intenso (g >= 50)
-        // 4. Diferencia clara: g debe ser al menos 15 puntos mayor que r y b
+        // 2. Brightness MEDIO-BAJO < 250 (más permisivo)
+        // 3. Verde mínimo (g >= 30)
+        // 4. Diferencia mínima: g al menos 10 puntos mayor que r y b
         
         const isGreen = g > r && g > b;
-        const isDark = totalBrightness < 200;
-        const hasIntenseGreen = g >= 50;
-        const hasStrongGreenDominance = (g - r) >= 15 && (g - b) >= 15;
+        const isDarkish = totalBrightness < 250; // Más permisivo
+        const hasGreen = g >= 30; // Más permisivo
+        const hasGreenDominance = (g - r) >= 10 && (g - b) >= 10; // Más permisivo
         
-        if (isGreen && isDark && hasIntenseGreen && hasStrongGreenDominance) {
+        if (isGreen && isDarkish && hasGreen && hasGreenDominance) {
             if (this._classifyDebugCount <= 20) {
-                console.log(`  ✅ FOREST detectado (verde oscuro)`);
+                console.log(`  ✅ FOREST detectado`);
             }
             return 'forest';
         }
         
         // ❌ TODO LO DEMÁS: IGNORAR (no agregar vegetación)
         if (this._classifyDebugCount <= 20) {
-            console.log(`  ❌ IGNORADO (no es verde oscuro suficiente)`);
+            console.log(`  ❌ IGNORADO (no es verde suficiente)`);
         }
         return null;
     }
