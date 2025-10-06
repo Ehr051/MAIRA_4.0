@@ -91,9 +91,11 @@
   <script src="/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
   <script src="/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="/node_modules/proj4/dist/proj4.js"></script>
-  <!-- Three.js para visualización 3D - Versión local independiente -->
-  <script src="/Client/Libs/three/three.min.js"></script>
-  <script src="/Client/Libs/three/GLTFLoader.js"></script>
+  
+  <!-- ✅ THREE.js CORREGIDO - Usando carpeta mythree adaptada -->
+  <script src="Libs/mythree/three.min.js"></script>
+  <script src="Libs/mythree/GLTFLoader.js"></script>
+  <script src="Libs/mythree/OrbitControls.js"></script>
 
   <!-- ECOSISTEMA 3D COMPLETO - Componentes del sistema unificado -->
   <script src="js/modules/gaming/modelos3DManager.js"></script>
@@ -128,10 +130,10 @@
   <script src="js/utils/config.js"></script>
   <script src="js/common/networkConfig.js"></script>
 
-  <!-- �🔄 SERVICES (archivos que existen) -->
+  <!-- 🔄 SERVICES (archivos que existen) -->
   <script src="js/services/transitabilityService.js"></script>
   <script src="js/services/militaryDataService.js"></script>
-  <script src="js/services/DeploymentService.js"></script>
+  <!-- <script src="js/services/DeploymentService.js"></script> COMENTADO - En archivos-obsoletos -->
 
   <!-- 🎯 PANEL UNIFICADO - ELIMINADO: Reemplazado por Panel Inferior Unificado -->
   

@@ -72,7 +72,12 @@ class MAIRA3DMaster {
                 'soldier': '/backup_gltf_models/gltf_new/soldier/scene.gltf',
                 'russian_soldier': '/backup_gltf_models/gltf_new/russian_soldier/scene.gltf',
                 'tent_military': '/backup_gltf_models/gltf_new/tent_military/scene.gltf',
-                'medical_tent': '/backup_gltf_models/gltf_new/medical_tent/scene.gltf'
+                'medical_tent': '/backup_gltf_models/gltf_new/medical_tent/scene.gltf',
+                // Modelos de vegetación
+                'grass': '/backup_gltf_models/gltf_new/vegetation/grass/scene.gltf',
+                'tree_tall': '/backup_gltf_models/gltf_new/vegetation/tree_tall/scene.gltf',
+                'tree_medium': '/backup_gltf_models/gltf_new/vegetation/tree_medium/scene.gltf',
+                'bush': '/backup_gltf_models/gltf_new/vegetation/bush/scene.gltf'
             },
             terrain: {
                 size: 2000,
@@ -542,11 +547,14 @@ class MAIRA3DMaster {
             <div class="panel-controls">
                 <label><input type="checkbox" id="show-units" checked> 👥 Unidades</label>
                 <label><input type="checkbox" id="show-buildings"> 🏢 Edificios</label>
+                <label><input type="checkbox" id="show-vegetation" checked> 🌳 Vegetación</label>
                 <label><input type="checkbox" id="show-terrain" checked> 🌍 Terreno</label>
                 <label><input type="checkbox" id="real-models" checked> 🎨 Modelos Reales</label>
             </div>
             <div class="panel-actions">
                 <button id="sync-2d">🔄 Sincronizar 2D</button>
+                <button id="add-test-vegetation">🌱 Agregar Vegetación</button>
+                <button id="clear-vegetation">🧹 Limpiar Vegetación</button>
                 <button id="reset-view">📷 Reset Vista</button>
                 <button id="export-3d">💾 Exportar</button>
             </div>
@@ -611,6 +619,8 @@ class MAIRA3DMaster {
 
         // Acciones
         this.uiPanel.querySelector('#sync-2d').addEventListener('click', () => this.syncWith2DMap());
+        this.uiPanel.querySelector('#add-test-vegetation').addEventListener('click', () => this.addTestVegetation());
+        this.uiPanel.querySelector('#clear-vegetation').addEventListener('click', () => this.clearVegetation());
         this.uiPanel.querySelector('#reset-view').addEventListener('click', () => this.resetView());
         this.uiPanel.querySelector('#export-3d').addEventListener('click', () => this.exportScene());
     }
@@ -706,6 +716,97 @@ class MAIRA3DMaster {
             // Fallback: crear geometría básica
             return this.createFallbackUnit(unitData);
         }
+    }
+
+    /**
+     * AGREGAR ELEMENTO DE VEGETACIÓN
+     */
+    async addVegetation(vegetationData) {
+        try {
+            const { id, type, lat, lng, scale = 1, rotation = 0 } = vegetationData;
+
+            // Validar tipo de vegetación
+            const validTypes = ['grass', 'tree_tall', 'tree_medium', 'bush'];
+            if (!validTypes.includes(type)) {
+                console.warn(`⚠️ Tipo de vegetación inválido: ${type}`);
+                return null;
+            }
+
+            // Convertir coordenadas geográficas a posición 3D
+            const position = this.latLngToPosition(lat, lng);
+
+            // Cargar modelo de vegetación
+            const vegetationMesh = await this.loadModel(type, position);
+
+            if (vegetationMesh) {
+                // Configurar propiedades
+                vegetationMesh.userData = {
+                    id,
+                    type: 'vegetation',
+                    vegetationType: type,
+                    lat,
+                    lng,
+                    scale,
+                    rotation,
+                    selectable: false // La vegetación generalmente no es seleccionable
+                };
+
+                // Aplicar escala y rotación personalizadas
+                vegetationMesh.scale.multiplyScalar(scale);
+                vegetationMesh.rotation.y = rotation;
+
+                // Configurar físicas
+                vegetationMesh.castShadow = true;
+                vegetationMesh.receiveShadow = true;
+
+                // Ajustar posición Y para que toque el terreno
+                vegetationMesh.position.y = this.getTerrainHeightAt(position.x, position.z);
+
+                this.scene.add(vegetationMesh);
+                this.vegetation.set(id, vegetationMesh);
+
+                console.log(`✅ Elemento de vegetación agregado: ${type} (ID: ${id})`);
+                return vegetationMesh;
+            }
+
+        } catch (error) {
+            console.error('❌ Error agregando elemento de vegetación:', error);
+            // Fallback: crear geometría básica de vegetación
+            return this.createFallbackVegetation(vegetationData);
+        }
+    }
+
+    /**
+     * LIMPIAR TODA LA VEGETACIÓN
+     */
+    clearVegetation() {
+        this.vegetation.forEach(veg => {
+            this.scene.remove(veg);
+        });
+        this.vegetation.clear();
+        console.log('🧹 Vegetación limpiada');
+    }
+
+    /**
+     * AGREGAR VEGETACIÓN DE PRUEBA
+     */
+    async addTestVegetation() {
+        const testVegetation = [
+            { id: 'grass_1', type: 'grass', lat: -34.6037, lng: -58.3816, scale: 1, rotation: 0 },
+            { id: 'tree_tall_1', type: 'tree_tall', lat: -34.6038, lng: -58.3817, scale: 1.2, rotation: Math.PI/4 },
+            { id: 'tree_medium_1', type: 'tree_medium', lat: -34.6039, lng: -58.3818, scale: 0.9, rotation: Math.PI/2 },
+            { id: 'bush_1', type: 'bush', lat: -34.6040, lng: -58.3819, scale: 1.5, rotation: Math.PI/3 },
+            { id: 'grass_2', type: 'grass', lat: -34.6041, lng: -58.3820, scale: 0.8, rotation: Math.PI/6 },
+            { id: 'tree_tall_2', type: 'tree_tall', lat: -34.6042, lng: -58.3821, scale: 1, rotation: 0 }
+        ];
+
+        console.log('🌱 Agregando vegetación de prueba...');
+
+        for (const vegData of testVegetation) {
+            await this.addVegetation(vegData);
+        }
+
+        console.log(`✅ Agregadas ${testVegetation.length} elementos de vegetación de prueba`);
     }
 
     /**
@@ -828,10 +929,20 @@ class MAIRA3DMaster {
             'soldier': 'SHGPUCII------',        // Infantería amiga
             'russian_soldier': 'SFGPUCII------', // Infantería enemiga (usando tanque como ejemplo)
             'tent_military': 'GHGPGPA-------',  // Tienda militar
-            'medical_tent': 'GHGPGPA-------'    // Tienda médica
+            'medical_tent': 'GHGPGPA-------',   // Tienda médica
+            // Modelos de vegetación (no requieren SIDC militar)
+            'grass': null,                      // Pasto
+            'tree_tall': null,                  // Árbol alto
+            'tree_medium': null,                // Árbol mediano
+            'bush': null                         // Arbusto
         };
 
-        return sidcMap[modelType] || 'SHGPUCII------'; // Default: infantería amiga
+        // Para modelos de vegetación, devolver null explícitamente
+        if (modelType in sidcMap) {
+            return sidcMap[modelType];
+        }
+
+        return 'SHGPUCII------'; // Default: infantería amiga
     }
 
     /**
@@ -910,6 +1021,86 @@ class MAIRA3DMaster {
 
         this.scene.add(mesh);
         this.militaryUnits.set(id, mesh);
+
+        return mesh;
+    }
+
+    /**
+     * VEGETACIÓN FALLBACK (GEOMETRÍA BÁSICA)
+     */
+    createFallbackVegetation(vegetationData) {
+        const { id, type, scale = 1, rotation = 0 } = vegetationData;
+
+        // Geometría básica según tipo de vegetación
+        let geometry, material;
+
+        switch (type) {
+            case 'grass':
+                // Pasto: plano con textura verde
+                geometry = new THREE.PlaneGeometry(2 * scale, 2 * scale);
+                material = new THREE.MeshLambertMaterial({
+                    color: 0x228B22,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+                break;
+
+            case 'tree_tall':
+                // Árbol alto: cilindro verde con esfera en la copa
+                geometry = new THREE.CylinderGeometry(0.5 * scale, 0.8 * scale, 8 * scale, 8);
+                material = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); // Marrón para el tronco
+                break;
+
+            case 'tree_medium':
+                // Árbol mediano: cilindro más pequeño
+                geometry = new THREE.CylinderGeometry(0.4 * scale, 0.6 * scale, 6 * scale, 8);
+                material = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                break;
+
+            case 'bush':
+                // Arbusto: esfera verde
+                geometry = new THREE.SphereGeometry(1.5 * scale, 8, 6);
+                material = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+                break;
+
+            default:
+                // Default: esfera verde pequeña
+                geometry = new THREE.SphereGeometry(1 * scale, 8, 6);
+                material = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+        }
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.rotation.y = rotation;
+
+        // Para árboles, agregar copa
+        if (type === 'tree_tall' || type === 'tree_medium') {
+            const crownGeometry = new THREE.SphereGeometry(
+                type === 'tree_tall' ? 3 * scale : 2.5 * scale,
+                8, 6
+            );
+            const crownMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+            crown.position.y = (type === 'tree_tall' ? 4 : 3) * scale;
+            crown.castShadow = true;
+            crown.receiveShadow = true;
+            mesh.add(crown);
+        }
+
+        mesh.userData = {
+            id,
+            type: 'vegetation',
+            vegetationType: type,
+            scale,
+            rotation,
+            selectable: false,
+            isFallback: true
+        };
+
+        this.scene.add(mesh);
+        this.vegetation.set(id, mesh);
 
         return mesh;
     }
@@ -1097,6 +1288,11 @@ class MAIRA3DMaster {
             case 'show-buildings':
                 this.buildings.forEach(building => {
                     building.visible = visible;
+                });
+                break;
+            case 'show-vegetation':
+                this.vegetation.forEach(veg => {
+                    veg.visible = visible;
                 });
                 break;
             case 'show-terrain':

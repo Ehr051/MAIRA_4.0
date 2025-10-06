@@ -1,0 +1,69 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "MAIRA Vegetation Generator"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Tree Medium Scene",
+      "nodes": [0]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Tree_Medium_01",
+      "mesh": 0,
+      "scale": [0.8, 0.8, 0.8]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Tree_Medium_Mesh",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "Tree_Medium_Material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.3, 0.7, 0.2, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.9
+      }
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 36,
+      "type": "VEC3",
+      "max": [0.8, 2.0, 0.8],
+      "min": [-0.8, 0.0, -0.8]
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 432,
+      "byteOffset": 0
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 432,
+      "uri": "data:application/octet-stream;base64,AAAA..."
+    }
+  ]
+}

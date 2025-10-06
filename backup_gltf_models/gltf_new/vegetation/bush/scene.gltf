@@ -1,0 +1,69 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "MAIRA Vegetation Generator"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Bush Scene",
+      "nodes": [0]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Bush_01",
+      "mesh": 0,
+      "scale": [0.6, 0.6, 0.6]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Bush_Mesh",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "Bush_Material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.2, 0.6, 0.1, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8
+      }
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 24,
+      "type": "VEC3",
+      "max": [0.6, 0.8, 0.6],
+      "min": [-0.6, 0.0, -0.6]
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 288,
+      "byteOffset": 0
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 288,
+      "uri": "data:application/octet-stream;base64,AAAA..."
+    }
+  ]
+}

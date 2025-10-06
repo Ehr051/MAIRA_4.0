@@ -1,0 +1,905 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * TERRAIN GENERATOR 3D - MAIRA 4.0
+ * ═══════════════════════════════════════════════════════════════════════
+ * Sistema de generación de terreno 3D basado en:
+ * - Muestreo de puntos con heightmap (DEM)
+ * - Valores NDVI para vegetación
+ * - Interpolación de superficie
+ * 
+ * @version 1.0.0
+ * @author MAIRA Team
+ * @date 2025-10-04
+ */
+
+class TerrainGenerator3D {
+    constructor(config = {}) {
+        this.config = {
+            // Resolución del terreno
+            resolution: config.resolution || 50, // Puntos por lado
+            minResolution: 20,
+            maxResolution: 500,
+            
+            // Escala vertical (exageración)
+            verticalScale: config.verticalScale || 2.0,
+            
+            // Tamaño en metros
+            realWorldSize: config.realWorldSize || 1000, // 1km por defecto
+            
+            // Vegetación - ✅ ULTRA OPTIMIZADO para no explotar la PC
+            vegetationDensity: config.vegetationDensity || 0.005, // ✅ 0.5% (antes 5%) = ~50-100 árboles max
+            vegetationMinNDVI: config.vegetationMinNDVI || 0.35,  // ✅ Aumentado de 0.2 a 0.35 (filtrar césped débil)
+            
+            // Colores del terreno según altura
+            colorMap: config.colorMap || {
+                water: 0x0066cc,      // < 0m
+                beach: 0xf4e7b8,      // 0-2m
+                grass: 0x7cbc4b,      // 2-50m
+                forest: 0x2d5016,     // 50-100m
+                mountain: 0x8b7355,   // 100-200m
+                snow: 0xffffff        // > 200m
+            },
+            
+            // Umbrales de vegetación NDVI
+            ndviThresholds: {
+                grass: { min: 0.2, max: 0.4 },
+                bush: { min: 0.4, max: 0.6 },
+                tree_medium: { min: 0.6, max: 0.75 },
+                tree_tall: { min: 0.75, max: 1.0 }
+            }
+        };
+        
+        this.terrainMesh = null;
+        this.vegetationObjects = [];
+        this.pointGrid = null;
+        this.bounds = null;
+        this.satelliteAnalyzer = null; // Analyzer de imagen satelital
+        this.modelLoader = null; // Loader de modelos GLTF
+        this.vegetationInstancer = null; // Instancer para vegetación
+        this.useInstancing = config.useInstancing !== false; // Default: true
+        
+        // 🚀 OPTIMIZACIÓN: Caché de geometrías y materiales
+        this.geometryCache = new Map(); // { 'bush': geometry }
+        this.materialCache = new Map(); // { 'bush': material }
+        
+        // 📊 Estadísticas de caché
+        this.cacheStats = {
+            hits: 0,
+            misses: 0,
+            getTotalAccesses() {
+                return this.hits + this.misses;
+            },
+            getHitRate() {
+                const total = this.getTotalAccesses();
+                return total > 0 ? ((this.hits / total) * 100).toFixed(1) : 0;
+            }
+        };
+        
+        this.initialized = false;
+        
+        console.log('🏔️ TerrainGenerator3D inicializado', this.config);
+    }
+    
+    /**
+     * Inicializar con handlers necesarios
+     */
+    initialize(heightmapHandler, vegetationHandler, maira3DSystem, satelliteAnalyzer = null) {
+        this.heightmapHandler = heightmapHandler;
+        this.vegetationHandler = vegetationHandler;
+        this.maira3DSystem = maira3DSystem;
+        this.satelliteAnalyzer = satelliteAnalyzer; // Opcional
+        
+        // Inicializar loader de modelos GLTF
+        if (window.GLTFModelLoader) {
+            this.modelLoader = new GLTFModelLoader();
+            this.modelLoader.initialize();
+            console.log('✅ GLTFModelLoader inicializado');
+            
+            // ✅ FASE 2: Inicializar VegetationInstancer
+            if (window.VegetationInstancer && this.useInstancing) {
+                // Necesitamos la escena de maira3DSystem
+                const scene = this.maira3DSystem?.scene;
+                if (scene) {
+                    this.vegetationInstancer = new VegetationInstancer(scene, this.modelLoader);
+                    console.log('✅ VegetationInstancer inicializado (modo: INSTANCING)');
+                } else {
+                    console.warn('⚠️ No se pudo inicializar VegetationInstancer (scene no disponible)');
+                    this.useInstancing = false;
+                }
+            } else if (!this.useInstancing) {
+                console.log('ℹ️ Instancing deshabilitado (modo: meshes individuales)');
+            }
+        } else {
+            console.warn('⚠️ GLTFModelLoader no disponible - usando geometrías procedurales');
+        }
+        
+        if (!this.heightmapHandler) {
+            console.warn('⚠️ HeightmapHandler no disponible - usando alturas planas');
+        }
+        
+        if (!this.vegetationHandler) {
+            console.warn('⚠️ VegetationHandler no disponible - vegetación deshabilitada');
+        }
+        
+        if (!this.satelliteAnalyzer) {
+            console.warn('⚠️ SatelliteAnalyzer no disponible - textura procedural');
+        }
+        
+        this.initialized = true;
+        console.log('✅ TerrainGenerator3D inicializado con handlers');
+    }
+    
+    /**
+     * Generar terreno 3D desde bounds de Leaflet
+     */
+    async generateTerrain(bounds, options = {}) {
+        if (!this.initialized) {
+            throw new Error('TerrainGenerator3D no inicializado - llama a initialize() primero');
+        }
+        
+        console.log('🏗️ Generando terreno 3D...', bounds);
+        
+        // ✅ CALCULAR TAMAÑO REAL EN METROS usando Haversine
+        const realDimensions = this.calculateRealWorldDimensions(bounds);
+        console.log(`📏 Dimensiones reales: ${realDimensions.widthMeters.toFixed(0)}m x ${realDimensions.heightMeters.toFixed(0)}m`);
+        
+        // 🔥 Guardar dimensiones reales (no forzar cuadrado)
+        this.config.realWorldWidth = realDimensions.widthMeters;
+        this.config.realWorldHeight = realDimensions.heightMeters;
+        this.config.realWorldSize = Math.max(realDimensions.widthMeters, realDimensions.heightMeters); // Para referencia
+        this.bounds = bounds;
+        
+        // Aplicar opciones
+        const resolution = options.resolution || this.config.resolution;
+        const includeVegetation = options.includeVegetation !== false;
+        
+        try {
+            // Paso 1: Generar grid de puntos
+            const points = await this.generatePointGrid(bounds, resolution);
+            console.log(`✅ Grid generado: ${points.length} puntos`);
+            
+            // DEBUG: Verificar estructura de puntos
+            if (points.length > 0) {
+                const firstPoint = points[0];
+                console.log(`📊 Estructura de punto: normX=${firstPoint.normX}, normY=${firstPoint.normY}, x=${firstPoint.x}, y=${firstPoint.y}`);
+            }
+            
+            // Paso 2: Obtener datos de elevación y vegetación
+            const enrichedPoints = await this.enrichPointsWithData(points);
+            console.log(`✅ Puntos enriquecidos con elevación y NDVI`);
+            
+            // Paso 3: Crear malla de terreno
+            this.terrainMesh = this.createTerrainMesh(enrichedPoints, resolution);
+            console.log('✅ Malla de terreno creada');
+            
+            // Paso 4: Agregar vegetación
+            if (includeVegetation && this.vegetationHandler) {
+                await this.addVegetationLayer(enrichedPoints);
+                console.log(`✅ Vegetación agregada: ${this.vegetationObjects.length} objetos`);
+            }
+            
+            // Paso 5: Agregar caminos 3D desde SatelliteAnalyzer
+            const roads = [];
+            if (this.satelliteAnalyzer && options.includeRoads !== false) {
+                const roadObjects = this.addRoadsLayer();
+                roads.push(...roadObjects);
+                console.log(`✅ Caminos agregados: ${roadObjects.length} segmentos`);
+            }
+            
+            // Paso 6: Agregar edificios 3D desde SatelliteAnalyzer
+            const buildings = [];
+            if (this.satelliteAnalyzer && options.includeBuildings !== false) {
+                const buildingObjects = this.addBuildingsLayer();
+                buildings.push(...buildingObjects);
+                console.log(`✅ Edificios agregados: ${buildingObjects.length} cubos`);
+            }
+            
+            // Paso 7: Agregar agua 3D desde SatelliteAnalyzer
+            const water = [];
+            if (this.satelliteAnalyzer && options.includeWater !== false) {
+                const waterObjects = this.addWaterLayer();
+                water.push(...waterObjects);
+                console.log(`✅ Agua agregada: ${waterObjects.length} planos`);
+            }
+            
+            return {
+                terrain: this.terrainMesh,
+                vegetation: this.vegetationObjects,
+                roads: roads,
+                buildings: buildings,
+                water: water,
+                points: enrichedPoints,
+                stats: this.calculateStats(enrichedPoints)
+            };
+            
+        } catch (error) {
+            console.error('❌ Error generando terreno:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Generar grid uniforme de puntos
+     */
+    generatePointGrid(bounds, resolution) {
+        const points = [];
+        
+        const north = bounds.getNorth();
+        const south = bounds.getSouth();
+        const east = bounds.getEast();
+        const west = bounds.getWest();
+        
+        const latStep = (north - south) / resolution;
+        const lonStep = (east - west) / resolution;
+        
+        for (let i = 0; i <= resolution; i++) {
+            for (let j = 0; j <= resolution; j++) {
+                const lat = south + (i * latStep);
+                const lon = west + (j * lonStep);
+                
+                points.push({
+                    lat: lat,
+                    lon: lon,
+                    gridX: j,
+                    gridY: i,
+                    // ✅ CRÍTICO: Agregar coordenadas normalizadas para UVs
+                    normX: j / resolution,  // 0 a 1 en X
+                    normY: i / resolution   // 0 a 1 en Y
+                });
+            }
+        }
+        
+        return points;
+    }
+    
+    /**
+     * Enriquecer puntos con datos de elevación y NDVI
+     */
+    async enrichPointsWithData(points) {
+        const enriched = [];
+        
+        for (const point of points) {
+            // Obtener elevación
+            let elevation = 0;
+            if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
+                try {
+                    elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
+                } catch (error) {
+                    // Si falla, usar altura aleatoria pequeña
+                    elevation = Math.random() * 5;
+                }
+            } else {
+                // Generar terreno procedural simple si no hay heightmap
+                elevation = this.generateProceduralHeight(point.lat, point.lon);
+            }
+            
+            // ✅ Obtener NDVI con coordenadas normalizadas para análisis satelital
+            let ndvi = 0;
+            let vegetationType = null;
+            let featureType = null;
+            
+            if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
+                try {
+                    // Pasar normX y normY para análisis de imagen satelital
+                    const result = await this.vegetationHandler.getNDVI(
+                        point.lat, 
+                        point.lon,
+                        point.normX,  // Coordenada normalizada X (0-1)
+                        point.normY   // Coordenada normalizada Y (0-1)
+                    );
+                    
+                    // 🔥 Manejar tanto objeto { ndvi, vegType } como número simple
+                    if (typeof result === 'object' && result !== null) {
+                        ndvi = result.ndvi;
+                        vegetationType = result.vegType || this.ndviToVegetationType(ndvi);
+                        featureType = result.featureType;
+                    } else {
+                        // Fallback: resultado numérico directo
+                        ndvi = result;
+                        vegetationType = this.ndviToVegetationType(ndvi);
+                    }
+                } catch (error) {
+                    // NDVI aleatorio si falla
+                    ndvi = Math.random() * 0.8;
+                    vegetationType = this.ndviToVegetationType(ndvi);
+                }
+            } else {
+                // NDVI procedural
+                ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                vegetationType = this.ndviToVegetationType(ndvi);
+            }
+            
+            enriched.push({
+                ...point,
+                elevation: elevation,
+                ndvi: ndvi,
+                vegetationType: vegetationType,
+                featureType: featureType
+            });
+        }
+        
+        return enriched;
+    }
+    
+    /**
+     * Crear malla de terreno 3D
+     */
+    createTerrainMesh(points, resolution) {
+        if (!window.THREE) {
+            throw new Error('THREE.js no disponible');
+        }
+        
+        // 🔥 Usar dimensiones reales en lugar de cuadrado
+        const width = this.config.realWorldWidth || this.config.realWorldSize;
+        const height = this.config.realWorldHeight || this.config.realWorldSize;
+        
+        // Crear geometría con aspect ratio correcto
+        const geometry = new THREE.PlaneGeometry(
+            width,      // Ancho real
+            height,     // Alto real
+            resolution,
+            resolution
+        );
+        
+        // Aplicar alturas a los vértices
+        const vertices = geometry.attributes.position.array;
+        const colors = [];
+        
+        // ✅ CRÍTICO: Crear UVs para mapear textura satelital
+        const uvs = [];
+        
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            const vertexIndex = i * 3;
+            
+            // Aplicar altura con escala vertical
+            vertices[vertexIndex + 2] = point.elevation * this.config.verticalScale;
+            
+            // Aplicar color según altura
+            const color = this.getColorByElevation(point.elevation);
+            colors.push(color.r, color.g, color.b);
+            
+            // ✅ NUEVO: Calcular UVs normalizados (0-1)
+            // PlaneGeometry estándar: U=X, V=Y (antes de rotación del mesh)
+            uvs.push(point.normX, 1 - point.normY); // Invertir V para textura
+        }
+        
+        // Agregar colores a la geometría
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        
+        // ✅ NUEVO: Agregar UVs para textura satelital
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+        console.log(`✅ UVs creados: ${uvs.length / 2} coordenadas`);
+        if (uvs.length >= 2) {
+            console.log(`📊 UV Sample - First: [${uvs[0].toFixed(3)}, ${uvs[1].toFixed(3)}], Last: [${uvs[uvs.length-2].toFixed(3)}, ${uvs[uvs.length-1].toFixed(3)}]`);
+        }
+        
+        // Recalcular normales para iluminación correcta
+        geometry.computeVertexNormals();
+        
+        // Crear textura satelital primero (si está disponible)
+        let satelliteTexture = null;
+        if (this.satelliteAnalyzer && this.satelliteAnalyzer.canvas) {
+            try {
+                satelliteTexture = this.satelliteAnalyzer.createTexture();
+                console.log('✅ Textura satelital creada desde analyzer');
+            } catch (error) {
+                console.warn('⚠️ Error creando textura satelital:', error);
+            }
+        }
+        
+        // Material con textura o colores de vértice
+        const material = new THREE.MeshStandardMaterial({
+            map: satelliteTexture,
+            vertexColors: !satelliteTexture, // Solo si no hay textura satelital
+            side: THREE.DoubleSide,
+            flatShading: false,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        
+        // Crear mesh
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.rotation.x = -Math.PI / 2; // Rotar para que sea horizontal
+        mesh.receiveShadow = true;
+        mesh.castShadow = true;
+        
+        if (satelliteTexture) {
+            // ✅ FORZAR actualización después de rotación
+            satelliteTexture.needsUpdate = true;
+            material.needsUpdate = true;
+            console.log('✅ Textura satelital aplicada al terreno');
+        } else {
+            console.log('⚠️ Usando colores de vértice (sin textura satelital)');
+        }
+        
+        return mesh;
+    }
+    
+    /**
+     * Agregar capa de vegetación
+     */
+    async addVegetationLayer(points) {
+        if (!window.THREE) {
+            console.warn('⚠️ THREE.js no disponible - vegetación omitida');
+            return;
+        }
+        
+        // ✅ NUEVO: Sistema basado en regiones (si está disponible)
+        if (window.RegionDetector && window.SmartVegetationDistributor && this.satelliteAnalyzer) {
+            console.log('🎯 Usando sistema basado en FEATURES AGRUPADOS (nueva generación)');
+            return await this.addVegetationByRegions();
+        }
+        
+        // ✅ FALLBACK: Sistema basado en grid (compatibilidad)
+        console.log('📍 Usando sistema basado en GRID (modo legacy)');
+        return await this.addVegetationByGrid(points);
+    }
+    
+    /**
+     * ✅ NUEVO: Sistema basado en regiones (preciso y eficiente)
+     */
+    async addVegetationByRegions() {
+        console.log('🗺️ Iniciando sistema basado en features agrupados...');
+        
+        try {
+            // Obtener datos de imagen y features
+            const imageData = this.satelliteAnalyzer.imageData;
+            const features = this.satelliteAnalyzer.getFeatures();
+            
+            if (!imageData || !features || features.length === 0) {
+                console.warn('⚠️ No hay datos de imagen satelital - vegetación omitida');
+                return [];
+            }
+            
+            console.log(`📊 Features disponibles: ${features.length}`);
+            
+            // ✅ ESTRATEGIA ALTERNATIVA: Usar features directamente
+            // En lugar de detectar regiones (que falla con sampling disperso),
+            // agrupar features por tipo y distribuir alrededor de ellos
+            
+            const featuresByType = this.groupFeaturesByType(features);
+            console.log(`📊 Features agrupados:`, Object.keys(featuresByType).map(k => `${k}=${featuresByType[k].length}`).join(', '));
+            
+            // Generar instancias desde features agrupados
+            const instances = this.createInstancesFromFeatures(featuresByType, imageData);
+            
+            console.log(`✅ ${instances.length} instancias preparadas desde features`);
+            
+            if (instances.length === 0) {
+                console.warn('⚠️ No se generaron instancias - usando fallback');
+                return [];
+            }
+            
+            // Paso 3: Convertir instancias a objetos 3D
+            const vegetationObjects = await this.createVegetationFromInstances(instances);
+            
+            console.log(`✅ ${vegetationObjects.length} objetos 3D creados`);
+            
+            return vegetationObjects;
+            
+        } catch (error) {
+            console.error('❌ Error en sistema basado en regiones:', error);
+            console.warn('⚠️ Fallback a sistema basado en grid');
+            return await this.addVegetationByGrid([]);
+        }
+    }
+    
+    /**
+     * Agrupar features por tipo
+     */
+    groupFeaturesByType(features) {
+        const grouped = {};
+        
+        features.forEach(feature => {
+            if (!grouped[feature.type]) {
+                grouped[feature.type] = [];
+            }
+            grouped[feature.type].push(feature);
+        });
+        
+        return grouped;
+    }
+    
+    /**
+     * Crear instancias de vegetación desde features agrupados
+     */
+    createInstancesFromFeatures(featuresByType, imageData) {
+        const instances = [];
+        const width = imageData.width;
+        const height = imageData.height;
+        
+        console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
+        
+        // ✅ Configuración de densidad por tipo (AJUSTADO: Menos vegetación, más realista)
+        const densityConfig = {
+            'vegetation': { 
+                density: 0.3,           // ✅ Reducido de 0.6 a 0.3 (30% de features) - Arbustos
+                type: 'bush', 
+                scale: [0.7, 1.3],
+                priority: 2             // Media prioridad
+            },
+            'forest': { 
+                density: 0.5,           // ✅ Reducido de 0.8 a 0.5 (50% de features) - Bosques
+                type: 'tree_tall', 
+                scale: [0.8, 1.2],
+                priority: 1             // Alta prioridad
+            },
+            'grass': { 
+                density: 0.02,          // ✅ Reducido de 0.05 a 0.02 (2% - solo decorativo)
+                type: 'grass', 
+                scale: [0.5, 1.0],
+                priority: 3             // Baja prioridad
+            },
+            'crops': { 
+                density: 0.25,          // ✅ Reducido de 0.4 a 0.25 (25% - cultivos)
+                type: 'bush', 
+                scale: [0.6, 1.0],
+                priority: 2
+            }
+        };
+        
+        console.log(`📊 Configuración de densidad:`, Object.fromEntries(
+            Object.entries(densityConfig).map(([k, v]) => [k, `${(v.density * 100).toFixed(0)}%`])
+        ));
+        
+        // Contador de instancias por tipo
+        const instanceCounts = {};
+        
+        // Para cada tipo relevante
+        for (const [featureType, features] of Object.entries(featuresByType)) {
+            const config = densityConfig[featureType];
+            if (!config) {
+                console.log(`⏭️ Ignorando tipo no vegetal: '${featureType}'`);
+                continue;
+            }
+            
+            console.log(`🌿 Procesando ${features.length} features de tipo '${featureType}' (densidad: ${(config.density * 100).toFixed(0)}%, tipo 3D: '${config.type}')...`);
+            
+            let createdCount = 0;
+            
+            // Para cada feature, crear una o más instancias
+            features.forEach((feature, idx) => {
+                // Decidir si colocar instancia (probabilidad = density)
+                if (Math.random() > config.density) return;
+                
+                createdCount++;
+                
+                // Debug para primeros 3 features
+                if (idx < 3) {
+                    console.log(`  📍 Feature ${idx}: pixel(${feature.x}, ${feature.y}) → tipo: ${config.type}`);
+                }
+                
+                // Convertir píxel a coordenadas normalizadas
+                const normX = feature.x / width;
+                const normY = feature.y / height;
+                
+                // 🚀 FIX CRÍTICO: Usar directamente imageToTerrainCoords() en lugar de lat/lon
+                // Esto evita doble conversión y garantiza consistencia
+                const pos3D = this.imageToTerrainCoords(feature.x, feature.y);
+                
+                // Agregar variación de posición (jitter)
+                const jitter = 2.0; // 2m de variación en coordenadas 3D
+                pos3D.x += (Math.random() - 0.5) * jitter;
+                pos3D.z += (Math.random() - 0.5) * jitter;
+                
+                // Crear instancia con posición 3D directa
+                instances.push({
+                    type: config.type,
+                    position: pos3D, // Vector3 directo en lugar de lat/lon
+                    scale: config.scale[0] + Math.random() * (config.scale[1] - config.scale[0]),
+                    rotation: Math.random() * Math.PI * 2
+                });
+            });
+            
+            // Resumen por tipo procesado
+            instanceCounts[config.type] = (instanceCounts[config.type] || 0) + createdCount;
+            console.log(`  ✅ Creadas ${createdCount}/${features.length} instancias de '${config.type}' (${(createdCount / features.length * 100).toFixed(1)}%)`);
+        }
+        
+        console.log(`📊 Resumen de instancias creadas:`, instanceCounts);
+        console.log(`🎯 Total de instancias: ${instances.length}`);
+        
+        return instances;
+    }
+    
+    /**
+     * Crear objetos 3D desde instancias preparadas
+     */
+    async createVegetationFromInstances(instances) {
+        console.log(`🌳 Creando ${instances.length} objetos 3D desde instancias...`);
+        
+        // 🚀 FIX v3: Las instancias ya tienen position como Vector3
+        // SOLO configurar Y al nivel del terreno, el offset se aplica después
+        const instancesWith3D = instances.map(inst => {
+            const position = inst.position.clone(); // Ya es Vector3 desde imageToTerrainCoords
+            
+            // Obtener elevación en esa posición
+            const terrainHeight = this.getHeightAt(position.x, position.z);
+            
+            // 🔧 FIX v3: Posicionar AL NIVEL DEL TERRENO
+            // El offset para elevar se calculará automáticamente del bounding box
+            position.y = terrainHeight;
+            
+            return {
+                ...inst,
+                position: position
+            };
+        });
+        
+        // Filtrar instancias fuera del terreno
+        const width = this.config.realWorldWidth || this.config.realWorldSize;
+        const height = this.config.realWorldHeight || this.config.realWorldSize;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        
+        const validInstances = instancesWith3D.filter(inst => {
+            return Math.abs(inst.position.x) <= halfWidth && Math.abs(inst.position.z) <= halfHeight;
+        });
+        
+        const rejected = instancesWith3D.length - validInstances.length;
+        if (rejected > 0) {
+            console.warn(`⚠️ ${rejected} instancias fuera de terreno fueron rechazadas`);
+        }
+        
+        console.log(`📍 ${validInstances.length} instancias válidas dentro del terreno`);
+        
+        // 🚀 PRIORIDAD: Usar InstancedMesh directo para máxima velocidad
+        // Agrupar por tipo de vegetación
+        const instancesByType = {};
+        validInstances.forEach(inst => {
+            if (!instancesByType[inst.type]) {
+                instancesByType[inst.type] = [];
+            }
+            instancesByType[inst.type].push(inst);
+        });
+        
+        console.log(`🌳 Tipos de vegetación: ${Object.keys(instancesByType).join(', ')}`);
+        console.log(`📊 Distribución:`, Object.entries(instancesByType).map(([type, insts]) => 
+            `${type}=${insts.length}`).join(', '));
+        
+        // Crear InstancedMesh para cada tipo
+        const meshes = [];
+        
+        for (const [type, instances] of Object.entries(instancesByType)) {
+            console.log(`🎨 Creando InstancedMesh para ${instances.length} instancias de '${type}'...`);
+            
+            try {
+                const instancedMesh = await this.createInstancedVegetation(type, instances);
+                if (instancedMesh) {
+                    meshes.push(instancedMesh);
+                    console.log(`  ✅ InstancedMesh creado: ${instances.length} instancias`);
+                }
+            } catch (error) {
+                console.warn(`  ⚠️ Error creando InstancedMesh para ${type}, usando meshes individuales:`, error);
+                
+                // Fallback: meshes individuales
+                for (const inst of instances) {
+                    const vegObject = await this.createVegetationObject(
+                        inst.type,
+                        inst.position,
+                        inst.scale
+                    );
+                    
+                    if (vegObject) {
+                        vegObject.rotation.y = inst.rotation;
+                        meshes.push(vegObject);
+                    }
+                }
+            }
+        }
+        
+        this.vegetationObjects = meshes;
+        return meshes;
+    }
+    
+    /**
+     * ✅ LEGACY: Sistema basado en grid (mantener para compatibilidad)
+     */
+    async addVegetationByGrid(points) {
+        if (!window.THREE) {
+            console.warn('⚠️ THREE.js no disponible - vegetación omitida');
+            return;
+        }
+        
+        // ✅ VALIDAR BOUNDS: Verificar que this.bounds esté disponible
+        if (!this.bounds) {
+            console.warn('⚠️ Bounds no disponibles - vegetación omitida');
+            return;
+        }
+        
+        const north = this.bounds.getNorth();
+        const south = this.bounds.getSouth();
+        const east = this.bounds.getEast();
+        const west = this.bounds.getWest();
+        
+        // Filtrar puntos con vegetación suficiente Y dentro de bounds
+        const vegetationPoints = points.filter(p => {
+            // ✅ VALIDACIÓN 1: NDVI y densidad
+            if (p.ndvi < this.config.vegetationMinNDVI || Math.random() >= this.config.vegetationDensity) {
+                return false;
+            }
+            
+            // ✅ VALIDACIÓN 2: Punto dentro de bounds geográficos
+            if (p.lat < south || p.lat > north || p.lon < west || p.lon > east) {
+                console.debug(`⚠️ Punto fuera de bounds: lat=${p.lat}, lon=${p.lon}`);
+                return false;
+            }
+            
+            return true;
+        });
+        
+        console.log(`🌿 Agregando vegetación a ${vegetationPoints.length} puntos (validados dentro de bounds)...`);
+        
+        // 🔍 DEBUG: Verificar estado del sistema
+        console.log(`🔍 DEBUG Vegetación:`, {
+            instancer: !!this.vegetationInstancer,
+            useInstancing: this.useInstancing,
+            modelLoader: !!this.modelLoader,
+            scene: !!this.maira3DSystem?.scene
+        });
+        
+        // ✅ FASE 2: Usar instancing si está disponible
+        if (this.vegetationInstancer && this.useInstancing) {
+            console.log('📍 Usando modo INSTANCING');
+            return await this.addVegetationWithInstancing(vegetationPoints);
+        } else {
+            console.log('📍 Usando modo MESHES INDIVIDUALES (fallback)');
+            return await this.addVegetationIndividual(vegetationPoints);
+        }
+    }
+    
+    /**
+     * ✅ FASE 2: Agregar vegetación con InstancedMesh (100x menos memoria)
+     */
+    async addVegetationWithInstancing(vegetationPoints) {
+        const width = this.config.realWorldWidth || this.config.realWorldSize;
+        const height = this.config.realWorldHeight || this.config.realWorldSize;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        
+        console.log(`🎨 Preparando instancias - Terreno: ${width.toFixed(0)}m × ${height.toFixed(0)}m (±${halfWidth.toFixed(0)}m × ±${halfHeight.toFixed(0)}m)`);
+        
+        // Preparar instancias agrupadas por tipo
+        const instances = [];
+        let rejectedCount = 0;
+        
+        for (const point of vegetationPoints) {
+            try {
+                // Convertir lat/lon a coordenadas 3D
+                const position = this.latLonToLocal(point.lat, point.lon);
+                position.y = point.elevation * this.config.verticalScale;
+                
+                // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
+                if (Math.abs(position.x) > halfWidth || Math.abs(position.z) > halfHeight) {
+                    rejectedCount++;
+                    if (rejectedCount <= 5) { // Solo mostrar primeros 5
+                        console.warn(`⚠️ Posición 3D fuera de terreno: x=${position.x.toFixed(2)} (límite ±${halfWidth.toFixed(0)}), z=${position.z.toFixed(2)} (límite ±${halfHeight.toFixed(0)})`);
+                    }
+                    continue;
+                }
+                
+                // Agregar a lista de instancias
+                instances.push({
+                    type: point.vegetationType,
+                    position: position.clone(),
+                    scale: this.getVegetationScale(point.vegetationType, point.ndvi),
+                    rotation: Math.random() * Math.PI * 2 // Rotación aleatoria Y
+                });
+                
+            } catch (error) {
+                console.debug('Error preparando instancia:', error);
+            }
+        }
+        
+        if (rejectedCount > 0) {
+            console.warn(`⚠️ Total rechazados por estar fuera de terreno: ${rejectedCount}/${vegetationPoints.length}`);
+        }
+        
+        console.log(`🎨 Creando InstancedMeshes para ${instances.length} instancias (rechazados: ${rejectedCount})...`);
+        
+        // Crear instanced meshes
+        const meshes = await this.vegetationInstancer.addInstances(instances);
+        
+        // Guardar referencias (para compatibilidad)
+        this.vegetationObjects = meshes;
+        
+        // Mostrar estadísticas
+        const stats = this.vegetationInstancer.getStats();
+        console.log(`✅ Vegetación instanciada: ${stats.totalInstances} instancias en ${stats.types} tipos`);
+        console.log(`📊 Por tipo:`, stats.byType);
+        
+        return meshes;
+    }
+    
+    /**
+     * Agregar vegetación con meshes individuales (fallback)
+     */
+    async addVegetationIndividual(vegetationPoints) {
+        const width = this.config.realWorldWidth || this.config.realWorldSize;
+        const height = this.config.realWorldHeight || this.config.realWorldSize;
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        
+        console.log(`🌲 Creando meshes individuales - Terreno: ${width.toFixed(0)}m × ${height.toFixed(0)}m`);
+        
+        let addedCount = 0;
+        let rejectedCount = 0;
+        
+        for (const point of vegetationPoints) {
+            try {
+                // Convertir lat/lon a coordenadas 3D
+                const position = this.latLonToLocal(point.lat, point.lon);
+                position.y = point.elevation * this.config.verticalScale;
+                
+                // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
+                if (Math.abs(position.x) > halfWidth || Math.abs(position.z) > halfHeight) {
+                    rejectedCount++;
+                    if (rejectedCount <= 5) { // Solo mostrar primeros 5
+                        console.warn(`⚠️ [Individual] Posición 3D fuera de terreno: x=${position.x.toFixed(2)} (límite ±${halfWidth.toFixed(0)}), z=${position.z.toFixed(2)} (límite ±${halfHeight.toFixed(0)})`);
+                    }
+                    continue;
+                }
+                
+                // Crear objeto 3D de vegetación (ahora es async)
+                const vegObject = await this.createVegetationObject(
+                    point.vegetationType,
+                    position,
+                    this.getVegetationScale(point.vegetationType, point.ndvi)
+                );
+                
+                if (vegObject) {
+                    this.vegetationObjects.push(vegObject);
+                    addedCount++;
+                }
+                
+            } catch (error) {
+                // Ignorar errores individuales
+                console.debug('Error agregando vegetación:', error);
+            }
+        }
+        
+        console.log(`✅ Meshes individuales creados: ${addedCount}/${vegetationPoints.length} (rechazados: ${rejectedCount})`);
+        
+        return this.vegetationObjects;
+        
+        // ✅ RESUMEN: Mostrar estadísticas de carga de modelos
+        if (this.modelLoader && this.modelLoader.loadStats) {
+            const stats = this.modelLoader.loadStats;
+            console.log(`� Estadísticas de modelos GLTF: Exitosos=${stats.successful}, Fallidos=${stats.failed}, Cacheados=${stats.cached}`);
+        }
+    }
+    
+    /**
+     * 🚀 Crear InstancedMesh para múltiples instancias del mismo tipo
+     * @param {string} type - Tipo de vegetación (bush, tree_tall, grass, etc.)
+     * @param {Array} instances - Array de instancias {position, scale, rotation}
+     * @returns {Promise<THREE.InstancedMesh>}
+     */
+    async createInstancedVegetation(type, instances) {
+        const count = instances.length;
+        
+        // 🚀 OPTIMIZACIÓN: Verificar caché primero
+        let geometry = this.geometryCache.get(type);
+        let material = this.materialCache.get(type);
+        let modelYOffset = this.modelYOffsetCache?.get(type) || 0;
+        
+        if (!geometry || !material) {
+            // ⚠️ Cache miss - cargar modelo
+            this.cacheStats.misses++;
+            
+            // 1. Cargar el modelo base si no está en caché
+            let baseModel;
+            try {
+                baseModel = await this.modelLoader.loadModel(type, 'vegetation');
+                
+                // 2. Extraer geometría y material del modelo GLTF
+                baseModel.traverse((child) => {
+                    if (child.isMesh && !geometry) {
+                        geometry = child.geometry;
+                        material = child.material;
+                    }
+                });
+                
+                if (!geometry || !material) {
+                    throw new Error(`No se encontró geometría/material en modelo ${type}`);
