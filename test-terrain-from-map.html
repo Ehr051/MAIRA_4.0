@@ -2199,9 +2199,13 @@
         function updateUnitMovement(delta) {
             placedUnits.forEach(unit => {
                 if (unit.userData.isMoving && unit.userData.waypoints) {
-                    // ✅ VELOCIDAD AUMENTADA: de 5 * delta * 0.1 a 5 * delta (10x más rápido)
-                    // Con delta ~0.016 (60fps): speed = 5 * 0.016 = 0.08m por frame = 4.8m/s (velocidad razonable)
-                    const speed = (unit.userData.speed || 5) * delta;
+                    // ✅ CONVERSIÓN CORRECTA: km/h → m/s
+                    // speed está en km/h (ej: soldado=5, TAM=65)
+                    // 1 km/h = 0.277778 m/s
+                    const speedKmH = unit.userData.speed || 5;
+                    const speedMS = speedKmH * 0.277778; // Convertir a m/s
+                    const speed = speedMS * delta; // Distancia por frame
+                    
                     const waypoints = unit.userData.waypoints;
                     let waypointIndex = unit.userData.currentWaypointIndex || 0;
                     
