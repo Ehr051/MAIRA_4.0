@@ -824,11 +824,11 @@ class TerrainGenerator3D {
                 position.y = point.elevation * this.config.verticalScale;
                 
                 // ✅ CORRECCIÓN: Bajar árboles para que toquen el suelo
-                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar ~80% de su altura
+                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar 100% de su altura
                 // Altura aprox del modelo: ~100 unidades, con escala 0.04-0.12 → altura final: 4-12m
-                // Bajar 80%: 3.2-9.6m (para compensar por árboles flotando)
+                // Bajar 100%: El pivote queda en el suelo
                 const modelHeight = 100; // Altura del modelo original en unidades GLB
-                const yOffset = -(modelHeight * treeScale) * 0.8; // Bajar 80% de la altura escalada
+                const yOffset = -(modelHeight * treeScale) * 1.0; // Bajar 100% de la altura escalada (pivote al suelo)
                 position.y += yOffset;
                 
                 // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
@@ -840,9 +840,25 @@ class TerrainGenerator3D {
                     continue;
                 }
                 
+                // ✅ MEZCLA DE TIPOS DE ÁRBOLES: Alternar entre alto, mediano y Oak
+                // Esto crea variedad visual más realista
+                let treeType = point.vegetationType;
+                
+                // Si es un árbol, mezclar tipos aleatoriamente
+                if (treeType === 'tree_tall' || treeType === 'tree_medium' || treeType === 'tree_oak') {
+                    const random = Math.random();
+                    if (random < 0.50) {
+                        treeType = 'tree_tall';    // 50% árboles altos (arbol.glb)
+                    } else if (random < 0.85) {
+                        treeType = 'tree_medium';  // 35% árboles medianos (trees_low.glb)
+                    } else {
+                        treeType = 'tree_oak';     // 15% Oak animado (variedad)
+                    }
+                }
+                
                 // Agregar a lista de instancias
                 instances.push({
-                    type: point.vegetationType,
+                    type: treeType,  // Usar tipo mezclado
                     position: position.clone(),
                     scale: treeScale,
                     rotation: Math.random() * Math.PI * 2 // Rotación aleatoria Y

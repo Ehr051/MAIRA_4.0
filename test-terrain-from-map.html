@@ -507,20 +507,20 @@
         const unitModels = {
             'tam': {
                 path: 'Client/assets/models/gbl_new/tam_tank.glb',
-                scale: 0.5,
+                scale: 1.0,
                 yOffset: 0,
                 name: 'TAM (Tanque)'
             },
             'soldier': {
                 path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
-                scale: 0.8,
-                yOffset: 0.9,
+                scale: 1,
+                yOffset: 0.8,
                 name: 'Soldado'
             },
             'soldier_ru': {
                 path: 'Client/assets/models/gbl_new/russian_soldier.glb',
-                scale: 0.7,  // Era 70.0 (87.5x más grande), corregido a 0.7 similar a soldado normal
-                yOffset: 0.85,
+                scale: 0.001,  // Era 70.0 (87.5x más grande), corregido a 0.7 similar a soldado normal
+                yOffset: 0,
                 name: 'Soldado Ruso'
             },
             'humvee': {
@@ -531,14 +531,14 @@
             },
             'm113': {
                 path: 'Client/assets/models/gbl_new/m113.glb',
-                scale: 0.005,
-                yOffset: 0.85,
+                scale: 0.0018,
+                yOffset: 0,
                 name: 'M113 (APC)'
             },
             'fsb_operator': {
                 path: 'Client/assets/models/gbl_new/fsb_operator.glb',
                 scale: 0.7,
-                yOffset: 0.85,
+                yOffset: 0.5,
                 name: 'Operador FSB'
             }
         };
@@ -2598,6 +2598,7 @@
     <script src="Client/Libs/mythree/three.min.js"></script>
     <script src="Client/Libs/mythree/OrbitControls.js"></script>
     <script src="Client/Libs/mythree/GLTFLoader.js"></script>
+    <script src="Client/Libs/mythree/BufferGeometryUtils.js"></script>
     
     <!-- MAIRA Systems -->
     <script src="Client/js/handlers/elevationHandler.js"></script>

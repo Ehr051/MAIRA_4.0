@@ -55,16 +55,71 @@ class VegetationInstancer {
                 throw new Error(`Modelo ${modelType} no encontrado`);
             }
             
-            // Extraer geometry y material del primer mesh
-            let geometry = null;
-            let material = null;
+            // Extraer geometry y material del modelo
+            // ✅ CORRECCIÓN: Combinar TODOS los meshes, no solo el primero
+            // Los árboles tienen múltiples partes (tronco, ramas, hojas)
+            const meshes = [];
+            const materials = [];
             
             model.traverse((child) => {
-                if (child.isMesh && !geometry) {
-                    geometry = child.geometry.clone();
-                    material = child.material.clone();
+                if (child.isMesh) {
+                    meshes.push(child);
+                    // Guardar material único
+                    if (!materials.includes(child.material)) {
+                        materials.push(child.material);
+                    }
                 }
             });
+            
+            console.log(`🔍 Modelo ${modelType} tiene ${meshes.length} meshes y ${materials.length} materiales`);
+            
+            if (meshes.length === 0) {
+                throw new Error(`No se encontraron meshes en ${modelType}`);
+            }
+            
+            let geometry, material;
+            
+            if (meshes.length === 1) {
+                // Un solo mesh - usar directamente
+                geometry = meshes[0].geometry.clone();
+                material = meshes[0].material.clone();
+                console.log(`✅ Usando mesh único (${geometry.attributes.position.count} vértices)`);
+            } else {
+                // Múltiples meshes - necesitamos combinarlos
+                console.log(`🔧 Combinando ${meshes.length} meshes en uno solo...`);
+                
+                // Opción 1: Usar BufferGeometryUtils.mergeGeometries (si está disponible)
+                if (window.THREE.BufferGeometryUtils) {
+                    const geometries = meshes.map(mesh => {
+                        const geom = mesh.geometry.clone();
+                        // Aplicar transformación del mesh
+                        geom.applyMatrix4(mesh.matrixWorld);
+                        return geom;
+                    });
+                    
+                    geometry = window.THREE.BufferGeometryUtils.mergeGeometries(geometries, false);
+                    console.log(`✅ Geometrías combinadas: ${geometry.attributes.position.count} vértices totales`);
+                } else {
+                    // Fallback: Usar el mesh más grande
+                    console.warn(`⚠️ BufferGeometryUtils no disponible, usando mesh más grande`);
+                    let largestMesh = meshes[0];
+                    let largestCount = 0;
+                    
+                    meshes.forEach(mesh => {
+                        const count = mesh.geometry.attributes.position.count;
+                        if (count > largestCount) {
+                            largestCount = count;
+                            largestMesh = mesh;
+                        }
+                    });
+                    
+                    geometry = largestMesh.geometry.clone();
+                    console.log(`✅ Usando mesh más grande (${largestCount} vértices de ${meshes.length} meshes)`);
+                }
+                
+                // Para material, usar el primero o crear MultiMaterial
+                material = materials[0].clone();
+            }
             
             if (!geometry || !material) {
                 throw new Error(`No se pudo extraer geometry/material de ${modelType}`);
