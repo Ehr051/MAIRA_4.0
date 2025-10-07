@@ -818,7 +818,18 @@ class TerrainGenerator3D {
             try {
                 // Convertir lat/lon a coordenadas 3D
                 const position = this.latLonToLocal(point.lat, point.lon);
+                const treeScale = this.getVegetationScale(point.vegetationType, point.ndvi);
+                
+                // Altura del terreno
                 position.y = point.elevation * this.config.verticalScale;
+                
+                // ✅ CORRECCIÓN: Bajar árboles para que toquen el suelo
+                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar ~50% de su altura
+                // Altura aprox del modelo: ~100 unidades, con escala 0.04-0.12 → altura final: 4-12m
+                // Bajar la mitad: 2-6m
+                const modelHeight = 100; // Altura del modelo original en unidades GLB
+                const yOffset = -(modelHeight * treeScale) * 0.5; // Bajar 50% de la altura escalada
+                position.y += yOffset;
                 
                 // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
                 if (Math.abs(position.x) > halfWidth || Math.abs(position.z) > halfHeight) {
@@ -833,7 +844,7 @@ class TerrainGenerator3D {
                 instances.push({
                     type: point.vegetationType,
                     position: position.clone(),
-                    scale: this.getVegetationScale(point.vegetationType, point.ndvi),
+                    scale: treeScale,
                     rotation: Math.random() * Math.PI * 2 // Rotación aleatoria Y
                 });
                 

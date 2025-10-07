@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Terreno 3D desde Mapa Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #111;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        #main-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 1fr;
+            grid-template-rows: 100vh;
+            height: 100vh;
+        }
+        
+        #sidebar {
+            background: rgba(20, 20, 30, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #4fd1c5;
+        }
+        
+        #map-container {
+            position: relative;
+            background: #1a1a2e;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #canvas-container {
+            position: relative;
+            background: #000;
+        }
+        
+        h1 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #4fd1c5;
+            text-align: center;
+        }
+        
+        .section {
+            background: rgba(79, 209, 197, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .section h2 {
+            font-size: 13px;
+            color: #4fd1c5;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(79, 209, 197, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #a0aec0;
+            margin-bottom: 5px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 3px;
+        }
+        
+        .value-display {
+            text-align: right;
+            font-size: 10px;
+            color: #4fd1c5;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        button.success {
+            background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%);
+            color: white;
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 209, 197, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .stats-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .stat-mini {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .stat-mini-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4fd1c5;
+        }
+        
+        .stat-mini-label {
+            font-size: 8px;
+            color: #a0aec0;
+            text-transform: uppercase;
+        }
+        
+        .info-box {
+            background: rgba(79, 209, 197, 0.2);
+            border-left: 3px solid #4fd1c5;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        #status-log {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+        }
+        
+        .log-entry {
+            margin-bottom: 3px;
+            padding: 3px;
+        }
+        
+        .log-success { color: #4ade80; }
+        .log-error { color: #ef4444; }
+        .log-warning { color: #fbbf24; }
+        .log-info { color: #8fd3ff; }
+        
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .map-overlay h3 {
+            font-size: 12px;
+            color: #4fd1c5;
+            margin-bottom: 8px;
+        }
+        
+        .map-overlay p {
+            font-size: 10px;
+            line-height: 1.5;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <h1>🌍 MAIRA 3D<br>desde Mapa</h1>
+            
+            <!-- Banner de Mejoras -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                <div style="font-size: 18px; margin-bottom: 5px;">✨ SISTEMA MEJORADO</div>
+                <div style="font-size: 9px; line-height: 1.4; color: rgba(255,255,255,0.9);">
+                    🌳 Colisiones por Densidad | 🎯 UI Simplificada | 🗻 Elevaciones TIF Reales
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <strong>📍 Instrucciones:</strong><br>
+                1. Navega el mapa a la zona deseada<br>
+                2. Ajusta zoom y posición (recomendado: 16-18)<br>
+                3. Click en "🚀 CREAR VISTA 3D COMPLETA"<br>
+                4. ¡Listo! Coloca unidades en el terreno
+            </div>
+            
+            <div class="info-box" style="background: rgba(79, 209, 197, 0.1); border-left: 3px solid #4fd1c5;">
+                <strong>✨ Nuevo:</strong><br>
+                🌳 Soldados pasan entre árboles<br>
+                🚜 Tanques necesitan más espacio<br>
+                🗻 Elevaciones TIF afectan LOS<br>
+                🎯 Un solo botón genera todo
+            </div>
+            
+            <!-- Ubicaciones de prueba -->
+            <div class="section">
+                <h2>🌍 Ubicaciones de Prueba</h2>
+                <button onclick="mapa.setView([-34.557, -58.438], 17)" class="primary" style="font-size: 12px; padding: 5px 10px;">
+                    ⛳ Campo de Golf CABA
+                </button>
+                <button onclick="mapa.setView([-34.611, -58.373], 16)" class="primary" style="font-size: 12px; padding: 5px 10px; margin-top: 5px;">
+                    🌳 Parque Tres de Febrero
+                </button>
+                <button onclick="mapa.setView([-34.543, -58.449], 17)" class="primary" style="font-size: 12px; padding: 5px 10px; margin-top: 5px;">
+                    🏞️ Reserva Ecológica
+                </button>
+            </div>
+            
+            <!-- Sección 1: Configuración del Mapa -->
+            <div class="section">
+                <h2>📸 Configuración del Mapa</h2>
+                
+                <div class="control-group" style="margin-top: 15px;">
+                    <label>LOD Análisis</label>
+                    <input type="range" id="lod" min="2" max="20" value="8" step="1">
+                    <div class="value-display">1/<span id="lod-value">8</span> píxeles</div>
+                </div>
+            </div>
+            
+            <!-- Sección 2: Configuración Terreno -->
+            <div class="section">
+                <h2>⚙️ Configuración</h2>
+                
+                <div class="control-group">
+                    <label>🗻 Elevación Real (TIF)</label>
+                    <input type="checkbox" id="useTIF" checked style="width: auto; height: 20px;">
+                    <small style="color: #888;">Usar archivos TIF para elevación real (desactiva para procedural)</small>
+                </div>
+                
+                <div class="control-group">
+                    <label>Resolución</label>
+                    <input type="range" id="resolution" min="20" max="100" value="60" step="5">
+                    <div class="value-display"><span id="resolution-value">60</span>×60</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Escala Vertical</label>
+                    <input type="range" id="verticalScale" min="0.5" max="5" value="3" step="0.1">
+                    <div class="value-display"><span id="verticalScale-value">3.0</span>x</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Tamaño (metros)</label>
+                    <input type="range" id="terrainSize" min="500" max="3000" value="1500" step="100">
+                    <div class="value-display"><span id="terrainSize-value">1500</span>m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Densidad Veg.</label>
+                    <input type="range" id="vegetationDensity" min="0" max="1" value="0.25" step="0.05">
+                    <div class="value-display"><span id="vegetationDensity-value">25</span>%</div>
+                </div>
+            </div>
+            
+            <!-- Sección 3: Acciones -->
+            <div class="section">
+                <h2>🎮 Acciones</h2>
+                <button onclick="createFullView3D()" class="primary" style="font-size: 14px; padding: 15px; margin-bottom: 10px;">
+                    🚀 CREAR VISTA 3D COMPLETA
+                </button>
+                <small style="color: #888; display: block; margin-bottom: 10px;">
+                    Captura mapa, analiza y genera terreno 3D automáticamente
+                </small>
+                <button onclick="clearAll()" class="danger">
+                    🗑️ LIMPIAR TODO
+                </button>
+                
+                <!-- Botones avanzados (colapsables) -->
+                <details style="margin-top: 15px;">
+                    <summary style="cursor: pointer; color: #4fd1c5; font-size: 11px;">⚙️ Opciones Avanzadas</summary>
+                    <div style="margin-top: 10px;">
+                        <button onclick="captureMapImage()" id="capture-btn" class="primary" style="font-size: 10px; margin-bottom: 5px;">
+                            📸 Capturar Mapa
+                        </button>
+                        <button onclick="analyzeImageColors()" id="analyze-btn" class="primary" style="font-size: 10px; margin-bottom: 5px;" disabled>
+                            🔍 Analizar Imagen
+                        </button>
+                        <button onclick="generateTerrain()" class="primary" id="generate-btn" style="font-size: 10px; margin-bottom: 5px;" disabled>
+                            🏗️ Generar Terreno 3D
+                        </button>
+                        <button onclick="showCapturedImage()" id="show-img-btn" class="primary" style="font-size: 10px; margin-bottom: 5px;" disabled>
+                            🖼️ Ver Imagen Capturada
+                        </button>
+                        <button onclick="showDebugCanvas()" class="success" id="debug-btn" style="font-size: 10px;" disabled>
+                            🎨 Ver Debug Colores
+                        </button>
+                    </div>
+                </details>
+            </div>
+            
+            <!-- Sección 3.3: Unidades Militares -->
+            <div class="section">
+                <h2>🎖️ Unidades Militares</h2>
+                <div style="margin-bottom: 10px;">
+                    <label>Seleccionar Unidad:</label>
+                    <button onclick="selectUnitType('tam')" class="primary" style="margin-bottom: 4px;">
+                        🚜 TAM (Tanque)</button>
+                    <button onclick="selectUnitType('soldier')" class="primary" style="margin-bottom: 4px;">
+                        🪖 Soldado
+                    </button>
+                    <button onclick="selectUnitType('soldier_ru')" class="primary" style="margin-bottom: 4px;">
+                        🪖 Soldado Ruso
+                    </button>
+                </div>
+                <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px; margin-bottom: 8px;">
+                    <div style="font-size: 9px; color: #a0aec0; margin-bottom: 4px;">UNIDAD SELECCIONADA:</div>
+                    <div style="font-size: 11px; color: #4fd1c5; font-weight: bold;" id="selected-unit-type">Ninguna</div>
+                </div>
+                <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px;">
+                    <div style="font-size: 9px; color: #a0aec0; margin-bottom: 4px;">UNIDAD ACTIVA:</div>
+                    <div style="font-size: 11px; color: #4fd1c5; font-weight: bold;" id="active-unit-info">Ninguna</div>
+                </div>
+                <button onclick="deleteSelectedUnit()" class="danger" style="margin-top: 8px;">
+                    🗑️ ELIMINAR SELECCIONADA
+                </button>
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 10px; color: #a0aec0;">Órdenes:</label>
+                    <button onclick="setOrderMode('move')" class="primary" style="margin-top: 4px; padding: 6px 12px; font-size: 10px;">
+                        ➡️ MOVER
+                    </button>
+                    <button onclick="setOrderMode('attack')" class="danger" style="margin-top: 4px; padding: 6px 12px; font-size: 10px;">
+                        🎯 ATACAR
+                    </button>
+                    <button onclick="toggleVisibilityCircle()" class="primary" style="margin-top: 4px; padding: 6px 12px; font-size: 10px;">
+                        👁️ VER ALCANCE
+                    </button>
+                    <div style="margin-top: 6px; font-size: 9px; color: #4fd1c5;" id="order-mode">Modo: Selección</div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 10px; color: #a0aec0;">Cargar Modelo:</label>
+                    <input type="file" id="model-file-input" accept=".glb,.gltf" style="display: none;" onchange="loadCustomModel(event)">
+                    <button onclick="document.getElementById('model-file-input').click()" class="primary" style="margin-top: 4px; padding: 6px 12px; font-size: 10px;">
+                        📦 GLB/GLTF
+                    </button>
+                </div>
+                <div style="margin-top: 10px; font-size: 9px; color: #a0aec0; line-height: 1.4;">
+                    💡 Click en el terreno 3D para colocar la unidad seleccionada<br>
+                    🌳 Soldados atraviesan árboles, tanques NO
+                </div>
+            </div>
+            
+            <!-- Sección 3.4: Fog of War -->
+            <div class="section">
+                <h2>🌫️ Fog of War</h2>
+                <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px; margin-bottom: 8px;">
+                    <div style="font-size: 9px; color: #a0aec0; margin-bottom: 4px;">JUGADOR ACTUAL:</div>
+                    <div style="font-size: 11px; color: #4fd1c5; font-weight: bold;" id="current-player">ALIADO</div>
+                </div>
+                <button onclick="switchPlayer()" class="primary" style="margin-bottom: 8px;">
+                    🔄 CAMBIAR JUGADOR
+                </button>
+                <div style="font-size: 9px; color: #a0aec0; line-height: 1.4; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                    💡 Solo verás unidades de tu facción y aquellas detectadas por tus sensores. Las unidades enemigas fuera de rango permanecen ocultas.
+                </div>
+            </div>
+            
+            <!-- Sección 3.5: Pruebas de Vegetación -->
+            <div class="section">
+                <h2>🧪 PRUEBAS DE TIPOS</h2>
+                <button onclick="testVegetationType('tree_tall')" class="success" style="margin-bottom: 8px;">
+                    🌲 VER SOLO ÁRBOLES
+                </button>
+                <button onclick="testVegetationType('bush')" class="success" style="margin-bottom: 8px;">
+                    🌿 VER SOLO ARBUSTOS
+                </button>
+                <button onclick="testVegetationType('grass')" class="success" style="margin-bottom: 8px;">
+                    🌾 VER SOLO PASTO
+                </button>
+                <button onclick="testVegetationType('all')" class="primary" style="margin-bottom: 8px;">
+                    🌍 VER TODOS
+                </button>
+                <div style="margin-top: 10px; padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px;">
+                    <div style="font-size: 9px; color: #a0aec0; margin-bottom: 4px;">TIPO ACTIVO:</div>
+                    <div style="font-size: 11px; color: #4fd1c5; font-weight: bold;" id="active-type">TODOS</div>
+                </div>
+            </div>
+            
+            <!-- Sección 4: Estadísticas -->
+            <div class="section">
+                <h2>📊 Estadísticas</h2>
+                <div class="stats-mini">
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-points">0</div>
+                        <div class="stat-mini-label">Puntos</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-veg">0</div>
+                        <div class="stat-mini-label">Vegetación</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-roads">0</div>
+                        <div class="stat-mini-label">Caminos</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-buildings">0</div>
+                        <div class="stat-mini-label">Edificios</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-elev">0m</div>
+                        <div class="stat-mini-label">Alt. Max</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value" id="stat-time">0s</div>
+                        <div class="stat-mini-label">Tiempo</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección 5: Log -->
+            <div class="section">
+                <h2>📝 Log</h2>
+                <div id="status-log"></div>
+            </div>
+        </div>
+        
+        <!-- Mapa Leaflet -->
+        <div id="map-container">
+            <div id="map"></div>
+            <div class="map-overlay">
+                <h3>🗺️ Mapa Interactivo</h3>
+                <p>
+                    Navega y haz zoom al área que quieres renderizar en 3D.
+                    Usa la rueda del mouse para zoom y arrastra para mover.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Canvas 3D -->
+        <div id="canvas-container"></div>
+    </div>
+
+    <script>
+        // === VARIABLES GLOBALES ===
+        let mapa;
+        let scene, camera, renderer, controls;
+        let terrainGenerator, satelliteAnalyzer;
+        let currentTerrain = null;
+        let capturedBounds = null;
+        let capturedZoom = null;  // 🎯 Guardar zoom para calcular altura de cámara
+        
+        // 🎖️ Variables para unidades militares
+        let placedUnits = [];           // Array de unidades colocadas
+        let selectedUnit = null;        // Unidad actualmente seleccionada
+        let currentUnitType = null;     // Tipo de unidad a colocar ('tam', 'soldier', etc.)
+        let raycaster = null;           // Se inicializa en initThreeJS()
+        let mouse = null;               // Se inicializa en initThreeJS()
+        let gltfLoader = null;          // Se inicializa en initThreeJS()
+        
+        // Configuración de modelos de unidades
+        const unitModels = {
+            'tam': {
+                path: 'Client/assets/models/gbl_new/tam_tank.glb',
+                scale: 0.5,
+                yOffset: 0,
+                name: 'TAM (Tanque)'
+            },
+            'soldier': {
+                path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
+                scale: 0.8,
+                yOffset: 0.9,
+                name: 'Soldado'
+            },
+            'soldier_ru': {
+                path: 'Client/assets/models/gbl_new/russian_soldier.glb',
+                scale: 70.0,
+                yOffset: 0.85,
+                name: 'Soldado Ruso'
+            }
+        };
+        
+        // === LOGGING ===
+        function log(message, type = 'info') {
+            const logPanel = document.getElementById('status-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const time = new Date().toLocaleTimeString();
+            entry.textContent = `[${time}] ${message}`;
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+        
+        // === ACTUALIZAR DISPLAYS ===
+        function updateDisplays() {
+            document.getElementById('resolution-value').textContent = 
+                document.getElementById('resolution').value;
+            document.getElementById('verticalScale-value').textContent = 
+                parseFloat(document.getElementById('verticalScale').value).toFixed(1);
+            document.getElementById('terrainSize-value').textContent = 
+                document.getElementById('terrainSize').value;
+            document.getElementById('vegetationDensity-value').textContent = 
+                (parseFloat(document.getElementById('vegetationDensity').value) * 100).toFixed(0);
+            document.getElementById('lod-value').textContent = 
+                document.getElementById('lod').value;
+        }
+        
+        ['resolution', 'verticalScale', 'terrainSize', 'vegetationDensity', 'lod'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateDisplays);
+        });
+        
+        // === INICIALIZAR MAPA LEAFLET ===
+        function initMap() {
+            mapa = L.map('map').setView([-34.5581, -58.4471], 15);
+            
+            // Capa satelital
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19
+            }).addTo(mapa);
+            
+            log('✅ Mapa Leaflet inicializado', 'success');
+        }
+        
+        // === CAPTURAR MAPA COMO IMAGEN ===
+        async function captureMap() {
+            log('📸 Capturando imagen del mapa...', 'info');
+            
+            return new Promise((resolve, reject) => {
+                try {
+                    // Guardar bounds y zoom actuales
+                    capturedBounds = mapa.getBounds();
+                    capturedZoom = mapa.getZoom();  // 🎯 Guardar zoom
+                    
+                    // ✅ USAR LEAFLET-IMAGE para capturar tiles correctamente
+                    if (typeof leafletImage !== 'undefined') {
+                        // leafletImage captura correctamente los tiles del mapa
+                        leafletImage(mapa, function(err, canvas) {
+                            if (err) {
+                                log('❌ Error con leaflet-image: ' + err.message, 'error');
+                                console.error(err);
+                                reject(err);
+                                return;
+                            }
+                            
+                            const imageData = canvas.toDataURL('image/png');
+                            
+                            // Inicializar analyzer
+                            if (!satelliteAnalyzer) {
+                                satelliteAnalyzer = new SatelliteImageAnalyzer({
+                                    samplingRate: parseInt(document.getElementById('lod').value)
+                                });
+                            }
+                            
+                            satelliteAnalyzer.loadImage(imageData).then(() => {
+                                document.getElementById('analyze-btn').disabled = false;
+                                document.getElementById('generate-btn').disabled = false;
+                                document.getElementById('show-img-btn').disabled = false;
+                                
+                                log('✅ Mapa capturado correctamente con leaflet-image', 'success');
+                                log(`📍 Dimensiones: ${canvas.width}x${canvas.height}`, 'info');
+                                log(`📍 Zoom: ${capturedZoom}, Bounds: ${capturedBounds.getNorth().toFixed(4)}, ${capturedBounds.getWest().toFixed(4)}`, 'info');
+                                
+                                resolve(); // ✅ Resolver promesa cuando todo esté listo
+                            }).catch(reject);
+                        });
+                    } else {
+                        const error = new Error('leaflet-image no disponible');
+                        log('❌ leaflet-image no disponible', 'error');
+                        alert('Error: leaflet-image no está cargado. Verifica la conexión a internet.');
+                        reject(error);
+                    }
+                    
+                } catch (error) {
+                    log('❌ Error capturando mapa: ' + error.message, 'error');
+                    console.error(error);
+                    reject(error);
+                }
+            });
+        }
+        
+        // === MOSTRAR IMAGEN CAPTURADA ===
+        function showCapturedImage() {
+            if (!satelliteAnalyzer || !satelliteAnalyzer.canvas) {
+                alert('❌ No hay imagen capturada');
+                return;
+            }
+            
+            // Crear ventana modal con la imagen
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            const title = document.createElement('h2');
+            title.textContent = '🖼️ Imagen Satelital Capturada';
+            title.style.color = 'white';
+            title.style.marginBottom = '20px';
+            
+            const img = document.createElement('img');
+            img.src = satelliteAnalyzer.canvas.toDataURL();
+            img.style.maxWidth = '90%';
+            img.style.maxHeight = '70vh';
+            img.style.border = '2px solid white';
+            img.style.borderRadius = '8px';
+            
+            const info = document.createElement('div');
+            info.style.color = 'white';
+            info.style.marginTop = '15px';
+            info.style.fontSize = '14px';
+            info.innerHTML = `
+                <strong>Dimensiones:</strong> ${satelliteAnalyzer.canvas.width} x ${satelliteAnalyzer.canvas.height}px<br>
+                <strong>Bounds:</strong> ${capturedBounds ? capturedBounds.toBBoxString() : 'N/A'}
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✖ Cerrar';
+            closeBtn.className = 'danger';
+            closeBtn.style.marginTop = '20px';
+            closeBtn.onclick = () => document.body.removeChild(modal);
+            
+            modal.appendChild(title);
+            modal.appendChild(img);
+            modal.appendChild(info);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+            
+            // Cerrar con ESC
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+        }
+        
+        // === CAPTURA ALTERNATIVA USANDO TILES ===
+        async function captureTiles() {
+            const bounds = mapa.getBounds();
+            const zoom = mapa.getZoom();
+            const size = mapa.getSize();
+            
+            // Crear canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = size.x;
+            canvas.height = size.y;
+            const ctx = canvas.getContext('2d');
+            
+            // Obtener tiles visibles
+            const tiles = [];
+            const tileLayer = mapa._layers[Object.keys(mapa._layers)[0]];
+            
+            // Por ahora, crear imagen procedural si no se puede capturar
+            ctx.fillStyle = '#4a7c59';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Agregar ruido para simular terreno
+            for (let i = 0; i < 1000; i++) {
+                ctx.fillStyle = `rgba(${50 + Math.random() * 100}, ${100 + Math.random() * 100}, ${50 + Math.random() * 50}, 0.5)`;
+                ctx.fillRect(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 50,
+                    Math.random() * 50
+                );
+            }
+            
+            const imageData = canvas.toDataURL('image/png');
+            
+            if (!satelliteAnalyzer) {
+                satelliteAnalyzer = new SatelliteImageAnalyzer({
+                    samplingRate: parseInt(document.getElementById('lod').value)
+                });
+            }
+            
+            await satelliteAnalyzer.loadImage(imageData);
+            capturedBounds = bounds;
+            
+            document.getElementById('analyze-btn').disabled = false;
+            document.getElementById('generate-btn').disabled = false;
+            document.getElementById('debug-btn').disabled = false; // Habilitar debug
+            
+            log('✅ Imagen generada (procedural)', 'success');
+        }
+        
+        // === ANALIZAR MAPA ===
+        async function analyzeMap() {
+            if (!satelliteAnalyzer) {
+                log('❌ Primero captura el mapa', 'error');
+                return;
+            }
+            
+            try {
+                const samplingRate = parseInt(document.getElementById('lod').value);
+                
+                // ✅ FASE 2: Usar Web Worker (async, no bloquea UI)
+                const result = await satelliteAnalyzer.analyzeImageAsync({ samplingRate });
+                
+                document.getElementById('stat-roads').textContent = result.stats.roads || 0;
+                document.getElementById('stat-buildings').textContent = result.stats.buildings || 0;
+                
+                log(`✅ Análisis: ${result.stats.timeMs}ms`, 'success');
+                log(`📊 Veg:${result.stats.vegetation} Caminos:${result.stats.roads} Edificios:${result.stats.buildings}`, 'info');
+                
+            } catch (error) {
+                log('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // === INICIALIZAR THREE.JS ===
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            // Escena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            // scene.fog = new THREE.Fog(0x87CEEB, 1000, 5000); // ❌ NIEBLA DESACTIVADA
+            
+            camera = new THREE.PerspectiveCamera(
+                60,
+                container.clientWidth / container.clientHeight,
+                1,
+                10000
+            );
+            camera.position.set(800, 600, 800);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const sunLight = new THREE.DirectionalLight(0xffffee, 1.2);
+            sunLight.position.set(1000, 1000, 500);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+            
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2;
+            
+            // 🎖️ Inicializar sistema de unidades militares
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            gltfLoader = new THREE.GLTFLoader();
+            
+            // 🎖️ Event listener para clicks en el canvas (colocar/seleccionar unidades/dar órdenes)
+            renderer.domElement.addEventListener('click', (event) => {
+                // Si hay un modo de orden activo, dar la orden
+                if (currentOrderMode === 'move' && selectedUnit) {
+                    if (!currentTerrain || !currentTerrain.terrain) {
+                        log('⚠️ Genera el terreno primero', 'warning');
+                        return;
+                    }
+                    
+                    // Calcular posición en terreno
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+                    
+                    if (intersects.length > 0) {
+                        giveMoveOrder(intersects[0].point);
+                        currentOrderMode = null; // Reset modo
+                        document.getElementById('order-mode').textContent = 'Modo: Selección';
+                    }
+                    return;
+                }
+                
+                // Si modo ataque, atacar unidad clickeada
+                if (currentOrderMode === 'attack' && selectedUnit) {
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(placedUnits, true);
+                    
+                    if (intersects.length > 0) {
+                        let targetUnit = intersects[0].object;
+                        while (targetUnit.parent && !targetUnit.userData.unitType) {
+                            targetUnit = targetUnit.parent;
+                        }
+                        
+                        if (targetUnit !== selectedUnit) {
+                            attackUnit(selectedUnit, targetUnit);
+                            currentOrderMode = null;
+                            document.getElementById('order-mode').textContent = 'Modo: Selección';
+                        }
+                    }
+                    return;
+                }
+                
+                // Primero intentar seleccionar una unidad existente
+                const unitSelected = selectUnitWithClick(event.clientX, event.clientY);
+                
+                // Si no se seleccionó una unidad Y hay un tipo seleccionado, colocar nueva unidad
+                if (!unitSelected && currentUnitType) {
+                    placeUnitOnTerrain(event.clientX, event.clientY);
+                    // 🔴 DESACTIVAR modo inserción después de colocar
+                    currentUnitType = null;
+                    document.querySelectorAll('.unit-btn').forEach(btn => btn.classList.remove('active'));
+                    log('💡 Modo inserción desactivado. Selecciona otra unidad para insertar más.', 'info');
+                }
+            });
+            
+            // 🎯 Menú Contextual Radial (click derecho)
+            renderer.domElement.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                
+                const rect = renderer.domElement.getBoundingClientRect();
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+                
+                // Raycast para detectar qué se clickeó
+                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(placedUnits, true);
+                
+                if (intersects.length > 0) {
+                    // Click derecho sobre una unidad
+                    let unitObj = intersects[0].object;
+                    while (unitObj.parent && !unitObj.userData.unitType) {
+                        unitObj = unitObj.parent;
+                    }
+                    
+                    if (window.MenuContextualUnificado) {
+                        // Seleccionar la unidad
+                        selectedUnit = unitObj;
+                        
+                        // Mostrar menú radial con opciones de unidad
+                        window.MenuContextualUnificado.mostrarMenu(
+                            mouseX, 
+                            mouseY, 
+                            'unidad', 
+                            unitObj
+                        );
+                    }
+                } else if (currentTerrain && currentTerrain.terrain) {
+                    // Click derecho sobre el terreno
+                    const terrainIntersects = raycaster.intersectObject(currentTerrain.terrain, true);
+                    
+                    if (terrainIntersects.length > 0 && window.MenuContextualUnificado) {
+                        window.MenuContextualUnificado.mostrarMenu(
+                            mouseX, 
+                            mouseY, 
+                            'terreno', 
+                            { position: terrainIntersects[0].point }
+                        );
+                    }
+                }
+            });
+            
+            log('✅ Sistema 3D inicializado', 'success');
+            animate();
+        }
+        
+        let lastTime = performance.now();
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const currentTime = performance.now();
+            const delta = (currentTime - lastTime) / 1000; // Convertir a segundos
+            lastTime = currentTime;
+            
+            // Actualizar movimiento de unidades
+            if (placedUnits.length > 0) {
+                updateUnitMovement(delta);
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        // === POSICIONAR CÁMARA SEGÚN TERRENO ===
+        function positionCameraForTerrain(terrain, bounds) {
+            if (!terrain || !bounds) return;
+            
+            // Calcular dimensiones reales del terreno
+            const box = new THREE.Box3().setFromObject(terrain);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            
+            // 🎯 CALCULAR ALTURA SEGÚN ZOOM DE LEAFLET
+            // Leaflet usa zoom 0-19, donde cada nivel duplica la escala
+            // Zoom más alto = más cerca, altura menor
+            let cameraHeight;
+            if (capturedZoom) {
+                // Formula: altura = dimensión_terreno * factor_zoom
+                // Zoom 19 (muy cerca) → factor 0.8
+                // Zoom 15 (medio) → factor 2.0
+                // Zoom 10 (lejos) → factor 5.0
+                const zoomFactor = Math.pow(2, 19 - capturedZoom) * 0.8;
+                const maxDim = Math.max(size.x, size.z);
+                cameraHeight = maxDim * zoomFactor;
+                console.log(`📐 Zoom: ${capturedZoom}, Factor: ${zoomFactor.toFixed(2)}, Altura: ${cameraHeight.toFixed(0)}m`);
+            } else {
+                // Fallback: calcular altura según FOV
+                const maxDim = Math.max(size.x, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                cameraHeight = Math.abs(maxDim / Math.sin(fov / 2)) * 1.2;
+            }
+            
+            // 🗺️ VISTA AZIMUTAL (desde arriba, perpendicular al mapa)
+            camera.position.set(
+                center.x,                    // Centrado en X
+                center.y + cameraHeight,     // Altura según zoom
+                center.z                     // Centrado en Z
+            );
+            
+            // Apuntar al centro del terreno
+            camera.lookAt(center);
+            
+            // Actualizar controles
+            if (controls) {
+                controls.target.copy(center);
+                controls.update();
+            }
+            
+            console.log(`📷 Cámara azimutal: altura=${cameraHeight.toFixed(0)}m, centro=${center.x.toFixed(0)},${center.y.toFixed(0)},${center.z.toFixed(0)}`);
+        }
+        
+        // === GENERAR TERRENO ===
+        async function generateTerrain() {
+            if (!capturedBounds) {
+                log('❌ Primero captura el mapa', 'error');
+                return;
+            }
+            
+            const startTime = performance.now();
+            log('🏗️ Generando terreno 3D...', 'info');
+            
+            // ✅ Variables de servicios fuera del scope del if
+            let elevationService = null;
+            let vegetationService = null;
+            
+            try {
+                if (currentTerrain) clearTerrain();
+                
+                const config = {
+                    resolution: parseInt(document.getElementById('resolution').value),
+                    verticalScale: parseFloat(document.getElementById('verticalScale').value),
+                    realWorldSize: parseInt(document.getElementById('terrainSize').value),
+                    vegetationDensity: parseFloat(document.getElementById('vegetationDensity').value)
+                };
+                
+                if (!terrainGenerator) {
+                    terrainGenerator = new TerrainGenerator3D(config);
+                    
+                    // ✅ Leer configuración de UI
+                    const useTIF = document.getElementById('useTIF').checked;
+                    
+                    // ✅ Inicializar ElevationService
+                    if (window.ElevationService) {
+                        try {
+                            elevationService = new ElevationService();
+                            await elevationService.initialize(useTIF);
+                            console.log(`✅ ElevationService inicializado (TIF: ${useTIF})`);
+                        } catch (err) {
+                            console.warn('⚠️ Error inicializando ElevationService:', err);
+                        }
+                    }
+                    
+                    // ✅ Inicializar VegetationService con análisis satelital
+                    if (window.VegetationService) {
+                        try {
+                            vegetationService = new VegetationService();
+                            await vegetationService.initialize(useTIF, satelliteAnalyzer);
+                            console.log(`✅ VegetationService inicializado (TIF: ${useTIF}, Satellite: ${!!satelliteAnalyzer})`);
+                            
+                            // 🌿 CONECTAR VegetationService al SatelliteImageAnalyzer
+                            if (satelliteAnalyzer && capturedBounds) {
+                                satelliteAnalyzer.setVegetationService(vegetationService, capturedBounds);
+                                console.log('🌿 VegetationService conectado al SatelliteImageAnalyzer para datos TIF');
+                            }
+                        } catch (err) {
+                            console.warn('⚠️ Error inicializando VegetationService:', err);
+                        }
+                    }
+                    
+                    // 🔥 CRÍTICO: Pasar la escena THREE.js real para habilitar VegetationInstancer
+                    const maira3DSystem = { 
+                        scene: scene,
+                        camera: camera,
+                        renderer: renderer,
+                        controls: controls
+                    };
+                    
+                    terrainGenerator.initialize(
+                        elevationService,
+                        vegetationService,
+                        maira3DSystem,  // ✅ Ahora con scene válida
+                        satelliteAnalyzer
+                    );
+                } else {
+                    terrainGenerator.updateConfig(config);
+                    terrainGenerator.satelliteAnalyzer = satelliteAnalyzer;
+                }
+                
+                // 🔥 CRÍTICO: Analizar imagen satelital ANTES de generar terreno
+                if (satelliteAnalyzer && satelliteAnalyzer.imageData) {
+                    const features = satelliteAnalyzer.getFeatures();
+                    if (!features || features.length === 0) {
+                        console.log('🔄 Analizando imagen satelital antes de generar terreno...');
+                        const samplingRate = parseInt(document.getElementById('lod').value) || 8;
+                        await satelliteAnalyzer.analyzeImageAsync({ samplingRate });
+                        console.log('✅ Análisis completado, generando terreno...');
+                    } else {
+                        console.log(`✅ Usando ${features.length} features ya detectadas`);
+                    }
+                }
+                
+                const result = await terrainGenerator.generateTerrain(capturedBounds, {
+                    includeVegetation: true,
+                    includeRoads: true,
+                    includeBuildings: true,
+                    includeWater: true
+                });
+                
+                // Agregar terreno
+                scene.add(result.terrain);
+                log('✅ Terreno agregado a la escena', 'success');
+                
+                // Agregar vegetación
+                result.vegetation.forEach(vegObj => scene.add(vegObj));
+                if (result.vegetation.length > 0) {
+                    log(`🌳 ${result.vegetation.length} modelos de vegetación agregados`, 'success');
+                }
+                
+                // Agregar caminos
+                if (result.roads && result.roads.length > 0) {
+                    result.roads.forEach(road => scene.add(road));
+                    log(`🛣️ ${result.roads.length} segmentos de caminos agregados`, 'success');
+                }
+                
+                // Agregar edificios
+                if (result.buildings && result.buildings.length > 0) {
+                    result.buildings.forEach(building => scene.add(building));
+                    log(`🏢 ${result.buildings.length} edificios agregados`, 'success');
+                }
+                
+                // Agregar agua
+                if (result.water && result.water.length > 0) {
+                    result.water.forEach(w => scene.add(w));
+                    log(`💧 ${result.water.length} planos de agua agregados`, 'success');
+                }
+                
+                currentTerrain = result;
+                
+                // ✅ POSICIONAR CÁMARA según tamaño real del terreno
+                positionCameraForTerrain(result.terrain, capturedBounds);
+                
+                const timeS = ((performance.now() - startTime) / 1000).toFixed(2);
+                
+                document.getElementById('stat-points').textContent = result.stats.points;
+                document.getElementById('stat-veg').textContent = result.stats.vegetation.total;
+                document.getElementById('stat-elev').textContent = result.stats.elevation.max.toFixed(1) + 'm';
+                document.getElementById('stat-time').textContent = timeS + 's';
+                
+                const totalObjects = result.vegetation.length + (result.roads?.length || 0) + (result.buildings?.length || 0) + (result.water?.length || 0);
+                log(`✅ Terreno generado en ${timeS}s`, 'success');
+                
+                // ✅ Mostrar dimensiones reales del terreno (escala Haversine)
+                if (result.stats.realDimensions) {
+                    const width = result.stats.realDimensions.widthMeters.toFixed(0);
+                    const height = result.stats.realDimensions.heightMeters.toFixed(0);
+                    log(`📏 Dimensiones reales: ${width}m × ${height}m`, 'success');
+                }
+                
+                log(`📊 ${result.stats.points} puntos, ${totalObjects} objetos 3D`, 'info');
+                log(`🌳 Vegetación: ${result.vegetation.length} | 🛣️ Caminos: ${result.roads?.length || 0} | 🏢 Edificios: ${result.buildings?.length || 0} | 💧 Agua: ${result.water?.length || 0}`, 'info');
+                
+                // ✅ Mostrar estadísticas de fuentes de vegetación con FUSIÓN
+                if (vegetationService && typeof vegetationService.getStats === 'function') {
+                    const vegStats = vegetationService.getStats();
+                    if (vegStats.total > 0) {
+                        // Mostrar fusión de forma destacada si existe
+                        if (vegStats.fromFusion > 0) {
+                            log(`📊 Fuentes NDVI: 🔀 Fusión ${vegStats.percentages.fusion}% | 🛰️ Imagen ${vegStats.percentages.satellite}% | 🗺️ TIF ${vegStats.percentages.tif}% | 🎲 Procedural ${vegStats.percentages.procedural}%`, 'success');
+                            log(`✨ Fusión activa: ${vegStats.fromFusion} puntos combinan datos de Imagen + TIF para mayor precisión`, 'info');
+                        } else {
+                            log(`📊 Fuentes NDVI: 🛰️ Imagen ${vegStats.percentages.satellite}% | 🗺️ TIF ${vegStats.percentages.tif}% | 🎲 Procedural ${vegStats.percentages.procedural}%`, 'info');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        // === MOSTRAR DEBUG CANVAS ===
+        function showDebugCanvas() {
+            if (!satelliteAnalyzer) {
+                log('❌ Primero analiza el mapa', 'error');
+                return;
+            }
+            
+            log('🎨 Creando canvas de debug...', 'info');
+            const debugCanvas = satelliteAnalyzer.createDebugCanvas();
+            
+            if (!debugCanvas) {
+                log('❌ Error creando debug canvas', 'error');
+                return;
+            }
+            
+            // Crear ventana modal con el canvas
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            const title = document.createElement('h2');
+            title.textContent = '🎨 Clasificación de Píxeles';
+            title.style.cssText = 'color: white; margin-bottom: 10px;';
+            
+            const legend = document.createElement('div');
+            legend.innerHTML = `
+                <div style="color: white; text-align: center; margin-bottom: 10px; font-family: monospace;">
+                    <span style="color: #00ff00;">█ Vegetación</span> |
+                    <span style="color: #808080;">█ Caminos</span> |
+                    <span style="color: #ff0000;">█ Edificios</span> |
+                    <span style="color: #0000ff;">█ Agua</span> |
+                    <span style="color: #8b4513;">█ Tierra</span> |
+                    <span style="color: #323232;">█ Sin clasificar</span>
+                </div>
+            `;
+            
+            debugCanvas.style.cssText = 'max-width: 90%; max-height: 70vh; border: 2px solid white;';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✖ Cerrar';
+            closeBtn.style.cssText = `
+                margin-top: 15px;
+                padding: 10px 20px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            `;
+            closeBtn.onclick = () => document.body.removeChild(modal);
+            
+            modal.appendChild(title);
+            modal.appendChild(legend);
+            modal.appendChild(debugCanvas);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+            
+            log('✅ Canvas de debug mostrado', 'success');
+        }
+        
+        // === LIMPIAR TERRENO ===
+        function clearTerrain() {
+            if (!currentTerrain) return;
+            
+            scene.remove(currentTerrain.terrain);
+            currentTerrain.vegetation.forEach(vegObj => scene.remove(vegObj));
+            
+            // Limpiar caminos
+            if (currentTerrain.roads) {
+                currentTerrain.roads.forEach(road => scene.remove(road));
+            }
+            
+            // Limpiar edificios
+            if (currentTerrain.buildings) {
+                currentTerrain.buildings.forEach(building => scene.remove(building));
+            }
+            
+            if (terrainGenerator) terrainGenerator.clear();
+            
+            currentTerrain = null;
+        }
+        
+        // === CREAR VISTA 3D COMPLETA (AUTOMÁTICO) ===
+        /**
+         * 🚀 Ejecuta toda la secuencia: Captura → Análisis → Generación 3D
+         */
+        async function createFullView3D() {
+            try {
+                log('🚀 Iniciando creación automática de vista 3D...', 'info');
+                
+                // Paso 1: Capturar mapa
+                log('📸 Paso 1/3: Capturando mapa...', 'info');
+                await captureMap();
+                
+                // Esperar un momento para asegurar que la captura se completó
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (!satelliteAnalyzer || !satelliteAnalyzer.canvas) {
+                    log('❌ Error: No se pudo capturar el mapa', 'error');
+                    return;
+                }
+                
+                // Paso 2: Analizar imagen
+                log('🔍 Paso 2/3: Analizando imagen...', 'info');
+                await analyzeMap();
+                
+                // Esperar análisis
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (!satelliteAnalyzer.features || !satelliteAnalyzer.features.vegetation) {
+                    log('❌ Error: No se pudo analizar la imagen', 'error');
+                    return;
+                }
+                
+                // Paso 3: Generar terreno 3D
+                log('🏗️ Paso 3/3: Generando terreno 3D...', 'info');
+                await generateTerrain();
+                
+                log('✅ Vista 3D creada exitosamente!', 'success');
+                log('💡 Ahora puedes colocar unidades haciendo click en el terreno', 'info');
+                
+            } catch (error) {
+                log(`❌ Error en creación automática: ${error.message}`, 'error');
+                console.error('Error createFullView3D:', error);
+            }
+        }
+        
+        // === LIMPIAR TODO ===
+        // === FUNCIONES DE UNIDADES MILITARES ===
+        
+        // 🎯 Modo de orden actual
+        let currentOrderMode = null; // 'move', 'attack', null
+        let orderLines = []; // Líneas de órdenes visuales
+        let obstacles = []; // Lista de obstáculos (árboles, edificios, unidades)
+        
+        // 🚧 Sistema de Colisiones y Obstáculos Mejorado
+        /**
+         * Verificar colisión en una posición según tipo de unidad
+         * Soldados pueden pasar ENTRE árboles si hay espacio suficiente
+         * Tanques necesitan espacios más amplios
+         * @param {THREE.Vector3} position - Posición a verificar
+         * @param {number} radius - Radio de colisión
+         * @param {string} unitType - Tipo de unidad ('tam', 'soldier', etc.)
+         */
+        function checkCollisionAtPosition(position, radius = 5, unitType = null) {
+            // Verificar colisión con otras unidades
+            for (let unit of placedUnits) {
+                const distance = unit.position.distanceTo(position);
+                if (distance < radius) {
+                    return true; // Colisión con unidad
+                }
+            }
+            
+            // 🌳 ÁRBOLES: Verificar según tipo de unidad
+            if (currentTerrain && currentTerrain.vegetation) {
+                const isInfantry = unitType === 'soldier' || unitType === 'soldier_ru';
+                
+                // Contar árboles cercanos para determinar densidad
+                const nearbyTrees = [];
+                for (let veg of currentTerrain.vegetation) {
+                    const distance = veg.position.distanceTo(position);
+                    if (distance < 10) { // Radio de análisis de densidad
+                        nearbyTrees.push({ tree: veg, distance });
+                    }
+                }
+                
+                if (isInfantry) {
+                    // 👤 INFANTERÍA: Puede pasar entre árboles si hay espacio
+                    // Bloqueado solo si hay árbol MUY cerca (< 2m) o densidad muy alta
+                    for (let item of nearbyTrees) {
+                        if (item.distance < 2) {
+                            return true; // Árbol justo en la posición
+                        }
+                    }
+                    
+                    // Si hay más de 8 árboles en 10m de radio = bosque denso
+                    if (nearbyTrees.length > 8) {
+                        // Verificar si hay espacio para pasar
+                        const veryCloseTrees = nearbyTrees.filter(t => t.distance < 4).length;
+                        if (veryCloseTrees > 3) {
+                            return true; // Demasiado denso para infantería
+                        }
+                    }
+                } else {
+                    // 🚗 VEHÍCULOS: Necesitan mucho más espacio
+                    for (let item of nearbyTrees) {
+                        if (item.distance < 5) {
+                            return true; // Árbol bloquea vehículo
+                        }
+                    }
+                    
+                    // Si hay más de 4 árboles en 10m = bosque, bloquear
+                    if (nearbyTrees.length > 4) {
+                        return true; // Densidad muy alta para vehículos
+                    }
+                }
+            }
+            
+            // 🏢 EDIFICIOS: Bloquean TODO (infantería y vehículos)
+            if (currentTerrain && currentTerrain.buildings) {
+                for (let building of currentTerrain.buildings) {
+                    const distance = building.position.distanceTo(position);
+                    if (distance < 8) { // Radio de colisión de edificios
+                        return true; // Colisión con edificio
+                    }
+                }
+            }
+            
+            return false; // Sin colisión
+        }
+        
+        /**
+         * Verificar línea de visión (LOS) entre dos puntos
+         * Considera elevaciones del terreno y obstáculos
+         */
+        function checkLineOfSight(from, to) {
+            const direction = to.clone().sub(from).normalize();
+            const distance = from.distanceTo(to);
+            
+            raycaster.set(from, direction);
+            raycaster.far = distance;
+            
+            // Verificar intersecciones con obstáculos
+            let allObstacles = [];
+            
+            // 🗻 TERRENO: Agregar como obstáculo para considerar elevaciones
+            if (currentTerrain && currentTerrain.terrain) {
+                allObstacles.push(currentTerrain.terrain);
+            }
+            
+            // Agregar vegetación como obstáculos
+            if (currentTerrain && currentTerrain.vegetation) {
+                allObstacles = allObstacles.concat(currentTerrain.vegetation);
+            }
+            
+            // Agregar edificios como obstáculos
+            if (currentTerrain && currentTerrain.buildings) {
+                allObstacles = allObstacles.concat(currentTerrain.buildings);
+            }
+            
+            const intersects = raycaster.intersectObjects(allObstacles, true);
+            
+            // Si hay intersecciones antes de llegar al objetivo, no hay LOS
+            return intersects.length === 0;
+        }
+        
+        /**
+         * 👁️ Calcular área de visibilidad ESFÉRICA 3D (realista)
+         * Considera terreno, árboles, edificios Y elevación de cañón
+         * @param {THREE.Vector3} position - Posición de la unidad
+         * @param {number} range - Alcance visual en metros
+         * @param {string} unitType - Tipo de unidad para determinar restricciones
+         * @param {object} options - { horizontalRays: 32, verticalRays: 8, elevationMax: 15, elevationMin: -8 }
+         * @returns {Object} { visiblePoints: Array, canEngagePoints: Array }
+         */
+        function calculateVisibilitySphere(position, range, unitType = null, options = {}) {
+            const horizontalRays = options.horizontalRays || 32;
+            const verticalRays = options.verticalRays || 8;
+            
+            // 🎯 Restricciones de elevación según tipo de unidad
+            let elevationMax = options.elevationMax || 20; // Default: 20°
+            let elevationMin = options.elevationMin || -10; // Default: -10°
+            let observerHeight = options.observerHeight || 2; // Default: 2m
+            
+            // Aplicar restricciones por tipo de unidad
+            if (unitType === 'tam') {
+                elevationMax = 15;  // TAM: +15°
+                elevationMin = -8;  // TAM: -8°
+                observerHeight = 2.8; // Altura torre TAM
+            } else if (unitType === 'tam2c') {
+                elevationMax = 18;  // TAM2C: +18°
+                elevationMin = -10; // TAM2C: -10°
+                observerHeight = 2.9;
+            } else if (unitType === 'artillery') {
+                elevationMax = 70;  // Artillería: +70° (tiro indirecto)
+                elevationMin = -5;  // Artillería: -5°
+                observerHeight = 2.2;
+            } else if (unitType === 'mortar') {
+                elevationMax = 85;  // Mortero: +85° (tiro parabólico)
+                elevationMin = 45;  // Mortero: +45° (mínimo)
+                observerHeight = 1.8;
+            } else if (unitType === 'soldier' || unitType === 'soldier_ru') {
+                elevationMax = 90;  // Infantería: sin límite
+                elevationMin = -20;
+                observerHeight = 1.7; // Altura soldado
+            }
+            
+            const visiblePoints = [];
+            const canEngagePoints = []; // Puntos dentro de ángulos de cañón
+            
+            const horizontalStep = (Math.PI * 2) / horizontalRays;
+            const verticalStep = (elevationMax - elevationMin) * (Math.PI / 180) / verticalRays;
+            
+            // Iterar por ángulos horizontales (azimut)
+            for (let h = 0; h < horizontalRays; h++) {
+                const azimuth = h * horizontalStep;
+                
+                // Iterar por ángulos verticales (elevación)
+                for (let v = 0; v < verticalRays; v++) {
+                    // Convertir elevación de grados a radianes
+                    const elevationDeg = elevationMin + (v * (elevationMax - elevationMin) / verticalRays);
+                    const elevation = elevationDeg * (Math.PI / 180);
+                    
+                    // Calcular dirección 3D del rayo
+                    const direction = new THREE.Vector3(
+                        Math.cos(elevation) * Math.cos(azimuth),
+                        Math.sin(elevation),
+                        Math.cos(elevation) * Math.sin(azimuth)
+                    ).normalize();
+                    
+                    // Lanzar rayo desde posición del observador
+                    const from = position.clone();
+                    from.y += observerHeight;
+                    
+                    raycaster.set(from, direction);
+                    raycaster.far = range;
+                    
+                    // Verificar obstáculos
+                    let allObstacles = [];
+                    
+                    // 🗻 TERRENO: Crítico para LOS realista
+                    if (currentTerrain && currentTerrain.terrain) {
+                        allObstacles.push(currentTerrain.terrain);
+                    }
+                    
+                    if (currentTerrain && currentTerrain.vegetation) {
+                        allObstacles = allObstacles.concat(currentTerrain.vegetation);
+                    }
+                    if (currentTerrain && currentTerrain.buildings) {
+                        allObstacles = allObstacles.concat(currentTerrain.buildings);
+                    }
+                    
+                    const intersects = raycaster.intersectObjects(allObstacles, true);
+                    
+                    let point;
+                    if (intersects.length > 0) {
+                        point = intersects[0].point.clone();
+                    } else {
+                        // Sin obstáculo, hasta alcance máximo
+                        point = from.clone().add(direction.multiplyScalar(range));
+                    }
+                    
+                    visiblePoints.push(point);
+                    
+                    // Verificar si está dentro de ángulos de cañón (para ataque)
+                    // Artillería y morteros solo pueden disparar en ciertos ángulos
+                    if (unitType === 'mortar') {
+                        // Morteros: solo elevación 45°-85°
+                        if (elevationDeg >= 45 && elevationDeg <= 85) {
+                            canEngagePoints.push(point);
+                        }
+                    } else if (unitType === 'artillery') {
+                        // Artillería: preferentemente > 30° para tiro indirecto
+                        if (elevationDeg >= -5 && elevationDeg <= 70) {
+                            canEngagePoints.push(point);
+                        }
+                    } else {
+                        // Fuego directo (tanques, infantería): todos los ángulos permitidos
+                        canEngagePoints.push(point);
+                    }
+                }
+            }
+            
+            return {
+                visiblePoints: visiblePoints,
+                canEngagePoints: canEngagePoints,
+                metadata: {
+                    unitType: unitType,
+                    elevationMax: elevationMax,
+                    elevationMin: elevationMin,
+                    observerHeight: observerHeight,
+                    totalRays: horizontalRays * verticalRays
+                }
+            };
+        }
+        
+        /**
+         * 👁️ LEGACY: Calcular área de visibilidad circular 2D (mantener por compatibilidad)
+         * @deprecated Usar calculateVisibilitySphere() para LOS realista
+         */
+        function calculateVisibilityCircle(position, range, resolution = 32) {
+            const visiblePoints = [];
+            const angleStep = (Math.PI * 2) / resolution;
+            
+            for (let i = 0; i < resolution; i++) {
+                const angle = i * angleStep;
+                const direction = new THREE.Vector3(
+                    Math.cos(angle),
+                    0,
+                    Math.sin(angle)
+                );
+                
+                // Lanzar rayo desde posición en dirección
+                const from = position.clone();
+                from.y += 2; // Altura de observador (2m)
+                
+                raycaster.set(from, direction);
+                raycaster.far = range;
+                
+                // Verificar obstáculos (terreno, vegetación, edificios)
+                let allObstacles = [];
+                
+                // 🗻 TERRENO: Fundamental para LOS realista con elevaciones
+                if (currentTerrain && currentTerrain.terrain) {
+                    allObstacles.push(currentTerrain.terrain);
+                }
+                
+                if (currentTerrain && currentTerrain.vegetation) {
+                    allObstacles = allObstacles.concat(currentTerrain.vegetation);
+                }
+                if (currentTerrain && currentTerrain.buildings) {
+                    allObstacles = allObstacles.concat(currentTerrain.buildings);
+                }
+                
+                const intersects = raycaster.intersectObjects(allObstacles, true);
+                
+                // Si hay obstáculo, visibilidad hasta el obstáculo
+                if (intersects.length > 0) {
+                    visiblePoints.push(intersects[0].point.clone());
+                } else {
+                    // Sin obstáculo, visibilidad hasta alcance máximo
+                    const maxPoint = from.clone().add(direction.multiplyScalar(range));
+                    maxPoint.y = 0; // Al nivel del suelo
+                    visiblePoints.push(maxPoint);
+                }
+            }
+            
+            return visiblePoints;
+        }
+        
+        /**
+         * 🎨 Visualizar área de visibilidad ESFÉRICA 3D (debug/opcional)
+         * Usa calculateVisibilitySphere() para mostrar volumen 3D realista
+         */
+        function showVisibilityCircle(unit) {
+            // Determinar alcance visual según tipo
+            let visualRange = 500; // Default
+            let unitType = unit.userData.unitType || 'soldier';
+            
+            if (unit.userData.unitType === 'tam' || unit.userData.unitType === 'tam2c') {
+                visualRange = 2000; // Tanques ven más lejos
+            } else if (unit.userData.unitType === 'soldier' || unit.userData.unitType === 'soldier_ru') {
+                visualRange = 300; // Infantería alcance limitado
+            } else if (unit.userData.unitType === 'artillery') {
+                visualRange = 1500; // Artillería (observador)
+            } else if (unit.userData.unitType === 'mortar') {
+                visualRange = 1000; // Mortero (observador)
+            }
+            
+            // 🌐 Calcular esfera de visibilidad 3D
+            const sphereData = calculateVisibilitySphere(
+                unit.position, 
+                visualRange, 
+                unitType,
+                {
+                    horizontalRays: 32,  // 32 rayos horizontales
+                    verticalRays: 8      // 8 niveles verticales
+                }
+            );
+            
+            log(`👁️ Calculando LOS esférico 3D para ${unit.userData.unitName}...`, 'info');
+            log(`📊 Rayos totales: ${sphereData.metadata.totalRays}`, 'info');
+            log(`📐 Elevación cañón: ${sphereData.metadata.elevationMin}° a ${sphereData.metadata.elevationMax}°`, 'info');
+            
+            // Visualización simplificada: usar solo la proyección 2D en el suelo
+            // (visualizar esfera completa sería muy pesado visualmente)
+            const groundPoints = sphereData.visiblePoints.filter(p => p.y < 5); // Solo puntos cerca del suelo
+            
+            if (groundPoints.length < 3) {
+                log('⚠️ No hay suficientes puntos visibles para mostrar', 'warning');
+                return;
+            }
+            
+            // Crear geometría del área visible (proyección 2D)
+            const shape = new THREE.Shape();
+            
+            // Ordenar puntos por ángulo para crear polígono correcto
+            const center = unit.position.clone();
+            groundPoints.sort((a, b) => {
+                const angleA = Math.atan2(a.z - center.z, a.x - center.x);
+                const angleB = Math.atan2(b.z - center.z, b.x - center.x);
+                return angleA - angleB;
+            });
+            
+            groundPoints.forEach((point, index) => {
+                if (index === 0) {
+                    shape.moveTo(point.x, point.z);
+                } else {
+                    shape.lineTo(point.x, point.z);
+                }
+            });
+            shape.closePath();
+            
+            const geometry = new THREE.ShapeGeometry(shape);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0x00ff00, 
+                transparent: true, 
+                opacity: 0.2,
+                side: THREE.DoubleSide
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.x = -Math.PI / 2; // Rotar para que sea horizontal
+            mesh.position.y = 0.5; // Ligeramente sobre el suelo
+            
+            scene.add(mesh);
+            
+            // Guardar referencia para limpiar después
+            if (!unit.userData.visualAidMeshes) {
+                unit.userData.visualAidMeshes = [];
+            }
+            unit.userData.visualAidMeshes.push(mesh);
+            
+            log(`👁️ Área de visibilidad mostrada para ${unit.userData.unitName} (${visualRange}m)`, 'info');
+        }
+        
+        /**
+         * � Toggle visualización de círculo de visibilidad
+         */
+        function toggleVisibilityCircle() {
+            if (!selectedUnit) {
+                log('⚠️ Selecciona una unidad primero', 'warning');
+                return;
+            }
+            
+            // Si ya tiene visualización, limpiarla
+            if (selectedUnit.userData.visualAidMeshes && selectedUnit.userData.visualAidMeshes.length > 0) {
+                selectedUnit.userData.visualAidMeshes.forEach(mesh => {
+                    scene.remove(mesh);
+                    if (mesh.geometry) mesh.geometry.dispose();
+                    if (mesh.material) mesh.material.dispose();
+                });
+                selectedUnit.userData.visualAidMeshes = [];
+                log('✅ Visualización ocultada', 'success');
+            } else {
+                // Mostrar visualización
+                showVisibilityCircle(selectedUnit);
+            }
+        }
+        
+        /**
+         * ❌ Limpiar todas las ayudas visuales
+         */
+        function clearVisualAids() {
+            let count = 0;
+            placedUnits.forEach(unit => {
+                if (unit.userData.visualAidMeshes && unit.userData.visualAidMeshes.length > 0) {
+                    unit.userData.visualAidMeshes.forEach(mesh => {
+                        scene.remove(mesh);
+                        if (mesh.geometry) mesh.geometry.dispose();
+                        if (mesh.material) mesh.material.dispose();
+                    });
+                    count += unit.userData.visualAidMeshes.length;
+                    unit.userData.visualAidMeshes = [];
+                }
+            });
+            log(`✅ ${count} visuales limpiadas`, 'success');
+        }
+        
+        /**
+         * 📦 Cargar modelo GLB/GLTF personalizado
+         */
+        async function loadCustomModel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const fileURL = URL.createObjectURL(file);
+            const fileName = file.name.replace(/\.(glb|gltf)$/i, '');
+            
+            log(`📦 Cargando modelo ${fileName}...`, 'info');
+            
+            try {
+                const loader = new THREE.GLTFLoader();
+                loader.load(fileURL, (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // Calcular bounding box para escalar adecuadamente
+                    const bbox = new THREE.Box3().setFromObject(model);
+                    const size = bbox.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    
+                    // Escalar a tamaño razonable (5-10 unidades)
+                    const targetSize = 8;
+                    const scale = targetSize / maxDim;
+                    model.scale.multiplyScalar(scale);
+                    
+                    // Centrar modelo
+                    bbox.setFromObject(model);
+                    const center = bbox.getCenter(new THREE.Vector3());
+                    model.position.sub(center);
+                    
+                    // Agregar a lista de tipos de unidad temporal
+                    const customUnitType = `custom_${fileName}`;
+                    
+                    // Crear botón temporal para este modelo
+                    const unitsContainer = document.querySelector('.units-grid');
+                    if (unitsContainer) {
+                        const button = document.createElement('button');
+                        button.className = 'unit-btn';
+                        button.onclick = () => selectUnitType(customUnitType);
+                        button.innerHTML = `
+                            <div class="unit-icon" style="font-size: 24px;">📦</div>
+                            <div>${fileName}</div>
+                        `;
+                        unitsContainer.appendChild(button);
+                    }
+                    
+                    // Guardar modelo en caché temporal
+                    if (!window.customModels) window.customModels = {};
+                    window.customModels[customUnitType] = model.clone();
+                    
+                    log(`✅ Modelo ${fileName} cargado correctamente`, 'success');
+                    log(`💡 Selecciona el modelo y colócalo en el terreno`, 'info');
+                    
+                    // Auto-seleccionar el modelo
+                    selectUnitType(customUnitType);
+                    
+                    // Limpiar URL
+                    URL.revokeObjectURL(fileURL);
+                }, undefined, (error) => {
+                    log(`❌ Error cargando modelo: ${error.message}`, 'error');
+                    URL.revokeObjectURL(fileURL);
+                });
+            } catch (error) {
+                log(`❌ Error procesando archivo: ${error.message}`, 'error');
+                URL.revokeObjectURL(fileURL);
+            }
+        }
+        
+        /**
+         * �🗺️ Calcular ruta evitando obstáculos (A* simplificado)
+         */
+        function findPath(start, end, unitType = null) {
+            // Por ahora, verificar línea recta
+            const direction = end.clone().sub(start).normalize();
+            const distance = start.distanceTo(end);
+            const steps = Math.ceil(distance / 5); // Verificar cada 5 unidades
+            
+            const path = [start.clone()];
+            
+            for (let i = 1; i <= steps; i++) {
+                const point = start.clone().add(direction.clone().multiplyScalar(i * 5));
+                
+                // Si hay colisión, intentar rodear (pasando tipo de unidad)
+                if (checkCollisionAtPosition(point, 3, unitType)) {
+                    // Intentar desvío a la izquierda
+                    const perpendicular = new THREE.Vector3(-direction.z, 0, direction.x);
+                    const leftPoint = point.clone().add(perpendicular.multiplyScalar(8));
+                    
+                    if (!checkCollisionAtPosition(leftPoint, 3, unitType)) {
+                        path.push(leftPoint);
+                        continue;
+                    }
+                    
+                    // Intentar desvío a la derecha
+                    const rightPoint = point.clone().add(perpendicular.multiplyScalar(-8));
+                    
+                    if (!checkCollisionAtPosition(rightPoint, 3, unitType)) {
+                        path.push(rightPoint);
+                        continue;
+                    }
+                    
+                    // Si no puede rodear, detener
+                    log('⚠️ No se puede encontrar ruta', 'warning');
+                    return path;
+                }
+                
+                path.push(point);
+            }
+            
+            path.push(end.clone());
+            return path;
+        }
+        
+        /**
+         * Establecer modo de orden
+         */
+        function setOrderMode(mode) {
+            if (!selectedUnit) {
+                log('⚠️ Primero selecciona una unidad con CLICK IZQUIERDO sobre ella', 'warning');
+                return;
+            }
+            
+            currentOrderMode = mode;
+            document.getElementById('order-mode').textContent = 
+                mode === 'move' ? 'Modo: ➡️ MOVER' : 
+                mode === 'attack' ? 'Modo: 🎯 ATACAR' : 
+                'Modo: Selección';
+            
+            if (mode === 'move') {
+                log(`➡️ Modo MOVER activado. Click en el terreno para mover ${selectedUnit.userData.unitName}`, 'info');
+            } else if (mode === 'attack') {
+                log(`🎯 Modo ATACAR activado. Click en una unidad enemiga para atacar con ${selectedUnit.userData.unitName}`, 'info');
+            }
+        }
+        
+        /**
+         * Seleccionar tipo de unidad a colocar
+         */
+        function selectUnitType(type) {
+            currentUnitType = type;
+            currentOrderMode = null; // Reset orden
+            const info = unitModels[type];
+            document.getElementById('selected-unit-type').textContent = info ? info.name : 'Ninguna';
+            document.getElementById('order-mode').textContent = 'Modo: Selección';
+            log(`🎖️ Unidad seleccionada: ${info.name}`, 'info');
+        }
+        
+        /**
+         * Colocar unidad en el terreno (llamado desde click en canvas)
+         */
+        function placeUnitOnTerrain(x, y) {
+            if (!currentUnitType) {
+                log('⚠️ Selecciona una unidad primero', 'warning');
+                return;
+            }
+            
+            if (!currentTerrain) {
+                log('⚠️ Genera el terreno primero', 'warning');
+                return;
+            }
+            if (!currentTerrain || !currentTerrain.terrain) {
+                log('⚠️ Genera el terreno primero', 'warning');
+                return;
+            }
+            
+            // Calcular coordenadas normalizadas del mouse
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((x - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((y - rect.top) / rect.height) * 2 + 1;
+            
+            // Raycasting para detectar intersección con terreno
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+            
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                
+                // 🚧 Verificar colisiones con obstáculos (pasando tipo de unidad)
+                if (checkCollisionAtPosition(point, 5, currentUnitType)) {
+                    log('⚠️ Posición ocupada o bloqueada', 'warning');
+                    return;
+                }
+                
+                loadAndPlaceUnit(currentUnitType, point);
+            } else {
+                log('⚠️ Click fuera del terreno', 'warning');
+            }
+        }
+        
+        /**
+         * Cargar modelo GLB y colocarlo en la posición
+         */
+        function loadAndPlaceUnit(type, position) {
+            // 📦 Verificar si es modelo personalizado
+            if (type.startsWith('custom_') && window.customModels && window.customModels[type]) {
+                const customModel = window.customModels[type].clone();
+                
+                // Configurar posición
+                customModel.position.copy(position);
+                
+                // 🎖️ Propiedades básicas de unidad personalizada
+                customModel.userData.unitType = type;
+                customModel.userData.unitName = type.replace('custom_', '');
+                customModel.userData.faction = 'friendly';
+                
+                // 🛡️ Propiedades de combate por defecto
+                customModel.userData.maxHealth = 50;
+                customModel.userData.currentHealth = 50;
+                customModel.userData.armor = 20;
+                customModel.userData.maxAmmo = 30;
+                customModel.userData.currentAmmo = 30;
+                customModel.userData.weapons = ['Custom'];
+                customModel.userData.speed = 30;
+                
+                // 🎯 Sistema de órdenes y combate
+                customModel.userData.order = null;
+                customModel.userData.waypoints = [];
+                customModel.userData.isMoving = false;
+                customModel.userData.targetEnemy = null;
+                customModel.userData.isEngaged = false;
+                customModel.userData.lastShotTime = 0;
+                
+                // Agregar a escena
+                scene.add(customModel);
+                placedUnits.push(customModel);
+                
+                log(`✅ ${customModel.userData.unitName} colocado`, 'success');
+                return;
+            }
+            
+            // Modelo estándar
+            const config = unitModels[type];
+            if (!config) {
+                log(`❌ Modelo no configurado: ${type}`, 'error');
+                return;
+            }
+            
+            log(`📦 Cargando ${config.name}...`, 'info');
+            
+            gltfLoader.load(
+                config.path,
+                (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // Configurar posición y escala
+                    model.position.copy(position);
+                    
+                    // Aplicar offset vertical si existe
+                    if (config.yOffset !== undefined) {
+                        model.position.y += config.yOffset;
+                    }
+                    
+                    model.scale.set(config.scale, config.scale, config.scale);
+                    
+                    // 🎖️ Propiedades básicas de unidad
+                    model.userData.unitType = type;
+                    model.userData.unitName = config.name;
+                    model.userData.faction = 'friendly'; // friendly/enemy
+                    
+                    // 🛡️ Propiedades de combate
+                    if (type === 'tam') {
+                        model.userData.maxHealth = 100;
+                        model.userData.currentHealth = 100;
+                        model.userData.armor = 50;
+                        model.userData.maxAmmo = 40;
+                        model.userData.currentAmmo = 40;
+                        model.userData.weapons = ['SK 105'];
+                        model.userData.speed = 65; // km/h
+                    } else if (type === 'soldier' || type === 'soldier_ru') {
+                        model.userData.maxHealth = 10;
+                        model.userData.currentHealth = 10;
+                        model.userData.armor = 0;
+                        model.userData.maxAmmo = 30;
+                        model.userData.currentAmmo = 30;
+                        model.userData.weapons = ['FAL'];
+                        model.userData.speed = 5; // km/h
+                    }
+                    
+                    // 🎯 Sistema de órdenes y combate
+                    model.userData.order = null;
+                    model.userData.waypoints = [];
+                    model.userData.isMoving = false;
+                    model.userData.targetEnemy = null;
+                    model.userData.isEngaged = false;
+                    model.userData.lastShotTime = 0;
+                    
+                    // Agregar a escena
+                    scene.add(model);
+                    placedUnits.push(model);
+                    
+                    log(`✅ ${config.name} colocado en (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`, 'success');
+                },
+                (xhr) => {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                    console.log(`Cargando ${config.name}: ${percent}%`);
+                },
+                (error) => {
+                    log(`❌ Error cargando ${config.name}: ${error.message}`, 'error');
+                    console.error(error);
+                }
+            );
+        }
+        
+        /**
+         * Seleccionar unidad con click
+         */
+        function selectUnitWithClick(x, y) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((x - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((y - rect.top) / rect.height) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(placedUnits, true);
+            
+            if (intersects.length > 0) {
+                // Encontrar el objeto raíz (la unidad completa, no un mesh hijo)
+                let unitObj = intersects[0].object;
+                while (unitObj.parent && !unitObj.userData.unitType) {
+                    unitObj = unitObj.parent;
+                }
+                
+                // Deseleccionar anterior
+                if (selectedUnit) {
+                    selectedUnit.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            child.material.emissive?.setHex(0x000000);
+                        }
+                    });
+                }
+                
+                // Seleccionar nueva
+                selectedUnit = unitObj;
+                selectedUnit.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        if (!child.material.emissive) {
+                            child.material.emissive = new THREE.Color(0x00ff00);
+                        } else {
+                            child.material.emissive.setHex(0x00ff00);
+                        }
+                    }
+                });
+                
+                const unitName = unitObj.userData.unitName || 'Unidad';
+                const health = unitObj.userData.currentHealth || 0;
+                const maxHealth = unitObj.userData.maxHealth || 100;
+                const ammo = unitObj.userData.currentAmmo || 0;
+                const maxAmmo = unitObj.userData.maxAmmo || 0;
+                
+                // Mostrar info detallada
+                const infoText = `${unitName} | HP: ${health}/${maxHealth} | Ammo: ${ammo}/${maxAmmo}`;
+                document.getElementById('active-unit-info').textContent = infoText;
+                log(`🎯 Seleccionada: ${infoText}`, 'info');
+                
+                return true; // Se seleccionó una unidad
+            }
+            
+            return false; // No se seleccionó nada
+        }
+        
+        /**
+         * Eliminar unidad seleccionada
+         */
+        function deleteSelectedUnit() {
+            if (!selectedUnit) {
+                log('⚠️ No hay unidad seleccionada', 'warning');
+                return;
+            }
+            
+            const unitName = selectedUnit.userData.unitName || 'Unidad';
+            scene.remove(selectedUnit);
+            placedUnits = placedUnits.filter(u => u !== selectedUnit);
+            
+            document.getElementById('active-unit-info').textContent = 'Ninguna';
+            log(`🗑️ ${unitName} eliminada`, 'info');
+            
+            selectedUnit = null;
+        }
+        
+        /**
+         * Dar orden de movimiento a unidad seleccionada
+         */
+        function giveMoveOrder(targetPosition) {
+            if (!selectedUnit) {
+                log('⚠️ No hay unidad seleccionada', 'warning');
+                return;
+            }
+            
+            // 🚧 Verificar que destino no esté bloqueado (pasando tipo de unidad)
+            const unitType = selectedUnit.userData.unitType;
+            if (checkCollisionAtPosition(targetPosition, 5, unitType)) {
+                log('⚠️ Posición de destino bloqueada', 'warning');
+                return;
+            }
+            
+            // 🗺️ Calcular ruta evitando obstáculos (pasando tipo de unidad)
+            const path = findPath(selectedUnit.position.clone(), targetPosition, unitType);
+            
+            // Guardar orden con waypoints
+            selectedUnit.userData.order = 'move';
+            selectedUnit.userData.waypoints = path;
+            selectedUnit.userData.currentWaypointIndex = 0;
+            selectedUnit.userData.isMoving = true;
+            
+            // Crear línea visual de la ruta completa
+            if (path.length > 1) {
+                const geometry = new THREE.BufferGeometry().setFromPoints(path);
+                const material = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 2 });
+                const line = new THREE.Line(geometry, material);
+                scene.add(line);
+                orderLines.push(line);
+                
+                // Crear waypoint markers
+                path.forEach((point, index) => {
+                    if (index > 0 && index < path.length - 1) {
+                        const markerGeometry = new THREE.SphereGeometry(1, 8, 8);
+                        const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                        const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+                        marker.position.copy(point);
+                        scene.add(marker);
+                        orderLines.push(marker);
+                    }
+                });
+            }
+            
+            log(`➡️ Orden de movimiento dada a ${selectedUnit.userData.unitName} (${path.length} waypoints)`, 'info');
+        }
+        
+        /**
+         * Actualizar movimiento de unidades (llamar en animate)
+         */
+        function updateUnitMovement(delta) {
+            placedUnits.forEach(unit => {
+                if (unit.userData.isMoving && unit.userData.waypoints) {
+                    const speed = (unit.userData.speed || 5) * delta * 0.1;
+                    const waypoints = unit.userData.waypoints;
+                    let waypointIndex = unit.userData.currentWaypointIndex || 0;
+                    
+                    if (waypointIndex >= waypoints.length) {
+                        // Llegó al destino final
+                        unit.userData.isMoving = false;
+                        unit.userData.order = null;
+                        log(`✅ ${unit.userData.unitName} llegó a destino`, 'success');
+                        return;
+                    }
+                    
+                    const target = waypoints[waypointIndex];
+                    const current = unit.position;
+                    const distance = current.distanceTo(target);
+                    
+                    // DEBUG: Log cada 60 frames (~1 segundo)
+                    if (!unit.userData.debugCounter) unit.userData.debugCounter = 0;
+                    unit.userData.debugCounter++;
+                    if (unit.userData.debugCounter % 60 === 0) {
+                        console.log(`🚶 ${unit.userData.unitName} moviéndose: ${distance.toFixed(1)}m al waypoint ${waypointIndex}/${waypoints.length}`);
+                    }
+                    
+                    if (distance < 2) {
+                        // Avanzar al siguiente waypoint
+                        unit.userData.currentWaypointIndex = waypointIndex + 1;
+                        console.log(`✅ Waypoint ${waypointIndex} alcanzado, siguiente: ${waypointIndex + 1}`);
+                    } else {
+                        // 🚧 Verificar colisiones en el camino
+                        const direction = target.clone().sub(current).normalize();
+                        const nextPos = current.clone().add(direction.multiplyScalar(speed));
+                        
+                        if (!checkCollisionAtPosition(nextPos, 2)) {
+                            current.copy(nextPos);
+                            unit.lookAt(target);
+                        } else {
+                            // Detenerse si encuentra obstáculo
+                            unit.userData.isMoving = false;
+                            log(`⚠️ ${unit.userData.unitName} bloqueada por obstáculo`, 'warning');
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 🎯 Sistema de Combate
+        /**
+         * Atacar unidad enemiga
+         */
+        function attackUnit(attacker, target) {
+            // Verificar munición
+            if (attacker.userData.currentAmmo <= 0) {
+                log(`⚠️ ${attacker.userData.unitName} sin munición`, 'warning');
+                return;
+            }
+            
+            // Verificar línea de visión
+            const attackerPos = attacker.position.clone();
+            attackerPos.y += 2; // Altura de disparo
+            const targetPos = target.position.clone();
+            targetPos.y += 2;
+            
+            if (!checkLineOfSight(attackerPos, targetPos)) {
+                log(`⚠️ Sin línea de visión para ${attacker.userData.unitName}`, 'warning');
+                return;
+            }
+            
+            const distance = attacker.position.distanceTo(target.position);
+            
+            // Calcular precisión basada en distancia
+            let accuracy = 1.0;
+            if (attacker.userData.unitType === 'tam') {
+                accuracy = distance < 1000 ? 0.9 : distance < 2000 ? 0.6 : 0.3;
+            } else {
+                accuracy = distance < 100 ? 0.8 : distance < 300 ? 0.5 : 0.2;
+            }
+            
+            const hit = Math.random() < accuracy;
+            
+            // Consumir munición
+            attacker.userData.currentAmmo--;
+            
+            // Crear efecto visual de disparo
+            createShotEffect(attackerPos, targetPos);
+            
+            if (hit) {
+                // Calcular daño
+                let baseDamage = attacker.userData.unitType === 'tam' ? 80 : 15;
+                const actualDamage = Math.max(1, baseDamage - target.userData.armor);
+                
+                // Aplicar daño
+                target.userData.currentHealth -= actualDamage;
+                
+                log(`💥 ${attacker.userData.unitName} impactó a ${target.userData.unitName} (${actualDamage} daño)`, 'warning');
+                
+                // Crear efecto de impacto
+                createImpactEffect(targetPos);
+                
+                // Verificar si está destruido
+                if (target.userData.currentHealth <= 0) {
+                    destroyUnit(target);
+                }
+            } else {
+                log(`❌ ${attacker.userData.unitName} falló el disparo`, 'info');
+            }
+        }
+        
+        /**
+         * Crear efecto visual de disparo
+         */
+        function createShotEffect(from, to) {
+            const points = [from, to];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 });
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+            
+            // Eliminar después de 200ms
+            setTimeout(() => scene.remove(line), 200);
+        }
+        
+        /**
+         * Crear efecto visual de impacto
+         */
+        function createImpactEffect(position) {
+            const geometry = new THREE.SphereGeometry(2, 8, 8);
+            const material = new THREE.MeshBasicMaterial({ color: 0xff8800 });
+            const explosion = new THREE.Mesh(geometry, material);
+            explosion.position.copy(position);
+            scene.add(explosion);
+            
+            // Animar explosión
+            let scale = 1;
+            const interval = setInterval(() => {
+                scale += 0.5;
+                explosion.scale.set(scale, scale, scale);
+                explosion.material.opacity = 1 - (scale / 5);
+                explosion.material.transparent = true;
+                
+                if (scale >= 5) {
+                    scene.remove(explosion);
+                    clearInterval(interval);
+                }
+            }, 50);
+        }
+        
+        /**
+         * Destruir unidad
+         */
+        function destroyUnit(unit) {
+            log(`💀 ${unit.userData.unitName} destruida`, 'error');
+            
+            // Efecto de explosión grande
+            createImpactEffect(unit.position.clone());
+            
+            // Remover de escena
+            scene.remove(unit);
+            placedUnits = placedUnits.filter(u => u !== unit);
+            
+            if (selectedUnit === unit) {
+                selectedUnit = null;
+                document.getElementById('active-unit-info').textContent = 'Ninguna';
+            }
+        }
+        
+        function clearAll() {
+            clearTerrain();
+            
+            if (satelliteAnalyzer) satelliteAnalyzer.clear();
+            satelliteAnalyzer = null;
+            capturedBounds = null;
+            
+            document.getElementById('analyze-btn').disabled = true;
+            document.getElementById('generate-btn').disabled = true;
+            
+            document.getElementById('stat-points').textContent = '0';
+            document.getElementById('stat-veg').textContent = '0';
+            document.getElementById('stat-roads').textContent = '0';
+            document.getElementById('stat-buildings').textContent = '0';
+            document.getElementById('stat-elev').textContent = '0m';
+            document.getElementById('stat-time').textContent = '0s';
+            
+            log('🗑️ Todo limpiado', 'info');
+        }
+        
+        // === INIT ===
+        function checkDependencies() {
+            log('🔍 Verificando dependencias...', 'info');
+            
+            // Verificar Leaflet
+            if (typeof L === 'undefined') {
+                log('❌ Leaflet no disponible - verifica conexión a internet', 'error');
+                log('💡 CDN: https://unpkg.com/leaflet@1.9.4/', 'warning');
+                return false;
+            }
+            log('✅ Leaflet cargado correctamente', 'success');
+            
+            // Verificar THREE.js
+            if (typeof THREE === 'undefined') {
+                log('❌ THREE.js no disponible', 'error');
+                return false;
+            }
+            log('✅ THREE.js cargado correctamente', 'success');
+            
+            // Verificar TerrainGenerator3D
+            if (typeof TerrainGenerator3D === 'undefined') {
+                log('❌ TerrainGenerator3D no disponible', 'error');
+                return false;
+            }
+            log('✅ TerrainGenerator3D cargado correctamente', 'success');
+            
+            // Verificar SatelliteImageAnalyzer
+            if (typeof SatelliteImageAnalyzer === 'undefined') {
+                log('❌ SatelliteImageAnalyzer no disponible', 'error');
+                return false;
+            }
+            log('✅ SatelliteImageAnalyzer cargado correctamente', 'success');
+            
+            // Verificar leaflet-image
+            if (typeof leafletImage === 'undefined') {
+                log('⚠️ leaflet-image no disponible (opcional)', 'warning');
+            } else {
+                log('✅ leaflet-image cargado correctamente', 'success');
+            }
+            
+            return true;
+        }
+        
+        function inicializarSistema() {
+            if (!checkDependencies()) {
+                log('❌ No se pudo inicializar - faltan dependencias', 'error');
+                return;
+            }
+            
+            log('✅ Todas las dependencias disponibles', 'success');
+            
+            initMap();
+            initThreeJS();
+            
+            // Inicializar Menú Contextual Radial
+            if (window.MenuContextualUnificado) {
+                window.MenuContextualUnificado.init({ modulo: 'gestionBatalla' });
+                
+                // Escuchar acciones del menú
+                document.addEventListener('menuContextualAccion', (event) => {
+                    const { accion, elemento, posicion } = event.detail;
+                    console.log('🎯 Acción menú radial:', accion, elemento);
+                    
+                    switch(accion) {
+                        case 'moverUnidad':
+                            if (elemento && elemento.userData) {
+                                selectedUnit = elemento;
+                                setOrderMode('move');
+                            }
+                            break;
+                            
+                        case 'atacarUnidad':
+                            if (elemento && elemento.userData) {
+                                selectedUnit = elemento;
+                                setOrderMode('attack');
+                            }
+                            break;
+                            
+                        case 'verEstado':
+                            if (elemento && elemento.userData) {
+                                const u = elemento.userData;
+                                log(`📊 Estado de ${u.unitName}:`, 'info');
+                                log(`   HP: ${u.currentHealth}/${u.maxHealth}`, 'info');
+                                log(`   Munición: ${u.currentAmmo}/${u.maxAmmo}`, 'info');
+                                log(`   Velocidad: ${u.speed} km/h`, 'info');
+                                if (u.weapons) log(`   Armas: ${u.weapons.join(', ')}`, 'info');
+                            }
+                            break;
+                            
+                        case 'desplegarUnidad':
+                            // El menú ya tiene la posición en 'elemento.position'
+                            if (elemento && elemento.position && currentUnitType) {
+                                loadAndPlaceUnit(currentUnitType, elemento.position);
+                            } else {
+                                log('⚠️ Selecciona un tipo de unidad primero', 'warning');
+                            }
+                            break;
+                            
+                        default:
+                            log(`⚠️ Acción '${accion}' no implementada aún`, 'warning');
+                    }
+                });
+                
+                log('✅ Menú Contextual Radial inicializado', 'success');
+            }
+            
+            log('💡 Navega el mapa y captura la vista deseada', 'info');
+        }
+        
+        // Intentar inicializar cuando la página cargue
+        window.addEventListener('load', () => {
+            log('🌍 MAIRA Terrain 3D cargado', 'info');
+            
+            // Dar un pequeño delay para que los scripts externos terminen de cargar
+            setTimeout(inicializarSistema, 500);
+        });
+        
+        // === FUNCIÓN DE PRUEBA: Filtrar tipos de vegetación ===
+        window.testVegetationType = function(type) {
+            console.log(`🧪 Filtrando vegetación tipo: ${type}`);
+            
+            if (!window.terrainGenerator || !window.terrainGenerator.vegetationObjects) {
+                alert('⚠️ Primero genera el terreno 3D');
+                return;
+            }
+            
+            const vegetation = window.terrainGenerator.vegetationObjects;
+            let visibleCount = 0;
+            let hiddenCount = 0;
+            
+            vegetation.forEach(mesh => {
+                if (type === 'all') {
+                    mesh.visible = true;
+                    visibleCount++;
+                } else {
+                    // Determinar el tipo del mesh basado en su material o geometría
+                    // Los InstancedMesh tienen un nombre que podemos usar
+                    const meshType = mesh.userData?.vegetationType || 'unknown';
+                    
+                    if (meshType === type) {
+                        mesh.visible = true;
+                        visibleCount++;
+                    } else {
+                        mesh.visible = false;
+                        hiddenCount++;
+                    }
+                }
+            });
+            
+            // Actualizar UI
+            const typeNames = {
+                'tree_tall': '🌲 ÁRBOLES',
+                'bush': '🌿 ARBUSTOS',
+                'grass': '🌾 PASTO',
+                'all': '🌍 TODOS'
+            };
+            
+            document.getElementById('active-type').textContent = typeNames[type] || type.toUpperCase();
+            
+            console.log(`✅ Visibles: ${visibleCount}, Ocultos: ${hiddenCount}`);
+        };
+        
+        // Responsive
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+    
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- leaflet-image para captura correcta de tiles -->
+    <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
+    
+    <!-- THREE.js -->
+    <script src="Client/Libs/mythree/three.min.js"></script>
+    <script src="Client/Libs/mythree/OrbitControls.js"></script>
+    <script src="Client/Libs/mythree/GLTFLoader.js"></script>
+    
+    <!-- MAIRA Systems -->
+    <script src="Client/js/handlers/elevationHandler.js"></script>
+    <script src="Client/js/services/ElevationService.js"></script>
+    <script src="Client/js/services/VegetationService.js"></script>
+    <script src="Client/js/services/maira3DMaster.js"></script>
+    <script src="Client/js/services/GLTFModelLoader.js"></script>
+    <script src="Client/js/services/TerrainGenerator3D.js"></script>
+    <script src="Client/js/utils/SpatialHashGrid.js"></script>
+    <script src="Client/js/utils/VegetationInstancer.js"></script>
+    <!-- ✅ NUEVO: Sistema basado en regiones -->
+    <script src="Client/js/utils/RegionDetector.js"></script>
+    <script src="Client/js/utils/SmartVegetationDistributor.js"></script>
+    <script src="Client/js/services/SatelliteImageAnalyzer.js"></script>
+    <!-- ✅ Menú Contextual Radial -->
+    <script src="Client/js/modules/shared/menuContextualUnificado.js"></script>
+</body>
+</html>
