@@ -2016,14 +2016,30 @@
                         model.userData.currentAmmo = 40;
                         model.userData.weapons = ['SK 105'];
                         model.userData.speed = 65; // km/h
-                    } else if (type === 'soldier' || type === 'soldier_ru') {
+                    } else if (type === 'soldier' || type === 'soldier_ru' || type === 'fsb_operator') {
                         model.userData.maxHealth = 10;
                         model.userData.currentHealth = 10;
                         model.userData.armor = 0;
                         model.userData.maxAmmo = 30;
                         model.userData.currentAmmo = 30;
                         model.userData.weapons = ['FAL'];
-                        model.userData.speed = 5; // km/h
+                        model.userData.speed = 5; // km/h (marcha infantería)
+                    } else if (type === 'humvee') {
+                        model.userData.maxHealth = 50;
+                        model.userData.currentHealth = 50;
+                        model.userData.armor = 5;
+                        model.userData.maxAmmo = 500;
+                        model.userData.currentAmmo = 500;
+                        model.userData.weapons = ['M2 Browning'];
+                        model.userData.speed = 90; // km/h (velocidad máxima)
+                    } else if (type === 'm113') {
+                        model.userData.maxHealth = 80;
+                        model.userData.currentHealth = 80;
+                        model.userData.armor = 15;
+                        model.userData.maxAmmo = 200;
+                        model.userData.currentAmmo = 200;
+                        model.userData.weapons = ['M2 Browning'];
+                        model.userData.speed = 65; // km/h (velocidad crucero)
                     }
                     
                     // 🎯 Sistema de órdenes y combate
