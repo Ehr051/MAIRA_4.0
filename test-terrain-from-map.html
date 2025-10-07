@@ -349,8 +349,8 @@
                     <button onclick="selectUnitType('soldier_ru')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🪖 Soldado Ruso
                     </button>
-                    <button onclick="selectUnitType('humvee')" class="primary unit-btn" style="margin-bottom: 4px;">
-                        🚙 Humvee
+                    <button onclick="selectUnitType('jeep')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚙 jeep
                     </button>
                     <button onclick="selectUnitType('m113')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🛡️ M113 (APC)
@@ -514,7 +514,7 @@
             'soldier': {
                 path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
                 scale: 1,
-                yOffset: 0.8,
+                yOffset: 0.9,
                 name: 'Soldado'
             },
             'soldier_ru': {
@@ -523,11 +523,11 @@
                 yOffset: 0,
                 name: 'Soldado Ruso'
             },
-            'humvee': {
-                path: 'Client/assets/models/gbl_new/humvee.glb',
-                scale: 0.4,
+            'jeep': {
+                path: 'Client/assets/models/gbl_new/jeep.glb',
+                scale: 1,
                 yOffset: 0,
-                name: 'Humvee'
+                name: 'Jeep'
             },
             'm113': {
                 path: 'Client/assets/models/gbl_new/m113.glb',
@@ -1992,6 +1992,42 @@
                 (gltf) => {
                     const model = gltf.scene;
                     
+                    // ✅ FORZAR CARGA DE TEXTURAS: Configurar materiales correctamente
+                    model.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            const mat = child.material;
+                            
+                            // Forzar actualización
+                            mat.needsUpdate = true;
+                            
+                            // Configurar texturas si existen
+                            if (mat.map) {
+                                mat.map.needsUpdate = true;
+                                mat.map.encoding = THREE.sRGBEncoding;
+                                console.log(`✅ Textura aplicada a ${child.name || 'mesh'}`);
+                            } else {
+                                // Aplicar color fallback por tipo
+                                if (type.includes('soldier') || type.includes('fsb')) {
+                                    mat.color = new THREE.Color(0x4a5a3c); // Verde militar
+                                } else if (type === 'tam') {
+                                    mat.color = new THREE.Color(0x5a5a5a); // Gris tanque
+                                } else {
+                                    mat.color = new THREE.Color(0x6b5a4a); // Marrón vehículos
+                                }
+                                console.warn(`⚠️ Sin textura en ${child.name || 'mesh'} - Color fallback aplicado`);
+                            }
+                            
+                            // Configurar normal map
+                            if (mat.normalMap) {
+                                mat.normalMap.needsUpdate = true;
+                            }
+                            
+                            // Configurar sombras
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
                     // Configurar posición y escala
                     model.position.copy(position);
                     
@@ -2024,7 +2060,7 @@
                         model.userData.currentAmmo = 30;
                         model.userData.weapons = ['FAL'];
                         model.userData.speed = 5; // km/h (marcha infantería)
-                    } else if (type === 'humvee') {
+                    } else if (type === 'jeep') {
                         model.userData.maxHealth = 50;
                         model.userData.currentHealth = 50;
                         model.userData.armor = 5;

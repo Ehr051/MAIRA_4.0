@@ -119,6 +119,46 @@ class VegetationInstancer {
                 
                 // Para material, usar el primero o crear MultiMaterial
                 material = materials[0].clone();
+                
+                // ✅ FORZAR CARGA DE TEXTURAS: Verificar y configurar correctamente
+                if (material) {
+                    console.log(`🎨 Configurando material para ${modelType}...`);
+                    
+                    // Forzar actualización del material
+                    material.needsUpdate = true;
+                    
+                    // Verificar si tiene mapa de textura
+                    if (material.map) {
+                        console.log(`  ✅ BaseColor texture encontrada`);
+                        material.map.needsUpdate = true;
+                        // Asegurar que la textura use el encoding correcto
+                        material.map.encoding = THREE.sRGBEncoding;
+                    } else {
+                        console.warn(`  ⚠️ Sin baseColor texture - Aplicando color fallback`);
+                        // Color verde oscuro para vegetación sin textura
+                        material.color = new THREE.Color(0x2d5016);
+                    }
+                    
+                    // Verificar normal map
+                    if (material.normalMap) {
+                        console.log(`  ✅ Normal map encontrada`);
+                        material.normalMap.needsUpdate = true;
+                    }
+                    
+                    // Verificar metallic/roughness
+                    if (material.metalnessMap || material.roughnessMap) {
+                        console.log(`  ✅ Metalness/Roughness maps encontradas`);
+                        if (material.metalnessMap) material.metalnessMap.needsUpdate = true;
+                        if (material.roughnessMap) material.roughnessMap.needsUpdate = true;
+                    }
+                    
+                    // Configurar propiedades del material para mejor visualización
+                    material.side = THREE.FrontSide;  // O DoubleSide si es necesario
+                    material.transparent = false;
+                    material.opacity = 1.0;
+                    
+                    console.log(`  📊 Material type: ${material.type}, Has map: ${!!material.map}`);
+                }
             }
             
             if (!geometry || !material) {
