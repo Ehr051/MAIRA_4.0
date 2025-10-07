@@ -341,13 +341,22 @@
                 <h2>🎖️ Unidades Militares</h2>
                 <div style="margin-bottom: 10px;">
                     <label>Seleccionar Unidad:</label>
-                    <button onclick="selectUnitType('tam')" class="primary" style="margin-bottom: 4px;">
+                    <button onclick="selectUnitType('tam')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🚜 TAM (Tanque)</button>
-                    <button onclick="selectUnitType('soldier')" class="primary" style="margin-bottom: 4px;">
+                    <button onclick="selectUnitType('soldier')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🪖 Soldado
                     </button>
-                    <button onclick="selectUnitType('soldier_ru')" class="primary" style="margin-bottom: 4px;">
+                    <button onclick="selectUnitType('soldier_ru')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🪖 Soldado Ruso
+                    </button>
+                    <button onclick="selectUnitType('humvee')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚙 Humvee
+                    </button>
+                    <button onclick="selectUnitType('m113')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🛡️ M113 (APC)
+                    </button>
+                    <button onclick="selectUnitType('fsb_operator')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        👤 Operador FSB
                     </button>
                 </div>
                 <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px; margin-bottom: 8px;">
@@ -510,9 +519,27 @@
             },
             'soldier_ru': {
                 path: 'Client/assets/models/gbl_new/russian_soldier.glb',
-                scale: 70.0,
+                scale: 0.7,  // Era 70.0 (87.5x más grande), corregido a 0.7 similar a soldado normal
                 yOffset: 0.85,
                 name: 'Soldado Ruso'
+            },
+            'humvee': {
+                path: 'Client/assets/models/gbl_new/humvee.glb',
+                scale: 0.4,
+                yOffset: 0,
+                name: 'Humvee'
+            },
+            'm113': {
+                path: 'Client/assets/models/gbl_new/m113.glb',
+                scale: 0.5,
+                yOffset: 0,
+                name: 'M113 (APC)'
+            },
+            'fsb_operator': {
+                path: 'Client/assets/models/gbl_new/fsb_operator.glb',
+                scale: 0.7,
+                yOffset: 0.85,
+                name: 'Operador FSB'
             }
         };
         
@@ -2108,6 +2135,21 @@
                 return;
             }
             
+            // ✅ LIMPIAR órdenes visuales anteriores de esta unidad
+            if (selectedUnit.userData.orderVisuals) {
+                selectedUnit.userData.orderVisuals.forEach(visual => {
+                    scene.remove(visual);
+                    if (visual.geometry) visual.geometry.dispose();
+                    if (visual.material) visual.material.dispose();
+                });
+                selectedUnit.userData.orderVisuals = [];
+            }
+            
+            // ✅ CANCELAR movimiento anterior si estaba en curso
+            if (selectedUnit.userData.isMoving) {
+                log(`🔄 Cancelando orden anterior de ${selectedUnit.userData.unitName}`, 'info');
+            }
+            
             // 🚧 Verificar que destino no esté bloqueado (pasando tipo de unidad)
             const unitType = selectedUnit.userData.unitType;
             if (checkCollisionAtPosition(targetPosition, 5, unitType)) {
@@ -2123,6 +2165,7 @@
             selectedUnit.userData.waypoints = path;
             selectedUnit.userData.currentWaypointIndex = 0;
             selectedUnit.userData.isMoving = true;
+            selectedUnit.userData.orderVisuals = []; // Array para track de visuales
             
             // Crear línea visual de la ruta completa
             if (path.length > 1) {
@@ -2131,6 +2174,7 @@
                 const line = new THREE.Line(geometry, material);
                 scene.add(line);
                 orderLines.push(line);
+                selectedUnit.userData.orderVisuals.push(line);
                 
                 // Crear waypoint markers
                 path.forEach((point, index) => {
@@ -2141,6 +2185,7 @@
                         marker.position.copy(point);
                         scene.add(marker);
                         orderLines.push(marker);
+                        selectedUnit.userData.orderVisuals.push(marker);
                     }
                 });
             }
@@ -2154,7 +2199,9 @@
         function updateUnitMovement(delta) {
             placedUnits.forEach(unit => {
                 if (unit.userData.isMoving && unit.userData.waypoints) {
-                    const speed = (unit.userData.speed || 5) * delta * 0.1;
+                    // ✅ VELOCIDAD AUMENTADA: de 5 * delta * 0.1 a 5 * delta (10x más rápido)
+                    // Con delta ~0.016 (60fps): speed = 5 * 0.016 = 0.08m por frame = 4.8m/s (velocidad razonable)
+                    const speed = (unit.userData.speed || 5) * delta;
                     const waypoints = unit.userData.waypoints;
                     let waypointIndex = unit.userData.currentWaypointIndex || 0;
                     
@@ -2187,7 +2234,8 @@
                         const nextPos = current.clone().add(direction.multiplyScalar(speed));
                         
                         if (!checkCollisionAtPosition(nextPos, 2)) {
-                            current.copy(nextPos);
+                            // ✅ CRÍTICO: Actualizar posición directamente
+                            unit.position.copy(nextPos);
                             unit.lookAt(target);
                         } else {
                             // Detenerse si encuentra obstáculo
@@ -2204,6 +2252,12 @@
          * Atacar unidad enemiga
          */
         function attackUnit(attacker, target) {
+            // ✅ CANCELAR movimiento si estaba en curso
+            if (attacker.userData.isMoving) {
+                attacker.userData.isMoving = false;
+                log(`🔄 ${attacker.userData.unitName} interrumpe movimiento para atacar`, 'info');
+            }
+            
             // Verificar munición
             if (attacker.userData.currentAmmo <= 0) {
                 log(`⚠️ ${attacker.userData.unitName} sin munición`, 'warning');
@@ -2259,6 +2313,10 @@
             } else {
                 log(`❌ ${attacker.userData.unitName} falló el disparo`, 'info');
             }
+            
+            // ✅ RESETEAR modo de orden después de atacar para permitir nueva orden
+            currentOrderMode = null;
+            document.getElementById('order-mode').textContent = 'Modo: Selección';
         }
         
         /**

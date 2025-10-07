@@ -247,7 +247,7 @@
          */
         crearSectorMenu: function(centerX, centerY, innerRadius, outerRadius, startAngle, angleSpan, item, estilos, index) {
             const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            group.className = 'sector-menu';
+            group.setAttribute('class', 'sector-menu'); // SVG elements use setAttribute
             group.style.cursor = 'pointer';
 
             // Calcular puntos del sector
