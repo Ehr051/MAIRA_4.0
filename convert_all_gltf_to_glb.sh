@@ -71,15 +71,26 @@ FAILED=0
 
 # Procesar cada archivo
 while IFS= read -r gltf_file; do
+    # Extraer nombre de la carpeta padre (el nombre real del modelo)
+    parent_dir=$(basename "$(dirname "$gltf_file")")
+    
+    # Si el archivo es scene.gltf, usar nombre de carpeta padre
     filename=$(basename "$gltf_file" .gltf)
-    output_file="$OUTPUT_DIR/${filename}.glb"
+    if [ "$filename" = "scene" ]; then
+        model_name="$parent_dir"
+    else
+        model_name="$filename"
+    fi
+    
+    output_file="$OUTPUT_DIR/${model_name}.glb"
     
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}🔧 Procesando: $filename${NC}"
+    echo -e "${BLUE}🔧 Procesando: $model_name${NC}"
+    echo -e "${BLUE}   Fuente: $gltf_file${NC}"
     
     # Verificar si ya existe
     if [ -f "$output_file" ]; then
-        echo -e "${YELLOW}⚠️  Ya existe: ${filename}.glb${NC}"
+        echo -e "${YELLOW}⚠️  Ya existe: ${model_name}.glb${NC}"
         echo -e "   ${BLUE}¿Sobrescribir? (y/n)${NC}"
         read -r overwrite
         if [[ ! "$overwrite" =~ ^[Yy]$ ]]; then
@@ -95,7 +106,7 @@ while IFS= read -r gltf_file; do
     if npx gltf-transform copy "$gltf_file" "$output_file" 2>&1; then
         if [ -f "$output_file" ]; then
             SIZE=$(du -h "$output_file" | cut -f1)
-            echo -e "${GREEN}   ✅ Convertido: ${filename}.glb ($SIZE)${NC}"
+            echo -e "${GREEN}   ✅ Convertido: ${model_name}.glb ($SIZE)${NC}"
             
             # Verificar contenido
             echo -e "${BLUE}   🔍 Verificando...${NC}"
