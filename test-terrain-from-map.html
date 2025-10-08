@@ -2019,6 +2019,12 @@
          * 🔍 DEBUG: Verificar si un objeto está en el campo de visión de la cámara
          */
         function isInCameraView(object) {
+            // 🐛 TEMPORALMENTE DESHABILITADO: causaba error con modelos multi-mesh
+            // El problema es que frustum.intersectsObject() requiere geometry.boundingSphere
+            // pero modelos con múltiples hijos no tienen geometría directa
+            return true; // Asumir siempre visible por ahora
+            
+            /* CÓDIGO ORIGINAL (restaurar después de fix):
             const frustum = new THREE.Frustum();
             const cameraViewProjectionMatrix = new THREE.Matrix4();
             
@@ -2027,6 +2033,7 @@
             frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
             
             return frustum.intersectsObject(object);
+            */
         }
         
         /**
