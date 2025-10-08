@@ -852,7 +852,7 @@
             
             // 🎖️ Event listener para clicks en el canvas (colocar/seleccionar unidades/dar órdenes)
             renderer.domElement.addEventListener('click', (event) => {
-                // Si hay un modo de orden activo, dar la orden
+                // 🗺️ SISTEMA DE WAYPOINTS: Click agrega punto, necesita modo 'move' activo
                 if (currentOrderMode === 'move' && selectedUnit) {
                     if (!currentTerrain || !currentTerrain.terrain) {
                         log('⚠️ Genera el terreno primero', 'warning');
@@ -868,9 +868,15 @@
                     const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
                     
                     if (intersects.length > 0) {
-                        giveMoveOrder(intersects[0].point);
-                        currentOrderMode = null; // Reset modo
-                        document.getElementById('order-mode').textContent = 'Modo: Selección';
+                        const clickPoint = intersects[0].point.clone();
+                        
+                        // Si no estamos creando waypoints, empezar nueva ruta
+                        if (!isCreatingWaypoints) {
+                            startWaypointRoute(clickPoint);
+                        } else {
+                            // Agregar waypoint a la ruta existente
+                            addWaypoint(clickPoint);
+                        }
                     }
                     return;
                 }
@@ -916,6 +922,14 @@
                     selectedUnit = null;
                     document.getElementById('active-unit-info').textContent = 'Ninguna unidad seleccionada';
                     log('ℹ️ Unidad deseleccionada', 'info');
+                }
+            });
+            
+            // 🗺️ Event listener para DOBLE CLICK: Finalizar ruta de waypoints
+            renderer.domElement.addEventListener('dblclick', (event) => {
+                if (isCreatingWaypoints && currentOrderMode === 'move' && selectedUnit) {
+                    event.preventDefault();
+                    finishWaypointRoute();
                 }
             });
             
@@ -1372,6 +1386,12 @@
             player1: [], // { unit: THREE.Object3D, type: 'move'|'attack', target: Vector3|Unit }
             player2: []
         };
+        
+        // 🗺️ Sistema de Waypoints
+        let isCreatingWaypoints = false; // Modo creación de ruta activo
+        let currentWaypoints = []; // Waypoints temporales siendo creados
+        let waypointMarkers = []; // Marcadores visuales de waypoints
+        let waypointLine = null; // Línea conectando waypoints
         
         // 🚧 Sistema de Colisiones y Obstáculos Mejorado
         /**
@@ -2597,6 +2617,9 @@
             
             // Esperar a que TODAS las órdenes terminen
             Promise.all(executionPromises).then(() => {
+                // 🧹 Limpiar waypoints visuales después de ejecutar
+                clearWaypointVisuals();
+                
                 // Limpiar cola del jugador actual
                 if (currentPlayer === 1) {
                     ordersQueue.player1 = [];
@@ -2672,32 +2695,54 @@
                 return;
             }
             
-            // Usar sistema de movimiento existente (giveMoveOrder ya tiene animación)
+            // 🗺️ Verificar si hay waypoints planificados
+            const waypoints = unit.userData.plannedWaypoints || [targetPosition];
+            
+            if (waypoints.length === 0) {
+                callback();
+                return;
+            }
+            
+            // Mover secuencialmente a través de cada waypoint
             unit.userData.isMoving = true;
-            unit.userData.targetPosition = targetPosition.clone();
+            let currentWaypointIndex = 0;
             
-            const startPos = unit.position.clone();
-            const distance = startPos.distanceTo(targetPosition);
-            const speed = unit.userData.speed || 50; // m/s
-            const duration = (distance / speed) * 1000; // ms
-            
-            const startTime = Date.now();
-            
-            const animate = () => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                unit.position.lerpVectors(startPos, targetPosition, progress);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
+            const moveToNextWaypoint = () => {
+                if (currentWaypointIndex >= waypoints.length) {
                     unit.userData.isMoving = false;
+                    unit.userData.plannedWaypoints = null; // Limpiar waypoints usados
                     callback();
+                    return;
                 }
+                
+                const startPos = unit.position.clone();
+                const targetWaypoint = waypoints[currentWaypointIndex];
+                const distance = startPos.distanceTo(targetWaypoint);
+                const speed = unit.userData.speed || 50; // m/s
+                const duration = (distance / speed) * 1000; // ms
+                
+                const startTime = Date.now();
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    unit.position.lerpVectors(startPos, targetWaypoint, progress);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // Waypoint alcanzado, pasar al siguiente
+                        currentWaypointIndex++;
+                        log(`🚶 ${unit.userData.unitName} alcanzó waypoint ${currentWaypointIndex}/${waypoints.length}`, 'info');
+                        moveToNextWaypoint();
+                    }
+                };
+                
+                animate();
             };
             
-            animate();
+            moveToNextWaypoint();
         }
         
         /**
@@ -2734,6 +2779,165 @@
             
             const playerColor = currentPlayer === 1 ? 'AZUL' : 'ROJO';
             log(`📋 Orden agregada a la cola del jugador ${playerColor}: ${type}`, 'info');
+        }
+        
+        // === SISTEMA DE WAYPOINTS ===
+        
+        /**
+         * 🗺️ Iniciar nueva ruta de waypoints
+         */
+        function startWaypointRoute(firstPoint) {
+            isCreatingWaypoints = true;
+            currentWaypoints = [firstPoint];
+            
+            // Crear primer marcador
+            const marker = createWaypointMarker(firstPoint, 1);
+            waypointMarkers.push(marker);
+            scene.add(marker);
+            
+            log(`🗺️ Ruta iniciada - Click para agregar waypoints, DobleClick para finalizar`, 'info');
+            document.getElementById('order-mode').textContent = 'Modo: Creando Ruta (DobleClick para finalizar)';
+        }
+        
+        /**
+         * 🗺️ Agregar waypoint a la ruta actual
+         */
+        function addWaypoint(point) {
+            currentWaypoints.push(point);
+            
+            // Crear marcador con número
+            const marker = createWaypointMarker(point, currentWaypoints.length);
+            waypointMarkers.push(marker);
+            scene.add(marker);
+            
+            // Actualizar línea conectando waypoints
+            updateWaypointLine();
+            
+            log(`📍 Waypoint ${currentWaypoints.length} agregado`, 'info');
+        }
+        
+        /**
+         * 🗺️ Finalizar ruta y dar orden de movimiento
+         */
+        function finishWaypointRoute() {
+            if (currentWaypoints.length === 0) {
+                log('⚠️ No hay waypoints para finalizar', 'warning');
+                return;
+            }
+            
+            // Dar orden con la ruta completa (último waypoint como destino final)
+            const finalDestination = currentWaypoints[currentWaypoints.length - 1];
+            
+            // Guardar waypoints completos en la unidad para visualización
+            selectedUnit.userData.plannedWaypoints = [...currentWaypoints];
+            
+            // Agregar orden a la cola
+            queueOrder(selectedUnit, 'move', finalDestination);
+            
+            // Limpiar estado de creación pero mantener visuales hasta ejecución
+            isCreatingWaypoints = false;
+            currentWaypoints = [];
+            currentOrderMode = null;
+            
+            document.getElementById('order-mode').textContent = 'Modo: Selección';
+            log(`✅ Ruta confirmada con ${selectedUnit.userData.plannedWaypoints.length} waypoints`, 'success');
+        }
+        
+        /**
+         * 🎨 Crear marcador visual de waypoint
+         */
+        function createWaypointMarker(position, number) {
+            // Esfera como marcador
+            const geometry = new THREE.SphereGeometry(1.5, 16, 16);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0xffff00,
+                transparent: true,
+                opacity: 0.8
+            });
+            const marker = new THREE.Mesh(geometry, material);
+            marker.position.copy(position);
+            marker.position.y += 2; // Elevar sobre terreno
+            
+            // Agregar número (sprite simple)
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(number.toString(), 32, 32);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(3, 3, 1);
+            sprite.position.set(0, 3, 0); // Sobre el marcador
+            marker.add(sprite);
+            
+            // Guardar referencia para limpiar después
+            marker.userData.isWaypointMarker = true;
+            
+            return marker;
+        }
+        
+        /**
+         * 🎨 Actualizar línea conectando waypoints
+         */
+        function updateWaypointLine() {
+            // Eliminar línea anterior
+            if (waypointLine) {
+                scene.remove(waypointLine);
+                waypointLine.geometry.dispose();
+                waypointLine.material.dispose();
+            }
+            
+            // Crear nueva línea conectando todos los waypoints
+            if (currentWaypoints.length >= 2) {
+                const points = currentWaypoints.map(p => {
+                    const elevated = p.clone();
+                    elevated.y += 1; // Elevar línea sobre terreno
+                    return elevated;
+                });
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({ 
+                    color: 0xffff00,
+                    linewidth: 3
+                });
+                waypointLine = new THREE.Line(geometry, material);
+                scene.add(waypointLine);
+            }
+        }
+        
+        /**
+         * 🧹 Limpiar waypoints visuales después de ejecución
+         */
+        function clearWaypointVisuals() {
+            // Limpiar marcadores
+            waypointMarkers.forEach(marker => {
+                scene.remove(marker);
+                marker.geometry.dispose();
+                marker.material.dispose();
+                if (marker.children[0]) {
+                    marker.children[0].material.map.dispose();
+                    marker.children[0].material.dispose();
+                }
+            });
+            waypointMarkers = [];
+            
+            // Limpiar línea
+            if (waypointLine) {
+                scene.remove(waypointLine);
+                waypointLine.geometry.dispose();
+                waypointLine.material.dispose();
+                waypointLine = null;
+            }
+            
+            // Resetear estado
+            isCreatingWaypoints = false;
+            currentWaypoints = [];
         }
         
         function clearAll() {
