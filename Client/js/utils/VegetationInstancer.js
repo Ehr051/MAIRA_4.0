@@ -85,40 +85,22 @@ class VegetationInstancer {
                 material = meshes[0].material.clone();
                 console.log(`✅ Usando mesh único (${geometry.attributes.position.count} vértices)`);
             } else {
-                // Múltiples meshes - necesitamos combinarlos
-                console.log(`🔧 Combinando ${meshes.length} meshes en uno solo...`);
+                // 🔥 FIX CRÍTICO: Múltiples meshes con diferentes materiales (tronco + follaje)
+                // NO fusionar - usar el modelo completo como Group
+                console.warn(`⚠️ Modelo ${modelType} tiene ${meshes.length} meshes - NO fusionar para preservar materiales`);
+                console.warn(`   Usando modelo completo (Group) en lugar de InstancedMesh`);
+                console.warn(`   Materiales: ${materials.map(m => m.name || 'unnamed').join(', ')}`);
                 
-                // Opción 1: Usar BufferGeometryUtils.mergeGeometries (si está disponible)
-                if (window.THREE.BufferGeometryUtils) {
-                    const geometries = meshes.map(mesh => {
-                        const geom = mesh.geometry.clone();
-                        // Aplicar transformación del mesh
-                        geom.applyMatrix4(mesh.matrixWorld);
-                        return geom;
-                    });
-                    
-                    geometry = window.THREE.BufferGeometryUtils.mergeGeometries(geometries, false);
-                    console.log(`✅ Geometrías combinadas: ${geometry.attributes.position.count} vértices totales`);
-                } else {
-                    // Fallback: Usar el mesh más grande
-                    console.warn(`⚠️ BufferGeometryUtils no disponible, usando mesh más grande`);
-                    let largestMesh = meshes[0];
-                    let largestCount = 0;
-                    
-                    meshes.forEach(mesh => {
-                        const count = mesh.geometry.attributes.position.count;
-                        if (count > largestCount) {
-                            largestCount = count;
-                            largestMesh = mesh;
-                        }
-                    });
-                    
-                    geometry = largestMesh.geometry.clone();
-                    console.log(`✅ Usando mesh más grande (${largestCount} vértices de ${meshes.length} meshes)`);
-                }
+                // Guardar el modelo completo sin fusionar
+                const modelData = {
+                    model: model.clone(),
+                    meshes: meshes.length,
+                    materials: materials.length,
+                    useGroup: true // Flag para NO usar InstancedMesh
+                };
                 
-                // Para material, usar el primero o crear MultiMaterial
-                material = materials[0].clone();
+                this.modelCache.set(modelType, modelData);
+                return modelData;
                 
                 // ✅ FORZAR CARGA DE TEXTURAS: Verificar y configurar correctamente
                 if (material) {
@@ -223,12 +205,73 @@ class VegetationInstancer {
                 }
                 
                 console.log(`✅ Modelo ${modelType} cargado:`, {
+                    useGroup: modelData.useGroup || false,
                     hasGeometry: !!modelData.geometry,
                     hasMaterial: !!modelData.material,
+                    hasModel: !!modelData.model,
+                    meshes: modelData.meshes,
+                    materials: modelData.materials,
                     vertexCount: modelData.geometry?.attributes?.position?.count || 0
                 });
                 
-                // Crear InstancedMesh
+                // 🔥 FIX CRÍTICO: Si tiene múltiples meshes/materiales, NO usar InstancedMesh
+                if (modelData.useGroup) {
+                    console.log(`🌳 Usando Groups individuales para preservar materiales (${modelData.materials} materiales)`);
+                    
+                    // Crear un Group por cada instancia
+                    typeInstances.forEach((inst, index) => {
+                        const instanceGroup = modelData.model.clone();
+                        
+                        // Configurar posición, rotación, escala
+                        instanceGroup.position.set(
+                            inst.position.x || 0,
+                            inst.position.y || 0,
+                            inst.position.z || 0
+                        );
+                        
+                        instanceGroup.rotation.y = inst.rotation || 0;
+                        
+                        const scaleValue = inst.scale || 1.0;
+                        instanceGroup.scale.set(scaleValue, scaleValue, scaleValue);
+                        
+                        // 🔥 FORZAR VISIBILIDAD de TODOS los meshes
+                        instanceGroup.traverse((child) => {
+                            if (child.isMesh) {
+                                child.visible = true;
+                                child.frustumCulled = false;
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                
+                                // Verificar material
+                                if (child.material) {
+                                    const materials = Array.isArray(child.material) ? child.material : [child.material];
+                                    materials.forEach(mat => {
+                                        mat.needsUpdate = true;
+                                        mat.side = THREE.DoubleSide;
+                                        mat.visible = true;
+                                        
+                                        // Fix opacity
+                                        if (mat.transparent && mat.opacity < 0.1) {
+                                            mat.opacity = 1.0;
+                                            mat.transparent = false;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        
+                        instanceGroup.userData.vegetationType = modelType;
+                        instanceGroup.userData.isVegetation = true;
+                        
+                        this.scene.add(instanceGroup);
+                        createdMeshes.push(instanceGroup);
+                    });
+                    
+                    console.log(`✅ ${typeInstances.length} Groups creados para ${modelType}`);
+                    continue; // Saltar a la siguiente iteración
+                }
+                
+                // Crear InstancedMesh (solo si useGroup = false)
                 const instancedMesh = new THREE.InstancedMesh(
                     modelData.geometry,
                     modelData.material,
