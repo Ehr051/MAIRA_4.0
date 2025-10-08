@@ -21,12 +21,17 @@ class GLTFModelLoader {
         // Mapeo de tipos de vegetación a archivos GLB
         // ✅ OPTIMIZADO: Usar modelos low-poly para mejor rendimiento
         this.vegetationModels = {
-            'tree_tall': 'arbol.glb',              // Árbol simple (TEST)
-            'tree_medium': 'trees_low.glb',        // 2.4MB - Árboles low poly
-            'tree_oak': 'AnimatedOak.glb',         // 81MB - Oak animado (solo para casos especiales)
-            'tree': 'arbol alto.glb',              // 8.9MB - Árbol genérico alto
-            'bush': 'arbusto.glb',                 // 44MB - Arbusto
-            'grass': 'simple_grass_chunks.glb'     // 19MB - Pasto en chunks
+            // ÁRBOLES BUENOS ✅ (modelos completos con follaje)
+            'tree_tall': 'arbol.glb',              // 8.9MB - Árbol genérico alto ✅
+            'tree_medium': 'trees_low.glb',        // 2.4MB - Árboles low poly ✅
+            'tree_oak': 'AnimatedOak.glb',         // 81MB - Oak animado ✅
+            'tree': 'arbol.glb',                   // 8.9MB - Árbol genérico alto ✅ (CORREGIDO: era "arbol alto.glb" 404)
+            
+            // ARBUSTOS BUENOS ✅
+            'bush': 'arbusto.glb',                 // 44MB - Arbusto ✅
+            
+            // PASTO BUENO ✅
+            'grass': 'simple_grass_chunks.glb'     // 19MB - Pasto en chunks ✅
         };
         
         // ✅ Estadísticas de carga para debugging

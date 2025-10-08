@@ -343,23 +343,46 @@
             <div class="section">
                 <h2>🎖️ Unidades Militares</h2>
                 <div style="margin-bottom: 10px;">
-                    <label>Seleccionar Unidad:</label>
+                    <label>🇦🇷 ARGENTINA:</label>
                     <button onclick="selectUnitType('tam')" class="primary unit-btn" style="margin-bottom: 4px;">
-                        🚜 TAM (Tanque)</button>
-                    <button onclick="selectUnitType('soldier')" class="primary unit-btn" style="margin-bottom: 4px;">
-                        🪖 Soldado
+                        🚜 TAM (Tanque)
                     </button>
-                    <button onclick="selectUnitType('soldier_ru')" class="primary unit-btn" style="margin-bottom: 4px;">
-                        🪖 Soldado Ruso
+                    <button onclick="selectUnitType('tam_2c')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚜 TAM 2C (Modernizado)
                     </button>
-                    <button onclick="selectUnitType('jeep')" class="primary unit-btn" style="margin-bottom: 4px;">
-                        🚙 jeep
+                    <button onclick="selectUnitType('tam_2ip')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚜 TAM 2IP
                     </button>
                     <button onclick="selectUnitType('m113')" class="primary unit-btn" style="margin-bottom: 4px;">
                         🛡️ M113 (APC)
                     </button>
+                    <button onclick="selectUnitType('soldier')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🪖 Soldado
+                    </button>
+                    
+                    <label style="margin-top: 10px;">🇷🇺 RUSIA:</label>
+                    <button onclick="selectUnitType('soldier_ru')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🪖 Soldado Ruso
+                    </button>
+                    <button onclick="selectUnitType('ural_4320')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚛 Ural 4320 (Camión)
+                    </button>
+                    
+                    <label style="margin-top: 10px;">🌍 OTROS:</label>
+                    <button onclick="selectUnitType('jeep')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        🚙 Jeep
+                    </button>
+                    <button onclick="selectUnitType('humvee')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        � Humvee
+                    </button>
                     <button onclick="selectUnitType('fsb_operator')" class="primary unit-btn" style="margin-bottom: 4px;">
                         👤 Operador FSB
+                    </button>
+                    <button onclick="selectUnitType('medical_tent')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        ⛺ Tienda Médica
+                    </button>
+                    <button onclick="selectUnitType('tent_military')" class="primary unit-btn" style="margin-bottom: 4px;">
+                        ⛺ Tienda Militar
                     </button>
                 </div>
                 <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px; margin-bottom: 8px;">
@@ -443,13 +466,19 @@
             <div class="section">
                 <h2>🧪 PRUEBAS DE TIPOS</h2>
                 <button onclick="testVegetationType('tree_tall')" class="success" style="margin-bottom: 8px;">
-                    🌲 VER SOLO ÁRBOLES
+                    🌲 VER SOLO ÁRBOLES (arbol.glb 8.9MB)
+                </button>
+                <button onclick="testVegetationType('tree_medium')" class="success" style="margin-bottom: 8px;">
+                    🌳 VER ÁRBOLES LOW POLY (trees_low.glb 2.4MB)
+                </button>
+                <button onclick="testVegetationType('tree_oak')" class="success" style="margin-bottom: 8px;">
+                    🌲 VER OAK ANIMADO (AnimatedOak.glb 81MB)
                 </button>
                 <button onclick="testVegetationType('bush')" class="success" style="margin-bottom: 8px;">
-                    🌿 VER SOLO ARBUSTOS
+                    🌿 VER SOLO ARBUSTOS (arbusto.glb 44MB)
                 </button>
                 <button onclick="testVegetationType('grass')" class="success" style="margin-bottom: 8px;">
-                    🌾 VER SOLO PASTO
+                    🌾 VER SOLO PASTO (simple_grass_chunks.glb 19MB)
                 </button>
                 <button onclick="testVegetationType('all')" class="primary" style="margin-bottom: 8px;">
                     🌍 VER TODOS
@@ -533,6 +562,7 @@
         
         // Configuración de modelos de unidades
         const unitModels = {
+            // 🇦🇷 ARGENTINA
             'tam': {
                 path: 'Client/assets/models/gbl_new/tam_tank.glb',
                 scale: 1.0,
@@ -540,26 +570,19 @@
                 name: 'TAM (Tanque)',
                 maxSpeed: 19.44 // 70 km/h en carretera → 19.44 m/s
             },
-            'soldier': {
-                path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
-                scale: 1,
-                yOffset: 0.9,
-                name: 'Soldado',
-                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
-            },
-            'soldier_ru': {
-                path: 'Client/assets/models/gbl_new/russian_soldier.glb',
-                scale: 0.001,  // Era 70.0 (87.5x más grande), corregido a 0.7 similar a soldado normal
+            'tam_2c': {
+                path: 'Client/assets/models/gbl_new/tam_2c_war_thunder.glb',
+                scale: 1.0,
                 yOffset: 0,
-                name: 'Soldado Ruso',
-                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
+                name: 'TAM 2C (Modernizado)',
+                maxSpeed: 19.44 // 70 km/h en carretera → 19.44 m/s
             },
-            'jeep': {
-                path: 'Client/assets/models/gbl_new/jeep.glb',
-                scale: 1,
+            'tam_2ip': {
+                path: 'Client/assets/models/gbl_new/tam_2ip_war_thunder.glb',
+                scale: 1.0,
                 yOffset: 0,
-                name: 'Jeep',
-                maxSpeed: 27.78 // 100 km/h en carretera → 27.78 m/s
+                name: 'TAM 2IP',
+                maxSpeed: 19.44 // 70 km/h en carretera → 19.44 m/s
             },
             'm113': {
                 path: 'Client/assets/models/gbl_new/m113.glb',
@@ -568,12 +591,65 @@
                 name: 'M113 (APC)',
                 maxSpeed: 17.22 // 62 km/h → 17.22 m/s
             },
+            'soldier': {
+                path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
+                scale: 1,
+                yOffset: 0.9,
+                name: 'Soldado',
+                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
+            },
+            
+            // 🇷🇺 RUSIA
+            'soldier_ru': {
+                path: 'Client/assets/models/gbl_new/russian_soldier.glb',
+                scale: 0.001,
+                yOffset: 0,
+                name: 'Soldado Ruso',
+                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
+            },
+            'ural_4320': {
+                path: 'Client/assets/models/gbl_new/ural_4320.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Ural 4320 (Camión)',
+                maxSpeed: 22.22 // 80 km/h → 22.22 m/s
+            },
+            
+            // 🌍 OTROS
+            'jeep': {
+                path: 'Client/assets/models/gbl_new/jeep.glb',
+                scale: 1,
+                yOffset: 0,
+                name: 'Jeep',
+                maxSpeed: 27.78 // 100 km/h en carretera → 27.78 m/s
+            },
+            'humvee': {
+                path: 'Client/assets/models/gbl_new/low_poly_humvee_vehicle.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Humvee',
+                maxSpeed: 25.00 // 90 km/h → 25.00 m/s
+            },
             'fsb_operator': {
                 path: 'Client/assets/models/gbl_new/fsb_operator.glb',
                 scale: 0.7,
                 yOffset: 0.5,
                 name: 'Operador FSB',
                 maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
+            },
+            'medical_tent': {
+                path: 'Client/assets/models/gbl_new/medical_tent.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Tienda Médica',
+                maxSpeed: 0 // Estructura fija
+            },
+            'tent_military': {
+                path: 'Client/assets/models/gbl_new/tent_military.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Tienda Militar',
+                maxSpeed: 0 // Estructura fija
             }
         };
         
@@ -2333,9 +2409,8 @@
                     scene.add(model);
                     placedUnits.push(model);
                     
-                    // 🎨 DEBUG: Crear bounding box helper visual (VERDE)
-                    const helper = createBoundingBoxHelper(model, 0x00ff00);
-                    model.userData.boundingBoxHelper = helper; // Guardar referencia para eliminarlo después
+                    // ✅ NO CREAR HELPER - Usuario confirmó que NO son necesarios
+                    // Los anillos de selección (azul/rojo) son suficientes
                     
                     log(`✅ ${config.name} colocado en (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`, 'success');
                 },
@@ -2354,6 +2429,7 @@
          * 🎯 Crear anillo de selección debajo de la unidad
          * Reutilizado de test_integrado_debug.js
          * Tamaño dinámico según bounding box del modelo
+         * 🔵 AZUL = Equipo Amigo | 🔴 ROJO = Equipo Enemigo
          */
         function createSelectionRing(unit) {
             console.log('🎯 Creando anillo de selección para:', unit.userData.unitName);
@@ -2380,9 +2456,10 @@
             
             console.log(`📏 Modelo: ${size.x.toFixed(2)}x${size.z.toFixed(2)}m, Anillo: ${innerRadius.toFixed(2)}-${outerRadius.toFixed(2)}m`);
 
-            // Determinar color según facción
-            const faction = unit.userData.faction || 'amigo';
-            const ringColor = faction === 'amigo' ? 0x00ff00 : 0xff0000; // Verde amigo, Rojo enemigo
+            // 🔥 FIX: Determinar color según EQUIPO (player 1 = AZUL, player 2 = ROJO)
+            const unitPlayer = unit.userData.player || 1;
+            const ringColor = unitPlayer === 1 ? 0x0099ff : 0xff0000; // 🔵 AZUL amigo, 🔴 ROJO enemigo
+            const ringColorName = unitPlayer === 1 ? 'AZUL' : 'ROJO';
             
             // Crear geometría del anillo de selección con tamaño dinámico
             const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 32);
@@ -2390,23 +2467,35 @@
                 color: ringColor,
                 transparent: true,
                 opacity: 0.7,
-                side: THREE.DoubleSide
+                side: THREE.DoubleSide,
+                depthTest: true,
+                depthWrite: false
             });
 
             const selectionRing = new THREE.Mesh(ringGeometry, ringMaterial);
             selectionRing.rotation.x = -Math.PI / 2; // Rotar para que esté horizontal (plano en el suelo)
 
-            // Calcular la posición Y del anillo basada en el bounding box del objeto
-            const objectBottom = bbox.min.y;
-
-            // Posicionar el anillo ligeramente sobre el terreno
-            selectionRing.position.y = objectBottom - unit.position.y + 0.1;
+            // 🔥 FIX: Posicionar AL NIVEL DEL TERRENO usando raycast
+            const raycaster = new THREE.Raycaster();
+            const rayOrigin = new THREE.Vector3(unit.position.x, 1000, unit.position.z);
+            raycaster.set(rayOrigin, new THREE.Vector3(0, -1, 0));
+            
+            let terrainHeight = 0;
+            if (currentTerrain && currentTerrain.terrain) {
+                const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+                if (intersects.length > 0) {
+                    terrainHeight = intersects[0].point.y;
+                }
+            }
+            
+            // Posicionar anillo ligeramente SOBRE el terreno (0.1m) para evitar z-fighting
+            selectionRing.position.y = terrainHeight - unit.position.y + 0.1;
 
             // Agregar al objeto
             unit.add(selectionRing);
             unit.userData.selectionRing = selectionRing;
 
-            console.log(`✅ Anillo de selección ${faction === 'amigo' ? 'VERDE' : 'ROJO'} creado`);
+            console.log(`✅ Anillo de selección ${ringColorName} creado al nivel del terreno (Y: ${terrainHeight.toFixed(2)}m)`);
 
             // Animación del anillo (rotación suave)
             animateSelectionRing(selectionRing);
@@ -2439,6 +2528,42 @@
                 console.log('🗑️ Anillo de selección eliminado');
             }
         }
+        
+        /**
+         * 🔥 FIX: Limpiar líneas de waypoints de una unidad
+         */
+        function clearWaypointLines(unit) {
+            if (!unit) return;
+            
+            // Eliminar waypointLine (línea del waypoint actual)
+            if (unit.userData.waypointLine) {
+                scene.remove(unit.userData.waypointLine);
+                if (unit.userData.waypointLine.geometry) unit.userData.waypointLine.geometry.dispose();
+                if (unit.userData.waypointLine.material) unit.userData.waypointLine.material.dispose();
+                unit.userData.waypointLine = null;
+            }
+            
+            // Eliminar orderVisuals (líneas de órdenes)
+            if (unit.userData.orderVisuals) {
+                unit.userData.orderVisuals.forEach(visual => {
+                    scene.remove(visual);
+                    if (visual.geometry) visual.geometry.dispose();
+                    if (visual.material) visual.material.dispose();
+                });
+                unit.userData.orderVisuals = [];
+            }
+            
+            console.log('🗑️ Líneas de waypoints eliminadas');
+        }
+        
+        /**
+         * 🔥 FIX: Deseleccionar unidad limpiando TODO (anillo + líneas)
+         */
+        function deselectUnit(unit) {
+            if (!unit) return;
+            removeSelectionRing(unit);
+            clearWaypointLines(unit);
+        }
 
         /**
          * Seleccionar unidad con click
@@ -2467,9 +2592,9 @@
                     return false;
                 }
                 
-                // Deseleccionar anterior (remover anillo)
+                // 🔥 FIX: Deseleccionar anterior (remover anillo + líneas)
                 if (selectedUnit) {
-                    removeSelectionRing(selectedUnit);
+                    deselectUnit(selectedUnit);
                 }
                 
                 // Seleccionar nueva (crear anillo)
@@ -2504,6 +2629,25 @@
             }
             
             const unitName = selectedUnit.userData.unitName || 'Unidad';
+            
+            // 🔥 FIX: Eliminar líneas de waypoints asociadas
+            if (selectedUnit.userData.waypointLine) {
+                scene.remove(selectedUnit.userData.waypointLine);
+                if (selectedUnit.userData.waypointLine.geometry) selectedUnit.userData.waypointLine.geometry.dispose();
+                if (selectedUnit.userData.waypointLine.material) selectedUnit.userData.waypointLine.material.dispose();
+                selectedUnit.userData.waypointLine = null;
+            }
+            
+            // 🔥 FIX: Eliminar orderVisuals asociados
+            if (selectedUnit.userData.orderVisuals) {
+                selectedUnit.userData.orderVisuals.forEach(visual => {
+                    scene.remove(visual);
+                    if (visual.geometry) visual.geometry.dispose();
+                    if (visual.material) visual.material.dispose();
+                });
+                selectedUnit.userData.orderVisuals = [];
+            }
+            
             scene.remove(selectedUnit);
             placedUnits = placedUnits.filter(u => u !== selectedUnit);
             
@@ -2903,6 +3047,9 @@
                     const finalPos = waypoints[waypoints.length - 1];
                     unit.position.copy(finalPos);
                     console.log(`✅ ${unit.userData.unitName} finalizó movimiento en (${finalPos.x.toFixed(1)}, ${finalPos.y.toFixed(1)}, ${finalPos.z.toFixed(1)})`);
+                    
+                    // 🔥 FIX: Limpiar líneas de waypoints DESPUÉS de ejecutar movimiento
+                    clearWaypointLines(unit);
                     
                     callback();
                     return;
@@ -3460,9 +3607,11 @@
             
             // Actualizar UI
             const typeNames = {
-                'tree_tall': '🌲 ÁRBOLES',
-                'bush': '🌿 ARBUSTOS',
-                'grass': '🌾 PASTO',
+                'tree_tall': '🌲 ÁRBOLES (arbol.glb)',
+                'tree_medium': '🌳 ÁRBOLES LOW POLY (trees_low.glb)',
+                'tree_oak': '🌲 OAK ANIMADO (AnimatedOak.glb)',
+                'bush': '🌿 ARBUSTOS (arbusto.glb)',
+                'grass': '🌾 PASTO (simple_grass_chunks.glb)',
                 'all': '🌍 TODOS'
             };
             
