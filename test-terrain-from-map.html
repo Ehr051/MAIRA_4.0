@@ -2019,12 +2019,6 @@
          * 🔍 DEBUG: Verificar si un objeto está en el campo de visión de la cámara
          */
         function isInCameraView(object) {
-            // 🐛 TEMPORALMENTE DESHABILITADO: causaba error con modelos multi-mesh
-            // El problema es que frustum.intersectsObject() requiere geometry.boundingSphere
-            // pero modelos con múltiples hijos no tienen geometría directa
-            return true; // Asumir siempre visible por ahora
-            
-            /* CÓDIGO ORIGINAL (restaurar después de fix):
             const frustum = new THREE.Frustum();
             const cameraViewProjectionMatrix = new THREE.Matrix4();
             
@@ -2032,8 +2026,45 @@
             cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
             frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
             
-            return frustum.intersectsObject(object);
-            */
+            // ✅ FIX: Para modelos multi-mesh (Groups), calcular bounding box de TODO el objeto
+            // No podemos usar frustum.intersectsObject() directamente porque requiere geometry.boundingSphere
+            // En su lugar, calculamos el bounding box manualmente y verificamos si intersecta
+            
+            const bbox = new THREE.Box3().setFromObject(object);
+            
+            // Si el bounding box es válido (no infinito), verificar intersección
+            if (bbox.min.x !== Infinity && bbox.max.x !== -Infinity) {
+                // Verificar si al menos un vértice del bbox está dentro del frustum
+                const corners = [
+                    new THREE.Vector3(bbox.min.x, bbox.min.y, bbox.min.z),
+                    new THREE.Vector3(bbox.min.x, bbox.min.y, bbox.max.z),
+                    new THREE.Vector3(bbox.min.x, bbox.max.y, bbox.min.z),
+                    new THREE.Vector3(bbox.min.x, bbox.max.y, bbox.max.z),
+                    new THREE.Vector3(bbox.max.x, bbox.min.y, bbox.min.z),
+                    new THREE.Vector3(bbox.max.x, bbox.min.y, bbox.max.z),
+                    new THREE.Vector3(bbox.max.x, bbox.max.y, bbox.min.z),
+                    new THREE.Vector3(bbox.max.x, bbox.max.y, bbox.max.z)
+                ];
+                
+                // Si al menos una esquina está visible, el objeto es potencialmente visible
+                for (const corner of corners) {
+                    if (frustum.containsPoint(corner)) {
+                        return true;
+                    }
+                }
+                
+                // También verificar el centro del bbox (puede estar visible aunque las esquinas no)
+                const center = new THREE.Vector3();
+                bbox.getCenter(center);
+                if (frustum.containsPoint(center)) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // Si no se pudo calcular bbox, asumir visible (fallback seguro)
+            return true;
         }
         
         /**
