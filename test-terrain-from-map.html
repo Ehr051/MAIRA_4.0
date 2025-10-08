@@ -214,6 +214,22 @@
     </style>
 </head>
 <body>
+    <!-- 🎬 MODAL DE CARGA: Creando Escenario -->
+    <div id="loading-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); text-align: center; min-width: 400px;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🏗️</div>
+            <h2 style="color: #4fd1c5; margin-bottom: 10px; font-size: 24px;">CREANDO ESCENARIO</h2>
+            <p id="loading-step" style="color: #a0aec0; margin-bottom: 25px; font-size: 14px;">Iniciando...</p>
+            
+            <!-- Barra de progreso -->
+            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 15px;">
+                <div id="loading-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4fd1c5 0%, #667eea 100%); transition: width 0.3s ease; border-radius: 4px;"></div>
+            </div>
+            
+            <div id="loading-percentage" style="color: #4fd1c5; font-size: 18px; font-weight: bold;">0%</div>
+        </div>
+    </div>
+    
     <div id="main-container">
         <!-- Sidebar -->
         <div id="sidebar">
@@ -652,6 +668,24 @@
                 maxSpeed: 0 // Estructura fija
             }
         };
+        
+        // === MODAL DE CARGA ===
+        function showLoadingModal(step = 'Iniciando...', progress = 0) {
+            const modal = document.getElementById('loading-modal');
+            const stepEl = document.getElementById('loading-step');
+            const progressBar = document.getElementById('loading-progress-bar');
+            const percentage = document.getElementById('loading-percentage');
+            
+            modal.style.display = 'flex';
+            stepEl.textContent = step;
+            progressBar.style.width = `${progress}%`;
+            percentage.textContent = `${Math.round(progress)}%`;
+        }
+        
+        function hideLoadingModal() {
+            const modal = document.getElementById('loading-modal');
+            modal.style.display = 'none';
+        }
         
         // === LOGGING ===
         function log(message, type = 'info') {
@@ -1151,6 +1185,9 @@
                 return;
             }
             
+            // 🎬 MOSTRAR MODAL DE CARGA
+            showLoadingModal('Iniciando generación de terreno...', 0);
+            
             const startTime = performance.now();
             log('🏗️ Generando terreno 3D...', 'info');
             
@@ -1159,6 +1196,7 @@
             let vegetationService = null;
             
             try {
+                showLoadingModal('Limpiando terreno anterior...', 5);
                 if (currentTerrain) clearTerrain();
                 
                 const config = {
@@ -1168,9 +1206,12 @@
                     vegetationDensity: parseFloat(document.getElementById('vegetationDensity').value)
                 };
                 
+                showLoadingModal('Inicializando servicios...', 10);
+                
                 if (!terrainGenerator) {
                     terrainGenerator = new TerrainGenerator3D(config);
                     
+                    showLoadingModal('Inicializando sistema de elevación...', 15);
                     // ✅ Leer configuración de UI
                     const useTIF = document.getElementById('useTIF').checked;
                     
@@ -1185,6 +1226,7 @@
                         }
                     }
                     
+                    showLoadingModal('Inicializando sistema de vegetación...', 25);
                     // ✅ Inicializar VegetationService con análisis satelital
                     if (window.VegetationService) {
                         try {
@@ -1221,6 +1263,7 @@
                     terrainGenerator.satelliteAnalyzer = satelliteAnalyzer;
                 }
                 
+                showLoadingModal('Analizando imagen satelital...', 40);
                 // 🔥 CRÍTICO: Analizar imagen satelital ANTES de generar terreno
                 if (satelliteAnalyzer && satelliteAnalyzer.imageData) {
                     const features = satelliteAnalyzer.getFeatures();
@@ -1234,6 +1277,7 @@
                     }
                 }
                 
+                showLoadingModal('Generando geometría del terreno...', 50);
                 const result = await terrainGenerator.generateTerrain(capturedBounds, {
                     includeVegetation: true,
                     includeRoads: true,
