@@ -2597,6 +2597,9 @@
                 unit.userData.orderVisuals = [];
             }
             
+            // 🔥 FIX CRÍTICO: Limpiar waypoint markers verdes (esferas)
+            clearWaypointVisuals();
+            
             console.log('🗑️ Líneas de waypoints eliminadas');
         }
         
