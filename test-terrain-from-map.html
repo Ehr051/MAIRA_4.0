@@ -2010,6 +2010,30 @@
         }
         
         /**
+         * 🔍 DEBUG: Verificar si un objeto está en el campo de visión de la cámara
+         */
+        function isInCameraView(object) {
+            const frustum = new THREE.Frustum();
+            const cameraViewProjectionMatrix = new THREE.Matrix4();
+            
+            camera.updateMatrixWorld();
+            cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+            frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
+            
+            return frustum.intersectsObject(object);
+        }
+        
+        /**
+         * 🎨 DEBUG: Crear helper visual para bounding box
+         */
+        function createBoundingBoxHelper(object, color = 0x00ff00) {
+            const bbox = new THREE.Box3().setFromObject(object);
+            const helper = new THREE.Box3Helper(bbox, color);
+            scene.add(helper);
+            return helper;
+        }
+        
+        /**
          * Cargar modelo GLB y colocarlo en la posición
          */
         function loadAndPlaceUnit(type, position) {
@@ -2163,6 +2187,18 @@
                     
                     console.log(`📊 Total: ${meshCount} meshes, ${materialCount} con materiales`);
                     
+                    // 🔥 DEBUG: Calcular bounding box del modelo ANTES de transformaciones
+                    const bbox = new THREE.Box3().setFromObject(model);
+                    const size = new THREE.Vector3();
+                    bbox.getSize(size);
+                    const center = new THREE.Vector3();
+                    bbox.getCenter(center);
+                    
+                    console.log(`📦 Bounding Box ORIGINAL:`);
+                    console.log(`   ├─ Size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`);
+                    console.log(`   ├─ Center: (${center.x.toFixed(2)}, ${center.y.toFixed(2)}, ${center.z.toFixed(2)})`);
+                    console.log(`   └─ Escala a aplicar: ${config.scale}`);
+                    
                     // Configurar posición y escala
                     model.position.copy(position);
                     
@@ -2172,6 +2208,17 @@
                     }
                     
                     model.scale.set(config.scale, config.scale, config.scale);
+                    
+                    // 🔥 DEBUG: Bounding box DESPUÉS de transformaciones
+                    model.updateMatrixWorld(true);
+                    const bboxAfter = new THREE.Box3().setFromObject(model);
+                    const sizeAfter = new THREE.Vector3();
+                    bboxAfter.getSize(sizeAfter);
+                    
+                    console.log(`📦 Bounding Box DESPUÉS:`);
+                    console.log(`   ├─ Posición: (${model.position.x.toFixed(1)}, ${model.position.y.toFixed(1)}, ${model.position.z.toFixed(1)})`);
+                    console.log(`   ├─ Size: ${sizeAfter.x.toFixed(2)} x ${sizeAfter.y.toFixed(2)} x ${sizeAfter.z.toFixed(2)}`);
+                    console.log(`   └─ ¿Visible en cámara?: ${isInCameraView(model)}`);
                     
                     // 🎖️ Propiedades básicas de unidad
                     model.userData.unitType = type;
@@ -2224,6 +2271,10 @@
                     // Agregar a escena
                     scene.add(model);
                     placedUnits.push(model);
+                    
+                    // 🎨 DEBUG: Crear bounding box helper visual (VERDE)
+                    const helper = createBoundingBoxHelper(model, 0x00ff00);
+                    model.userData.boundingBoxHelper = helper; // Guardar referencia para eliminarlo después
                     
                     log(`✅ ${config.name} colocado en (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`, 'success');
                 },
