@@ -2077,47 +2077,76 @@
                     model.traverse((child) => {
                         if (child.isMesh) {
                             meshCount++;
-                            console.log(`  📦 Mesh encontrado: ${child.name || 'unnamed'} - Material: ${child.material?.name || 'none'} - Visible: ${child.visible}`);
+                            console.log(`  📦 Mesh encontrado: ${child.name || 'unnamed'} - Material: ${child.material?.name || 'none'} - Visible ANTES: ${child.visible}`);
                             
                             // 🔥 FIX CRÍTICO: Forzar visibilidad de TODOS los meshes
                             child.visible = true;
                             child.frustumCulled = false; // Evitar culling prematuro
+                            
+                            console.log(`     ✅ Visible DESPUÉS: ${child.visible}, frustumCulled: ${child.frustumCulled}`);
                         }
                         
                         if (child.isMesh && child.material) {
                             materialCount++;
                             const mat = child.material;
                             
+                            console.log(`     🎨 Procesando materiales para ${child.name}:`);
+                            
                             // 🔥 FIX: Manejar arrays de materiales
                             const materials = Array.isArray(mat) ? mat : [mat];
                             
+                            console.log(`     📋 Total materiales: ${materials.length}`);
+                            
                             materials.forEach((material, idx) => {
+                                console.log(`       [${idx}] Material: ${material.name || 'unnamed'}`);
+                                console.log(`           ├─ Tipo: ${material.type}`);
+                                console.log(`           ├─ Transparent: ${material.transparent}, Opacity: ${material.opacity}`);
+                                console.log(`           ├─ Color: ${material.color ? material.color.getHexString() : 'none'}`);
+                                console.log(`           ├─ Map: ${material.map ? 'SÍ' : 'NO'}`);
+                                console.log(`           ├─ Side: ${material.side} (0=Front, 1=Back, 2=Double)`);
+                                console.log(`           └─ Visible: ${material.visible}`);
+                                
                                 // Forzar actualización
                                 material.needsUpdate = true;
                                 material.side = THREE.DoubleSide; // Renderizar ambos lados
+                                material.visible = true; // 🔥 FORZAR VISIBILIDAD DEL MATERIAL
                                 
                                 // 🔥 FIX: Forzar opacidad para materiales transparentes problemáticos
                                 if (material.transparent && material.opacity === 0) {
-                                    console.warn(`    ⚠️ Material transparente con opacity=0 detectado: ${material.name || 'unnamed'} - Forzando a 1.0`);
+                                    console.warn(`           ⚠️ Material transparente con opacity=0 → Forzando a 1.0`);
                                     material.opacity = 1.0;
                                     material.transparent = false;
+                                }
+                                
+                                // 🔥 FIX: Si opacity es muy baja, aumentarla
+                                if (material.opacity < 0.1) {
+                                    console.warn(`           ⚠️ Material con opacity ${material.opacity} → Forzando a 1.0`);
+                                    material.opacity = 1.0;
                                 }
                                 
                                 // Configurar texturas si existen
                                 if (material.map) {
                                     material.map.needsUpdate = true;
                                     material.map.encoding = THREE.sRGBEncoding;
-                                    console.log(`    ✅ Textura aplicada a ${child.name || 'mesh'} [mat ${idx}]`);
+                                    console.log(`           ✅ Textura aplicada`);
                                 } else {
+                                    // 🔥 FIX CRÍTICO: Aplicar color sólido cuando NO hay textura
+                                    console.warn(`           ⚠️ SIN TEXTURA → Aplicando color fallback`);
+                                    
                                     // Aplicar color fallback por tipo
                                     if (type.includes('soldier') || type.includes('fsb')) {
                                         material.color = new THREE.Color(0x4a5a3c); // Verde militar
+                                        console.log(`           🎨 Color aplicado: VERDE MILITAR (#4a5a3c)`);
                                     } else if (type === 'tam') {
                                         material.color = new THREE.Color(0x5a5a5a); // Gris tanque
+                                        console.log(`           🎨 Color aplicado: GRIS TANQUE (#5a5a5a)`);
                                     } else {
                                         material.color = new THREE.Color(0x6b5a4a); // Marrón vehículos
+                                        console.log(`           🎨 Color aplicado: MARRÓN (#6b5a4a)`);
                                     }
-                                    console.warn(`    ⚠️ Sin textura en ${child.name || 'mesh'} [mat ${idx}] - Color fallback aplicado`);
+                                    
+                                    // 🔥 FORZAR que el material USE el color
+                                    material.needsUpdate = true;
                                 }
                                 
                                 // Configurar normal map
