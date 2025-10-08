@@ -537,37 +537,43 @@
                 path: 'Client/assets/models/gbl_new/tam_tank.glb',
                 scale: 1.0,
                 yOffset: 0,
-                name: 'TAM (Tanque)'
+                name: 'TAM (Tanque)',
+                maxSpeed: 19.44 // 70 km/h en carretera → 19.44 m/s
             },
             'soldier': {
                 path: 'Client/assets/models/gbl_new/a_solider_poin_weapon.glb',
                 scale: 1,
                 yOffset: 0.9,
-                name: 'Soldado'
+                name: 'Soldado',
+                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
             },
             'soldier_ru': {
                 path: 'Client/assets/models/gbl_new/russian_soldier.glb',
                 scale: 0.001,  // Era 70.0 (87.5x más grande), corregido a 0.7 similar a soldado normal
                 yOffset: 0,
-                name: 'Soldado Ruso'
+                name: 'Soldado Ruso',
+                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
             },
             'jeep': {
                 path: 'Client/assets/models/gbl_new/jeep.glb',
                 scale: 1,
                 yOffset: 0,
-                name: 'Jeep'
+                name: 'Jeep',
+                maxSpeed: 27.78 // 100 km/h en carretera → 27.78 m/s
             },
             'm113': {
                 path: 'Client/assets/models/gbl_new/m113.glb',
                 scale: 0.0018,
                 yOffset: 0,
-                name: 'M113 (APC)'
+                name: 'M113 (APC)',
+                maxSpeed: 17.22 // 62 km/h → 17.22 m/s
             },
             'fsb_operator': {
                 path: 'Client/assets/models/gbl_new/fsb_operator.glb',
                 scale: 0.7,
                 yOffset: 0.5,
-                name: 'Operador FSB'
+                name: 'Operador FSB',
+                maxSpeed: 1.39 // 5 km/h marcha táctica → 1.39 m/s
             }
         };
         
@@ -2047,6 +2053,7 @@
                 // 🎖️ Propiedades básicas de unidad personalizada
                 customModel.userData.unitType = type;
                 customModel.userData.unitName = type.replace('custom_', '');
+                customModel.userData.maxSpeed = 5.56; // Default: 20 km/h = 5.56 m/s
                 customModel.userData.faction = 'friendly';
                 
                 // 🎮 SISTEMA DE TURNOS: Asignar propietario
@@ -2230,6 +2237,7 @@
                     // 🎖️ Propiedades básicas de unidad
                     model.userData.unitType = type;
                     model.userData.unitName = config.name;
+                    model.userData.maxSpeed = config.maxSpeed || 5.56; // Velocidad en m/s (default: 20 km/h)
                     model.userData.faction = 'friendly'; // friendly/enemy
                     
                     // 🎮 SISTEMA DE TURNOS: Asignar propietario
@@ -3030,10 +3038,10 @@
          * 🎨 Crear marcador visual de waypoint
          */
         function createWaypointMarker(position, number) {
-            // Esfera como marcador
+            // 🟢 RESTAURADO: Esfera VERDE como marcador (sistema original)
             const geometry = new THREE.SphereGeometry(1.5, 16, 16);
             const material = new THREE.MeshBasicMaterial({ 
-                color: 0xffff00,
+                color: 0x00ff00, // 🟢 VERDE (sistema original)
                 transparent: true,
                 opacity: 0.8
             });
@@ -3041,11 +3049,17 @@
             marker.position.copy(position);
             marker.position.y += 2; // Elevar sobre terreno
             
-            // Agregar número (sprite simple)
+            // Agregar número (sprite simple con fondo verde)
             const canvas = document.createElement('canvas');
             canvas.width = 64;
             canvas.height = 64;
             const ctx = canvas.getContext('2d');
+            
+            // Fondo verde semi-transparente
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+            ctx.fillRect(0, 0, 64, 64);
+            
+            // Número blanco
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 48px Arial';
             ctx.textAlign = 'center';
@@ -3066,31 +3080,141 @@
         }
         
         /**
-         * 🎨 Actualizar línea conectando waypoints
+         * 🎨 Actualizar línea conectando waypoints con SEGMENTACIÓN POR TURNOS
+         * SISTEMA TÁCTICO REALISTA:
+         * - 1 turno = 1 hora
+         * - Verde: ejecutable en turno 1
+         * - Amarillo: ejecutable en turno 2
+         * - Rojo: ejecutable en turno 3
+         * - Violeta: ejecutable en turno 4+
          */
         function updateWaypointLine() {
-            // Eliminar línea anterior
+            // Eliminar líneas anteriores
             if (waypointLine) {
-                scene.remove(waypointLine);
-                waypointLine.geometry.dispose();
-                waypointLine.material.dispose();
+                if (Array.isArray(waypointLine)) {
+                    waypointLine.forEach(line => {
+                        scene.remove(line);
+                        line.geometry.dispose();
+                        line.material.dispose();
+                    });
+                } else {
+                    scene.remove(waypointLine);
+                    waypointLine.geometry.dispose();
+                    waypointLine.material.dispose();
+                }
             }
             
             // Crear nueva línea conectando todos los waypoints
-            if (currentWaypoints.length >= 2) {
-                const points = currentWaypoints.map(p => {
-                    const elevated = p.clone();
-                    elevated.y += 1; // Elevar línea sobre terreno
-                    return elevated;
-                });
+            if (currentWaypoints.length >= 2 && selectedUnit) {
+                // 📊 Obtener velocidad de la unidad (m/s)
+                const unitSpeed = selectedUnit.userData.maxSpeed || 5.56; // Default: 20 km/h = 5.56 m/s
+                const speedKmH = unitSpeed * 3.6; // Convertir a km/h para logs
                 
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const material = new THREE.LineBasicMaterial({ 
-                    color: 0xffff00,
-                    linewidth: 3
-                });
-                waypointLine = new THREE.Line(geometry, material);
-                scene.add(waypointLine);
+                // ⏱️ Distancia recorrible por turno (1 turno = 1 hora)
+                const distancePerTurn = unitSpeed * 3600; // metros por hora
+                
+                console.log(`🚗 Unidad: ${selectedUnit.userData.unitName || 'Desconocida'}`);
+                console.log(`   Velocidad: ${speedKmH.toFixed(1)} km/h (${unitSpeed.toFixed(2)} m/s)`);
+                console.log(`   Distancia/turno: ${(distancePerTurn/1000).toFixed(2)} km`);
+                
+                // 📏 Calcular segmentos de ruta por turno
+                const segments = [];
+                let accumulatedDistance = 0;
+                let currentTurn = 1;
+                
+                for (let i = 0; i < currentWaypoints.length - 1; i++) {
+                    const start = currentWaypoints[i];
+                    const end = currentWaypoints[i + 1];
+                    const segmentDistance = start.distanceTo(end);
+                    
+                    // Determinar en qué turno se ejecuta este segmento
+                    const segmentStartTurn = Math.floor(accumulatedDistance / distancePerTurn) + 1;
+                    const segmentEndTurn = Math.floor((accumulatedDistance + segmentDistance) / distancePerTurn) + 1;
+                    
+                    // Si el segmento cruza turnos, dividirlo
+                    if (segmentStartTurn !== segmentEndTurn) {
+                        // Calcular punto de división
+                        const remainingInTurn = distancePerTurn - (accumulatedDistance % distancePerTurn);
+                        const splitRatio = remainingInTurn / segmentDistance;
+                        const splitPoint = new THREE.Vector3().lerpVectors(start, end, splitRatio);
+                        
+                        // Primer sub-segmento (turno actual)
+                        segments.push({
+                            start: start,
+                            end: splitPoint,
+                            turn: segmentStartTurn
+                        });
+                        
+                        // Segundo sub-segmento (siguiente turno)
+                        segments.push({
+                            start: splitPoint,
+                            end: end,
+                            turn: segmentEndTurn
+                        });
+                    } else {
+                        // Segmento completo en un solo turno
+                        segments.push({
+                            start: start,
+                            end: end,
+                            turn: segmentStartTurn
+                        });
+                    }
+                    
+                    accumulatedDistance += segmentDistance;
+                }
+                
+                const totalDistance = accumulatedDistance;
+                const totalTurns = Math.ceil(totalDistance / distancePerTurn);
+                
+                console.log(`📊 Distancia total: ${(totalDistance/1000).toFixed(2)} km`);
+                console.log(`⏱️ Turnos necesarios: ${totalTurns}`);
+                
+                // 🎨 Colores por turno
+                const turnColors = {
+                    1: 0x00ff00, // 🟢 Verde
+                    2: 0xffff00, // 🟡 Amarillo
+                    3: 0xff0000, // 🔴 Rojo
+                    4: 0xff00ff  // 🟣 Violeta
+                };
+                
+                // Crear líneas separadas por turno
+                waypointLine = [];
+                
+                for (const segment of segments) {
+                    const points = [segment.start, segment.end].map(p => {
+                        const elevated = p.clone();
+                        elevated.y += 1.5;
+                        return elevated;
+                    });
+                    
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    const tubeGeometry = new THREE.TubeGeometry(
+                        curve,
+                        10, // Segmentos
+                        0.5, // Radio (grosor)
+                        8, // Segmentos radiales
+                        false
+                    );
+                    
+                    // Determinar color según turno
+                    const turnColor = turnColors[Math.min(segment.turn, 4)] || 0xff00ff;
+                    
+                    const material = new THREE.MeshBasicMaterial({
+                        color: turnColor,
+                        transparent: true,
+                        opacity: 0.8,
+                        side: THREE.DoubleSide
+                    });
+                    
+                    const line = new THREE.Mesh(tubeGeometry, material);
+                    scene.add(line);
+                    waypointLine.push(line);
+                    
+                    console.log(`   🎨 Segmento T${segment.turn}: ${turnColor.toString(16).padStart(6, '0')}`);
+                }
+                
+                // 📊 Mostrar resumen en UI
+                log(`📊 Ruta: ${(totalDistance/1000).toFixed(2)} km en ${totalTurns} turno(s)`, 'info');
             }
         }
         
@@ -3334,6 +3458,7 @@
     <script src="Client/js/handlers/elevationHandler.js"></script>
     <script src="Client/js/services/ElevationService.js"></script>
     <script src="Client/js/services/VegetationService.js"></script>
+    <script src="Client/js/services/militaryDataService.js"></script> <!-- 🔒 Datos militares desde JSON -->
     <script src="Client/js/services/maira3DMaster.js"></script>
     <script src="Client/js/services/GLTFModelLoader.js"></script>
     <script src="Client/js/services/TerrainGenerator3D.js"></script>
