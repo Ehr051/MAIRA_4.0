@@ -2077,37 +2077,54 @@
                     model.traverse((child) => {
                         if (child.isMesh) {
                             meshCount++;
-                            console.log(`  📦 Mesh encontrado: ${child.name || 'unnamed'} - Material: ${child.material?.name || 'none'}`);
+                            console.log(`  📦 Mesh encontrado: ${child.name || 'unnamed'} - Material: ${child.material?.name || 'none'} - Visible: ${child.visible}`);
+                            
+                            // 🔥 FIX CRÍTICO: Forzar visibilidad de TODOS los meshes
+                            child.visible = true;
+                            child.frustumCulled = false; // Evitar culling prematuro
                         }
                         
                         if (child.isMesh && child.material) {
                             materialCount++;
                             const mat = child.material;
                             
-                            // Forzar actualización
-                            mat.needsUpdate = true;
+                            // 🔥 FIX: Manejar arrays de materiales
+                            const materials = Array.isArray(mat) ? mat : [mat];
                             
-                            // Configurar texturas si existen
-                            if (mat.map) {
-                                mat.map.needsUpdate = true;
-                                mat.map.encoding = THREE.sRGBEncoding;
-                                console.log(`    ✅ Textura aplicada a ${child.name || 'mesh'}`);
-                            } else {
-                                // Aplicar color fallback por tipo
-                                if (type.includes('soldier') || type.includes('fsb')) {
-                                    mat.color = new THREE.Color(0x4a5a3c); // Verde militar
-                                } else if (type === 'tam') {
-                                    mat.color = new THREE.Color(0x5a5a5a); // Gris tanque
-                                } else {
-                                    mat.color = new THREE.Color(0x6b5a4a); // Marrón vehículos
+                            materials.forEach((material, idx) => {
+                                // Forzar actualización
+                                material.needsUpdate = true;
+                                material.side = THREE.DoubleSide; // Renderizar ambos lados
+                                
+                                // 🔥 FIX: Forzar opacidad para materiales transparentes problemáticos
+                                if (material.transparent && material.opacity === 0) {
+                                    console.warn(`    ⚠️ Material transparente con opacity=0 detectado: ${material.name || 'unnamed'} - Forzando a 1.0`);
+                                    material.opacity = 1.0;
+                                    material.transparent = false;
                                 }
-                                console.warn(`    ⚠️ Sin textura en ${child.name || 'mesh'} - Color fallback aplicado`);
-                            }
-                            
-                            // Configurar normal map
-                            if (mat.normalMap) {
-                                mat.normalMap.needsUpdate = true;
-                            }
+                                
+                                // Configurar texturas si existen
+                                if (material.map) {
+                                    material.map.needsUpdate = true;
+                                    material.map.encoding = THREE.sRGBEncoding;
+                                    console.log(`    ✅ Textura aplicada a ${child.name || 'mesh'} [mat ${idx}]`);
+                                } else {
+                                    // Aplicar color fallback por tipo
+                                    if (type.includes('soldier') || type.includes('fsb')) {
+                                        material.color = new THREE.Color(0x4a5a3c); // Verde militar
+                                    } else if (type === 'tam') {
+                                        material.color = new THREE.Color(0x5a5a5a); // Gris tanque
+                                    } else {
+                                        material.color = new THREE.Color(0x6b5a4a); // Marrón vehículos
+                                    }
+                                    console.warn(`    ⚠️ Sin textura en ${child.name || 'mesh'} [mat ${idx}] - Color fallback aplicado`);
+                                }
+                                
+                                // Configurar normal map
+                                if (material.normalMap) {
+                                    material.normalMap.needsUpdate = true;
+                                }
+                            });
                             
                             // Configurar sombras
                             child.castShadow = true;
