@@ -2049,6 +2049,13 @@
                 customModel.userData.unitName = type.replace('custom_', '');
                 customModel.userData.faction = 'friendly';
                 
+                // 🎮 SISTEMA DE TURNOS: Asignar propietario
+                customModel.userData.player = currentPlayer;
+                customModel.userData.owner = `player${currentPlayer}`;
+                customModel.userData.team = currentPlayer === 1 ? 'blue' : 'red';
+                
+                console.log(`👤 Unidad personalizada asignada al Jugador ${currentPlayer} (${customModel.userData.team.toUpperCase()})`);
+                
                 // 🛡️ Propiedades de combate por defecto
                 customModel.userData.maxHealth = 50;
                 customModel.userData.currentHealth = 50;
@@ -2225,6 +2232,14 @@
                     model.userData.unitName = config.name;
                     model.userData.faction = 'friendly'; // friendly/enemy
                     
+                    // 🎮 SISTEMA DE TURNOS: Asignar propietario
+                    // Las unidades colocadas durante un turno pertenecen al jugador activo
+                    model.userData.player = currentPlayer; // 1: Azul, 2: Rojo
+                    model.userData.owner = `player${currentPlayer}`; // Para compatibilidad futura con SIDC
+                    model.userData.team = currentPlayer === 1 ? 'blue' : 'red'; // Para UI
+                    
+                    console.log(`👤 Unidad asignada al Jugador ${currentPlayer} (${model.userData.team.toUpperCase()})`);
+                    
                     // 🛡️ Propiedades de combate
                     if (type === 'tam') {
                         model.userData.maxHealth = 100;
@@ -2397,6 +2412,15 @@
                     unitObj = unitObj.parent;
                 }
                 
+                // 🎮 VERIFICAR OWNERSHIP: Solo se pueden seleccionar unidades del jugador actual
+                const unitPlayer = unitObj.userData.player;
+                if (unitPlayer && unitPlayer !== currentPlayer) {
+                    const unitTeam = unitObj.userData.team || 'unknown';
+                    const currentTeam = currentPlayer === 1 ? 'AZUL' : 'ROJO';
+                    log(`⛔ No puedes dar órdenes a unidades del otro jugador (Unidad: ${unitTeam.toUpperCase()}, Tu turno: ${currentTeam})`, 'warning');
+                    return false;
+                }
+                
                 // Deseleccionar anterior (remover anillo)
                 if (selectedUnit) {
                     removeSelectionRing(selectedUnit);
@@ -2411,9 +2435,10 @@
                 const maxHealth = unitObj.userData.maxHealth || 100;
                 const ammo = unitObj.userData.currentAmmo || 0;
                 const maxAmmo = unitObj.userData.maxAmmo || 0;
+                const unitPlayerInfo = unitPlayer ? ` [Jugador ${unitPlayer}]` : '';
                 
                 // Mostrar info detallada
-                const infoText = `${unitName} | HP: ${health}/${maxHealth} | Ammo: ${ammo}/${maxAmmo}`;
+                const infoText = `${unitName}${unitPlayerInfo} | HP: ${health}/${maxHealth} | Ammo: ${ammo}/${maxAmmo}`;
                 document.getElementById('active-unit-info').textContent = infoText;
                 log(`🎯 Seleccionada: ${infoText}`, 'info');
                 
@@ -2827,10 +2852,17 @@
                 if (currentWaypointIndex >= waypoints.length) {
                     unit.userData.isMoving = false;
                     unit.userData.plannedWaypoints = null; // Limpiar waypoints usados
+                    
+                    // 🔥 FIX CRÍTICO: Asegurar que posición final se mantenga
+                    const finalPos = waypoints[waypoints.length - 1];
+                    unit.position.copy(finalPos);
+                    console.log(`✅ ${unit.userData.unitName} finalizó movimiento en (${finalPos.x.toFixed(1)}, ${finalPos.y.toFixed(1)}, ${finalPos.z.toFixed(1)})`);
+                    
                     callback();
                     return;
                 }
                 
+                // 🔥 FIX: Clonar posición ACTUAL cada vez (no la original)
                 const startPos = unit.position.clone();
                 const targetWaypoint = waypoints[currentWaypointIndex];
                 const distance = startPos.distanceTo(targetWaypoint);
@@ -2839,18 +2871,53 @@
                 
                 const startTime = Date.now();
                 
+                console.log(`🚶 ${unit.userData.unitName} moviéndose al waypoint ${currentWaypointIndex + 1}/${waypoints.length}`);
+                console.log(`   Desde: (${startPos.x.toFixed(1)}, ${startPos.y.toFixed(1)}, ${startPos.z.toFixed(1)})`);
+                console.log(`   Hacia: (${targetWaypoint.x.toFixed(1)}, ${targetWaypoint.y.toFixed(1)}, ${targetWaypoint.z.toFixed(1)})`);
+                console.log(`   Distancia: ${distance.toFixed(1)}m, Duración: ${(duration/1000).toFixed(1)}s`);
+                
                 const animate = () => {
                     const elapsed = Date.now() - startTime;
                     const progress = Math.min(elapsed / duration, 1);
                     
+                    // 🔥 FIX: Lerp entre startPos y targetWaypoint
                     unit.position.lerpVectors(startPos, targetWaypoint, progress);
+                    
+                    // 🔥 FIX HUNDIMIENTO: Mantener altura correcta sobre terreno durante movimiento
+                    if (currentTerrain && currentTerrain.terrain) {
+                        const raycaster = new THREE.Raycaster();
+                        const rayOrigin = new THREE.Vector3(unit.position.x, 1000, unit.position.z);
+                        raycaster.set(rayOrigin, new THREE.Vector3(0, -1, 0));
+                        
+                        const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+                        if (intersects.length > 0) {
+                            const terrainHeight = intersects[0].point.y;
+                            unit.position.y = terrainHeight; // Mantener sobre terreno
+                        }
+                    }
                     
                     if (progress < 1) {
                         requestAnimationFrame(animate);
                     } else {
-                        // Waypoint alcanzado, pasar al siguiente
+                        // 🔥 FIX: Forzar posición exacta al alcanzar waypoint
+                        unit.position.copy(targetWaypoint);
+                        
+                        // 🔥 FIX HUNDIMIENTO: Ajustar altura final también
+                        if (currentTerrain && currentTerrain.terrain) {
+                            const raycaster = new THREE.Raycaster();
+                            const rayOrigin = new THREE.Vector3(unit.position.x, 1000, unit.position.z);
+                            raycaster.set(rayOrigin, new THREE.Vector3(0, -1, 0));
+                            
+                            const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+                            if (intersects.length > 0) {
+                                unit.position.y = intersects[0].point.y;
+                            }
+                        }
+                        
                         currentWaypointIndex++;
-                        log(`🚶 ${unit.userData.unitName} alcanzó waypoint ${currentWaypointIndex}/${waypoints.length}`, 'info');
+                        log(`✅ Waypoint ${currentWaypointIndex}/${waypoints.length} alcanzado`, 'success');
+                        
+                        // Continuar al siguiente waypoint
                         moveToNextWaypoint();
                     }
                 };
