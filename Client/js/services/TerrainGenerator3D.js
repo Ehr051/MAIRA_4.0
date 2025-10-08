@@ -824,13 +824,18 @@ class TerrainGenerator3D {
                 position.y = point.elevation * this.config.verticalScale;
                 
                 // ✅ CORRECCIÓN: Bajar árboles para que toquen el suelo
-                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar 150% de su altura
-                // Usuario reporta que aún flotan "un TAM" (~3-4m) sobre el suelo
+                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar MÁS
+                // Usuario reporta que con -150% aún flotan "un TAM" (~3-4m) sobre el suelo
                 // Altura aprox del modelo: ~100 unidades, con escala 0.04-0.12 → altura final: 4-12m
-                // Bajar 150%: Compensar por pivote + offset del modelo
+                // NUEVA CORRECCIÓN: Bajar 200% para compensar pivote + offset del modelo
                 const modelHeight = 100; // Altura del modelo original en unidades GLB
-                const yOffset = -(modelHeight * treeScale) * 1.5; // Bajar 150% de la altura escalada
+                const yOffset = -(modelHeight * treeScale) * 2.0; // Bajar 200% de la altura escalada
                 position.y += yOffset;
+                
+                // Debug: Log primeros 5 árboles
+                if (vegetationPoints.indexOf(point) < 5) {
+                    console.log(`🌳 Árbol ${vegetationPoints.indexOf(point) + 1}: scale=${treeScale.toFixed(3)}, yOffset=${yOffset.toFixed(2)}m, finalY=${position.y.toFixed(2)}m`);
+                }
                 
                 // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
                 if (Math.abs(position.x) > halfWidth || Math.abs(position.z) > halfHeight) {
