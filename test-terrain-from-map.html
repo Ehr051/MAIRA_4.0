@@ -397,6 +397,31 @@
                 </div>
             </div>
             
+            <!-- Sección 3.5: Sistema de Turnos -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 12px; text-transform: uppercase; color: #4fd1c5; margin-bottom: 8px;">🔄 SISTEMA DE TURNOS</h3>
+                <div style="padding: 10px; background: rgba(79, 209, 197, 0.15); border-radius: 6px; border: 1px solid #4fd1c5;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-size: 10px; color: #a0aec0;">TURNO ACTUAL:</div>
+                        <div style="font-size: 12px; font-weight: bold;" id="current-turn-display">Turno 1</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-size: 10px; color: #a0aec0;">JUGADOR:</div>
+                        <div style="font-size: 12px; font-weight: bold; color: #4299e1;" id="current-player-display">AZUL</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div style="font-size: 10px; color: #a0aec0;">ESTADO:</div>
+                        <div style="font-size: 10px; color: #48bb78;" id="turn-state-display">Impartiendo Órdenes</div>
+                    </div>
+                    <button onclick="endTurn()" class="success" id="end-turn-btn" style="width: 100%; padding: 10px; font-size: 11px; font-weight: bold;">
+                        ⏭️ FINALIZAR TURNO Y EJECUTAR
+                    </button>
+                    <div style="margin-top: 8px; font-size: 9px; color: #a0aec0; line-height: 1.4;">
+                        💡 Impartí órdenes a tus unidades y finalizá el turno para ejecutarlas
+                    </div>
+                </div>
+            </div>
+            
             <!-- Sección 3.4: Fog of War -->
             <div class="section">
                 <h2>🌫️ Fog of War</h2>
@@ -866,7 +891,8 @@
                         }
                         
                         if (targetUnit !== selectedUnit) {
-                            attackUnit(selectedUnit, targetUnit);
+                            // 📋 AGREGAR ORDEN A LA COLA en lugar de ejecutar inmediatamente
+                            queueOrder(selectedUnit, 'attack', targetUnit);
                             currentOrderMode = null;
                             document.getElementById('order-mode').textContent = 'Modo: Selección';
                         }
@@ -1337,6 +1363,15 @@
         let currentOrderMode = null; // 'move', 'attack', null
         let orderLines = []; // Líneas de órdenes visuales
         let obstacles = []; // Lista de obstáculos (árboles, edificios, unidades)
+        
+        // 🔄 Sistema de Turnos (2 jugadores)
+        let currentPlayer = 1; // 1: Azul, 2: Rojo
+        let currentTurn = 1; // Número de turno
+        let gameState = 'esperandoOrdenes'; // 'esperandoOrdenes' | 'ejecutandoTurno'
+        let ordersQueue = {
+            player1: [], // { unit: THREE.Object3D, type: 'move'|'attack', target: Vector3|Unit }
+            player2: []
+        };
         
         // 🚧 Sistema de Colisiones y Obstáculos Mejorado
         /**
@@ -2290,12 +2325,7 @@
                 selectedUnit.userData.orderVisuals = [];
             }
             
-            // ✅ CANCELAR movimiento anterior si estaba en curso
-            if (selectedUnit.userData.isMoving) {
-                log(`🔄 Cancelando orden anterior de ${selectedUnit.userData.unitName}`, 'info');
-            }
-            
-            // 🚧 Verificar que destino no esté bloqueado (pasando tipo de unidad)
+            //  Verificar que destino no esté bloqueado (pasando tipo de unidad)
             const unitType = selectedUnit.userData.unitType;
             if (checkCollisionAtPosition(targetPosition, 5, unitType)) {
                 log('⚠️ Posición de destino bloqueada', 'warning');
@@ -2305,11 +2335,11 @@
             // 🗺️ Calcular ruta evitando obstáculos (pasando tipo de unidad)
             const path = findPath(selectedUnit.position.clone(), targetPosition, unitType);
             
-            // Guardar orden con waypoints
-            selectedUnit.userData.order = 'move';
+            // 📋 AGREGAR ORDEN A LA COLA en lugar de ejecutar inmediatamente
+            queueOrder(selectedUnit, 'move', path[path.length - 1]); // Usar último punto de la ruta
+            
+            // Guardar waypoints para visualización
             selectedUnit.userData.waypoints = path;
-            selectedUnit.userData.currentWaypointIndex = 0;
-            selectedUnit.userData.isMoving = true;
             selectedUnit.userData.orderVisuals = []; // Array para track de visuales
             
             // Crear línea visual de la ruta completa
@@ -2335,7 +2365,7 @@
                 });
             }
             
-            log(`➡️ Orden de movimiento dada a ${selectedUnit.userData.unitName} (${path.length} waypoints)`, 'info');
+            log(`➡️ Orden de movimiento agregada para ${selectedUnit.userData.unitName} (${path.length} waypoints)`, 'info');
         }
         
         /**
@@ -2526,6 +2556,186 @@
             }
         }
         
+        // === SISTEMA DE TURNOS ===
+        
+        /**
+         * 🔄 Finalizar turno y ejecutar órdenes
+         */
+        function endTurn() {
+            if (gameState === 'ejecutandoTurno') {
+                log('⚠️ Ya se está ejecutando un turno', 'warning');
+                return;
+            }
+            
+            gameState = 'ejecutandoTurno';
+            updateTurnUI();
+            
+            // Obtener cola de órdenes del jugador actual
+            const currentQueue = currentPlayer === 1 ? ordersQueue.player1 : ordersQueue.player2;
+            
+            if (currentQueue.length === 0) {
+                log(`⚠️ Jugador ${currentPlayer} no tiene órdenes pendientes`, 'warning');
+                // Pasar al siguiente jugador sin ejecutar nada
+                switchPlayer();
+                return;
+            }
+            
+            log(`⏳ Ejecutando ${currentQueue.length} orden(es) del jugador ${currentPlayer}...`, 'info');
+            
+            // 🎯 EJECUTAR TODAS LAS ÓRDENES SIMULTÁNEAMENTE
+            const executionPromises = currentQueue.map(order => {
+                return new Promise((resolve) => {
+                    if (order.type === 'move') {
+                        executeMoveOrder(order.unit, order.target, resolve);
+                    } else if (order.type === 'attack') {
+                        executeAttackOrder(order.unit, order.target, resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+            
+            // Esperar a que TODAS las órdenes terminen
+            Promise.all(executionPromises).then(() => {
+                // Limpiar cola del jugador actual
+                if (currentPlayer === 1) {
+                    ordersQueue.player1 = [];
+                } else {
+                    ordersQueue.player2 = [];
+                }
+                
+                log(`✅ Turno del jugador ${currentPlayer} completado`, 'success');
+                
+                // Pasar al siguiente jugador
+                switchPlayer();
+            });
+        }
+        
+        /**
+         * 🔄 Cambiar al siguiente jugador
+         */
+        function switchPlayer() {
+            if (currentPlayer === 1) {
+                currentPlayer = 2;
+            } else {
+                currentPlayer = 1;
+                currentTurn++; // Aumentar turno completo
+            }
+            
+            gameState = 'esperandoOrdenes';
+            updateTurnUI();
+            
+            const playerColor = currentPlayer === 1 ? 'AZUL' : 'ROJO';
+            log(`🔄 Turno ${currentTurn} - Jugador ${playerColor}`, 'info');
+        }
+        
+        /**
+         * 🎨 Actualizar UI de turnos
+         */
+        function updateTurnUI() {
+            const turnDisplay = document.getElementById('current-turn-display');
+            const playerDisplay = document.getElementById('current-player-display');
+            const stateDisplay = document.getElementById('turn-state-display');
+            const endTurnBtn = document.getElementById('end-turn-btn');
+            
+            if (!turnDisplay || !playerDisplay || !stateDisplay || !endTurnBtn) return;
+            
+            turnDisplay.textContent = `Turno ${currentTurn}`;
+            
+            if (currentPlayer === 1) {
+                playerDisplay.textContent = 'AZUL';
+                playerDisplay.style.color = '#4299e1';
+            } else {
+                playerDisplay.textContent = 'ROJO';
+                playerDisplay.style.color = '#f56565';
+            }
+            
+            if (gameState === 'esperandoOrdenes') {
+                stateDisplay.textContent = 'Impartiendo Órdenes';
+                stateDisplay.style.color = '#48bb78';
+                endTurnBtn.disabled = false;
+                endTurnBtn.style.opacity = '1';
+            } else {
+                stateDisplay.textContent = 'Ejecutando Turno...';
+                stateDisplay.style.color = '#ed8936';
+                endTurnBtn.disabled = true;
+                endTurnBtn.style.opacity = '0.5';
+            }
+        }
+        
+        /**
+         * 🚶 Ejecutar orden de movimiento (para sistema de turnos)
+         */
+        function executeMoveOrder(unit, targetPosition, callback) {
+            if (!unit || !targetPosition) {
+                callback();
+                return;
+            }
+            
+            // Usar sistema de movimiento existente (giveMoveOrder ya tiene animación)
+            unit.userData.isMoving = true;
+            unit.userData.targetPosition = targetPosition.clone();
+            
+            const startPos = unit.position.clone();
+            const distance = startPos.distanceTo(targetPosition);
+            const speed = unit.userData.speed || 50; // m/s
+            const duration = (distance / speed) * 1000; // ms
+            
+            const startTime = Date.now();
+            
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                unit.position.lerpVectors(startPos, targetPosition, progress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    unit.userData.isMoving = false;
+                    callback();
+                }
+            };
+            
+            animate();
+        }
+        
+        /**
+         * 💥 Ejecutar orden de ataque (para sistema de turnos)
+         */
+        function executeAttackOrder(unit, target, callback) {
+            if (!unit || !target) {
+                callback();
+                return;
+            }
+            
+            // Usar sistema de ataque existente
+            attackUnit(unit, target);
+            
+            // Ataque es instantáneo, callback inmediato
+            setTimeout(callback, 500);
+        }
+        
+        /**
+         * 📋 Agregar orden a la cola del jugador actual
+         */
+        function queueOrder(unit, type, target) {
+            const order = {
+                unit: unit,
+                type: type, // 'move' | 'attack'
+                target: target
+            };
+            
+            if (currentPlayer === 1) {
+                ordersQueue.player1.push(order);
+            } else {
+                ordersQueue.player2.push(order);
+            }
+            
+            const playerColor = currentPlayer === 1 ? 'AZUL' : 'ROJO';
+            log(`📋 Orden agregada a la cola del jugador ${playerColor}: ${type}`, 'info');
+        }
+        
         function clearAll() {
             clearTerrain();
             
@@ -2599,6 +2809,10 @@
             
             initMap();
             initThreeJS();
+            
+            // 🔄 Inicializar UI de turnos
+            updateTurnUI();
+            log('✅ Sistema de turnos inicializado', 'success');
             
             // Inicializar Menú Contextual Radial
             if (window.MenuContextualUnificado) {
