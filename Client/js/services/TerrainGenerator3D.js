@@ -820,21 +820,37 @@ class TerrainGenerator3D {
                 const position = this.latLonToLocal(point.lat, point.lon);
                 const treeScale = this.getVegetationScale(point.vegetationType, point.ndvi);
                 
-                // Altura del terreno
-                position.y = point.elevation * this.config.verticalScale;
+                // 🎯 RAYCASTING: Detectar altura REAL del terreno en esta posición
+                // Los árboles siguen flotando porque elevationData no coincide con el mesh generado
+                // Usar raycaster para obtener la altura exacta donde el mesh toca el suelo
+                let terrainHeight = point.elevation * this.config.verticalScale;
                 
-                // ✅ CORRECCIÓN: Bajar árboles para que toquen el suelo
-                // El modelo arbol.glb tiene pivote en el centro, necesitamos bajar MÁS
-                // Usuario reporta que con -150% aún flotan "un TAM" (~3-4m) sobre el suelo
-                // Altura aprox del modelo: ~100 unidades, con escala 0.04-0.12 → altura final: 4-12m
-                // NUEVA CORRECCIÓN: Bajar 200% para compensar pivote + offset del modelo
-                const modelHeight = 100; // Altura del modelo original en unidades GLB
-                const yOffset = -(modelHeight * treeScale) * 2.0; // Bajar 200% de la altura escalada
-                position.y += yOffset;
+                if (this.terrain) {
+                    const raycaster = new THREE.Raycaster();
+                    const rayOrigin = new THREE.Vector3(position.x, 1000, position.z); // Empezar desde arriba
+                    const rayDirection = new THREE.Vector3(0, -1, 0); // Dirección hacia abajo
+                    raycaster.set(rayOrigin, rayDirection);
+                    
+                    const intersects = raycaster.intersectObject(this.terrain, true);
+                    if (intersects.length > 0) {
+                        terrainHeight = intersects[0].point.y; // Altura EXACTA del mesh
+                    }
+                }
+                
+                // Posicionar árbol EN el suelo (no bajo tierra)
+                position.y = terrainHeight;
+                
+                // ✅ CORRECCIÓN PIVOTE: Modelo arbol.glb tiene pivote centrado
+                // Necesitamos bajar el modelo para que la base toque position.y
+                // Altura del modelo ~100 unidades GLB, escalado → altura final
+                const modelHeight = 100; // Altura original del modelo en unidades GLB
+                const scaledHeight = modelHeight * treeScale;
+                const pivotOffset = -(scaledHeight * 0.5); // Bajar 50% para centrar base en suelo
+                position.y += pivotOffset;
                 
                 // Debug: Log primeros 5 árboles
                 if (vegetationPoints.indexOf(point) < 5) {
-                    console.log(`🌳 Árbol ${vegetationPoints.indexOf(point) + 1}: scale=${treeScale.toFixed(3)}, yOffset=${yOffset.toFixed(2)}m, finalY=${position.y.toFixed(2)}m`);
+                    console.log(`🌳 Árbol ${vegetationPoints.indexOf(point) + 1}: terrainHeight=${terrainHeight.toFixed(2)}m, scale=${treeScale.toFixed(3)}, scaledHeight=${scaledHeight.toFixed(2)}m, pivotOffset=${pivotOffset.toFixed(2)}m, finalY=${position.y.toFixed(2)}m`);
                 }
                 
                 // ✅ VALIDACIÓN 3: Posición 3D dentro del terreno (con dimensiones rectangulares)
