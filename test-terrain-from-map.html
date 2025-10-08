@@ -884,6 +884,12 @@
                     currentUnitType = null;
                     document.querySelectorAll('.unit-btn').forEach(btn => btn.classList.remove('active'));
                     log('💡 Modo inserción desactivado. Selecciona otra unidad para insertar más.', 'info');
+                } else if (!unitSelected && !currentUnitType && selectedUnit) {
+                    // 🔴 DESELECCIONAR si click en terreno vacío sin modo inserción
+                    removeSelectionRing(selectedUnit);
+                    selectedUnit = null;
+                    document.getElementById('active-unit-info').textContent = 'Ninguna unidad seleccionada';
+                    log('ℹ️ Unidad deseleccionada', 'info');
                 }
             });
             
@@ -2105,6 +2111,83 @@
         }
         
         /**
+         * 🎯 Crear anillo de selección debajo de la unidad
+         * Reutilizado de test_integrado_debug.js
+         */
+        function createSelectionRing(unit) {
+            console.log('🎯 Creando anillo de selección para:', unit.userData.unitName);
+            
+            // Eliminar anillo anterior si existe
+            if (unit.userData.selectionRing) {
+                console.log('🗑️ Eliminando anillo anterior');
+                unit.remove(unit.userData.selectionRing);
+                unit.userData.selectionRing.geometry.dispose();
+                unit.userData.selectionRing.material.dispose();
+                unit.userData.selectionRing = null;
+            }
+
+            // Determinar color según facción
+            const faction = unit.userData.faction || 'amigo';
+            const ringColor = faction === 'amigo' ? 0x00ff00 : 0xff0000; // Verde amigo, Rojo enemigo
+            
+            // Crear geometría del anillo de selección
+            const ringGeometry = new THREE.RingGeometry(1.5, 1.8, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: ringColor,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide
+            });
+
+            const selectionRing = new THREE.Mesh(ringGeometry, ringMaterial);
+            selectionRing.rotation.x = -Math.PI / 2; // Rotar para que esté horizontal (plano en el suelo)
+
+            // Calcular la posición Y del anillo basada en el bounding box del objeto
+            const bbox = new THREE.Box3().setFromObject(unit);
+            const objectBottom = bbox.min.y;
+
+            // Posicionar el anillo ligeramente sobre el terreno
+            selectionRing.position.y = objectBottom - unit.position.y + 0.1;
+
+            // Agregar al objeto
+            unit.add(selectionRing);
+            unit.userData.selectionRing = selectionRing;
+
+            console.log(`✅ Anillo de selección ${faction === 'amigo' ? 'VERDE' : 'ROJO'} creado`);
+
+            // Animación del anillo (rotación suave)
+            animateSelectionRing(selectionRing);
+        }
+
+        /**
+         * 🔄 Animar rotación del anillo de selección
+         */
+        function animateSelectionRing(ring) {
+            if (!ring) return;
+            
+            const animate = () => {
+                if (ring.parent && ring.parent.userData && ring.parent.userData.selectionRing === ring) {
+                    ring.rotation.z += 0.015; // Rotación suave
+                    requestAnimationFrame(animate);
+                }
+            };
+            animate();
+        }
+
+        /**
+         * 🗑️ Eliminar anillo de selección de una unidad
+         */
+        function removeSelectionRing(unit) {
+            if (unit && unit.userData && unit.userData.selectionRing) {
+                unit.remove(unit.userData.selectionRing);
+                unit.userData.selectionRing.geometry.dispose();
+                unit.userData.selectionRing.material.dispose();
+                unit.userData.selectionRing = null;
+                console.log('🗑️ Anillo de selección eliminado');
+            }
+        }
+
+        /**
          * Seleccionar unidad con click
          */
         function selectUnitWithClick(x, y) {
@@ -2122,26 +2205,14 @@
                     unitObj = unitObj.parent;
                 }
                 
-                // Deseleccionar anterior
+                // Deseleccionar anterior (remover anillo)
                 if (selectedUnit) {
-                    selectedUnit.traverse((child) => {
-                        if (child.isMesh && child.material) {
-                            child.material.emissive?.setHex(0x000000);
-                        }
-                    });
+                    removeSelectionRing(selectedUnit);
                 }
                 
-                // Seleccionar nueva
+                // Seleccionar nueva (crear anillo)
                 selectedUnit = unitObj;
-                selectedUnit.traverse((child) => {
-                    if (child.isMesh && child.material) {
-                        if (!child.material.emissive) {
-                            child.material.emissive = new THREE.Color(0x00ff00);
-                        } else {
-                            child.material.emissive.setHex(0x00ff00);
-                        }
-                    }
-                });
+                createSelectionRing(selectedUnit);
                 
                 const unitName = unitObj.userData.unitName || 'Unidad';
                 const health = unitObj.userData.currentHealth || 0;
