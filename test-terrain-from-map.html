@@ -118,6 +118,13 @@
             color: white;
         }
         
+        /* ✅ Botón activo (seleccionado) */
+        button.active {
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+            transform: scale(1.05);
+        }
+        
         button.danger {
             background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
             color: white;
@@ -428,6 +435,29 @@
                 </div>
             </div>
             
+            <!-- 🌳 SECCIÓN: VEGETACIÓN MANUAL (TESTING) -->
+            <div class="section">
+                <h2>🌳 VEGETACIÓN (Testing)</h2>
+                <div style="font-size: 9px; color: #a0aec0; margin-bottom: 8px; line-height: 1.4;">
+                    Click en modelo, luego click en mapa para insertar. Probar yOffset y escala.
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <button onclick="selectVegetationType('tree_tall')" class="success veg-btn" style="padding: 8px; font-size: 10px;">
+                        🌲 Árbol Alto
+                    </button>
+                    <button onclick="selectVegetationType('tree_medium')" class="success veg-btn" style="padding: 8px; font-size: 10px;">
+                        🌳 Árbol Medio
+                    </button>
+                    <button onclick="selectVegetationType('trees_low')" class="success veg-btn" style="padding: 8px; font-size: 10px;">
+                        🌿 Árboles Bajos
+                    </button>
+                </div>
+                <div style="padding: 8px; background: rgba(79, 209, 197, 0.1); border-radius: 4px; margin-top: 8px;">
+                    <div style="font-size: 9px; color: #a0aec0; margin-bottom: 4px;">VEGETACIÓN SELECCIONADA:</div>
+                    <div style="font-size: 11px; color: #10b981; font-weight: bold;" id="selected-veg-type">Ninguna</div>
+                </div>
+            </div>
+            
             <!-- Sección 3.5: Sistema de Turnos -->
             <div style="margin-bottom: 20px;">
                 <h3 style="font-size: 12px; text-transform: uppercase; color: #4fd1c5; margin-bottom: 8px;">🔄 SISTEMA DE TURNOS</h3>
@@ -630,6 +660,31 @@
                 maxSpeed: 25.00 // 90 km/h → 25.00 m/s
             }
         };
+        
+        // 🌳 MODELOS DE VEGETACIÓN (Testing manual)
+        const vegetationModels = {
+            'tree_tall': {
+                path: 'Client/assets/models/gbl_new/tree_tall.glb',
+                scale: 1.0,
+                yOffset: 0, // Ajustar con raycast
+                name: 'Árbol Alto'
+            },
+            'tree_medium': {
+                path: 'Client/assets/models/gbl_new/tree_medium.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Árbol Medio'
+            },
+            'trees_low': {
+                path: 'Client/assets/models/gbl_new/trees_low.glb',
+                scale: 1.0,
+                yOffset: 0,
+                name: 'Árboles Bajos (Low Poly)'
+            }
+        };
+        
+        // Variable para tipo de vegetación seleccionada
+        let currentVegetationType = null;
         
         // === MODAL DE CARGA ===
         function showLoadingModal(step = 'Iniciando...', progress = 0) {
@@ -994,6 +1049,13 @@
                 
                 // Primero intentar seleccionar una unidad existente
                 const unitSelected = selectUnitWithClick(event.clientX, event.clientY);
+                
+                // 🌳 MODO VEGETACIÓN: Si hay vegetación seleccionada, insertar
+                if (!unitSelected && currentVegetationType) {
+                    placeVegetationOnTerrain(event.clientX, event.clientY);
+                    // 🔴 DESACTIVAR modo inserción después de colocar (hecho en función)
+                    return;
+                }
                 
                 // Si no se seleccionó una unidad Y hay un tipo seleccionado, colocar nueva unidad
                 if (!unitSelected && currentUnitType) {
@@ -2052,6 +2114,101 @@
         /**
          * Seleccionar tipo de unidad a colocar
          */
+        // === 🌳 FUNCIONES VEGETACIÓN MANUAL (TESTING) ===
+        
+        /**
+         * Seleccionar tipo de vegetación a insertar
+         */
+        function selectVegetationType(type) {
+            currentVegetationType = type;
+            currentUnitType = null; // Desactivar modo unidad
+            currentOrderMode = null;
+            
+            const info = vegetationModels[type];
+            document.getElementById('selected-veg-type').textContent = info ? info.name : 'Ninguna';
+            document.getElementById('selected-unit-type').textContent = 'Ninguna';
+            
+            // Activar botón visualmente
+            document.querySelectorAll('.veg-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            log(`🌳 Vegetación seleccionada: ${info.name} - Click en mapa para insertar`, 'success');
+        }
+        
+        /**
+         * Insertar vegetación en el terreno con RAYCAST para altura correcta
+         */
+        function placeVegetationOnTerrain(x, y) {
+            if (!currentVegetationType) {
+                log('⚠️ Selecciona un tipo de vegetación primero', 'warning');
+                return;
+            }
+            
+            if (!currentTerrain || !currentTerrain.terrain) {
+                log('⚠️ Genera el terreno primero', 'warning');
+                return;
+            }
+            
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((x - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((y - rect.top) / rect.height) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(currentTerrain.terrain, true);
+            
+            if (intersects.length === 0) {
+                log('⚠️ Click fuera del terreno', 'warning');
+                return;
+            }
+            
+            const position = intersects[0].point.clone();
+            const config = vegetationModels[currentVegetationType];
+            
+            // 🔥 CARGAR MODELO GLB
+            gltfLoader.load(
+                config.path,
+                (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // ✅ RAYCAST: Ajustar altura real del terreno + yOffset configurado
+                    position.y += config.yOffset;
+                    model.position.copy(position);
+                    
+                    // Escala
+                    model.scale.set(config.scale, config.scale, config.scale);
+                    
+                    // Rotación aleatoria para variedad
+                    model.rotation.y = Math.random() * Math.PI * 2;
+                    
+                    // Metadata
+                    model.userData.vegetationType = currentVegetationType;
+                    model.userData.name = config.name;
+                    model.userData.isVegetation = true;
+                    
+                    // Agregar a escena
+                    scene.add(model);
+                    
+                    log(`🌳 ${config.name} insertado en (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`, 'success');
+                    log(`📊 Escala: ${config.scale}, yOffset: ${config.yOffset}`, 'info');
+                    
+                    // 🔴 DESACTIVAR modo inserción después de colocar
+                    currentVegetationType = null;
+                    document.getElementById('selected-veg-type').textContent = 'Ninguna';
+                    document.querySelectorAll('.veg-btn').forEach(btn => btn.classList.remove('active'));
+                },
+                (xhr) => {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+                    console.log(`Cargando ${config.name}: ${percent}%`);
+                },
+                (error) => {
+                    log(`❌ Error cargando ${config.name}: ${error.message}`, 'error');
+                    console.error(error);
+                }
+            );
+        }
+        
+        // === 🎖️ FUNCIONES UNIDADES MILITARES ===
+        
         function selectUnitType(type) {
             currentUnitType = type;
             currentOrderMode = null; // Reset orden
