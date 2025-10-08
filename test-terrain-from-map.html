@@ -2064,9 +2064,24 @@
                 (gltf) => {
                     const model = gltf.scene;
                     
+                    // 🔍 DEBUG: Log estructura del modelo
+                    console.log(`🔍 Modelo ${config.name} cargado:`, {
+                        children: model.children.length,
+                        type: type
+                    });
+                    
+                    let meshCount = 0;
+                    let materialCount = 0;
+                    
                     // ✅ FORZAR CARGA DE TEXTURAS: Configurar materiales correctamente
                     model.traverse((child) => {
+                        if (child.isMesh) {
+                            meshCount++;
+                            console.log(`  📦 Mesh encontrado: ${child.name || 'unnamed'} - Material: ${child.material?.name || 'none'}`);
+                        }
+                        
                         if (child.isMesh && child.material) {
+                            materialCount++;
                             const mat = child.material;
                             
                             // Forzar actualización
@@ -2076,7 +2091,7 @@
                             if (mat.map) {
                                 mat.map.needsUpdate = true;
                                 mat.map.encoding = THREE.sRGBEncoding;
-                                console.log(`✅ Textura aplicada a ${child.name || 'mesh'}`);
+                                console.log(`    ✅ Textura aplicada a ${child.name || 'mesh'}`);
                             } else {
                                 // Aplicar color fallback por tipo
                                 if (type.includes('soldier') || type.includes('fsb')) {
@@ -2086,7 +2101,7 @@
                                 } else {
                                     mat.color = new THREE.Color(0x6b5a4a); // Marrón vehículos
                                 }
-                                console.warn(`⚠️ Sin textura en ${child.name || 'mesh'} - Color fallback aplicado`);
+                                console.warn(`    ⚠️ Sin textura en ${child.name || 'mesh'} - Color fallback aplicado`);
                             }
                             
                             // Configurar normal map
@@ -2099,6 +2114,8 @@
                             child.receiveShadow = true;
                         }
                     });
+                    
+                    console.log(`📊 Total: ${meshCount} meshes, ${materialCount} con materiales`);
                     
                     // Configurar posición y escala
                     model.position.copy(position);
