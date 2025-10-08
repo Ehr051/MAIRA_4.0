@@ -916,8 +916,16 @@
                     }
                     
                     if (window.MenuContextualUnificado) {
-                        // Seleccionar la unidad
-                        selectedUnit = unitObj;
+                        // Deseleccionar unidad anterior si existe
+                        if (selectedUnit && selectedUnit !== unitObj) {
+                            removeSelectionRing(selectedUnit);
+                        }
+                        
+                        // Seleccionar la unidad y crear anillo
+                        if (selectedUnit !== unitObj) {
+                            selectedUnit = unitObj;
+                            createSelectionRing(selectedUnit);
+                        }
                         
                         // Mostrar menú radial con opciones de unidad
                         window.MenuContextualUnificado.mostrarMenu(
@@ -2113,6 +2121,7 @@
         /**
          * 🎯 Crear anillo de selección debajo de la unidad
          * Reutilizado de test_integrado_debug.js
+         * Tamaño dinámico según bounding box del modelo
          */
         function createSelectionRing(unit) {
             console.log('🎯 Creando anillo de selección para:', unit.userData.unitName);
@@ -2126,12 +2135,25 @@
                 unit.userData.selectionRing = null;
             }
 
+            // Calcular tamaño del modelo con bounding box
+            const bbox = new THREE.Box3().setFromObject(unit);
+            const size = new THREE.Vector3();
+            bbox.getSize(size);
+            
+            // Radio del anillo basado en el tamaño del modelo
+            // Usar el máximo entre X y Z (ancho/profundidad)
+            const modelRadius = Math.max(size.x, size.z) / 2;
+            const innerRadius = modelRadius * 1.1; // 110% del modelo
+            const outerRadius = modelRadius * 1.3; // 130% del modelo
+            
+            console.log(`📏 Modelo: ${size.x.toFixed(2)}x${size.z.toFixed(2)}m, Anillo: ${innerRadius.toFixed(2)}-${outerRadius.toFixed(2)}m`);
+
             // Determinar color según facción
             const faction = unit.userData.faction || 'amigo';
             const ringColor = faction === 'amigo' ? 0x00ff00 : 0xff0000; // Verde amigo, Rojo enemigo
             
-            // Crear geometría del anillo de selección
-            const ringGeometry = new THREE.RingGeometry(1.5, 1.8, 32);
+            // Crear geometría del anillo de selección con tamaño dinámico
+            const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 32);
             const ringMaterial = new THREE.MeshBasicMaterial({
                 color: ringColor,
                 transparent: true,
@@ -2143,7 +2165,6 @@
             selectionRing.rotation.x = -Math.PI / 2; // Rotar para que esté horizontal (plano en el suelo)
 
             // Calcular la posición Y del anillo basada en el bounding box del objeto
-            const bbox = new THREE.Box3().setFromObject(unit);
             const objectBottom = bbox.min.y;
 
             // Posicionar el anillo ligeramente sobre el terreno
