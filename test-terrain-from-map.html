@@ -1039,6 +1039,117 @@
             controls.dampingFactor = 0.05;
             controls.maxPolarAngle = Math.PI / 2;
             
+            // ⌨️ CONTROLES DE TECLADO para OrbitControls
+            const keyState = {};
+            const keyboardSpeed = 10; // Velocidad de movimiento
+            const rotationSpeed = 0.02; // Velocidad de rotación
+            const zoomSpeed = 5; // Velocidad de zoom
+            
+            document.addEventListener('keydown', (e) => {
+                keyState[e.key.toLowerCase()] = true;
+                
+                // Prevenir scroll con flechas/espacio
+                if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', '+', '-'].includes(e.key.toLowerCase())) {
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                keyState[e.key.toLowerCase()] = false;
+            });
+            
+            // Función para actualizar cámara con teclado
+            function updateKeyboardControls() {
+                if (!controls || !camera) return;
+                
+                const direction = new THREE.Vector3();
+                const right = new THREE.Vector3();
+                
+                // Obtener direcciones relativas a la cámara
+                camera.getWorldDirection(direction);
+                direction.y = 0; // Mantener movimiento horizontal
+                direction.normalize();
+                right.crossVectors(camera.up, direction).normalize();
+                
+                // W/S - Adelante/Atrás (zoom in/out)
+                if (keyState['w']) {
+                    controls.target.add(direction.multiplyScalar(keyboardSpeed));
+                    camera.position.add(direction.multiplyScalar(keyboardSpeed));
+                }
+                if (keyState['s']) {
+                    controls.target.sub(direction.multiplyScalar(keyboardSpeed));
+                    camera.position.sub(direction.multiplyScalar(keyboardSpeed));
+                }
+                
+                // A/D - Izquierda/Derecha (pan)
+                if (keyState['a']) {
+                    controls.target.add(right.multiplyScalar(keyboardSpeed));
+                    camera.position.add(right.multiplyScalar(keyboardSpeed));
+                }
+                if (keyState['d']) {
+                    controls.target.sub(right.multiplyScalar(keyboardSpeed));
+                    camera.position.sub(right.multiplyScalar(keyboardSpeed));
+                }
+                
+                // Q/E - Rotar izquierda/derecha
+                if (keyState['q']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.theta -= rotationSpeed;
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                if (keyState['e']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.theta += rotationSpeed;
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                
+                // Flechas - Rotar cámara
+                if (keyState['arrowleft']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.theta -= rotationSpeed;
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                if (keyState['arrowright']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.theta += rotationSpeed;
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                if (keyState['arrowup']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.phi = Math.max(0.1, spherical.phi - rotationSpeed);
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                if (keyState['arrowdown']) {
+                    const spherical = new THREE.Spherical();
+                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                    spherical.phi = Math.min(Math.PI / 2, spherical.phi + rotationSpeed);
+                    camera.position.setFromSpherical(spherical).add(controls.target);
+                    camera.lookAt(controls.target);
+                }
+                
+                // +/- - Zoom in/out
+                if (keyState['+'] || keyState['=']) {
+                    const zoomDirection = controls.target.clone().sub(camera.position).normalize();
+                    camera.position.add(zoomDirection.multiplyScalar(zoomSpeed));
+                }
+                if (keyState['-'] || keyState['_']) {
+                    const zoomDirection = controls.target.clone().sub(camera.position).normalize();
+                    camera.position.sub(zoomDirection.multiplyScalar(zoomSpeed));
+                }
+                
+                controls.update();
+            }
+            
             // 🎖️ Inicializar sistema de unidades militares
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
@@ -1203,6 +1314,9 @@
             const currentTime = performance.now();
             const delta = (currentTime - lastTime) / 1000; // Convertir a segundos
             lastTime = currentTime;
+            
+            // ⌨️ Actualizar controles de teclado
+            updateKeyboardControls();
             
             // Actualizar movimiento de unidades
             if (placedUnits.length > 0) {
@@ -1969,8 +2083,8 @@
                 visualRange, 
                 unitType,
                 {
-                    horizontalRays: 32,  // 32 rayos horizontales
-                    verticalRays: 8      // 8 niveles verticales
+                    horizontalRays: 48,  // Más rayos para mejor resolución
+                    verticalRays: 12     // Más niveles verticales
                 }
             );
             
@@ -1978,55 +2092,79 @@
             log(`📊 Rayos totales: ${sphereData.metadata.totalRays}`, 'info');
             log(`📐 Elevación cañón: ${sphereData.metadata.elevationMin}° a ${sphereData.metadata.elevationMax}°`, 'info');
             
-            // Visualización simplificada: usar solo la proyección 2D en el suelo
-            // (visualizar esfera completa sería muy pesado visualmente)
-            const groundPoints = sphereData.visiblePoints.filter(p => p.y < 5); // Solo puntos cerca del suelo
-            
-            if (groundPoints.length < 3) {
-                log('⚠️ No hay suficientes puntos visibles para mostrar', 'warning');
+            if (sphereData.visiblePoints.length < 4) {
+                log('⚠️ No hay suficientes puntos visibles para crear esfera', 'warning');
                 return;
             }
             
-            // Crear geometría del área visible (proyección 2D)
-            const shape = new THREE.Shape();
+            // 🎯 CREAR ESFERA 3D SEMI-TRANSPARENTE usando ConvexGeometry
+            // Los puntos visibles YA incluyen obstrucciones (terreno, vegetación, edificios)
             
-            // Ordenar puntos por ángulo para crear polígono correcto
-            const center = unit.position.clone();
-            groundPoints.sort((a, b) => {
-                const angleA = Math.atan2(a.z - center.z, a.x - center.x);
-                const angleB = Math.atan2(b.z - center.z, b.x - center.x);
-                return angleA - angleB;
-            });
-            
-            groundPoints.forEach((point, index) => {
-                if (index === 0) {
-                    shape.moveTo(point.x, point.z);
-                } else {
-                    shape.lineTo(point.x, point.z);
+            try {
+                // Convertir Vector3 a array de coordenadas para ConvexGeometry
+                const points = sphereData.visiblePoints;
+                
+                // Crear geometría convexa que envuelve todos los puntos visibles
+                const geometry = new THREE.ConvexGeometry(points);
+                
+                // Material semi-transparente verde (LOS)
+                const material = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ff00,
+                    transparent: true, 
+                    opacity: 0.15,
+                    side: THREE.DoubleSide,
+                    depthWrite: false // Para que se vea bien con transparencia
+                });
+                
+                const losMesh = new THREE.Mesh(geometry, material);
+                scene.add(losMesh);
+                
+                // 🔴 WIREFRAME para ver la estructura
+                const wireframeMaterial = new THREE.LineBasicMaterial({ 
+                    color: 0x00ff00, 
+                    opacity: 0.3,
+                    transparent: true,
+                    linewidth: 1
+                });
+                const wireframe = new THREE.LineSegments(
+                    new THREE.EdgesGeometry(geometry),
+                    wireframeMaterial
+                );
+                scene.add(wireframe);
+                
+                // Guardar referencias para limpiar después
+                if (!unit.userData.visualAidMeshes) {
+                    unit.userData.visualAidMeshes = [];
                 }
-            });
-            shape.closePath();
-            
-            const geometry = new THREE.ShapeGeometry(shape);
-            const material = new THREE.MeshBasicMaterial({ 
-                color: 0x00ff00, 
-                transparent: true, 
-                opacity: 0.2,
-                side: THREE.DoubleSide
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.rotation.x = -Math.PI / 2; // Rotar para que sea horizontal
-            mesh.position.y = 0.5; // Ligeramente sobre el suelo
-            
-            scene.add(mesh);
-            
-            // Guardar referencia para limpiar después
-            if (!unit.userData.visualAidMeshes) {
-                unit.userData.visualAidMeshes = [];
+                unit.userData.visualAidMeshes.push(losMesh);
+                unit.userData.visualAidMeshes.push(wireframe);
+                
+                log(`👁️ Esfera LOS 3D mostrada para ${unit.userData.unitName} (${visualRange}m, ${points.length} puntos)`, 'success');
+                
+            } catch (error) {
+                console.error('Error creando esfera LOS:', error);
+                log(`❌ Error creando visualización 3D: ${error.message}`, 'error');
+                
+                // FALLBACK: Crear esfera simple si ConvexGeometry falla
+                const fallbackGeometry = new THREE.SphereGeometry(visualRange, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                const fallbackMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ff00,
+                    transparent: true, 
+                    opacity: 0.15,
+                    side: THREE.DoubleSide
+                });
+                const fallbackMesh = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+                fallbackMesh.position.copy(unit.position);
+                fallbackMesh.position.y += sphereData.metadata.observerHeight;
+                scene.add(fallbackMesh);
+                
+                if (!unit.userData.visualAidMeshes) {
+                    unit.userData.visualAidMeshes = [];
+                }
+                unit.userData.visualAidMeshes.push(fallbackMesh);
+                
+                log(`👁️ Esfera LOS simplificada mostrada (fallback)`, 'warning');
             }
-            unit.userData.visualAidMeshes.push(mesh);
-            
-            log(`👁️ Área de visibilidad mostrada para ${unit.userData.unitName} (${visualRange}m)`, 'info');
         }
         
         /**
@@ -4069,6 +4207,8 @@
     <script src="Client/Libs/mythree/OrbitControls.js"></script>
     <script src="Client/Libs/mythree/GLTFLoader.js"></script>
     <script src="Client/Libs/mythree/BufferGeometryUtils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/ConvexGeometry.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/utils/ConvexHull.js" type="module"></script>
     
     <!-- MAIRA Systems -->
     <script src="Client/js/handlers/elevationHandler.js"></script>
