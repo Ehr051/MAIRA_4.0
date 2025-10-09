@@ -3147,6 +3147,21 @@
                         // Llegó al destino final
                         unit.userData.isMoving = false;
                         unit.userData.order = null;
+                        
+                        // 🗑️ LIMPIAR LÍNEAS VERDES de waypoints completados
+                        if (unit.userData.orderVisuals && unit.userData.orderVisuals.length > 0) {
+                            unit.userData.orderVisuals.forEach(visual => {
+                                scene.remove(visual);
+                                if (visual.geometry) visual.geometry.dispose();
+                                if (visual.material) visual.material.dispose();
+                            });
+                            unit.userData.orderVisuals = [];
+                            console.log(`🗑️ Líneas de waypoints borradas para ${unit.userData.unitName}`);
+                        }
+                        
+                        // También limpiar línea del sistema waypointLine
+                        clearWaypointLines(unit);
+                        
                         log(`✅ ${unit.userData.unitName} llegó a destino`, 'success');
                         return;
                     }
