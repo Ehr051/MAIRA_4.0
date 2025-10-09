@@ -1,46 +1,167 @@
 /**
- * VegetationService - Servicio para obtener NDVI de vegetación
- * ✅ SIMPLIFICADO: Solo usa análisis de imagen satelital
+ * ═══════════════════════════════════════════════════════════════════════
+ * VEGETATION SERVICE - MAIRA 4.0
+ * ═══════════════════════════════════════════════════════════════════════
+ * Servicio de vegetación optimizado con workers
+ * Hereda de GeospatialDataService para funcionalidad común
+ * 
+ * @extends GeospatialDataService
+ * @version 2.0.0
+ * @author MAIRA Team
+ * @date 2025-01-09
  */
-class VegetationService {
-    constructor() {
-        this.initialized = false;
+
+class VegetationService extends GeospatialDataService {
+    constructor(config = {}) {
+        super({
+            cacheTimeout: 600000, // 10 minutos
+            maxCacheSize: 500,
+            debug: config.debug || false,
+            ...config
+        });
+        
         this.satelliteAnalyzer = null;
+        this.vegetationHandler = null;
         this.stats = {
+            ...this.stats,
             fromSatellite: 0,
+            fromTiles: 0,
             notFound: 0
         };
         
-        console.log('🌿 VegetationService inicializado (solo análisis satelital)');
+        this._log('info', '🌿 VegetationService construido');
     }
     
     /**
      * Inicializar servicio
-     * @param {boolean} useTIF - IGNORADO (ya no se usa TIF)
      * @param {object} satelliteAnalyzer - Analizador satelital (REQUERIDO)
+     * @param {boolean} useTiles - Usar tiles NDVI (opcional, fallback a satellite)
      */
-    async initialize(useTIF = false, satelliteAnalyzer = null) {
+    async initialize(satelliteAnalyzer = null, useTiles = false) {
+        if (this.initialized) return;
+        
+        this._log('info', 'Inicializando VegetationService...');
+        
+        // Inicializar base (workers, cache)
+        await super.initialize();
+        
         this.satelliteAnalyzer = satelliteAnalyzer;
         
         if (!satelliteAnalyzer) {
-            console.warn('⚠️ VegetationService sin SatelliteAnalyzer - vegetación deshabilitada');
-            this.initialized = false;
-            return;
+            this._log('warn', '⚠️ VegetationService sin SatelliteAnalyzer - vegetación limitada');
+        } else {
+            this._log('info', '✅ SatelliteAnalyzer conectado');
+        }
+        
+        // Conectar con vegetation handler global si existe
+        if (useTiles && typeof window.vegetationHandler !== 'undefined') {
+            this.vegetationHandler = window.vegetationHandler;
+            this._log('info', '✅ VegetationHandler tiles conectado');
         }
         
         this.initialized = true;
-        console.log(`✅ VegetationService listo (Satellite Analyzer: ${!!satelliteAnalyzer})`);
+        this._log('info', `✅ VegetationService listo (Satellite: ${!!satelliteAnalyzer}, Tiles: ${!!this.vegetationHandler}, Workers: ${this.config.useWorkers})`);
+    }
+    
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // IMPLEMENTACIÓN MÉTODOS ABSTRACTOS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * Path al worker de vegetación
+     */
+    getWorkerScriptPath() {
+        return 'Client/js/workers/vegetation.worker.js';
     }
     
     /**
-     * ✅ SIMPLIFICADO: Obtener NDVI solo desde análisis de imagen satelital
+     * Obtener información del tile NDVI para coordenadas
+     */
+    getTileInfo(lat, lon) {
+        // Si tenemos vegetation handler, usarlo
+        if (this.vegetationHandler) {
+            return this.vegetationHandler.getTileForCoordinates(lat, lon);
+        }
+        
+        // Fallback: generar tile info basado en coordenadas
+        const tileX = Math.floor((lon + 180) / this.config.resolution);
+        const tileY = Math.floor((lat + 90) / this.config.resolution);
+        
+        return {
+            key: `vegetation_${tileX}_${tileY}`,
+            filename: `vegetation_ndvi_${tileX}_${tileY}.tif`,
+            bounds: {
+                south: lat - this.config.resolution,
+                north: lat + this.config.resolution,
+                west: lon - this.config.resolution,
+                east: lon + this.config.resolution
+            },
+            url: null, // Satellite fallback
+            satellite: true
+        };
+    }
+    
+    /**
+     * Procesar datos crudos del tile NDVI
+     */
+    processRawData(rawData, tileInfo) {
+        // Si es satellite fallback, no hay datos de tile
+        if (tileInfo.satellite) {
+            return null;
+        }
+        
+        // TODO: Implementar parser GeoTIFF NDVI real
+        // Por ahora, asumir que rawData ya está procesado
+        return rawData;
+    }
+    
+    /**
+     * Extraer NDVI específico de tile cargado
+     */
+    _extractDataFromTile(tileData, lat, lon, tileInfo) {
+        if (!tileData || tileInfo.satellite) {
+            // Fallback a satellite analyzer
+            return this.getNDVIFromSatelliteImage(lat, lon);
+        }
+        
+        // Interpolación bilinear en grid NDVI
+        const bounds = tileInfo.bounds;
+        const width = tileData.width || 256;
+        const height = tileData.height || 256;
+        
+        // Normalizar coordenadas
+        const normX = (lon - bounds.west) / (bounds.east - bounds.west);
+        const normY = (lat - bounds.south) / (bounds.north - bounds.south);
+        
+        const pixelX = Math.floor(normX * (width - 1));
+        const pixelY = Math.floor(normY * (height - 1));
+        
+        // Validar bounds
+        if (pixelX < 0 || pixelX >= width || pixelY < 0 || pixelY >= height) {
+            return null;
+        }
+        
+        // Extraer NDVI del array
+        const index = pixelY * width + pixelX;
+        const ndvi = tileData.data ? tileData.data[index] : null;
+        
+        return ndvi !== undefined && !isNaN(ndvi) ? ndvi : null;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // API PÚBLICA
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * Obtener NDVI para un punto (implementación getData abstracto)
      * @param {number} lat - Latitud
      * @param {number} lon - Longitud
-     * @param {number} normX - Coordenada X normalizada (0-1) en el terreno
-     * @param {number} normY - Coordenada Y normalizada (0-1) en el terreno
      * @returns {Promise<Object>} { ndvi, vegType, source, featureType } o null
      */
-    async getNDVI(lat, lon, normX = null, normY = null) {
+    async getData(lat, lon) {
+        return await this.getNDVI(lat, lon);
+    }
         if (!this.initialized) {
             console.warn('⚠️ VegetationService no inicializado');
             return null;
