@@ -664,20 +664,20 @@
         // 🌳 MODELOS DE VEGETACIÓN (Testing manual)
         const vegetationModels = {
             'tree_tall': {
-                path: 'Client/assets/models/gbl_new/tree_tall.glb',
-                scale: 1.0,
-                yOffset: 0, // Ajustar con raycast
+                path: 'Client/assets/models/gbl_new/arbol.glb', // ✅ 8.9MB - Árbol real
+                scale: 0.01, // Usuario confirmó: escala 0.01 funciona perfecto
+                yOffset: 0,
                 name: 'Árbol Alto'
             },
             'tree_medium': {
-                path: 'Client/assets/models/gbl_new/tree_medium.glb',
-                scale: 1.0,
+                path: 'Client/assets/models/gbl_new/arbusto.glb', // ✅ 44MB - Arbusto
+                scale: 0.01, // Misma escala que árbol alto
                 yOffset: 0,
-                name: 'Árbol Medio'
+                name: 'Arbusto'
             },
             'trees_low': {
-                path: 'Client/assets/models/gbl_new/trees_low.glb',
-                scale: 1.0,
+                path: 'Client/assets/models/gbl_new/trees_low.glb', // ✅ 2.4MB - Ya funcionaba
+                scale: 0.02, // Usuario reportó: "se ven bien"
                 yOffset: 0,
                 name: 'Árboles Bajos (Low Poly)'
             }
@@ -1568,6 +1568,35 @@
         let waypointLine = null; // Línea conectando waypoints
         
         // 🚧 Sistema de Colisiones y Obstáculos Mejorado
+        
+        /**
+         * 🗻 OBTENER ALTURA DEL TERRENO en una posición XZ
+         * Usa raycast desde arriba para detectar intersección con terreno
+         * @param {number} x - Coordenada X
+         * @param {number} z - Coordenada Z
+         * @param {number} yOffset - Offset adicional (para unidades que flotan)
+         * @returns {number} Altura Y del terreno + offset, o 0 si no hay terreno
+         */
+        function getTerrainHeightAt(x, z, yOffset = 0) {
+            if (!currentTerrain || !currentTerrain.terrain) {
+                return yOffset; // Fallback si no hay terreno
+            }
+            
+            // Raycast desde muy arriba hacia abajo
+            const raycasterDown = new THREE.Raycaster();
+            const origin = new THREE.Vector3(x, 10000, z); // Muy alto
+            const direction = new THREE.Vector3(0, -1, 0); // Hacia abajo
+            
+            raycasterDown.set(origin, direction);
+            const intersects = raycasterDown.intersectObject(currentTerrain.terrain, true);
+            
+            if (intersects.length > 0) {
+                return intersects[0].point.y + yOffset;
+            }
+            
+            return yOffset; // Fallback
+        }
+        
         /**
          * Verificar colisión en una posición según tipo de unidad
          * Soldados pueden pasar ENTRE árboles si hay espacio suficiente
@@ -2180,6 +2209,12 @@
             const position = intersects[0].point.clone();
             const config = vegetationModels[currentVegetationType];
             
+            // ✅ VERIFICAR COLISIONES: NO insertar si la posición está ocupada
+            if (checkCollisionAtPosition(position, 3, null)) {
+                log('⚠️ No se puede insertar: Posición ocupada por unidad o vegetación cercana', 'warning');
+                return;
+            }
+            
             // 🔥 CARGAR MODELO GLB
             gltfLoader.load(
                 config.path,
@@ -2203,6 +2238,12 @@
                     
                     // Agregar a escena
                     scene.add(model);
+                    
+                    // ✅ AGREGAR A LISTA DE VEGETACIÓN para sistema de colisiones
+                    if (!currentTerrain.vegetation) {
+                        currentTerrain.vegetation = [];
+                    }
+                    currentTerrain.vegetation.push(model);
                     
                     log(`🌳 ${config.name} insertado en (${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})`, 'success');
                     log(`📊 Escala: ${config.scale}, yOffset: ${config.yOffset}`, 'info');
@@ -3049,6 +3090,12 @@
                         if (!checkCollisionAtPosition(nextPos, 2)) {
                             // ✅ CRÍTICO: Actualizar posición directamente
                             unit.position.copy(nextPos);
+                            
+                            // ✅ FIX HUNDIMIENTO: Ajustar altura según terreno
+                            const yOffset = unit.userData.yOffset || 0;
+                            unit.position.y = getTerrainHeightAt(unit.position.x, unit.position.z, yOffset);
+                            
+                            // ✅ FIX ROTACIÓN: Rotar hacia dirección de movimiento
                             unit.lookAt(target);
                         } else {
                             // Detenerse si encuentra obstáculo
