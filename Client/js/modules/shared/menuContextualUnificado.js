@@ -318,6 +318,7 @@
          */
         getIconUnicode: function(iconClass) {
             const iconMap = {
+                // Iconos básicos
                 'fas fa-edit': '\uf044',
                 'fas fa-trash-alt': '\uf2ed',
                 'fas fa-copy': '\uf0c5',
@@ -332,7 +333,28 @@
                 'fas fa-plus-circle': '\uf055',
                 'fas fa-minus': '\uf068',
                 'fas fa-draw-polygon': '\uf5ee',
-                'fas fa-ruler-combined': '\uf546'
+                'fas fa-ruler-combined': '\uf546',
+                // Iconos Gestión de Batalla
+                'fas fa-clipboard-list': '\uf46d',
+                'fas fa-info-circle': '\uf05a',
+                'fas fa-arrows-alt': '\uf0b2',
+                'fas fa-crosshairs': '\uf05b',
+                'fas fa-comment': '\uf075',
+                'fas fa-parachute-box': '\uf4cd',
+                'fas fa-eye': '\uf06e',
+                'fas fa-shield-alt': '\uf3ed',
+                // Iconos Juego de Guerra
+                'fas fa-flag': '\uf024',
+                'fas fa-location-arrow': '\uf124',
+                'fas fa-bullseye': '\uf140',
+                'fas fa-mouse-pointer': '\uf245',
+                // Iconos Comandante Organización
+                'fas fa-sitemap': '\uf0e8',
+                'fas fa-tasks': '\uf0ae',
+                'fas fa-chart-bar': '\uf080',
+                'fas fa-plus-square': '\uf0fe',
+                'fas fa-project-diagram': '\uf542',
+                'fas fa-search': '\uf002'
             };
             return iconMap[iconClass] || '\uf059'; // Default question mark
         },
