@@ -1,45 +1,185 @@
 /**
- * ElevationService - Wrapper para elevation handler con TIF
- * Proporciona interfaz simple para obtener elevaciones reales
+ * ═══════════════════════════════════════════════════════════════════════
+ * ELEVATION SERVICE - MAIRA 4.0
+ * ═══════════════════════════════════════════════════════════════════════
+ * Servicio de elevación optimizado con workers
+ * Hereda de GeospatialDataService para funcionalidad común
+ * 
+ * @extends GeospatialDataService
+ * @version 2.0.0
+ * @author MAIRA Team
+ * @date 2025-01-09
  */
-class ElevationService {
-    constructor() {
-        this.initialized = false;
-        this.worker = null;
-        this.useTIF = false; // Por defecto false hasta que se carguen TIF
+
+class ElevationService extends GeospatialDataService {
+    constructor(config = {}) {
+        super({
+            cacheTimeout: 900000, // 15 minutos (elevación cambia menos)
+            maxCacheSize: 300,
+            debug: config.debug || false,
+            ...config
+        });
         
-        console.log('🗻 ElevationService inicializado');
+        this.useTIF = config.useTIF !== false;
+        this.elevationHandler = null;
+        this.tileIndex = null;
+        
+        this._log('info', '🗻 ElevationService construido');
     }
     
     /**
      * Inicializar servicio de elevación
-     * @param {boolean} useTIF - Si usar archivos TIF (true) o procedural (false)
      */
-    async initialize(useTIF = false) {
-        this.useTIF = useTIF;
+    async initialize() {
+        if (this.initialized) return;
         
-        if (useTIF) {
+        this._log('info', 'Inicializando ElevationService...');
+        
+        // Inicializar base (workers, cache)
+        await super.initialize();
+        
+        // Cargar elevation handler global si existe
+        if (this.useTIF) {
             try {
                 // Verificar si elevationHandler global está disponible
-                if (typeof elevationHandlerIndiceCargado !== 'undefined' && elevationHandlerIndiceCargado) {
-                    console.log('✅ ElevationHandler TIF disponible');
-                    this.initialized = true;
+                if (typeof window.elevationHandler !== 'undefined') {
+                    this.elevationHandler = window.elevationHandler;
+                    this._log('info', '✅ ElevationHandler TIF conectado');
                 } else {
-                    console.warn('⚠️ ElevationHandler TIF no disponible, usando procedural');
+                    this._log('warn', '⚠️ ElevationHandler TIF no disponible, usando procedural');
                     this.useTIF = false;
                 }
+                
+                // Cargar índice de tiles si existe
+                if (typeof elevationTileIndex !== 'undefined') {
+                    this.tileIndex = elevationTileIndex;
+                    this._log('info', `✅ Índice de tiles cargado: ${Object.keys(this.tileIndex).length} tiles`);
+                }
             } catch (error) {
-                console.warn('⚠️ Error inicializando TIF:', error);
+                this._log('warn', '⚠️ Error conectando TIF handler:', error);
                 this.useTIF = false;
             }
         }
         
         this.initialized = true;
-        console.log(`✅ ElevationService listo (TIF: ${this.useTIF})`);
+        this._log('info', `✅ ElevationService listo (TIF: ${this.useTIF}, Workers: ${this.config.useWorkers})`);
+    }
+    
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // IMPLEMENTACIÓN MÉTODOS ABSTRACTOS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * Path al worker de elevación
+     */
+    getWorkerScriptPath() {
+        return 'Client/js/workers/elevation.worker.js';
     }
     
     /**
-     * Obtener elevación para lat/lon
+     * Obtener información del tile para coordenadas
+     */
+    getTileInfo(lat, lon) {
+        // Si tenemos índice TIF, buscar tile correspondiente
+        if (this.tileIndex) {
+            for (const tileKey in this.tileIndex) {
+                const tile = this.tileIndex[tileKey];
+                
+                if (lat >= tile.bounds.south && lat <= tile.bounds.north &&
+                    lon >= tile.bounds.west && lon <= tile.bounds.east) {
+                    
+                    return {
+                        key: tileKey,
+                        filename: tile.filename || tileKey,
+                        bounds: tile.bounds,
+                        url: tile.url || `Client/Libs/datos_argentina/Altimetria_Legacy/${tile.filename}`,
+                        provincia: tile.provincia
+                    };
+                }
+            }
+        }
+        
+        // Fallback: generar tile info procedural
+        const tileX = Math.floor((lon + 180) / this.config.resolution);
+        const tileY = Math.floor((lat + 90) / this.config.resolution);
+        
+        return {
+            key: `elevation_${tileX}_${tileY}`,
+            filename: `elevation_${tileX}_${tileY}.tif`,
+            bounds: {
+                south: lat - this.config.resolution,
+                north: lat + this.config.resolution,
+                west: lon - this.config.resolution,
+                east: lon + this.config.resolution
+            },
+            url: null, // Procedural
+            procedural: true
+        };
+    }
+    
+    /**
+     * Procesar datos crudos del tile TIF
+     */
+    processRawData(rawData, tileInfo) {
+        // Si es procedural, generar grid
+        if (tileInfo.procedural) {
+            return this._generateProceduralGrid(tileInfo.bounds);
+        }
+        
+        // TODO: Implementar parser GeoTIFF real
+        // Por ahora, asumir que rawData ya está procesado
+        return rawData;
+    }
+    
+    /**
+     * Extraer elevación específica de tile cargado
+     */
+    _extractDataFromTile(tileData, lat, lon, tileInfo) {
+        if (tileInfo.procedural) {
+            return this.getProceduralElevation(lat, lon);
+        }
+        
+        // Interpolación bilinear en grid de elevación
+        const bounds = tileInfo.bounds;
+        const width = tileData.width || 256;
+        const height = tileData.height || 256;
+        
+        // Normalizar coordenadas
+        const normX = (lon - bounds.west) / (bounds.east - bounds.west);
+        const normY = (lat - bounds.south) / (bounds.north - bounds.south);
+        
+        const pixelX = Math.floor(normX * (width - 1));
+        const pixelY = Math.floor(normY * (height - 1));
+        
+        // Validar bounds
+        if (pixelX < 0 || pixelX >= width || pixelY < 0 || pixelY >= height) {
+            return null;
+        }
+        
+        // Extraer elevación del array
+        const index = pixelY * width + pixelX;
+        const elevation = tileData.data ? tileData.data[index] : null;
+        
+        return elevation !== undefined && !isNaN(elevation) ? elevation : null;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // API PÚBLICA
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * Obtener elevación para un punto (implementación getData abstracto)
+     * @param {number} lat - Latitud
+     * @param {number} lon - Longitud
+     * @returns {Promise<number>} Elevación en metros
+     */
+    async getData(lat, lon) {
+        return await this.getElevation(lat, lon);
+    }
+    
+    /**
+     * Obtener elevación para lat/lon (alias de getData)
      * @param {number} lat - Latitud
      * @param {number} lon - Longitud
      * @returns {Promise<number>} Elevación en metros
@@ -49,47 +189,105 @@ class ElevationService {
             await this.initialize();
         }
         
-        if (this.useTIF && typeof getElevationAtLatLon === 'function') {
+        // Cache key específico
+        const cacheKey = `elev_${lat.toFixed(6)}_${lon.toFixed(6)}`;
+        const cached = this._getCached(cacheKey);
+        
+        if (cached !== null) {
+            return cached;
+        }
+        
+        let elevation = null;
+        
+        // Intentar con TIF handler si disponible
+        if (this.useTIF && this.elevationHandler) {
             try {
-                // Usar función global del elevationHandler
-                const elevation = await getElevationAtLatLon(lat, lon);
-                return elevation !== null ? elevation : this.getProceduralElevation(lat, lon);
+                elevation = await this.elevationHandler.obtenerElevacion(lat, lon);
+                
+                if (elevation !== null && !isNaN(elevation)) {
+                    this._setCache(cacheKey, elevation);
+                    return elevation;
+                }
             } catch (error) {
-                console.debug('Error obteniendo elevación TIF:', error);
-                return this.getProceduralElevation(lat, lon);
+                this._log('debug', 'Error obteniendo elevación TIF:', error.message);
             }
         }
         
         // Fallback a procedural
-        return this.getProceduralElevation(lat, lon);
+        elevation = this.getProceduralElevation(lat, lon);
+        this._setCache(cacheKey, elevation);
+        
+        return elevation;
     }
     
     /**
-     * Generar elevación procedural (fallback)
+     * Obtener elevaciones en batch (optimizado con workers)
+     * @param {Array<{lat, lon}>} coords - Array de coordenadas
+     * @param {Function} progressCallback - Callback para progreso
+     * @returns {Promise<Array<{lat, lon, elevation}>>}
+     */
+    async getElevationsBatch(coords, progressCallback = null) {
+        if (!this.initialized) {
+            await this.initialize();
+        }
+        
+        this._log('info', `🏔️ Obteniendo elevación para ${coords.length} puntos en batch...`);
+        
+        const results = await this.getDataBatch(coords, progressCallback);
+        
+        return results.map(r => ({
+            lat: r.lat,
+            lon: r.lon,
+            elevation: r.success ? r.data : this.getProceduralElevation(r.lat, r.lon)
+        }));
+    }
+    
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PROCEDURAL ELEVATION (FALLBACK)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * Generar elevación procedural (fallback sin TIF)
      */
     getProceduralElevation(lat, lon) {
-        // Noise simple usando seno para variación realista
+        // Ruido multi-octava para variación realista
         const freq1 = 0.1;
         const freq2 = 0.05;
+        const freq3 = 0.02;
         
         const noise1 = Math.sin(lat * freq1) * Math.cos(lon * freq1) * 20;
         const noise2 = Math.sin(lat * freq2) * Math.cos(lon * freq2) * 50;
+        const noise3 = Math.sin(lat * freq3) * Math.cos(lon * freq3) * 100;
         
-        return Math.max(0, noise1 + noise2);
+        // Argentina: elevación promedio más alta en oeste (Andes)
+        const longitudeFactor = Math.max(0, (lon + 70) / 20); // Mayor cerca de Andes
+        const andesBonus = longitudeFactor * 1000;
+        
+        return Math.max(0, noise1 + noise2 + noise3 + andesBonus);
     }
     
     /**
-     * Obtener múltiples elevaciones en batch (optimizado)
+     * Generar grid procedural para un tile
      */
-    async getElevationsBatch(coords) {
-        const elevations = [];
+    _generateProceduralGrid(bounds) {
+        const width = 256;
+        const height = 256;
+        const data = new Float32Array(width * height);
         
-        // TODO: Implementar batch query real para TIF
-        for (const { lat, lon } of coords) {
-            elevations.push(await this.getElevation(lat, lon));
+        const latStep = (bounds.north - bounds.south) / (height - 1);
+        const lonStep = (bounds.east - bounds.west) / (width - 1);
+        
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const lat = bounds.south + y * latStep;
+                const lon = bounds.west + x * lonStep;
+                
+                data[y * width + x] = this.getProceduralElevation(lat, lon);
+            }
         }
         
-        return elevations;
+        return { width, height, data, bounds };
     }
     
     /**
@@ -101,8 +299,11 @@ class ElevationService {
     }
 }
 
-// Exportar globalmente
+// Exportar
 if (typeof window !== 'undefined') {
     window.ElevationService = ElevationService;
-    console.log('✅ ElevationService registrado globalmente');
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ElevationService;
 }
