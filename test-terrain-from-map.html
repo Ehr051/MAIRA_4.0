@@ -27,6 +27,17 @@
             grid-template-columns: 350px 1fr 1fr;
             grid-template-rows: 100vh;
             height: 100vh;
+            transition: grid-template-columns 0.3s ease;
+        }
+        
+        /* 🖥️ MODO PANTALLA COMPLETA: Ocultar sidebar y mapa */
+        #main-container.fullscreen-3d {
+            grid-template-columns: 0 0 1fr;
+        }
+        
+        #main-container.fullscreen-3d #sidebar,
+        #main-container.fullscreen-3d #map-container {
+            display: none;
         }
         
         #sidebar {
@@ -576,7 +587,12 @@
         </div>
         
         <!-- Canvas 3D -->
-        <div id="canvas-container"></div>
+        <div id="canvas-container">
+            <!-- 🖥️ Botón Toggle Pantalla Completa -->
+            <button id="toggle-fullscreen-3d" onclick="toggleFullscreen3D()" style="position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(79, 209, 197, 0.9); color: #111; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                🖥️ Pantalla Completa
+            </button>
+        </div>
     </div>
 
     <script>
@@ -714,6 +730,43 @@
             logPanel.appendChild(entry);
             logPanel.scrollTop = logPanel.scrollHeight;
             console.log(`[${type}] ${message}`);
+        }
+        
+        // === 🖥️ TOGGLE PANTALLA COMPLETA 3D ===
+        let isFullscreen3D = false;
+        
+        function toggleFullscreen3D() {
+            const mainContainer = document.getElementById('main-container');
+            const button = document.getElementById('toggle-fullscreen-3d');
+            
+            isFullscreen3D = !isFullscreen3D;
+            
+            if (isFullscreen3D) {
+                mainContainer.classList.add('fullscreen-3d');
+                button.textContent = '↩️ Salir Pantalla Completa';
+                button.style.background = 'rgba(255, 100, 100, 0.9)';
+                log('🖥️ Modo pantalla completa activado', 'success');
+            } else {
+                mainContainer.classList.remove('fullscreen-3d');
+                button.textContent = '🖥️ Pantalla Completa';
+                button.style.background = 'rgba(79, 209, 197, 0.9)';
+                log('↩️ Modo pantalla completa desactivado', 'info');
+            }
+            
+            // ✅ CRÍTICO: Forzar resize del renderer para ajustar al nuevo tamaño
+            setTimeout(() => {
+                if (renderer && camera) {
+                    const container = document.getElementById('canvas-container');
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+                    
+                    renderer.setSize(width, height);
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                    
+                    console.log(`📐 Canvas redimensionado: ${width}x${height}`);
+                }
+            }, 350); // Esperar a que termine la animación CSS (0.3s)
         }
         
         // === ACTUALIZAR DISPLAYS ===
