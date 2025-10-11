@@ -212,6 +212,24 @@ class ElevationAdapter {
     // ═══════════════════════════════════════════════════════════════════
     
     /**
+     * Obtener estadísticas de cache del servicio
+     * @returns {Object} Estadísticas de cache
+     */
+    getCacheStats() {
+        if (this.service && typeof this.service.getCacheStats === 'function') {
+            return this.service.getCacheStats();
+        }
+        return {
+            size: 0,
+            hits: 0,
+            misses: 0,
+            hitRate: 0,
+            tilesLoaded: 0,
+            memoryUsage: 0
+        };
+    }
+    
+    /**
      * Calcular distancia entre dos puntos (Haversine)
      */
     _calcularDistancia(lat1, lon1, lat2, lon2) {
