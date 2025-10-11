@@ -89,12 +89,24 @@ class ElevationService extends GeospatialDataService {
                 if (lat >= tile.bounds.south && lat <= tile.bounds.north &&
                     lon >= tile.bounds.west && lon <= tile.bounds.east) {
                     
+                    const provincia = tile.provincia || 'Unknown';
+                    const filename = tile.filename || tileKey;
+                    
+                    // 🏠 LOCAL: usar ruta directa en Client/Libs/
+                    // 🚀 RENDER: usar API Flask /api/tiles/elevation/
+                    const isRenderEnvironment = window.location.hostname.includes('render.com') || 
+                                               window.location.hostname.includes('onrender.com');
+                    
+                    const url = isRenderEnvironment 
+                        ? `/api/tiles/elevation/${provincia}/${filename}`
+                        : `Client/Libs/datos_argentina/Altimetria_Legacy/${filename}`;
+                    
                     return {
                         key: tileKey,
-                        filename: tile.filename || tileKey,
+                        filename: filename,
                         bounds: tile.bounds,
-                        url: tile.url || `Client/Libs/datos_argentina/Altimetria_Legacy/${tile.filename}`,
-                        provincia: tile.provincia
+                        url: url,
+                        provincia: provincia
                     };
                 }
             }
