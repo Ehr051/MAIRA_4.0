@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌍 Terreno 3D desde Mapa Leaflet</title>
+    
+    <!-- 🚫 FIX: Evitar loop infinito de favicon -->
+    <link rel="icon" href="data:;base64,=" />
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Font Awesome 5.15.4 (más estable que 6.x) con fallback jsdelivr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
@@ -4207,8 +4211,9 @@
     <script src="Client/Libs/mythree/OrbitControls.js"></script>
     <script src="Client/Libs/mythree/GLTFLoader.js"></script>
     <script src="Client/Libs/mythree/BufferGeometryUtils.js"></script> <!-- ✅ Archivo local arreglado -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/ConvexGeometry.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/utils/ConvexHull.js" type="module"></script>
+    <!-- ❌ COMENTADO: ConvexGeometry causa loop de errores 404 -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/ConvexGeometry.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/utils/ConvexHull.js" type="module"></script> -->
     
     <!-- ⚠️ LEGACY: Cargar PRIMERO para que geospatialInit lo detecte -->
     <script src="Client/js/handlers/elevationHandler.js"></script>
