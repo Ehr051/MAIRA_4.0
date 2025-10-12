@@ -32,14 +32,28 @@ class VegetationService extends GeospatialDataService {
             this.satelliteAnalyzer = satelliteAnalyzer;
         }
         
-        if (window.vegetationHandler && window.vegetationHandler !== this) {
-            this.vegetationHandler = window.vegetationHandler;
-            console.log('✅ VegetationHandler legacy encontrado');
+        // 🌍 CONFIGURAR SEGÚN ENTORNO (LOCAL vs RENDER)
+        if (this.config.isLocal) {
+            // 🏠 LOCAL: Usar vegetationHandler local si existe
+            console.log('🏠 Modo LOCAL: Buscando vegetationHandler...');
+            
+            if (window.vegetationHandler && window.vegetationHandler !== this) {
+                this.vegetationHandler = window.vegetationHandler;
+                console.log('✅ VegetationHandler legacy encontrado (LOCAL)');
+            }
+        } else {
+            // ☁️ RENDER: Configurar API proxy
+            console.log('☁️ Modo RENDER: Configurando API proxy para vegetación...');
+            
+            this.useAPI = true;
+            this.apiBaseURL = '/api/vegetation';
+            
+            console.log(`✅ API configurada: ${this.apiBaseURL}`);
         }
         
         await super.initialize();
         
-        console.log('✅ VegetationService inicializado');
+        console.log(`✅ VegetationService inicializado (Entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'})`);
         return this;
     }
     
@@ -70,6 +84,7 @@ class VegetationService extends GeospatialDataService {
             return null;
         }
         
+        // 1️⃣ PRIORIDAD: Imagen satelital analizada (si existe)
         if (this.satelliteAnalyzer && normX !== null && normY !== null) {
             try {
                 const result = this.getNDVIFromSatelliteImageSync(normX, normY);
@@ -93,6 +108,29 @@ class VegetationService extends GeospatialDataService {
             }
         }
         
+        // 2️⃣ MODO RENDER: Usar API
+        if (this.useAPI) {
+            try {
+                const response = await fetch(`${this.apiBaseURL}?lat=${lat}&lon=${lon}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data && data.ndvi !== undefined) {
+                        this.stats.fromTiles++;
+                        return {
+                            ndvi: data.ndvi,
+                            vegType: data.vegType || this.classifyVegetationType(data.ndvi),
+                            source: 'api',
+                            featureType: data.featureType || null
+                        };
+                    }
+                }
+            } catch (error) {
+                console.debug('Error API vegetation:', error.message);
+            }
+        }
+        
+        // 3️⃣ MODO LOCAL: Usar vegetationHandler legacy
         if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
             try {
                 const result = await this.vegetationHandler.getNDVI(lat, lon, normX, normY);
@@ -111,6 +149,7 @@ class VegetationService extends GeospatialDataService {
             }
         }
         
+        // 4️⃣ FALLBACK: No hay datos
         this.stats.notFound++;
         return null;
     }

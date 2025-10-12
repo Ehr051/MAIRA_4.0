@@ -38,31 +38,46 @@ class ElevationService extends GeospatialDataService {
         // Inicializar base (workers, cache)
         await super.initialize();
         
-        // Cargar elevation handler global si existe
-        if (this.useTIF) {
-            try {
-                // Verificar si elevationHandler global está disponible
-                if (typeof window.elevationHandler !== 'undefined') {
-                    this.elevationHandler = window.elevationHandler;
-                    this._log('info', '✅ ElevationHandler TIF conectado');
-                } else {
-                    this._log('warn', '⚠️ ElevationHandler TIF no disponible, usando procedural');
+        // 🌍 CONFIGURAR SEGÚN ENTORNO (LOCAL vs RENDER)
+        if (this.config.isLocal) {
+            // 🏠 LOCAL: Intentar usar TIF files directos
+            this._log('info', '🏠 Modo LOCAL: Intentando cargar TIF files...');
+            
+            if (this.useTIF) {
+                try {
+                    // Verificar si elevationHandler global está disponible
+                    if (typeof window.elevationHandler !== 'undefined') {
+                        this.elevationHandler = window.elevationHandler;
+                        this._log('info', '✅ ElevationHandler TIF conectado (LOCAL)');
+                    } else {
+                        this._log('warn', '⚠️ ElevationHandler TIF no disponible, usando procedural');
+                        this.useTIF = false;
+                    }
+                    
+                    // Cargar índice de tiles si existe
+                    if (typeof elevationTileIndex !== 'undefined') {
+                        this.tileIndex = elevationTileIndex;
+                        this._log('info', `✅ Índice de tiles cargado: ${Object.keys(this.tileIndex).length} tiles`);
+                    }
+                } catch (error) {
+                    this._log('warn', '⚠️ Error conectando TIF handler:', error);
                     this.useTIF = false;
                 }
-                
-                // Cargar índice de tiles si existe
-                if (typeof elevationTileIndex !== 'undefined') {
-                    this.tileIndex = elevationTileIndex;
-                    this._log('info', `✅ Índice de tiles cargado: ${Object.keys(this.tileIndex).length} tiles`);
-                }
-            } catch (error) {
-                this._log('warn', '⚠️ Error conectando TIF handler:', error);
-                this.useTIF = false;
             }
+        } else {
+            // ☁️ RENDER: Usar API proxy para TIF
+            this._log('info', '☁️ Modo RENDER: Configurando API proxy para TIF...');
+            
+            // En Render, SIEMPRE usar API (no archivos locales)
+            this.useAPI = true;
+            this.apiBaseURL = '/api/elevation'; // Endpoint en Flask
+            this.useTIF = false; // No cargar TIF directamente
+            
+            this._log('info', `✅ API configurada: ${this.apiBaseURL}`);
         }
         
         this.initialized = true;
-        this._log('info', `✅ ElevationService listo (TIF: ${this.useTIF}, Workers: ${this.config.useWorkers})`);
+        this._log('info', `✅ ElevationService listo (Entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'}, TIF: ${this.useTIF}, API: ${this.useAPI || false}, Workers: ${this.config.useWorkers})`);
     }
     
     
@@ -211,7 +226,25 @@ class ElevationService extends GeospatialDataService {
         
         let elevation = null;
         
-        // Intentar con TIF handler si disponible
+        // 🌍 MODO RENDER: Usar API
+        if (this.useAPI) {
+            try {
+                const response = await fetch(`${this.apiBaseURL}?lat=${lat}&lon=${lon}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    elevation = data.elevation;
+                    
+                    if (elevation !== null && !isNaN(elevation)) {
+                        this._setCache(cacheKey, elevation);
+                        return elevation;
+                    }
+                }
+            } catch (error) {
+                this._log('warn', `⚠️ Error API elevación: ${error.message}`);
+            }
+        }
+        
+        // 🏠 MODO LOCAL: Intentar con TIF handler si disponible
         if (this.useTIF && this.elevationHandler) {
             try {
                 elevation = await this.elevationHandler.obtenerElevacion(lat, lon);

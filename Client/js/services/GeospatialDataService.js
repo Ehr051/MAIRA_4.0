@@ -21,6 +21,9 @@ class GeospatialDataService {
             throw new Error('GeospatialDataService es abstracta - usar ElevationService o VegetationService');
         }
         
+        // 🌍 DETECCIÓN AUTOMÁTICA DE ENTORNO
+        this.isLocal = this._detectEnvironment();
+        
         this.config = {
             // Cache
             cacheEnabled: config.cacheEnabled !== false,
@@ -35,6 +38,9 @@ class GeospatialDataService {
             // Tiles
             tileSize: config.tileSize || 256,
             resolution: config.resolution || 0.0002777778, // ~30m
+            
+            // 🌍 RUTAS DUAL: LOCAL vs RENDER
+            isLocal: this.isLocal,
             
             // Debug
             debug: config.debug || false,
@@ -639,6 +645,29 @@ class GeospatialDataService {
                 errors: this.stats.errors
             }
         };
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // DETECCIÓN DE ENTORNO
+    // ═══════════════════════════════════════════════════════════════════
+    
+    /**
+     * 🌍 Detectar si estamos en LOCAL o RENDER
+     * @returns {boolean} true si es local, false si es Render
+     */
+    _detectEnvironment() {
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || 
+                           hostname === '127.0.0.1' || 
+                           hostname.startsWith('192.168.') ||
+                           hostname.startsWith('10.') ||
+                           hostname.includes('local');
+        
+        const isRender = hostname.includes('onrender.com');
+        
+        console.log(`🌍 Entorno detectado: ${isLocalhost ? 'LOCAL' : isRender ? 'RENDER' : 'OTRO'} (${hostname})`);
+        
+        return isLocalhost;
     }
     
     /**
