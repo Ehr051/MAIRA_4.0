@@ -4210,16 +4210,18 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/ConvexGeometry.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/utils/ConvexHull.js" type="module"></script>
     
+    <!-- ⚠️ LEGACY: Cargar PRIMERO para que geospatialInit lo detecte -->
+    <script src="Client/js/handlers/elevationHandler.js"></script>
+    <script src="Client/js/handlers/vegetacionhandler.js"></script>
+    
     <!-- 🆕 SISTEMA GEOESPACIAL UNIFICADO v4.0 (Optimizado: Workers, Cache, Batch) -->
+    <!-- ✅ ORDEN CRÍTICO: Cargar DESPUÉS de handlers legacy para wrap correctamente -->
     <script src="Client/js/services/GeospatialDataService.js"></script>
     <script src="Client/js/services/ElevationService.js"></script>
     <script src="Client/js/services/VegetationService.js"></script>
     <script src="Client/js/adapters/ElevationAdapter.js"></script>
     <script src="Client/js/adapters/VegetationAdapter.js"></script>
     <script src="Client/js/init/geospatialInit.js"></script>
-
-    <!-- ⚠️ LEGACY (Fallback only - mantener compatibilidad) -->
-    <script src="Client/js/handlers/elevationHandler.js"></script>
     
     <!-- MAIRA Systems -->
     <script src="Client/js/services/militaryDataService.js"></script> <!-- 🔒 Datos militares desde JSON -->
