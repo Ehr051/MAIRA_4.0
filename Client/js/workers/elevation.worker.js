@@ -2,7 +2,8 @@
 // Worker para procesamiento de datos de elevación usando GeoTIFF
 
 // Importar GeoTIFF para procesamiento de archivos .tif
-importScripts('/node_modules/geotiff/dist-browser/geotiff.js');
+// Ruta relativa desde Client/js/workers/ hacia node_modules/
+importScripts('../../../node_modules/geotiff/dist-browser/geotiff.js');
 
 // Configuración del worker
 const CONFIG = {

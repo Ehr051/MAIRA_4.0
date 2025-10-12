@@ -4,7 +4,9 @@
  * Sigue el patrón de elevation.worker.js para consistencia arquitectónica
  */
 
-importScripts('/node_modules/geotiff/dist-browser/geotiff.js');
+// Importar GeoTIFF para procesamiento de archivos .tif
+// Ruta relativa desde Client/js/workers/ hacia node_modules/
+importScripts('../../../node_modules/geotiff/dist-browser/geotiff.js');
 
 // Cache de datos de vegetación en el worker
 const vegetationCache = new Map();
