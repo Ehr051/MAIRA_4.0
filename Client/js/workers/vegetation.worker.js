@@ -19,10 +19,9 @@ const VEGETATION_CONFIG = {
     ndviRange: [-1, 1]
 };
 
-// URLs de fallback para mini-tiles - COMPATIBLE CON DESARROLLO Y PRODUCCIÓN
-const VEGETATION_URLS = [
-    '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',  // 🚀 PRIORIDAD 1: Directorio local
-    '/api/proxy/github/maira_vegetacion_tiles.tar.gz',      // Fallback a GitHub releases
+// URLs de fallback - SE CONFIGURAN DINÁMICAMENTE según entorno
+let VEGETATION_URLS = [
+    '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/',  // Default LOCAL
 ];
 
 /**
@@ -169,7 +168,16 @@ async function cargarTileVegetacion(tileUrl) {
  * Manejador principal de mensajes del worker
  */
 self.onmessage = async function(e) {
-    const { id, type, coords, tileUrl } = e.data;
+    const { id, type, coords, tileUrl, isLocal, baseUrls } = e.data;
+    
+    // 🔧 Configurar entorno si se recibe
+    if (type === 'CONFIG') {
+        if (baseUrls && Array.isArray(baseUrls)) {
+            VEGETATION_URLS = baseUrls;
+            console.log(`🌿 Worker configurado para entorno: ${isLocal ? 'LOCAL' : 'RENDER'}`, VEGETATION_URLS);
+        }
+        return; // No responder a mensajes de configuración
+    }
     
     try {
         switch (type) {

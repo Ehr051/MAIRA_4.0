@@ -53,8 +53,35 @@ class VegetationService extends GeospatialDataService {
         
         await super.initialize();
         
-        console.log(`✅ VegetationService inicializado (Entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'})`);
+        // 🔧 CONFIGURAR WORKERS CON INFORMACIÓN DE ENTORNO
+        this._configureWorkersEnvironment();
+        
+        console.log(`✅ VegetationService inicializado (Entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'}, Workers: ${this.config.useWorkers})`);
         return this;
+    }
+    
+    /**
+     * Configurar workers con información del entorno
+     */
+    _configureWorkersEnvironment() {
+        if (!this.config.useWorkers || this.workerPool.length === 0) {
+            return;
+        }
+        
+        // Enviar configuración de entorno a cada worker
+        const envConfig = {
+            type: 'CONFIG',
+            isLocal: this.config.isLocal,
+            baseUrls: this.config.isLocal 
+                ? ['/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/']  // Solo LOCAL
+                : ['/api/proxy/github/maira_vegetacion_tiles.tar.gz']     // Solo RENDER
+        };
+        
+        this.workerPool.forEach(workerWrapper => {
+            workerWrapper.worker.postMessage(envConfig);
+        });
+        
+        console.log(`🔧 Workers configurados para entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'}`);
     }
     
     getWorkerScriptPath() {
