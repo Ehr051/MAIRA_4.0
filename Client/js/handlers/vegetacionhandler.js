@@ -13,21 +13,37 @@ class VegetacionHandler {
             resolution: 0.0002777778 // ~30m en grados
         };
         
+        // 🌍 Detectar entorno automáticamente
+        this.isLocal = this._detectEnvironment();
+        
         this.loadVegetationIndex();
+    }
+
+    _detectEnvironment() {
+        const hostname = window.location.hostname;
+        const isLocalhost = hostname === 'localhost' || 
+                           hostname === '127.0.0.1' || 
+                           hostname.startsWith('192.168.') ||
+                           hostname.startsWith('10.') ||
+                           hostname.includes('local');
+        const isRender = hostname.includes('onrender.com');
+        
+        console.log(`🌍 VegetacionHandler entorno: ${isLocalhost ? 'LOCAL' : isRender ? 'RENDER' : 'OTRO'}`);
+        return isLocalhost;
     }
 
     async loadVegetationIndex() {
         try {
-            // URLs a intentar en orden de prioridad - RENDER PATH FIRST
-            const indexUrls = [
-                // 🚀 PRIORIDAD MÁXIMA: GitHub Release via proxy (funciona en Render)
-                '/api/proxy/github/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-
-                // 🔄 FALLBACKS LOCALES (funcionan en desarrollo)
-                '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+            // 🌍 Seleccionar URLs según entorno
+            const indexUrls = this.isLocal ? [
+                // 🏠 LOCAL: Solo rutas locales
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+                '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
+            ] : [
+                // ☁️ RENDER: Solo GitHub proxy
+                '/api/proxy/github/Vegetacion_Mini_Tiles/vegetation_master_index.json'
             ];
             
             for (const indexUrl of indexUrls) {
