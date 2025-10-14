@@ -153,7 +153,7 @@ class PlaneamientoManager {
             return;
         }
 
-        console.log('� Elemento preparado para guardar:', elementoData.id);
+        console.log('💾 Elemento preparado para guardar:', elementoData.id);
 
         // UI Update inmediato (no esperar al servidor)
         this.mostrarElementoEnMapa(elementoData);

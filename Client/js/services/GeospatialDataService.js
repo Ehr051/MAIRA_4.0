@@ -219,7 +219,7 @@ class GeospatialDataService {
     // ═══════════════════════════════════════════════════════════════════
     
     /**
-     * Inicializar worker pool
+     * Inicializar worker pool bajo demanda
      */
     async _initWorkerPool() {
         if (!this.config.useWorkers) {
@@ -227,9 +227,17 @@ class GeospatialDataService {
             return;
         }
         
+        // 🔥 LAZY LOADING: Solo crear si no existen
+        if (this.workerPool.length > 0) {
+            this._log('info', 'Worker pool ya existe, reutilizando');
+            return;
+        }
+        
         const workerPath = this.getWorkerScriptPath();
         
         try {
+            this._log('info', '🔄 Creando worker pool bajo demanda...');
+            
             // Crear workers
             for (let i = 0; i < this.config.maxWorkers; i++) {
                 const worker = new Worker(workerPath);
@@ -244,11 +252,12 @@ class GeospatialDataService {
                 });
             }
             
-            this._log('info', `Worker pool creado: ${this.workerPool.length} workers`);
+            this._log('info', `✅ Worker pool creado bajo demanda: ${this.workerPool.length} workers`);
             
         } catch (error) {
             this._log('error', 'Error creando worker pool:', error);
             this.config.useWorkers = false;
+            throw error;
         }
     }
     
@@ -269,6 +278,12 @@ class GeospatialDataService {
     async _executeInWorker(type, data) {
         if (!this.config.useWorkers) {
             throw new Error('Workers no disponibles');
+        }
+        
+        // 🔥 LAZY LOADING: Inicializar workers solo cuando se necesiten
+        if (this.workerPool.length === 0) {
+            this._log('info', '🔄 Inicializando workers bajo demanda...');
+            await this._initWorkerPool();
         }
         
         return new Promise((resolve, reject) => {
@@ -361,7 +376,29 @@ class GeospatialDataService {
      */
     _handleWorkerError(e, workerId) {
         this.stats.errors++;
-        this._log('error', `Error en worker ${workerId}:`, e.message);
+        this._log('error', `Error en worker ${workerId}:`, e.message || 'Error desconocido');
+        
+        // 🔥 DETECTAR errores críticos y deshabilitar Workers
+        const errorMessage = e.message || '';
+        const isCriticalError = errorMessage.includes('no se ha podido completar') || 
+                               errorMessage.includes('undefined') ||
+                               errorMessage.includes('script error');
+        
+        if (isCriticalError) {
+            this._log('error', `🚨 Error crítico en worker ${workerId}, considerando deshabilitar Workers`);
+            
+            // Si hay muchos errores, deshabilitar Workers automáticamente
+            if (this.stats.errors > 5) {
+                this._log('error', '🚨 Demasiados errores de Workers, deshabilitando automáticamente');
+                this.config.useWorkers = false;
+                this._terminateWorkers();
+                
+                // Notificar a los usuarios del sistema
+                if (typeof window !== 'undefined' && window.console) {
+                    console.warn('⚠️ MAIRA: Workers deshabilitados automáticamente por errores críticos. Cambiando a procesamiento síncrono.');
+                }
+            }
+        }
     }
     
     /**
@@ -589,8 +626,9 @@ class GeospatialDataService {
         
         this._log('info', 'Inicializando servicio...');
         
-        // Inicializar worker pool
-        await this._initWorkerPool();
+        // 🔥 NO inicializar workers automáticamente - lazy loading
+        // await this._initWorkerPool(); // ❌ COMENTADO
+        this._log('info', '⚡ Workers en modo lazy loading - se crearán cuando se necesiten');
         
         // Limpiar cache expirado periódicamente
         setInterval(() => {

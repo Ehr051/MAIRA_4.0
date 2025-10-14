@@ -15,6 +15,11 @@ class VegetationService extends GeospatialDataService {
         this.satelliteAnalyzer = null;
         this.vegetationHandler = null;
         
+        // 🚀 NUEVO: Cache de errores para evitar reintentos
+        this.failedTiles = new Set();
+        this.failedCoordsCache = new Map();
+        this.errorCacheTimeout = 300000; // 5 minutos
+        
         this.stats = {
             total: 0,
             fromSatellite: 0,
@@ -111,6 +116,40 @@ class VegetationService extends GeospatialDataService {
             return null;
         }
         
+        // 🚀 NUEVO: Verificar cache de errores
+        const errorKey = `${lat.toFixed(4)}_${lon.toFixed(4)}`;
+        const failedCoord = this.failedCoordsCache.get(errorKey);
+        if (failedCoord && (Date.now() - failedCoord.timestamp) < this.errorCacheTimeout) {
+            // Esta coordenada falló recientemente, usar datos satelitales o procedural
+            if (this.satelliteAnalyzer && normX !== null && normY !== null) {
+                try {
+                    const result = this.getNDVIFromSatelliteImageSync(normX, normY);
+                    if (result !== null) {
+                        this.stats.fromSatellite++;
+                        const vegType = result.featureType 
+                            ? this.classifyFromFeatureType(result.featureType, result.ndvi)
+                            : this.classifyVegetationType(result.ndvi);
+                        return { 
+                            ndvi: result.ndvi, 
+                            vegType, 
+                            source: 'satellite', 
+                            featureType: result.featureType 
+                        };
+                    }
+                } catch (error) {
+                    // Usar procedural como último recurso
+                }
+            }
+            
+            // Fallback procedural
+            const proceduralNDVI = Math.random() * 0.6 + 0.1;
+            return {
+                ndvi: proceduralNDVI,
+                vegType: this.classifyVegetationType(proceduralNDVI),
+                source: 'procedural'
+            };
+        }
+        
         // 1️⃣ PRIORIDAD: Imagen satelital analizada (si existe)
         if (this.satelliteAnalyzer && normX !== null && normY !== null) {
             try {
@@ -172,7 +211,13 @@ class VegetationService extends GeospatialDataService {
                     };
                 }
             } catch (error) {
-                console.debug('Error handler:', error);
+                // 🚀 NUEVO: Marcar coordenada como fallida
+                this.failedCoordsCache.set(errorKey, {
+                    timestamp: Date.now(),
+                    retries: (failedCoord?.retries || 0) + 1
+                });
+                
+                console.debug(`Error vegetation handler lat:${lat.toFixed(4)}, lon:${lon.toFixed(4)}:`, error.message);
             }
         }
         

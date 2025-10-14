@@ -16,7 +16,7 @@ class TerrainGenerator3D {
     constructor(config = {}) {
         this.config = {
             // Resolución del terreno
-            resolution: config.resolution || 50, // Puntos por lado
+            resolution: config.resolution || 60, // Puntos por lado (60x60 = 3600 puntos)
             minResolution: 20,
             maxResolution: 500,
             
@@ -170,10 +170,19 @@ class TerrainGenerator3D {
         const realDimensions = this.calculateRealWorldDimensions(bounds);
         console.log(`📏 Dimensiones reales: ${realDimensions.widthMeters.toFixed(0)}m x ${realDimensions.heightMeters.toFixed(0)}m`);
         
-        // 🔥 Guardar dimensiones reales (no forzar cuadrado)
-        this.config.realWorldWidth = realDimensions.widthMeters;
-        this.config.realWorldHeight = realDimensions.heightMeters;
-        this.config.realWorldSize = Math.max(realDimensions.widthMeters, realDimensions.heightMeters); // Para referencia
+        // 🎯 CALCULAR FACTOR DE ESCALA BASADO EN ZOOM DEL MAPA
+        const mapZoom = options.mapZoom || 15; // Zoom por defecto si no se pasa
+        const zoomScaleFactor = this.calculateZoomScaleFactor(mapZoom);
+        console.log(`🔍 Zoom del mapa: ${mapZoom}, Factor de escala: ${zoomScaleFactor.toFixed(2)}x`);
+        
+        // 🔥 Aplicar factor de escala a las dimensiones
+        const scaledWidth = realDimensions.widthMeters * zoomScaleFactor;
+        const scaledHeight = realDimensions.heightMeters * zoomScaleFactor;
+        
+        // 🔥 Guardar dimensiones escaladas (no forzar cuadrado)
+        this.config.realWorldWidth = scaledWidth;
+        this.config.realWorldHeight = scaledHeight;
+        this.config.realWorldSize = Math.max(scaledWidth, scaledHeight); // Para referencia
         this.bounds = bounds;
         
         // Aplicar opciones
@@ -289,73 +298,300 @@ class TerrainGenerator3D {
     
     /**
      * Enriquecer puntos con datos de elevación y NDVI
+     * 🚀 VERSIÓN OPTIMIZADA V2: Agrupar puntos por tile TIF y cargar cada tile UNA sola vez
      */
     async enrichPointsWithData(points) {
-        const enriched = [];
+        console.log(`🚀 Enriqueciendo ${points.length} puntos con agrupación por tiles...`);
         
-        for (const point of points) {
-            // Obtener elevación
-            let elevation = 0;
-            if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
-                try {
-                    elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
-                } catch (error) {
-                    // Si falla, usar altura aleatoria pequeña
-                    elevation = Math.random() * 5;
+        // 🔥 OPTIMIZACIÓN: Agrupar puntos por tile antes de cargar
+        const pointGroups = await this.groupPointsByTiles(points);
+        console.log(`📦 Puntos agrupados en ${Object.keys(pointGroups.elevation).length} tiles de elevación y ${Object.keys(pointGroups.vegetation).length} tiles de vegetación`);
+        
+        const enriched = [];
+        let processedCount = 0;
+        
+        // Procesar cada grupo de elevación
+        for (const [tileId, tilePoints] of Object.entries(pointGroups.elevation)) {
+            console.log(`🗻 Procesando tile elevación: ${tileId} (${tilePoints.length} puntos)`);
+            
+            let elevationTileData = null;
+            try {
+                if (this.heightmapHandler && tilePoints.length > 0) {
+                    // Si tenemos información de tile específica, usarla
+                    const firstPoint = tilePoints[0];
+                    const tileInfo = firstPoint.tileInfo;
+                    
+                    if (tileInfo && tileInfo.filename && tileInfo.provincia) {
+                        // Cargar tile específica usando la nueva función
+                        if (window.cargarTileEspecifica) {
+                            elevationTileData = await window.cargarTileEspecifica(tileInfo.filename, tileInfo.provincia);
+                        }
+                    } else {
+                        // Fallback al método original
+                        const bounds = {
+                            north: firstPoint.lat,
+                            south: firstPoint.lat,
+                            east: firstPoint.lon,
+                            west: firstPoint.lon
+                        };
+                        elevationTileData = await this.heightmapHandler.cargarDatosElevacion(bounds);
+                    }
                 }
-            } else {
-                // Generar terreno procedural simple si no hay heightmap
-                elevation = this.generateProceduralHeight(point.lat, point.lon);
+            } catch (error) {
+                console.warn(`⚠️ Error cargando tile elevación ${tileId}:`, error);
             }
             
-            // ✅ Obtener NDVI con coordenadas normalizadas para análisis satelital
-            let ndvi = 0;
-            let vegetationType = null;
-            let featureType = null;
-            
-            if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
-                try {
-                    // Pasar normX y normY para análisis de imagen satelital
-                    const result = await this.vegetationHandler.getNDVI(
-                        point.lat, 
-                        point.lon,
-                        point.normX,  // Coordenada normalizada X (0-1)
-                        point.normY   // Coordenada normalizada Y (0-1)
-                    );
-                    
-                    // 🔥 Manejar tanto objeto { ndvi, vegType } como número simple
-                    if (typeof result === 'object' && result !== null) {
-                        ndvi = result.ndvi;
-                        vegetationType = result.vegType || this.ndviToVegetationType(ndvi);
-                        featureType = result.featureType;
-                    } else {
-                        // Fallback: resultado numérico directo
-                        ndvi = result;
+            // Procesar todos los puntos de este tile
+            for (const point of tilePoints) {
+                processedCount++;
+                
+                if (processedCount % 500 === 0) {
+                    console.log(`📊 Procesado ${processedCount}/${points.length} puntos...`);
+                }
+                
+                // Obtener elevación del tile cargado
+                let elevation = 0;
+                if (elevationTileData) {
+                    elevation = this.interpolateElevationFromTile(point, elevationTileData);
+                } else {
+                    elevation = this.generateProceduralHeight(point.lat, point.lon);
+                }
+                
+                // Obtener NDVI usando análisis satelital (más eficiente que tiles TIF para vegetación)
+                let ndvi = 0;
+                let vegetationType = null;
+                let featureType = null;
+                
+                if (this.satelliteAnalyzer) {
+                    try {
+                        const satFeature = this.satelliteAnalyzer.getFeatureAt(point.normX, point.normY);
+                        if (satFeature) {
+                            ndvi = satFeature.ndvi || 0.4;
+                            featureType = satFeature.type;
+                            vegetationType = this.mapFeatureTypeToVegetation(featureType);
+                        } else {
+                            ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                            vegetationType = this.ndviToVegetationType(ndvi);
+                        }
+                    } catch (error) {
+                        ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
                         vegetationType = this.ndviToVegetationType(ndvi);
                     }
-                } catch (error) {
-                    // NDVI aleatorio si falla
-                    ndvi = Math.random() * 0.8;
+                } else {
+                    ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
                     vegetationType = this.ndviToVegetationType(ndvi);
                 }
-            } else {
-                // NDVI procedural
-                ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
-                vegetationType = this.ndviToVegetationType(ndvi);
+                
+                enriched.push({
+                    ...point,
+                    elevation: elevation,
+                    ndvi: ndvi,
+                    vegetationType: vegetationType,
+                    featureType: featureType
+                });
             }
-            
-            enriched.push({
-                ...point,
-                elevation: elevation,
-                ndvi: ndvi,
-                vegetationType: vegetationType,
-                featureType: featureType
-            });
         }
         
+        console.log(`✅ ${enriched.length} puntos enriquecidos con agrupación optimizada por tiles`);
         return enriched;
     }
     
+    /**
+     * 🚀 NUEVA: Agrupar puntos por tiles que necesitan ser cargadas
+     */
+    async groupPointsByTiles(points) {
+        console.log('📦 Agrupando puntos por tiles requeridas...');
+        
+        const elevationGroups = {};
+        const vegetationGroups = {};
+        
+        for (const point of points) {
+            try {
+                // Determinar tile de elevación necesaria
+                if (this.heightmapHandler) {
+                    const elevationTileInfo = await this.determineTileId(point.lat, point.lon, 'elevation');
+                    if (elevationTileInfo) {
+                        const tileKey = typeof elevationTileInfo === 'object' ? elevationTileInfo.id : elevationTileInfo;
+                        
+                        if (!elevationGroups[tileKey]) {
+                            elevationGroups[tileKey] = [];
+                        }
+                        
+                        // Agregar información de tile al punto
+                        const pointWithTileInfo = {
+                            ...point,
+                            tileInfo: typeof elevationTileInfo === 'object' ? elevationTileInfo : null
+                        };
+                        
+                        elevationGroups[tileKey].push(pointWithTileInfo);
+                    }
+                }
+                
+                // Determinar tile de vegetación necesaria (si usamos tiles en lugar de análisis satelital)
+                if (this.vegetationHandler && !this.satelliteAnalyzer) {
+                    const vegetationTileId = await this.determineTileId(point.lat, point.lon, 'vegetation');
+                    if (vegetationTileId) {
+                        if (!vegetationGroups[vegetationTileId]) {
+                            vegetationGroups[vegetationTileId] = [];
+                        }
+                        vegetationGroups[vegetationTileId].push(point);
+                    }
+                }
+            } catch (error) {
+                console.warn(`⚠️ Error agrupando punto (${point.lat}, ${point.lon}):`, error);
+                // Agrupar en "unknown" para procesar con fallback
+                if (!elevationGroups['unknown']) {
+                    elevationGroups['unknown'] = [];
+                }
+                elevationGroups['unknown'].push(point);
+            }
+        }
+        
+        console.log(`📋 Agrupación completada:`);
+        console.log(`   🗻 Tiles de elevación: ${Object.keys(elevationGroups).length}`);
+        console.log(`   🌿 Tiles de vegetación: ${Object.keys(vegetationGroups).length}`);
+        
+        return {
+            elevation: elevationGroups,
+            vegetation: vegetationGroups
+        };
+    }
+    
+    /**
+     * 🚀 NUEVA: Determinar ID de tile necesaria para una coordenada
+     */
+    async determineTileId(lat, lon, type = 'elevation') {
+        try {
+            if (type === 'elevation' && this.heightmapHandler) {
+                // Determinar provincia usando la misma lógica del elevationHandler
+                let provincia = 'centro';
+                
+                if (lat < -42) {
+                    provincia = 'sur';
+                } else if (lat < -36) {
+                    provincia = 'centro';
+                } else if (lat < -30) {
+                    provincia = 'centro_norte';
+                } else {
+                    provincia = 'norte';
+                }
+                
+                // Ajuste especial para centro_norte
+                if (lat > -42 && lat < -30 && lon < -65) {
+                    provincia = 'centro_norte';
+                }
+                
+                // Cargar índice provincial específico si no existe
+                if (!window.provincialIndexes) {
+                    window.provincialIndexes = {};
+                }
+                
+                if (!window.provincialIndexes[provincia]) {
+                    try {
+                        // 🔥 USAR ESTRUCTURA REAL: índice por zona
+                        const provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${provincia}_mini_tiles_index.json`;
+                        console.log(`📡 Cargando índice provincial: ${provincialUrl}`);
+                        
+                        const response = await fetch(provincialUrl);
+                        if (response.ok) {
+                            const provincialData = await response.json();
+                            // 🔥 ESTRUCTURA REAL: los tiles están en provincialData.tiles
+                            window.provincialIndexes[provincia] = provincialData.tiles;
+                            console.log(`✅ Índice ${provincia} cargado: ${Object.keys(provincialData.tiles).length} tiles`);
+                        }
+                    } catch (error) {
+                        console.warn(`⚠️ Error cargando índice ${provincia}:`, error);
+                        return `${provincia}_unknown`;
+                    }
+                }
+                
+                // Buscar tile específica en el índice provincial
+                const provincialTiles = window.provincialIndexes[provincia];
+                if (provincialTiles) {
+                    for (const tileKey in provincialTiles) {
+                        const tile = provincialTiles[tileKey];
+                        if (tile.bounds) {
+                            const { north, south, east, west } = tile.bounds;
+                            
+                            if (lat <= north && lat >= south && lon <= east && lon >= west) {
+                                return {
+                                    id: tileKey,
+                                    filename: tile.filename,
+                                    provincia: provincia
+                                };
+                            }
+                        }
+                    }
+                }
+                
+                console.warn(`⚠️ No se encontró tile para (${lat}, ${lon}) en provincia ${provincia}`);
+                return `${provincia}_generic`;
+            }
+            
+            if (type === 'vegetation' && this.vegetationHandler) {
+                // 🔥 VEGETACIÓN: Usar estructura actual (índice unificado)
+                // Por ahora mantener la lógica de batches hasta reestructurar
+                const batch = Math.floor(Math.abs(lat * lon * 1000)) % 16 + 1;
+                const batchStr = batch.toString().padStart(2, '0');
+                return `vegetation_ndvi_batch_${batchStr}`;
+            }
+            
+            return null;
+        } catch (error) {
+            console.warn(`⚠️ Error determinando tile ID para (${lat}, ${lon}):`, error);
+            return null;
+        }
+    }
+    
+    /**
+     * 🚀 NUEVA: Interpolar elevación de tile pre-cargado
+     */
+    interpolateElevationFromTile(point, tileData) {
+        try {
+            const { data, width, height, tiepoint, scale } = tileData;
+            
+            // Convertir lat/lon a índices del tile
+            const x = Math.round((point.lon - tiepoint[3]) / scale[0]);
+            const y = Math.round((tiepoint[4] - point.lat) / scale[1]);
+            
+            // Verificar bounds
+            if (x < 0 || x >= width || y < 0 || y >= height) {
+                return this.generateProceduralHeight(point.lat, point.lon);
+            }
+            
+            // Obtener elevación del tile
+            const elevation = data[y * width + x];
+            
+            if (elevation === undefined || isNaN(elevation)) {
+                return this.generateProceduralHeight(point.lat, point.lon);
+            }
+            
+            return parseFloat(elevation.toFixed(2));
+            
+        } catch (error) {
+            return this.generateProceduralHeight(point.lat, point.lon);
+        }
+    }
+    
+    /**
+     * 🚀 NUEVA: Mapear tipo de feature satelital a tipo de vegetación
+     */
+    mapFeatureTypeToVegetation(featureType) {
+        const mapping = {
+            'vegetation': 'grass',
+            'trees': 'tree',
+            'forest': 'tree_tall',
+            'grass': 'grass',
+            'bushes': 'bush',
+            'buildings': null,
+            'roads': null,
+            'water': null,
+            'bare_earth': null
+        };
+        
+        return mapping[featureType] || 'grass';
+    }
+
     /**
      * Crear malla de terreno 3D
      */
@@ -546,7 +782,7 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // � ESCALA FIJA REALISTA: Árboles de 4-6 metros (sin factor dinámico)
+        // 🌳 ESCALA FIJA REALISTA: Árboles de 4-6 metros (sin factor dinámico)
         // Los árboles deben medir siempre lo mismo independiente del zoom
         
         console.log(`📐 Escala FIJA realista: árboles 0.04-0.06m (modelo MUY grande)`);
@@ -554,21 +790,21 @@ class TerrainGenerator3D {
         // Configuración de densidad por tipo
         const densityConfig = {
             'vegetation': { 
-                density: 3.00,          // 90% - Densidad alta para vegetación detectada
-                type: 'tree_tall',      // Usa arbol.glb
-                scale: [0.04, 0.08],    // 🌳 0.04-0.06 (modelo arbol.glb es GIGANTE)
+                density: 0.00,          // ❌ DESACTIVADO - Solo árboles en forest
+                type: 'grass',          // No se usa
+                scale: [0.005, 0.010],  // No se usa
                 priority: 2
             },
             'forest': { 
-                density: 0.30,          // 30% para bosques densos
-                type: 'tree_tall',      // Usa arbol.glb
-                scale: [0.05, 0.08],    // 🌲 0.05-0.08 metros para bosques
+                density: 0.10,          // 🔥 REDUCIDO a 10% - Mejor rendimiento con menos árboles
+                type: 'tree_tall',      // ✅ MISMO QUE MANUAL: trees_low.glb
+                scale: [0.02, 0.02],    // ✅ MISMA ESCALA QUE MANUAL: 0.02
                 priority: 1
             },
             'grass': { 
-                density: 0.00,          // ❌ DESACTIVADO - Quedaba horrible
-                type: 'grass', 
-                scale: [0.0005, 0.001], 
+                density: 0.00,          // ❌ DESACTIVADO - Solo árboles en forest
+                type: 'grass',          // No se usa
+                scale: [0.003, 0.008],  // No se usa
                 priority: 3
             },
             'crops': { 
@@ -709,31 +945,52 @@ class TerrainGenerator3D {
         const meshes = [];
         
         for (const [type, instances] of Object.entries(instancesByType)) {
-            console.log(`🎨 Creando InstancedMesh para ${instances.length} instancias de '${type}'...`);
-            
-            try {
-                const instancedMesh = await this.createInstancedVegetation(type, instances);
-                if (instancedMesh) {
-                    // 🏷️ Marcar el mesh con su tipo para filtrado
-                    instancedMesh.userData.vegetationType = type;
-                    meshes.push(instancedMesh);
-                    console.log(`  ✅ InstancedMesh creado: ${instances.length} instancias de tipo '${type}'`);
+            // 🌳 FIX: Árboles complejos usan objetos individuales para renderizar todas las mesh
+            const useInstancedMesh = !type.includes('tree');
+            console.log(`${useInstancedMesh ? '🎨' : '🌳'} ${useInstancedMesh ? 'InstancedMesh' : 'Objetos individuales'} para ${instances.length} instancias de '${type}'...`);
+
+            if (useInstancedMesh) {
+                try {
+                    const instancedMesh = await this.createInstancedVegetation(type, instances);
+                    if (instancedMesh) {
+                        // 🏷️ Marcar el mesh con su tipo para filtrado
+                        instancedMesh.userData.vegetationType = type;
+                        meshes.push(instancedMesh);
+                        console.log(`  ✅ InstancedMesh creado: ${instances.length} instancias de tipo '${type}'`);
+                    }
+                } catch (error) {
+                    console.warn(`  ⚠️ Error creando InstancedMesh para ${type}, usando meshes individuales:`, error);
+                    // Fallback: meshes individuales
+                    for (const inst of instances) {
+                        const vegObject = await this.createVegetationObject(
+                            inst.type,
+                            inst.position,
+                            inst.scale
+                        );
+
+                        if (vegObject) {
+                            vegObject.rotation.y = inst.rotation;
+                            vegObject.userData.vegetationType = inst.type; // 🏷️ Marcar tipo
+                            meshes.push(vegObject);
+                        }
+                    }
                 }
-            } catch (error) {
-                console.warn(`  ⚠️ Error creando InstancedMesh para ${type}, usando meshes individuales:`, error);
-                
-                // Fallback: meshes individuales
+            } else {
+                // 🌳 Árboles: usar objetos individuales para renderizar todas las mesh
+                console.log(`  🌳 Creando objetos individuales para ${instances.length} árboles de tipo '${type}'...`);
                 for (const inst of instances) {
                     const vegObject = await this.createVegetationObject(
                         inst.type,
                         inst.position,
                         inst.scale
                     );
-                    
+
                     if (vegObject) {
-                        vegObject.rotation.y = inst.rotation;
+                        // Rotación aleatoria para variedad (como inserción manual)
+                        vegObject.rotation.y = Math.random() * Math.PI * 2;
                         vegObject.userData.vegetationType = inst.type; // 🏷️ Marcar tipo
                         meshes.push(vegObject);
+                        console.log(`    ✅ Árbol individual creado en (${inst.position.x.toFixed(1)}, ${inst.position.y.toFixed(1)}, ${inst.position.z.toFixed(1)})`);
                     }
                 }
             }
@@ -965,7 +1222,7 @@ class TerrainGenerator3D {
         // ✅ RESUMEN: Mostrar estadísticas de carga de modelos
         if (this.modelLoader && this.modelLoader.loadStats) {
             const stats = this.modelLoader.loadStats;
-            console.log(`� Estadísticas de modelos GLTF: Exitosos=${stats.successful}, Fallidos=${stats.failed}, Cacheados=${stats.cached}`);
+            console.log(`📊 Estadísticas de modelos GLTF: Exitosos=${stats.successful}, Fallidos=${stats.failed}, Cacheados=${stats.cached}`);
         }
     }
     
@@ -993,12 +1250,25 @@ class TerrainGenerator3D {
                 baseModel = await this.modelLoader.loadModel(type, 'vegetation');
                 
                 // 2. Extraer geometría y material del modelo GLTF
+                // 🌳 FIX: Usar todo el modelo como base para InstancedMesh
+                const meshes = [];
+                
                 baseModel.traverse((child) => {
-                    if (child.isMesh && !geometry) {
-                        geometry = child.geometry;
-                        material = child.material;
+                    if (child.isMesh) {
+                        meshes.push(child);
                     }
                 });
+                
+                if (meshes.length === 0) {
+                    throw new Error(`No se encontraron meshes en modelo ${type}`);
+                }
+                
+                // Para InstancedMesh, necesitamos una geometría unificada
+                // Tomar la primera geometría como base (debería funcionar para la mayoría de modelos)
+                geometry = meshes[0].geometry;
+                material = meshes[0].material;
+                
+                console.log(`🌳 Modelo ${type}: ${meshes.length} meshes encontrados, usando el primero para InstancedMesh`);
                 
                 if (!geometry || !material) {
                     throw new Error(`No se encontró geometría/material en modelo ${type}`);
@@ -1025,15 +1295,18 @@ class TerrainGenerator3D {
                 const bbox = geometry.boundingBox;
                 modelYOffset = -bbox.min.y;
                 
-                // 🌱 AJUSTE ESPECIAL: Césped debe estar pegado al suelo
+                // 🌱 AJUSTE ESPECIAL: Césped y árboles deben estar pegados al suelo
                 if (type === 'grass') {
                     modelYOffset = 0; // Forzar que esté exactamente sobre el suelo
                     console.log(`🌱 Césped: offset forzado a 0 (pegado al suelo)`);
+                } else if (type.includes('tree')) {
+                    modelYOffset = 0; // ✅ IGUAL QUE INSERCIÓN MANUAL: yOffset = 0
+                    console.log(`🌳 Árbol '${type}': offset forzado a 0 (igual que inserción manual)`);
                 } else {
                     console.log(`📐 Modelo '${type}': bbox.min.y=${bbox.min.y.toFixed(2)}, offset=${modelYOffset.toFixed(2)}`);
                 }
                 
-                // �🚀 OPTIMIZACIÓN: Cachear para reutilizar
+                // 🚀 OPTIMIZACIÓN: Cachear para reutilizar
                 this.geometryCache.set(type, geometry);
                 this.materialCache.set(type, material);
                 if (!this.modelYOffsetCache) this.modelYOffsetCache = new Map();
@@ -1161,20 +1434,73 @@ class TerrainGenerator3D {
      * @returns {Promise<THREE.Object3D>}
      */
     async createVegetationObject(type, position, scale) {
-        // Intentar cargar modelo GLTF primero
+        // 🚀 OPTIMIZACIÓN: Usar clonación para evitar recargar GLTF
         if (this.modelLoader) {
             try {
-                const model = await this.modelLoader.loadModel(type, 'vegetation');
+                // Cache de modelos base para clonación
+                if (!this.baseModelCache) {
+                    this.baseModelCache = new Map();
+                }
+                
+                let baseModel;
+                
+                // Si ya tenemos el modelo base, clonarlo
+                if (this.baseModelCache.has(type)) {
+                    baseModel = this.baseModelCache.get(type).clone();
+                    console.debug(`🔄 Clonando modelo base para ${type}`);
+                } else {
+                    // Primera vez: cargar y cachear
+                    baseModel = await this.modelLoader.loadModel(type, 'vegetation');
+                    this.baseModelCache.set(type, baseModel.clone()); // Guardar copia para futuros clones
+                    console.debug(`💾 Modelo base cargado y cacheado para ${type}`);
+                }
                 
                 // 🔧 FIX: Calcular bounding box para ajustar posición Y
-                const bbox = new THREE.Box3().setFromObject(model);
+                const bbox = new THREE.Box3().setFromObject(baseModel);
                 const modelYOffset = -bbox.min.y; // Elevar para que base toque el suelo
                 
-                model.position.copy(position);
-                model.position.y += modelYOffset; // Aplicar offset
-                model.scale.set(scale, scale, scale);
+                baseModel.position.copy(position);
+                baseModel.position.y += modelYOffset; // Aplicar offset
+                baseModel.scale.set(scale, scale, scale);
                 
-                return model;
+                // 🎨 FIX TEXTURAS GRISES: Forzar carga de texturas embebidas (igual que inserción manual)
+                baseModel.traverse((child) => {
+                    if (child.isMesh) {
+                        if (child.material) {
+                            const material = child.material;
+                            
+                            // Forzar actualización de material
+                            material.needsUpdate = true;
+                            
+                            // Si tiene textura, forzarla
+                            if (material.map) {
+                                material.map.needsUpdate = true;
+                                console.debug(`🎨 Textura encontrada en ${type}:`, material.map);
+                            }
+                            
+                            // Verificar otras texturas comunes
+                            ['normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'].forEach(mapType => {
+                                if (material[mapType]) {
+                                    material[mapType].needsUpdate = true;
+                                }
+                            });
+                            
+                            // Si NO tiene textura, aplicar color fallback según tipo
+                            if (!material.map) {
+                                console.debug(`⚠️ Sin textura en ${type}, aplicando color fallback`);
+                                if (type.includes('tree')) {
+                                    material.color.setHex(0x2d5016); // Verde oscuro bosque para árboles
+                                } else if (type === 'bush') {
+                                    material.color.setHex(0x4a7c59); // Verde arbusto
+                                } else {
+                                    material.color.setHex(0x7cbc4b); // Verde césped
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                return baseModel;
             } catch (error) {
                 // ✅ Solo mostrar warning en modo debug
                 console.debug(`⚠️ Error cargando modelo para ${type}:`, error.message);
@@ -1285,16 +1611,16 @@ class TerrainGenerator3D {
      * Obtener escala de vegetación según tipo y NDVI
      */
     getVegetationScale(type, ndvi) {
-        // ✅ ESCALAS REDUCIDAS - Los modelos GLB son muy grandes
+        // ✅ ESCALAS IDÉNTICAS A LA INSERCIÓN MANUAL QUE FUNCIONA PERFECTO
         const baseScales = {
             grass: 0.02,        // Muy pequeño (césped)
             bush: 0.05,         // Pequeño (arbusto)
-            tree_medium: 0.08,  // Mediano (árbol bajo)
-            tree_tall: 0.12     // Grande (árbol alto)
+            tree_medium: 0.02,  // ✅ MISMA ESCALA QUE MANUAL: trees_low.glb con 0.02
+            tree_tall: 0.02     // ✅ MISMA ESCALA QUE MANUAL: trees_low.glb con 0.02
         };
         
         const base = baseScales[type] || 0.05;
-        const variance = 0.3; // ±30%
+        const variance = 0.1; // ±10% (menos variación para ser más consistente)
         
         return base * (1 + (Math.random() - 0.5) * variance);
     }
@@ -1330,9 +1656,27 @@ class TerrainGenerator3D {
     }
     
     /**
-     * Obtener color según elevación
+     * Calcular factor de escala basado en zoom del mapa
+     * Zoom alto (cerca): factor = 1 (tamaño real)
+     * Zoom bajo (lejos): factor > 1 (más grande para ocupar espacio visual)
      */
-    getColorByElevation(elevation) {
+    calculateZoomScaleFactor(mapZoom) {
+        // Zoom base de referencia (donde el terreno se ve bien)
+        const baseZoom = 15;
+        
+        // Factor de escala exponencial
+        // Cuanto más bajo el zoom, más grande debe ser el terreno
+        const zoomDifference = baseZoom - mapZoom;
+        
+        // Factor base 1.0, aumenta 0.3x por nivel de zoom por debajo del base
+        const scaleFactor = 1.0 + (zoomDifference * 0.3);
+        
+        // Limitar el factor máximo para evitar terrenos absurdamente grandes
+        return Math.min(scaleFactor, 5.0);
+    }
+    
+    /**
+     * Obtener color según elevación
         const colorMap = this.config.colorMap;
         
         let hexColor;

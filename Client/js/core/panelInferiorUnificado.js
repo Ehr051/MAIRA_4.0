@@ -923,7 +923,7 @@ class PanelInferiorUnificado {
                     this.estado.turno = turno;
                     this.estado.jugadorActual = jugador;
                     this.actualizarDisplay();
-                    console.log(`� Turno actualizado: ${turno} - Jugador: ${jugador}`);
+                    console.log(`⏰ Turno actualizado: ${turno} - Jugador: ${jugador}`);
                 });
             }
 

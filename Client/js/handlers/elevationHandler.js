@@ -1,7 +1,7 @@
 // elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v4.0
 
 // 🎯 NUEVA ESTRATEGIA: Usar archivos tar.gz locales tanto en desarrollo como en Render
-const ELEVATION_LOCAL_BASE = '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
+const ELEVATION_LOCAL_BASE = 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
 
 // 🚀 BASE URL PROXY para GitHub Release v4.0 - CONFIRMADO FUNCIONANDO
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
@@ -12,10 +12,10 @@ let elevationHandlerIndiceCargado = false;
 
 // 🔧 URLs de índices principales - RUTAS RELATIVAS AL HTML
 const ELEVATION_INDEX_URLS = [
-  // 🏠 DESARROLLO LOCAL: Rutas relativas desde html+js-test/
-  '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
-  '../Client/Libs/datos_argentina/master_mini_tiles_index.json',
-  // 📁 Ruta relativa desde html+js-test
+  // 🏠 DESARROLLO LOCAL: Rutas desde raíz del proyecto
+  'Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
+  'Client/Libs/datos_argentina/master_mini_tiles_index.json',
+  // 📁 Ruta relativa desde html+js-test (fallback)
   '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
   '../Client/Libs/datos_argentina/master_mini_tiles_index.json',
   // 🌐 RELEASE DE GITHUB: Índices disponibles en el release v4.0
@@ -241,16 +241,40 @@ async function cargarDatosElevacion(bounds) {
   }
 }
 
-// 🚀 NUEVA: Función para cargar .tif directo desde GitHub Release v4.0
+// 🚀 NUEVA: Función para cargar .tif directo desde archivos locales
 async function extractTileDirectFromRelease(tileInfo) {
   try {
-    console.log(`📦 Intentando cargar ${tileInfo.filename} desde servidor local`);
+    console.log(`📦 Intentando cargar ${tileInfo.filename} desde archivos locales`);
 
-    // Usar el endpoint del servidor que maneja la descompresión automática
+    // 🏠 PRIORIDAD 1: Intentar cargar desde archivos locales
+    const localPaths = [
+      `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
+      `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
+      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`
+    ];
+
+    for (const localPath of localPaths) {
+      try {
+        console.log(`📡 Probando ruta local: ${localPath}`);
+        const response = await fetch(localPath);
+        
+        if (response.ok) {
+          const tileData = await response.arrayBuffer();
+          console.log(`✅ Tile .tif cargado desde local: ${(tileData.byteLength / 1024).toFixed(1)}KB`);
+          return tileData;
+        }
+      } catch (error) {
+        console.log(`⚠️ Ruta local falló: ${localPath}`);
+        continue;
+      }
+    }
+
+    // 🌐 FALLBACK: Intentar desde servidor (modo producción)
     const provincia = tileInfo.provincia;
     const directTifUrl = `${ELEVATION_RELEASE_ASSETS.ALTIMETRIA_BASE_URL}/${provincia}/${tileInfo.filename}`;
 
-    console.log(`📡 Cargando .tif desde servidor: ${directTifUrl}`);
+    console.log(`📡 Fallback: Cargando .tif desde servidor: ${directTifUrl}`);
 
     const response = await fetch(directTifUrl);
 
@@ -265,7 +289,7 @@ async function extractTileDirectFromRelease(tileInfo) {
     return tileData;
 
   } catch (error) {
-    console.error(`❌ Error cargando .tif desde servidor ${tileInfo.filename}:`, error);
+    console.error(`❌ Error cargando .tif ${tileInfo.filename}:`, error);
     return null;
   }
 }
@@ -454,6 +478,78 @@ async function extractFromTar(tarData, targetFilename) {
   }
 }
 
+// 🚀 NUEVA: Función para cargar tile específica por nombre/provincia (para agrupación optimizada)
+async function cargarTileEspecifica(tileFilename, provincia) {
+  try {
+    console.log(`📦 Cargando tile específica: ${tileFilename} (provincia: ${provincia})`);
+
+    // 🏠 Intentar cargar desde archivos locales primero
+    const localPaths = [
+      `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
+      `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
+      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`
+    ];
+
+    for (const localPath of localPaths) {
+      try {
+        console.log(`📡 Probando ruta local: ${localPath}`);
+        const response = await fetch(localPath);
+        
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          console.log(`✅ Tile local cargada: ${(arrayBuffer.byteLength / 1024).toFixed(1)}KB`);
+          
+          // Procesar con GeoTIFF
+          const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+          const image = await tiff.getImage();
+          const rasters = await image.readRasters();
+          const metadata = await image.getFileDirectory();
+
+          return {
+            data: rasters[0],
+            width: image.getWidth(),
+            height: image.getHeight(),
+            tiepoint: metadata.ModelTiepoint,
+            scale: metadata.ModelPixelScale,
+          };
+        }
+      } catch (error) {
+        console.log(`⚠️ Error con ruta local: ${localPath}`);
+        continue;
+      }
+    }
+
+    // 🌐 Fallback: servidor
+    const serverUrl = `${ELEVATION_RELEASE_ASSETS.ALTIMETRIA_BASE_URL}/${provincia}/${tileFilename}`;
+    console.log(`📡 Fallback servidor: ${serverUrl}`);
+    
+    const response = await fetch(serverUrl);
+    if (response.ok) {
+      const arrayBuffer = await response.arrayBuffer();
+      const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+      const image = await tiff.getImage();
+      const rasters = await image.readRasters();
+      const metadata = await image.getFileDirectory();
+
+      return {
+        data: rasters[0],
+        width: image.getWidth(),
+        height: image.getHeight(),
+        tiepoint: metadata.ModelTiepoint,
+        scale: metadata.ModelPixelScale,
+      };
+    }
+
+    console.warn(`⚠️ No se pudo cargar tile: ${tileFilename}`);
+    return null;
+
+  } catch (error) {
+    console.error(`❌ Error cargando tile específica ${tileFilename}:`, error);
+    return null;
+  }
+}
+
 // Función para cargar un archivo GeoTIFF
 async function loadTileData(tilePath) {
   try {
@@ -552,7 +648,7 @@ async function buscarTileEnProvincias(bounds) {
       let provincialUrl;
       
       // Intentar URL local primero
-      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/index.json`;
+      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
       
       console.log(`📡 Cargando índice provincial desde: ${provincialUrl}`);
       
@@ -573,7 +669,7 @@ async function buscarTileEnProvincias(bounds) {
       } catch (localError) {
         // Si falla local, intentar GitHub CDN
         console.log(`⚠️ Error con URL local, intentando GitHub CDN...`);
-        provincialUrl = `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/index.json`;
+        provincialUrl = `https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
         
         const response = await fetch(provincialUrl);
         if (!response.ok) {
@@ -1412,6 +1508,11 @@ function initializeMAIRAElevation() {
             }
         };
         console.log('✅ MAIRA.Elevacion definido correctamente');
+        
+        // 🚀 EXPONER FUNCIONES GLOBALMENTE para agrupación optimizada
+        window.cargarTileEspecifica = cargarTileEspecifica;
+        console.log('✅ Funciones globales de tiles expuestas');
+        
     } else {
         // Si MAIRA no está disponible, intentar de nuevo en 100ms
         setTimeout(initializeMAIRAElevation, 100);

@@ -1,45 +1,4 @@
-/**
- * ══════════════════            // Umbrales de color para detectar features
-            thresholds: {
-                // Vegetación (verde) - Umbrales más permisivos
-                vegetation: {
-                    minR: 10, maxR: 150,    // Ampliado para capturar más tonos
-                    minG: 40, maxG: 220,     // Amp    /**
-     * Detectar vegetación (verde predominante)
-     * ✅ MEJORADO: Detecta césped (verde pálido) y árboles (verde oscuro)
-     *
-                    minB: 10, maxB: 120,     // A        ) {
-            return 'forest';
-        }
-        
-        // 🌿 TIPO 3: VEGETACIÓN GENERAL (vegetation) - Verde MEDIO
-        // RGB típico: (60-110, 95-150, 60-110) - Arbustos, vegetación mixta
-        if (
-            g >= 95 && g <= 150 &&
-            r >= 60 && r <= 110 &&
-            b >= 60 && b <= 110 &&
-            greenDominance > 0.10 &&
-            (r + g + b) >= 220 && (r + g + b) <= 350
-        ) {
-            return 'vegetation';
-        }
-        
-        // 🌻 TIPO 4: CULTIVOS (crops) - Verde amarillento
-        // RGB típico: (110-150, 130-180, 60-100) - Campos de cultivo
-        if (
-            g >= 130 && g <= 180 &&
-            r >= 110 && r <= 150 &&
-            b >= 60 && b <= 100 &&
-            g > r + 10 &&
-            r > b + 15 // Más amarillento (R > B)
-        ) {
-            return 'crops';
-        }
-        
-        return null;
-    }          minRatio: 1.1  // G/R ratio más permisivo
-                },════════════════════════════════════════════
- * SATELLITE IMAGE ANALYZER - MAIRA 4.0
+/*
  * ═══════════════════════════════════════════════════════════════════════
  * Sistema de análisis de imágenes satelitales con:
  * - LOD (Level of Detail) - No procesar todos los píxeles
@@ -132,7 +91,13 @@ class SatelliteImageAnalyzer {
         
         // ✅ OPTIMIZACIÓN FASE 2: Web Worker para análisis async
         this.worker = null;
-        this.useWorker = config.useWorker !== false; // Default: true
+        this.useWorker = config.useWorker !== false && config.useWorkers !== false; // 🔥 Verificar ambos flags
+        
+        // 🔥 FORZAR DESACTIVACIÓN si se especifica explícitamente
+        if (config.useWorkers === false || config.useWorker === false) {
+            this.useWorker = false;
+            console.log('⚡ Workers FORZADAMENTE desactivados en SatelliteImageAnalyzer');
+        }
         
         // 🌿 INTEGRACIÓN: VegetationService para datos TIF de NDVI
         this.vegetationService = null;
@@ -188,6 +153,87 @@ class SatelliteImageAnalyzer {
     }
     
     /**
+     * ⚡ MÉTODO SÍNCRONO: Sin Workers, procesamiento directo
+     */
+    analyzeImageSync(options = {}) {
+        if (!this.imageData) {
+            throw new Error('No hay imagen cargada. Llama a loadImage() primero.');
+        }
+        
+        console.log('⚡ Análisis síncrono (sin Workers)...');
+        const startTime = performance.now();
+        
+        const samplingRate = options.samplingRate || this.config.samplingRate;
+        const width = this.imageData.width;
+        const height = this.imageData.height;
+        const data = this.imageData.data;
+        
+        // Reset features
+        this.features = {
+            vegetation: [],
+            forest: [],
+            grass: [],
+            crops: [],
+            roads: [],
+            buildings: [],
+            water: [],
+            bareSoil: []
+        };
+        
+        let sampledPixels = 0;
+        let stats = {
+            vegetation: 0,
+            roads: 0,
+            buildings: 0,
+            water: 0,
+            bareSoil: 0
+        };
+        
+        // Procesamiento directo (sin Workers)
+        for (let y = 0; y < height; y += samplingRate) {
+            for (let x = 0; x < width; x += samplingRate) {
+                const index = (y * width + x) * 4;
+                const r = data[index];
+                const g = data[index + 1];
+                const b = data[index + 2];
+                
+                // Clasificar píxel (síncrono)
+                const featureType = this.classifyPixelSync(r, g, b, x, y);
+                
+                if (featureType) {
+                    this.features[featureType].push({
+                        x: x,
+                        y: y,
+                        color: { r, g, b },
+                        normX: x / width,
+                        normY: y / height
+                    });
+                    stats[featureType]++;
+                }
+                
+                sampledPixels++;
+            }
+        }
+        
+        const endTime = performance.now();
+        const timeMs = (endTime - startTime).toFixed(2);
+        
+        console.log(`✅ Análisis síncrono completado en ${timeMs}ms`);
+        console.log(`📊 Vegetación: ${stats.vegetation}, Caminos: ${stats.roads}, Edificios: ${stats.buildings}`);
+        
+        return {
+            stats: {
+                timeMs: parseFloat(timeMs),
+                sampledPixels,
+                totalPixels: width * height,
+                coverage: (sampledPixels / (width * height) * 100).toFixed(1) + '%',
+                ...stats
+            },
+            features: this.features
+        };
+    }
+
+    /**
      * ✅ FASE 2: Analizar imagen con Web Worker (async, no bloquea UI)
      */
     async analyzeImageAsync(options = {}) {
@@ -196,9 +242,9 @@ class SatelliteImageAnalyzer {
         }
         
         // Si worker no disponible o deshabilitado, usar método síncrono
-        if (!this.useWorker || typeof Worker === 'undefined') {
-            console.warn('⚠️ Worker no disponible, usando análisis síncrono');
-            return this.analyzeImage(options);
+        if (!this.useWorker || typeof Worker === 'undefined' || options.useWorkers === false) {
+            console.warn('⚠️ Workers deshabilitados, usando análisis síncrono');
+            return this.analyzeImageSync(options);
         }
         
         return new Promise((resolve, reject) => {
@@ -347,8 +393,8 @@ class SatelliteImageAnalyzer {
         
         console.log(`✅ Análisis completado en ${timeMs}ms`);
         console.log(`📊 Píxeles analizados: ${sampledPixels.toLocaleString()} / ${totalPixels.toLocaleString()} (${coverage}%)`);
-        console.log(`� Bosques: ${this.features.forest.length} puntos`);
-        console.log(`�🌿 Vegetación: ${this.features.vegetation.length} puntos`);
+        console.log(`🌲 Bosques: ${this.features.forest.length} puntos`);
+        console.log(`🌿 Vegetación: ${this.features.vegetation.length} puntos`);
         console.log(`🌾 Cultivos: ${this.features.crops.length} puntos`);
         console.log(`🟩 Césped: ${this.features.grass.length} puntos`);
         console.log(`🛣️ Caminos: ${this.features.roads.length} puntos`);
@@ -490,89 +536,85 @@ class SatelliteImageAnalyzer {
     }
     
     /**
-     * Clasificar píxel según su color RGB (ahora async para consultar TIF)
+     * ⚡ Clasificar píxel SÍNCRONO - SIMPLIFICADO SOLO ÁRBOLES
+     */
+    classifyPixelSync(r, g, b, x = null, y = null) {
+        // 🌳 ULTRA SIMPLIFICADO: Solo detectar árboles como 'forest'
+        // Usar la misma lógica que classifyVegetationType pero síncrono
+        
+        // Verificar que sea verde
+        const isGreen = g > r && g > b;
+        if (!isGreen) return null;
+        
+        // Calcular dominancia de verde MUY permisiva
+        const hasStrongGreenDominance = (g - r) >= 1 && (g - b) >= 0; // MUY permisivo
+        const totalBrightness = r + g + b;
+        
+        // 🌲 SOLO BOSQUE (forest) - Verde MUY MUY oscuro (ultra-restrictivo)
+        // Solo árboles en las zonas más oscuras posibles
+        if (
+            g >= 4 && g <= 70 &&        // 🔥 Verde MUY restrictivo (reducido de 120 a 70)
+            r >= 0 && r <= 50 &&        // 🔥 Rojo ultra-restrictivo (reducido de 80 a 50)
+            b >= 0 && b <= 40 &&        // 🔥 Azul ultra-restrictivo (reducido de 60 a 40)
+            hasStrongGreenDominance &&  // Verde MUY dominante
+            totalBrightness <= 160      // 🔥 Brillo ultra-restrictivo (reducido de 300 a 160)
+        ) {
+            return 'forest'; // ✅ FOREST en lugar de vegetation
+        }
+        
+        return null; // No clasificado como árbol
+    }
+
+    /**
+     * Clasificar píxel según su color RGB - SIMPLIFICADO SOLO ÁRBOLES
      */
     async classifyPixel(r, g, b, x = null, y = null) {
-        const thresholds = this.config.thresholds;
+        // 🌳 SIMPLIFICADO: Solo detectar árboles (vegetation y forest)
+        // Resto de features no se renderizan (density: 0.0)
         
-        // 1. Agua (prioridad alta - evitar confusión)
-        if (this.isWater(r, g, b, thresholds.water)) {
-            return 'water';
-        }
-        
-        // 2. Vegetación (MEJORADO: Detecta 3 tipos con TIF)
-        const vegResult = await this.classifyVegetationType(r, g, b, thresholds.vegetation, x, y);
+        const vegResult = await this.classifyVegetationType(r, g, b, null, x, y);
         if (vegResult) {
-            return vegResult; // 'forest', 'vegetation', 'grass', o 'crops'
+            return vegResult; // 'forest' o 'vegetation' únicamente
         }
         
-        // 3. Caminos
-        if (this.isRoad(r, g, b, thresholds.road)) {
-            return 'roads';
-        }
-        
-        // 4. Edificios
-        if (this.isBuilding(r, g, b, thresholds.building)) {
-            return 'buildings';
-        }
-        
-        // 5. Tierra desnuda
-        if (this.isBareSoil(r, g, b, thresholds.bareSoil)) {
-            return 'bareSoil';
-        }
-        
-        return null; // No clasificado
+        return null; // No clasificado como árbol
     }
     
     /**
-     * 🌳 Clasificar tipo de vegetación usando RGB + datos TIF de NDVI
+     * 🌳 Clasificar tipo de vegetación SIMPLIFICADO - Solo árboles
      * @param {number} r - Rojo (0-255)
      * @param {number} g - Verde (0-255)
      * @param {number} b - Azul (0-255)
      * @param {number} threshold - Umbral (no usado actualmente)
      * @param {number} x - Coordenada X en píxeles (opcional, para TIF)
      * @param {number} y - Coordenada Y en píxeles (opcional, para TIF)
-     * @returns {'forest'|'vegetation'|'grass'|'crops'|null}
+     * @returns {'forest'|'vegetation'|null}
      */
     async classifyVegetationType(r, g, b, threshold, x = null, y = null) {
-        // 🌲 SIMPLIFICADO: Solo detectar VERDE OSCURO = ÁRBOLES
-        // Criterios más PERMISIVOS para detectar más árboles
+        // 🌳 ULTRA SIMPLIFICADO: Solo árboles en verde MUY oscuro
+        // Eliminamos vegetation, grass y crops completamente
         
+        // Verificar que sea verde
+        const isGreen = g > r && g > b;
+        if (!isGreen) return null;
+        
+        // Calcular dominancia de verde MUY permisiva
+        const hasStrongGreenDominance = (g - r) >= 1 && (g - b) >= 0; // MUY permisivo
         const totalBrightness = r + g + b;
         
-        // 🐛 DEBUG: Mostrar primeros píxeles para analizar clasificación
-        if (!this._classifyDebugCount) this._classifyDebugCount = 0;
-        this._classifyDebugCount++;
-        
-        // 🐛 DEBUG: Mostrar primeros 20 píxeles clasificados
-        if (this._classifyDebugCount <= 20) {
-            console.log(`🔍 Píxel #${this._classifyDebugCount}: RGB(${r},${g},${b}) → brightness=${totalBrightness}`);
-        }
-        
-        // ✅ VERDE = ÁRBOLES (criterios MÁS PERMISIVOS)
-        // Condiciones:
-        // 1. Verde debe ser dominante (g > r y g > b)
-        // 2. Brightness MEDIO-BAJO < 250 (más permisivo)
-        // 3. Verde mínimo (g >= 30)
-        // 4. Diferencia mínima: g al menos 10 puntos mayor que r y b
-        
-        const isGreen = g > r && g > b;
-        const isDarkish = totalBrightness < 250; // Más permisivo
-        const hasGreen = g >= 30; // Más permisivo
-        const hasGreenDominance = (g - r) >= 10 && (g - b) >= 10; // Más permisivo
-        
-        if (isGreen && isDarkish && hasGreen && hasGreenDominance) {
-            if (this._classifyDebugCount <= 20) {
-                console.log(`  ✅ FOREST detectado`);
-            }
+        // � TIPO 1: BOSQUE (forest) - Verde oscuro
+        // Solo árboles en las zonas más oscuras
+        if (
+            g >= 4 && g <= 70 &&        // 🔥 Verde MUY restrictivo (reducido de 120 a 70)
+            r >= 0 && r <= 50 &&        // 🔥 Rojo ultra-restrictivo (reducido de 80 a 50)
+            b >= 0 && b <= 40 &&        // 🔥 Azul ultra-restrictivo (reducido de 60 a 40)
+            hasStrongGreenDominance &&  // Verde MUY dominante
+            totalBrightness <= 160      // 🔥 Brillo ultra-restrictivo (reducido de 300 a 160)
+        ) {
             return 'forest';
         }
         
-        // ❌ TODO LO DEMÁS: IGNORAR (no agregar vegetación)
-        if (this._classifyDebugCount <= 20) {
-            console.log(`  ❌ IGNORADO (no es verde suficiente)`);
-        }
-        return null;
+        return null; // No es vegetación detectable (solo forest ahora)
     }
     
     /**
@@ -732,6 +774,9 @@ class SatelliteImageAnalyzer {
         texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.minFilter = THREE.LinearFilter;
         texture.magFilter = THREE.LinearFilter;
+        
+        // 🎨 FIX: Configurar colorSpace correcto para THREE.js r150+
+        texture.colorSpace = THREE.SRGBColorSpace;
         texture.needsUpdate = true; // Forzar actualización
         
         console.log(`✅ Textura THREE.js creada desde imagen satelital ${this.canvas.width}x${this.canvas.height}`);

@@ -113,8 +113,8 @@ class VegetationInstancer {
                     if (material.map) {
                         console.log(`  ✅ BaseColor texture encontrada`);
                         material.map.needsUpdate = true;
-                        // Asegurar que la textura use el encoding correcto
-                        material.map.encoding = THREE.sRGBEncoding;
+                        // 🎨 FIX: Usar colorSpace en lugar de encoding (THREE.js r150+)
+                        material.map.colorSpace = THREE.SRGBColorSpace;
                     } else {
                         console.warn(`  ⚠️ Sin baseColor texture - Aplicando color fallback`);
                         // Color verde oscuro para vegetación sin textura

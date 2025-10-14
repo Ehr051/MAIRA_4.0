@@ -24,6 +24,12 @@ class ElevationService extends GeospatialDataService {
         this.elevationHandler = null;
         this.tileIndex = null;
         
+        // 🚀 NUEVO: Cache de errores para evitar reintentos
+        this.failedTiles = new Set();
+        this.failedCoordsCache = new Map();
+        this.maxRetries = 3;
+        this.errorCacheTimeout = 300000; // 5 minutos
+        
         this._log('info', '🗻 ElevationService construido');
     }
     
@@ -224,6 +230,16 @@ class ElevationService extends GeospatialDataService {
             return cached;
         }
         
+        // 🚀 NUEVO: Verificar cache de errores
+        const errorKey = `${lat.toFixed(4)}_${lon.toFixed(4)}`;
+        const failedCoord = this.failedCoordsCache.get(errorKey);
+        if (failedCoord && (Date.now() - failedCoord.timestamp) < this.errorCacheTimeout) {
+            // Esta coordenada falló recientemente, usar procedural directamente
+            const elevation = this.getProceduralElevation(lat, lon);
+            this._setCache(cacheKey, elevation);
+            return elevation;
+        }
+        
         let elevation = null;
         
         // 🌍 MODO RENDER: Usar API
@@ -254,7 +270,13 @@ class ElevationService extends GeospatialDataService {
                     return elevation;
                 }
             } catch (error) {
-                this._log('debug', 'Error obteniendo elevación TIF:', error.message);
+                // 🚀 NUEVO: Marcar coordenada como fallida
+                this.failedCoordsCache.set(errorKey, {
+                    timestamp: Date.now(),
+                    retries: (failedCoord?.retries || 0) + 1
+                });
+                
+                this._log('debug', `Error TIF lat:${lat.toFixed(4)}, lon:${lon.toFixed(4)}: ${error.message}`);
             }
         }
         

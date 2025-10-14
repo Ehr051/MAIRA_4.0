@@ -1,5 +1,6 @@
 // vegetacionHandler.js - Sistema de vegetación MAIRA 4.0 con extracción dinámica desde GitHub Releases
 
+
 // Configuración para directorio estático en Render
 
 class VegetacionHandler {
@@ -38,8 +39,8 @@ class VegetacionHandler {
             const indexUrls = this.isLocal ? [
                 // 🏠 LOCAL: Solo rutas locales
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-                '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+                '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
             ] : [
                 // ☁️ RENDER: Solo GitHub proxy
@@ -189,6 +190,7 @@ class VegetacionHandler {
 
             // Fallbacks locales con batch
             `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
+            `../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
             `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
             `./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`
         ];
