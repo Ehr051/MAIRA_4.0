@@ -422,17 +422,17 @@ class TerrainGenerator3D {
         } else {
             // 🎯 Resolución optimizada para vistas tácticas (6km ≈ zoom 15)
             if (mapZoom < 13) {
-                resolution = 20; // 20×20 = 400 puntos - Vista estratégica (mucho más rápido)
+                resolution = 20; // 20×20 = 400 puntos - Vista estratégica
                 console.log('⚡ Resolución BAJA (zoom <13, estratégica): 20×20 = 400 puntos (9x velocidad)');
             } else if (mapZoom >= 13 && mapZoom < 15) {
-                resolution = 25; // 25×25 = 625 puntos - Transición (mejorado de 30×30)
-                console.log('⚡ Resolución MEDIA-BAJA (zoom 13-14): 25×25 = 625 puntos (6x velocidad)');
+                resolution = 22; // 22×22 = 484 puntos - Transición (reducido de 25)
+                console.log('⚡ Resolución MEDIA-BAJA (zoom 13-14): 22×22 = 484 puntos (7x velocidad)');
             } else if (mapZoom >= 15 && mapZoom < 17) {
-                resolution = 35; // 35×35 = 1225 puntos - Vista táctica 6km (mejorado de 40×40 para FPS)
-                console.log('⚡ Resolución MEDIA (zoom 15-16, táctica 6km): 35×35 = 1225 puntos (3x velocidad, 30+ FPS)');
+                resolution = 30; // 30×30 = 900 puntos - Vista táctica 6km (REDUCIDO de 35 para FPS)
+                console.log('⚡ Resolución TÁCTICA (zoom 15-16, 6km): 30×30 = 900 puntos (4x velocidad, 40+ FPS) ⚔️');
             } else {
-                resolution = 50; // 50×50 = 2500 puntos - Alta calidad (reducido de 60×60 para FPS)
-                console.log('⚡ Resolución ALTA (zoom 17+): 50×50 = 2500 puntos (calidad+velocidad)');
+                resolution = 45; // 45×45 = 2025 puntos - Alta calidad (reducido de 50)
+                console.log('⚡ Resolución ALTA (zoom 17+): 45×45 = 2025 puntos (calidad+rendimiento)');
             }
         }
         

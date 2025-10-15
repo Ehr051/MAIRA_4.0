@@ -1791,10 +1791,9 @@
                         activateFullscreen3D(); // 🚀 CRÍTICO: Activar modo fullscreen
                     }, 1000); // Mostrar "100%" por 1 segundo antes de cerrar
                 } else {
-                    // Si no auto-activamos, solo cerrar modal sin setTimeout
-                    // createFullView3D() se encargará de activar fullscreen
-                    hideLoadingModal();
-                    hideProgressBar();
+                    // Si no auto-activamos, NO cerrar modal
+                    // createFullView3D() se encargará de TODO (modal + fullscreen)
+                    console.log('✅ Terreno generado, dejando control a createFullView3D()');
                 }
                 
             } catch (error) {
@@ -1950,20 +1949,27 @@
                 // ✅ Verificar que el terreno se generó correctamente
                 if (!currentTerrain || !currentTerrain.terrain) {
                     hideLoadingModal();
+                    hideProgressBar();
                     log('❌ Error: No se pudo generar el terreno', 'error');
                     return;
                 }
                 
+                log('✅ Vista 3D creada exitosamente!', 'success');
+                
                 // 🎬 MOSTRAR COMPLETADO Y ACTIVAR FULLSCREEN
                 showLoadingModal('¡Vista 3D completada! ✅', 100);
+                
+                // ⏰ Esperar 1.5s para que usuario vea 100%, luego activar fullscreen
                 setTimeout(() => {
                     hideLoadingModal();
                     hideProgressBar();
-                    activateFullscreen3D(); // 🖥️ ACTIVAR MODO FULLSCREEN
-                }, 1000);
-                
-                log('✅ Vista 3D creada exitosamente!', 'success');
-                log('💡 Ahora puedes colocar unidades haciendo click en el terreno', 'info');
+                    
+                    // ⏰ Pequeño delay adicional para asegurar que modal se cerró
+                    setTimeout(() => {
+                        activateFullscreen3D(); // 🖥️ ACTIVAR MODO FULLSCREEN
+                        log('💡 Ahora puedes colocar unidades haciendo click en el terreno', 'info');
+                    }, 100);
+                }, 1500);
                 
             } catch (error) {
                 hideLoadingModal();
