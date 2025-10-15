@@ -1147,39 +1147,62 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // Configuración de densidad por tipo (AJUSTADA para razonable)
+        // 🌳 CONFIGURACIÓN DE VEGETACIÓN SIMPLIFICADA
+        // Sistema optimizado: Principalmente trees_low.glb (mejor modelo)
         const densityConfig = {
             'vegetation': { 
-                density: 0.10,          // ✅ 10% - Densidad BAJA pero visible
-                type: 'tree_tall',
-                scale: [0.04, 0.08],
+                density: 0.20,          // ✅ 20% - Vegetación visible
+                models: [
+                    { type: 'trees_low', weight: 6, scale: [0.015, 0.025] },    // 60% - trees_low (MEJOR MODELO) - escala correcta
+                    { type: 'tree_tall', weight: 2, scale: [0.040, 0.060] },    // 20% - Árboles altos (x2 escala)
+                    { type: 'tree_medium', weight: 2, scale: [0.036, 0.056] }   // 20% - Árboles medianos (x2 escala)
+                ],
                 priority: 2
             },
             'forest': { 
-                density: 0.15,          // ✅ 15% para bosques
-                type: 'tree_tall',
-                scale: [0.05, 0.08],
+                density: 0.30,          // ✅ 30% para bosques densos
+                models: [
+                    { type: 'trees_low', weight: 5, scale: [0.020, 0.035] },    // 50% - trees_low denso - escala correcta
+                    { type: 'tree_tall', weight: 3, scale: [0.050, 0.080] },    // 30% - Árboles altos (x2 escala)
+                    { type: 'tree_medium', weight: 2, scale: [0.044, 0.076] }   // 20% - Árboles medianos (x2 escala)
+                ],
                 priority: 1
             },
             'grass': { 
-                density: 0.00,          // DESACTIVADO
-                type: 'grass', 
-                scale: [0.0005, 0.001], 
+                density: 0.00,          // ❌ DESACTIVADO (solo árboles)
+                models: [
+                    { type: 'grass', weight: 1, scale: [0.0005, 0.001] }
+                ],
                 priority: 3
             },
             'crops': { 
-                density: 0.00,          // DESACTIVADO
-                type: 'bush', 
-                scale: [0.6, 1.0],
+                density: 0.00,          // ❌ DESACTIVADO (solo árboles)
+                models: [
+                    { type: 'trees_low', weight: 1, scale: [0.015, 0.020] }
+                ],
                 priority: 2
             }
         };
         
-        console.log(`📊 Configuración de densidad:`, Object.fromEntries(
-            Object.entries(densityConfig).map(([k, v]) => [k, `${(v.density * 100).toFixed(0)}%`])
-        ));
+        console.log(`📊 Configuración de diversidad por tipo:`);
+        Object.entries(densityConfig).forEach(([type, config]) => {
+            const modelList = config.models.map(m => `${m.type}(${m.weight})`).join(', ');
+            console.log(`  ${type}: ${(config.density * 100).toFixed(0)}% - [${modelList}]`);
+        });
         
         const instanceCounts = {};
+        
+        // 🎲 Función para seleccionar modelo según pesos
+        const selectModelByWeight = (models) => {
+            const totalWeight = models.reduce((sum, m) => sum + m.weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const model of models) {
+                random -= model.weight;
+                if (random <= 0) return model;
+            }
+            return models[models.length - 1]; // Fallback
+        };
         
         // Para cada tipo relevante
         for (const [featureType, features] of Object.entries(featuresByType)) {
@@ -1189,15 +1212,19 @@ class TerrainGenerator3D {
                 continue;
             }
             
-            console.log(`🌿 Procesando ${features.length} features de tipo '${featureType}' (densidad: ${(config.density * 100).toFixed(0)}%, tipo 3D: '${config.type}')...`);
+            console.log(`🌿 Procesando ${features.length} features de tipo '${featureType}' (densidad: ${(config.density * 100).toFixed(0)}%)...`);
             
             let createdCount = 0;
+            const typeModelCounts = {};
             
             features.forEach((feature, idx) => {
                 // Decidir si colocar instancia
                 if (Math.random() > config.density) return;
                 
                 createdCount++;
+                
+                // 🎲 Seleccionar modelo según sistema de pesos
+                const selectedModel = selectModelByWeight(config.models);
                 
                 // Convertir píxel a coordenadas 3D
                 const pos3D = this.imageToTerrainCoords(feature.x, feature.y);
@@ -1207,20 +1234,24 @@ class TerrainGenerator3D {
                 pos3D.x += (Math.random() - 0.5) * jitter;
                 pos3D.z += (Math.random() - 0.5) * jitter;
                 
-                // Crear instancia
+                // Crear instancia con modelo seleccionado
                 instances.push({
-                    type: config.type,
+                    type: selectedModel.type,
                     position: pos3D,
-                    scale: config.scale[0] + Math.random() * (config.scale[1] - config.scale[0]),
+                    scale: selectedModel.scale[0] + Math.random() * (selectedModel.scale[1] - selectedModel.scale[0]),
                     rotation: Math.random() * Math.PI * 2
                 });
+                
+                // Contar por tipo de modelo
+                typeModelCounts[selectedModel.type] = (typeModelCounts[selectedModel.type] || 0) + 1;
             });
             
-            instanceCounts[config.type] = (instanceCounts[config.type] || 0) + createdCount;
-            console.log(`  ✅ Creadas ${createdCount}/${features.length} instancias de '${config.type}' (${(createdCount / features.length * 100).toFixed(1)}%)`);
+            instanceCounts[featureType] = { total: createdCount, models: typeModelCounts };
+            console.log(`  ✅ ${featureType}: ${createdCount}/${features.length} instancias (${(createdCount / features.length * 100).toFixed(1)}%)`);
+            console.log(`     Distribución:`, typeModelCounts);
         }
         
-        console.log(`📊 Resumen de instancias creadas:`, instanceCounts);
+        console.log(`📊 Resumen de instancias por tipo:`, instanceCounts);
         console.log(`🎯 Total de instancias: ${instances.length}`);
         
         return instances;

@@ -19,19 +19,21 @@ class GLTFModelLoader {
         this.basePath = 'Client/assets/models/gbl_new/';
         
         // Mapeo de tipos de vegetación a archivos GLB
-        // ✅ CONFIGURACIÓN FUNCIONANDO: Usar trees_low.glb que funciona perfecto manual
+        // 🌳 SISTEMA DE DIVERSIDAD: Múltiples modelos para variedad natural
         this.vegetationModels = {
-            // ÁRBOLES BUENOS ✅ (USAR EL MODELO QUE FUNCIONA PERFECTO EN MANUAL)
-            'tree_tall': 'trees_low.glb',          // ✅ MISMO QUE MANUAL: trees_low.glb con escala 0.02
-            'tree_medium': 'trees_low.glb',        // ✅ MISMO QUE MANUAL: trees_low.glb con escala 0.02
-            'tree_oak': 'AnimatedOak.glb',         // 81MB - Oak animado ✅
-            'tree': 'trees_low.glb',               // 2.4MB - Árbol genérico ✅
+            // ÁRBOLES - VARIEDAD DE ALTURAS ✅
+            'tree_tall': 'tree_tall.glb',          // Árbol alto (escala 0.04-0.10)
+            'tree_medium': 'tree_medium.glb',      // Árbol mediano (escala 0.03-0.08)
+            'trees_low': 'trees_low.glb',          // Árboles bajos (escala 0.02-0.05)
+            'tree_oak': 'AnimatedOak.glb',         // Roble grande (escala 0.05-0.11)
+            'tree': 'arbol.glb',                   // Árbol genérico (fallback)
             
-            // ARBUSTOS BUENOS ✅
-            'bush': 'arbusto.glb',                 // 44MB - Arbusto ✅
+            // ARBUSTOS ✅
+            'bush': 'arbusto.glb',                 // Arbusto principal
+            'bush_alt': 'bush.glb',                // Arbusto alternativo
             
-            // PASTO BUENO ✅
-            'grass': 'grass.glb'                   // 🔥 PRUEBA: grass.glb en lugar de simple_grass_chunks.glb
+            // PASTO ✅
+            'grass': 'grass.glb'                   // Pasto bajo
         };
         
         // ✅ Estadísticas de carga para debugging
@@ -156,19 +158,61 @@ class GLTFModelLoader {
                 (gltf) => {
                     this.loadStats.successful++;
                     
-                    // Obtener tamaño del modelo
+                    // Obtener tamaño del modelo y analizar materiales/texturas
                     let vertexCount = 0;
                     let meshCount = 0;
+                    let materialsWithTextures = 0;
+                    
                     gltf.scene.traverse((child) => {
                         if (child.isMesh) {
                             meshCount++;
                             if (child.geometry) {
                                 vertexCount += child.geometry.attributes.position?.count || 0;
                             }
+                            
+                            // 🔍 DIAGNÓSTICO DE TEXTURAS + COLORES POR DEFECTO
+                            if (child.material) {
+                                const hasMap = !!child.material.map;
+                                const hasColor = child.material.color ? `#${child.material.color.getHexString()}` : 'none';
+                                
+                                if (hasMap) {
+                                    materialsWithTextures++;
+                                    console.log(`  🎨 Mesh "${child.name || 'unnamed'}": texture=${hasMap}, color=${hasColor}`);
+                                    
+                                    if (child.material.map.image) {
+                                        console.log(`    📸 Texture: ${child.material.map.image.width}x${child.material.map.image.height}px`);
+                                    }
+                                } else {
+                                    // ✅ NO HAY TEXTURA: Aplicar colores por defecto según nombre
+                                    const meshNameLower = (child.name || '').toLowerCase();
+                                    
+                                    if (meshNameLower.includes('trunk') || meshNameLower.includes('tronco') || meshNameLower.includes('stem')) {
+                                        // Tronco: marrón
+                                        child.material.color.setHex(0x6B4423); // Marrón oscuro
+                                        console.log(`  🟤 Mesh "${child.name || 'unnamed'}": SIN texture → color MARRÓN (tronco)`);
+                                    } else if (meshNameLower.includes('leaf') || meshNameLower.includes('leaves') || meshNameLower.includes('foliage') || 
+                                              meshNameLower.includes('hoja') || meshNameLower.includes('copa')) {
+                                        // Follaje: verde
+                                        child.material.color.setHex(0x2D5016); // Verde oscuro
+                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": SIN texture → color VERDE (follaje)`);
+                                    } else {
+                                        // Indefinido: verde medio por defecto (probablemente árbol)
+                                        child.material.color.setHex(0x4A7C59); // Verde medio
+                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": SIN texture → color VERDE medio (default)`);
+                                    }
+                                    
+                                    child.material.needsUpdate = true;
+                                }
+                            }
                         }
                     });
                     
-                    console.log(`✅ Modelo cargado: ${cacheKey} (${glbFile}) - ${meshCount} meshes, ${vertexCount.toLocaleString()} vértices`);
+                    console.log(`✅ Modelo cargado: ${cacheKey} (${glbFile})`);
+                    console.log(`   📊 ${meshCount} meshes, ${vertexCount.toLocaleString()} vértices`);
+                    console.log(`   🎨 ${materialsWithTextures}/${meshCount} meshes con texturas`);
+                    if (materialsWithTextures < meshCount) {
+                        console.log(`   🎨 ${meshCount - materialsWithTextures} meshes usan colores por defecto (marrón/verde)`);
+                    }
                     
                     const model = gltf.scene;
                     
@@ -214,41 +258,25 @@ class GLTFModelLoader {
     }
 
     /**
-     * Clona un modelo cacheado
+     * Clona un modelo cacheado SIN clonar materiales
+     * ✅ CRÍTICO: Compartir materiales/texturas para evitar pérdida de colores
      * @param {THREE.Group} model - Modelo original
      * @returns {THREE.Group} - Copia del modelo
      */
     cloneModel(model) {
         const clone = model.clone();
         
-        // ✅ Clonar materiales pero MANTENER texturas (no clonarlas)
+        // ✅ NO clonar materiales - compartirlos directamente
+        // Esto preserva las texturas originales del GLB
         clone.traverse((child) => {
             if (child.isMesh && child.material) {
-                // Clonar material pero compartir texturas (más eficiente y evita grises)
-                const materialClone = child.material.clone();
+                // ✅ COMPARTIR material (no clonar) - preserva texturas
+                // Las instancias usan el mismo material = más eficiente + colores correctos
+                child.material = child.material; // Explícito: NO hacer clone()
                 
-                // ✅ CRÍTICO: Asegurar que las texturas se mantienen
-                if (child.material.map) {
-                    materialClone.map = child.material.map; // Compartir textura (no clonar)
-                    materialClone.map.needsUpdate = false; // Ya está cargada
-                }
-                if (child.material.normalMap) {
-                    materialClone.normalMap = child.material.normalMap;
-                }
-                if (child.material.roughnessMap) {
-                    materialClone.roughnessMap = child.material.roughnessMap;
-                }
-                if (child.material.metalnessMap) {
-                    materialClone.metalnessMap = child.material.metalnessMap;
-                }
-                if (child.material.aoMap) {
-                    materialClone.aoMap = child.material.aoMap;
-                }
-                
-                // Forzar actualización del material
-                materialClone.needsUpdate = true;
-                
-                child.material = materialClone;
+                // Asegurar que las sombras están activadas
+                child.castShadow = true;
+                child.receiveShadow = true;
             }
         });
         
