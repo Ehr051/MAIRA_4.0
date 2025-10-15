@@ -414,12 +414,40 @@ class TerrainGenerator3D {
         this.config.realWorldSize = Math.max(scaledWidth, scaledHeight); // Para referencia
         this.bounds = bounds;
         
-        // Aplicar opciones
-        const resolution = options.resolution || this.config.resolution;
+        // 🚀 OPTIMIZACIÓN: Resolución adaptativa según zoom
+        let resolution;
+        if (options.resolution) {
+            // Si se especifica resolución manualmente, usarla
+            resolution = options.resolution;
+        } else {
+            // Calcular resolución adaptativa según zoom
+            if (mapZoom < 13) {
+                resolution = 20; // 20×20 = 400 puntos (9x más rápido)
+                console.log('⚡ Resolución BAJA (zoom <13): 20×20 = 400 puntos (9x velocidad)');
+            } else if (mapZoom >= 13 && mapZoom < 15) {
+                resolution = 30; // 30×30 = 900 puntos (4x más rápido)
+                console.log('⚡ Resolución MEDIA (zoom 13-14): 30×30 = 900 puntos (4x velocidad)');
+            } else if (mapZoom >= 15 && mapZoom < 17) {
+                resolution = 40; // 40×40 = 1600 puntos (2x más rápido)
+                console.log('⚡ Resolución ALTA (zoom 15-16): 40×40 = 1600 puntos (2x velocidad)');
+            } else {
+                resolution = 60; // 60×60 = 3600 puntos (máxima calidad)
+                console.log('⚡ Resolución MÁXIMA (zoom 17+): 60×60 = 3600 puntos (máxima calidad)');
+            }
+        }
+        
         const includeVegetation = options.includeVegetation !== false;
+        
+        // 🚀 Callback de progreso (si existe window.updateProgressBar)
+        const updateProgress = (msg, pct) => {
+            if (typeof window.updateProgressBar === 'function') {
+                window.updateProgressBar(msg, pct);
+            }
+        };
         
         try {
             // Paso 1: Generar grid de puntos
+            updateProgress('🏗️ Generando grid de puntos...', 5);
             const points = await this.generatePointGrid(bounds, resolution);
             console.log(`✅ Grid generado: ${points.length} puntos`);
             
@@ -429,18 +457,26 @@ class TerrainGenerator3D {
                 console.log(`📊 Estructura de punto: normX=${firstPoint.normX}, normY=${firstPoint.normY}, x=${firstPoint.x}, y=${firstPoint.y}`);
             }
             
+            updateProgress('📊 Grid generado', 15);
+            
             // Paso 2: Obtener datos de elevación y vegetación
+            updateProgress('🗻 Cargando datos de elevación...', 25);
             const enrichedPoints = await this.enrichPointsWithData(points);
             console.log(`✅ Puntos enriquecidos con elevación y NDVI`);
+            updateProgress('✅ Datos de elevación cargados', 55);
             
             // Paso 3: Crear malla de terreno
+            updateProgress('🏔️ Creando geometría del terreno...', 65);
             this.terrainMesh = this.createTerrainMesh(enrichedPoints, resolution);
             console.log('✅ Malla de terreno creada');
+            updateProgress('✅ Terreno creado', 75);
             
             // Paso 4: Agregar vegetación
             if (includeVegetation && this.vegetationHandler) {
+                updateProgress('🌳 Generando vegetación...', 80);
                 await this.addVegetationLayer(enrichedPoints);
                 console.log(`✅ Vegetación agregada: ${this.vegetationObjects.length} objetos`);
+                updateProgress('✅ Vegetación agregada', 90);
             }
             
             // Paso 5: Agregar caminos 3D desde SatelliteAnalyzer
@@ -479,6 +515,8 @@ class TerrainGenerator3D {
             */
             console.log(`⚠️ Agua desactivada temporalmente`);
             
+            updateProgress('✅ Terreno 3D completado', 100);
+            
             return {
                 terrain: this.terrainMesh,
                 vegetation: this.vegetationObjects,
@@ -491,6 +529,9 @@ class TerrainGenerator3D {
             
         } catch (error) {
             console.error('❌ Error generando terreno:', error);
+            if (typeof window.updateProgressBar === 'function') {
+                window.updateProgressBar('❌ Error generando terreno', 0);
+            }
             throw error;
         }
     }

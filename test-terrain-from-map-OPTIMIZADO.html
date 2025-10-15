@@ -842,6 +842,28 @@
             modal.style.display = 'none';
         }
         
+        /**
+         * 🚀 PROGRESS BAR OPTIMIZADO - Feedback visual durante generación
+         */
+        function updateProgressBar(message, progress) {
+            const container = document.getElementById('progress-container');
+            const textEl = document.getElementById('progress-text');
+            const fillEl = document.getElementById('progress-fill');
+            
+            container.style.display = 'flex';
+            textEl.textContent = message;
+            fillEl.style.width = `${progress}%`;
+            fillEl.textContent = `${Math.round(progress)}%`;
+            
+            // Log para debug
+            console.log(`📊 Progress: ${message} (${Math.round(progress)}%)`);
+        }
+        
+        function hideProgressBar() {
+            const container = document.getElementById('progress-container');
+            container.style.display = 'none';
+        }
+        
         // === LOGGING ===
         function log(message, type = 'info') {
             const logPanel = document.getElementById('status-log');
@@ -1763,14 +1785,16 @@
                     }
                 }
                 
-                // 🎬 CERRAR MODAL AL FINALIZAR EXITOSAMENTE
+                // 🎬 CERRAR MODAL Y PROGRESS BAR AL FINALIZAR EXITOSAMENTE
                 showLoadingModal('¡Vista 3D completada! ✅', 100);
                 setTimeout(() => {
                     hideLoadingModal();
+                    hideProgressBar(); // 🚀 Ocultar progress bar también
                 }, 1000); // Mostrar "100%" por 1 segundo antes de cerrar
                 
             } catch (error) {
                 hideLoadingModal(); // Cerrar modal en caso de error
+                hideProgressBar(); // 🚀 Ocultar progress bar también
                 log(`❌ Error: ${error.message}`, 'error');
                 console.error(error);
             }
