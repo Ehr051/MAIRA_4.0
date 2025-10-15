@@ -588,6 +588,13 @@ class TerrainGenerator3D {
         
         console.log(`📊 Rango de elevación: ${minElevation.toFixed(1)}m a ${maxElevation.toFixed(1)}m`);
         
+        // 🐛 DEBUG: Verificar elevaciones en los 4 bordes
+        console.log('🔍 DEBUG - Elevaciones en bordes:');
+        console.log(`  Norte (i=${resolution}): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(j => `j=${j}:${gridPoints[resolution][j].elevation.toFixed(1)}m`).join(', ')}`);
+        console.log(`  Sur (i=0): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(j => `j=${j}:${gridPoints[0][j].elevation.toFixed(1)}m`).join(', ')}`);
+        console.log(`  Este (j=${resolution}): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(i => `i=${i}:${gridPoints[i][resolution].elevation.toFixed(1)}m`).join(', ')}`);
+        console.log(`  Oeste (j=0): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(i => `i=${i}:${gridPoints[i][0].elevation.toFixed(1)}m`).join(', ')}`);
+        
         // Guardar para uso posterior (vegetación, modelos)
         this.terrainMinElevation = minElevation;
         this.terrainMaxElevation = maxElevation;
