@@ -1147,24 +1147,32 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // 🌳 CONFIGURACIÓN DE VEGETACIÓN SIMPLIFICADA
-        // Sistema optimizado: Principalmente trees_low.glb (mejor modelo)
+        // 🌳 CONFIGURACIÓN DE VEGETACIÓN CON VARIEDAD REAL
+        // Usando trees_low.glb y arbol.glb con diferentes escalas para diversidad
         const densityConfig = {
             'vegetation': { 
                 density: 0.20,          // ✅ 20% - Vegetación visible
                 models: [
-                    { type: 'trees_low', weight: 6, scale: [0.015, 0.025] },    // 60% - trees_low (MEJOR MODELO) - escala correcta
-                    { type: 'tree_tall', weight: 2, scale: [0.040, 0.060] },    // 20% - Árboles altos (x2 escala)
-                    { type: 'tree_medium', weight: 2, scale: [0.036, 0.056] }   // 20% - Árboles medianos (x2 escala)
+                    // trees_low.glb en diferentes tamaños
+                    { type: 'trees_low_small', weight: 3, scale: [0.015, 0.020] },   // 30% - Árboles pequeños
+                    { type: 'trees_low_medium', weight: 3, scale: [0.020, 0.028] },  // 30% - Árboles medianos
+                    { type: 'trees_low_large', weight: 2, scale: [0.028, 0.035] },   // 20% - Árboles grandes
+                    
+                    // arbol.glb en diferentes tamaños
+                    { type: 'arbol_small', weight: 1, scale: [0.012, 0.018] },       // 10% - Arbol pequeño
+                    { type: 'arbol_large', weight: 1, scale: [0.022, 0.032] }        // 10% - Arbol grande
                 ],
                 priority: 2
             },
             'forest': { 
                 density: 0.30,          // ✅ 30% para bosques densos
                 models: [
-                    { type: 'trees_low', weight: 5, scale: [0.020, 0.035] },    // 50% - trees_low denso - escala correcta
-                    { type: 'tree_tall', weight: 3, scale: [0.050, 0.080] },    // 30% - Árboles altos (x2 escala)
-                    { type: 'tree_medium', weight: 2, scale: [0.044, 0.076] }   // 20% - Árboles medianos (x2 escala)
+                    // Bosque denso con mix de ambos modelos
+                    { type: 'trees_low_medium', weight: 4, scale: [0.025, 0.035] },  // 40% - trees_low denso
+                    { type: 'trees_low_large', weight: 2, scale: [0.030, 0.045] },   // 20% - trees_low grandes
+                    { type: 'arbol_medium', weight: 2, scale: [0.020, 0.030] },      // 20% - arbol mediano
+                    { type: 'arbol_large', weight: 1, scale: [0.030, 0.045] },       // 10% - arbol grande
+                    { type: 'trees_low_small', weight: 1, scale: [0.018, 0.025] }    // 10% - sotobosque
                 ],
                 priority: 1
             },

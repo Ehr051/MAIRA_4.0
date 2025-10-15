@@ -21,12 +21,25 @@ class GLTFModelLoader {
         // Mapeo de tipos de vegetación a archivos GLB
         // 🌳 SISTEMA DE DIVERSIDAD: Múltiples modelos para variedad natural
         this.vegetationModels = {
-            // ÁRBOLES - VARIEDAD DE ALTURAS ✅
-            'tree_tall': 'tree_tall.glb',          // Árbol alto (escala 0.04-0.10)
-            'tree_medium': 'tree_medium.glb',      // Árbol mediano (escala 0.03-0.08)
-            'trees_low': 'trees_low.glb',          // Árboles bajos (escala 0.02-0.05)
-            'tree_oak': 'AnimatedOak.glb',         // Roble grande (escala 0.05-0.11)
-            'tree': 'arbol.glb',                   // Árbol genérico (fallback)
+            // ÁRBOLES - VARIEDAD REAL (solo modelos válidos >1MB) ✅
+            'trees_low': 'trees_low.glb',          // 2.4MB - Árboles principales ✅
+            'arbol': 'arbol.glb',                  // 8.9MB - Árbol alternativo ✅
+            'tree_oak': 'AnimatedOak.glb',         // Roble grande (si existe)
+            
+            // VARIACIONES DE trees_low (mismo modelo, diferentes escalas)
+            'trees_low_small': 'trees_low.glb',    // Versión pequeña
+            'trees_low_medium': 'trees_low.glb',   // Versión mediana
+            'trees_low_large': 'trees_low.glb',    // Versión grande
+            
+            // VARIACIONES DE arbol.glb
+            'arbol_small': 'arbol.glb',            // Versión pequeña
+            'arbol_medium': 'arbol.glb',           // Versión mediana
+            'arbol_large': 'arbol.glb',            // Versión grande
+            
+            // FALLBACKS (tree_tall y tree_medium están corruptos - 1KB)
+            'tree_tall': 'trees_low.glb',          // Fallback a trees_low
+            'tree_medium': 'arbol.glb',            // Fallback a arbol
+            'tree': 'trees_low.glb',               // Genérico
             
             // ARBUSTOS ✅
             'bush': 'arbusto.glb',                 // Arbusto principal

@@ -937,6 +937,42 @@ async function obtenerElevacion(lat, lon) {
     return null;
   }
 
+  // 🔧 VALIDACIÓN DE ANOMALÍAS: Detectar valores extremos o corruptos
+  if (elevation < -500 || elevation > 7000) {
+    console.warn(`⚠️ ANOMALÍA DETECTADA: Elevación fuera de rango para Argentina: ${elevation}m en lat=${lat.toFixed(4)}, lon=${lon.toFixed(4)}`);
+    console.warn(`   Tile bounds: ${tiepoint[3].toFixed(4)},${tiepoint[4].toFixed(4)} | Pixel: ${x},${y} | Dimensiones: ${width}x${height}`);
+    
+    // Calcular promedio de vecinos para detectar si es un valor aislado
+    const neighbors = [];
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+          const neighborElev = data[ny * width + nx];
+          if (neighborElev !== undefined && !isNaN(neighborElev) && neighborElev > -500 && neighborElev < 7000) {
+            neighbors.push(neighborElev);
+          }
+        }
+      }
+    }
+    
+    if (neighbors.length > 0) {
+      const avgNeighbors = neighbors.reduce((a, b) => a + b, 0) / neighbors.length;
+      console.warn(`   Promedio vecinos: ${avgNeighbors.toFixed(2)}m (${neighbors.length} válidos)`);
+      
+      // Si los vecinos son razonables pero este punto no, usamos el promedio
+      if (Math.abs(elevation - avgNeighbors) > 100) {
+        console.warn(`   🔧 CORRECCIÓN APLICADA: Usando promedio de vecinos (${avgNeighbors.toFixed(2)}m) en lugar de ${elevation.toFixed(2)}m`);
+        return parseFloat(avgNeighbors.toFixed(2));
+      }
+    } else {
+      console.warn(`   ❌ Sin vecinos válidos para corrección`);
+      return null; // No hay datos confiables
+    }
+  }
+
   return parseFloat(elevation.toFixed(2));
 }
 
