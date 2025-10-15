@@ -420,19 +420,19 @@ class TerrainGenerator3D {
             // Si se especifica resolución manualmente, usarla
             resolution = options.resolution;
         } else {
-            // Calcular resolución adaptativa según zoom
+            // 🎯 Resolución optimizada para vistas tácticas (6km ≈ zoom 15)
             if (mapZoom < 13) {
-                resolution = 20; // 20×20 = 400 puntos (9x más rápido)
-                console.log('⚡ Resolución BAJA (zoom <13): 20×20 = 400 puntos (9x velocidad)');
+                resolution = 20; // 20×20 = 400 puntos - Vista estratégica (mucho más rápido)
+                console.log('⚡ Resolución BAJA (zoom <13, estratégica): 20×20 = 400 puntos (9x velocidad)');
             } else if (mapZoom >= 13 && mapZoom < 15) {
-                resolution = 30; // 30×30 = 900 puntos (4x más rápido)
-                console.log('⚡ Resolución MEDIA (zoom 13-14): 30×30 = 900 puntos (4x velocidad)');
+                resolution = 25; // 25×25 = 625 puntos - Transición (mejorado de 30×30)
+                console.log('⚡ Resolución MEDIA-BAJA (zoom 13-14): 25×25 = 625 puntos (6x velocidad)');
             } else if (mapZoom >= 15 && mapZoom < 17) {
-                resolution = 40; // 40×40 = 1600 puntos (2x más rápido)
-                console.log('⚡ Resolución ALTA (zoom 15-16): 40×40 = 1600 puntos (2x velocidad)');
+                resolution = 35; // 35×35 = 1225 puntos - Vista táctica 6km (mejorado de 40×40 para FPS)
+                console.log('⚡ Resolución MEDIA (zoom 15-16, táctica 6km): 35×35 = 1225 puntos (3x velocidad, 30+ FPS)');
             } else {
-                resolution = 60; // 60×60 = 3600 puntos (máxima calidad)
-                console.log('⚡ Resolución MÁXIMA (zoom 17+): 60×60 = 3600 puntos (máxima calidad)');
+                resolution = 50; // 50×50 = 2500 puntos - Alta calidad (reducido de 60×60 para FPS)
+                console.log('⚡ Resolución ALTA (zoom 17+): 50×50 = 2500 puntos (calidad+velocidad)');
             }
         }
         
@@ -758,7 +758,8 @@ class TerrainGenerator3D {
                 if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
                     try {
                         elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
-                        if (isNaN(elevation) || elevation === null || elevation === undefined) {
+                        // 🛡️ Validación robusta de NaN/null/undefined/Infinity
+                        if (isNaN(elevation) || elevation === null || elevation === undefined || !isFinite(elevation)) {
                             elevation = this.generateProceduralHeight(point.lat, point.lon);
                         }
                     } catch (error) {
@@ -772,7 +773,8 @@ class TerrainGenerator3D {
                 if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
                     try {
                         ndvi = await this.vegetationHandler.getNDVI(point.lat, point.lon, point.normX, point.normY);
-                        if (isNaN(ndvi) || ndvi === null || ndvi === undefined) {
+                        // 🛡️ Validación robusta de NaN/null/undefined/Infinity
+                        if (isNaN(ndvi) || ndvi === null || ndvi === undefined || !isFinite(ndvi)) {
                             ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
                         }
                     } catch (error) {
@@ -803,6 +805,11 @@ class TerrainGenerator3D {
         // 🎯 PASO 3: Interpolar valores para puntos intermedios
         const interpolationStart = performance.now();
         // ELIMINADO LOG: console.log(`🔄 Interpolando ${points.length - sampledPoints.length} puntos intermedios...`);
+        
+        // 🔍 Contador de NaN detectados y corregidos
+        let nanCount = 0;
+        const nanLocations = [];
+        
         const enrichedPoints = points.map((point, index) => {
             let elevation, ndvi;
             
@@ -824,6 +831,29 @@ class TerrainGenerator3D {
                 ndvi = interpolated.ndvi;
             }
             
+            // 🛡️ VALIDACIÓN Y CORRECCIÓN DE NaN
+            if (isNaN(elevation) || elevation === null || elevation === undefined || !isFinite(elevation)) {
+                nanCount++;
+                if (nanLocations.length < 10) { // Guardar solo primeros 10 para log
+                    nanLocations.push({ lat: point.lat, lon: point.lon, index });
+                }
+                
+                // 🔧 CORRECCIÓN: Interpolar con vecinos válidos
+                const row = Math.floor(index / gridResolution);
+                const col = index % gridResolution;
+                elevation = this.fixNaNElevation(row, col, gridResolution, sampledData, samplingRate);
+                
+                // Si aún es NaN (todos vecinos inválidos), usar nivel del mar
+                if (isNaN(elevation) || !isFinite(elevation)) {
+                    elevation = 0; // Nivel del mar como fallback seguro
+                }
+            }
+            
+            // Validar NDVI también
+            if (isNaN(ndvi) || ndvi === null || ndvi === undefined || !isFinite(ndvi)) {
+                ndvi = 0.3; // NDVI medio como fallback
+            }
+            
             return {
                 ...point,
                 elevation: elevation,
@@ -838,7 +868,74 @@ class TerrainGenerator3D {
         const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
         console.log(`✅ ${enrichedPoints.length} puntos enriquecidos en ${totalTime}s (muestreo: ${samplingTime}s, interpolación: ${interpolationTime}s)`);
         console.log(`📊 Desglose: ${sampledPoints.length} muestreados, ${enrichedPoints.length - sampledPoints.length} interpolados`);
+        
+        // 🛡️ Reportar NaN detectados y corregidos
+        if (nanCount > 0) {
+            console.warn(`⚠️ NaN detectados y corregidos: ${nanCount} puntos (${(nanCount/enrichedPoints.length*100).toFixed(2)}%)`);
+            if (nanLocations.length > 0) {
+                console.warn(`📍 Primeras ${nanLocations.length} ubicaciones con NaN:`);
+                nanLocations.forEach(loc => {
+                    console.warn(`   - [${loc.index}] lat=${loc.lat.toFixed(6)}, lon=${loc.lon.toFixed(6)}`);
+                });
+            }
+        }
+        
         return enrichedPoints;
+    }
+    
+    /**
+     * 🔧 Corregir elevación NaN interpolando con vecinos válidos (8 direcciones)
+     * Búsqueda ampliada hasta 4 saltos con peso por distancia
+     */
+    fixNaNElevation(row, col, gridResolution, sampledData, samplingRate) {
+        const neighbors = [];
+        
+        // 8 direcciones: N, NE, E, SE, S, SW, W, NW
+        const directions = [
+            [-1, 0], [-1, 1], [0, 1], [1, 1],
+            [1, 0], [1, -1], [0, -1], [-1, -1]
+        ];
+        
+        // 🔍 Buscar vecinos válidos en radio ampliado (hasta 4 saltos)
+        for (const [dr, dc] of directions) {
+            let distance = samplingRate;
+            // 🚀 MEJORA: Buscar hasta 4 saltos en lugar de 2
+            while (distance <= samplingRate * 4) {
+                const neighborRow = row + dr * distance;
+                const neighborCol = col + dc * distance;
+                
+                // Verificar bounds
+                if (neighborRow >= 0 && neighborRow < gridResolution && 
+                    neighborCol >= 0 && neighborCol < gridResolution) {
+                    
+                    // Verificar si es punto muestreado
+                    if (neighborRow % samplingRate === 0 || neighborCol % samplingRate === 0 ||
+                        neighborRow === gridResolution - 1 || neighborCol === gridResolution - 1) {
+                        
+                        const neighborIndex = neighborRow * gridResolution + neighborCol;
+                        const data = sampledData.get(neighborIndex);
+                        
+                        if (data && !isNaN(data.elevation) && isFinite(data.elevation)) {
+                            // 🎯 Peso inversamente proporcional a la distancia
+                            const weight = 1.0 / distance;
+                            neighbors.push({ elevation: data.elevation, weight });
+                            break; // Encontrado vecino válido en esta dirección
+                        }
+                    }
+                }
+                distance += samplingRate;
+            }
+        }
+        
+        // Si encontramos vecinos válidos, promediar con pesos
+        if (neighbors.length > 0) {
+            const totalWeight = neighbors.reduce((sum, n) => sum + n.weight, 0);
+            const weightedSum = neighbors.reduce((sum, n) => sum + n.elevation * n.weight, 0);
+            return weightedSum / totalWeight;
+        }
+        
+        // No hay vecinos válidos, retornar NaN para fallback a nivel del mar
+        return NaN;
     }
     
     /**

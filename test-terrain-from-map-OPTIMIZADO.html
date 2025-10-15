@@ -1456,6 +1456,7 @@
         let lastTime = performance.now();
         let frustum = null;
         let frustumMatrix = null;
+        let frameCount = 0; // Para debugging del frustum culling
         
         function animate() {
             requestAnimationFrame(animate);
@@ -1480,16 +1481,32 @@
                     frustumMatrix = new THREE.Matrix4();
                 }
                 
-                camera.updateMatrixWorld();
+                // 🎯 Forzar actualización completa de matrices (incluye hijos)
+                camera.updateMatrixWorld(true);
+                scene.updateMatrixWorld(true);
+                
                 frustumMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
                 frustum.setFromProjectionMatrix(frustumMatrix);
                 
+                // Recorrer escena y ocultar objetos fuera del frustum
+                let visibleCount = 0;
+                let hiddenCount = 0;
                 scene.traverse((object) => {
                     if (object.isMesh || object.isLOD) {
                         // Verificar si el objeto está en el frustum
+                        const wasVisible = object.visible;
                         object.visible = frustum.intersectsObject(object);
+                        
+                        if (object.visible) visibleCount++;
+                        else hiddenCount++;
                     }
                 });
+                
+                // Log solo cada 60 frames (1 segundo a 60 FPS) para debug
+                if (frameCount % 60 === 0) {
+                    // console.log(`🔍 Frustum: ${visibleCount} visible, ${hiddenCount} ocultos`);
+                }
+                frameCount++;
             }
             
             controls.update();
@@ -1778,6 +1795,9 @@
                 console.error(error);
             }
         }
+        
+        // 🌍 Exponer createFullView3D como función global para DetectorZoom3D
+        window.createFullView3D = createFullView3D;
         
         // === MOSTRAR DEBUG CANVAS ===
         function showDebugCanvas() {
