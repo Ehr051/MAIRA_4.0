@@ -1498,8 +1498,8 @@
         }
         
         let lastTime = performance.now();
-        let frustum = new THREE.Frustum();
-        let frustumMatrix = new THREE.Matrix4();
+        let frustum = null;
+        let frustumMatrix = null;
         
         function animate() {
             requestAnimationFrame(animate);
@@ -1517,16 +1517,24 @@
             }
             
             // 🚀 FRUSTUM CULLING: Solo renderizar objetos visibles
-            camera.updateMatrixWorld();
-            frustumMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-            frustum.setFromProjectionMatrix(frustumMatrix);
-            
-            scene.traverse((object) => {
-                if (object.isMesh || object.isLOD) {
-                    // Verificar si el objeto está en el frustum
-                    object.visible = frustum.intersectsObject(object);
+            if (scene && camera) {
+                // Inicializar frustum la primera vez
+                if (!frustum) {
+                    frustum = new THREE.Frustum();
+                    frustumMatrix = new THREE.Matrix4();
                 }
-            });
+                
+                camera.updateMatrixWorld();
+                frustumMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+                frustum.setFromProjectionMatrix(frustumMatrix);
+                
+                scene.traverse((object) => {
+                    if (object.isMesh || object.isLOD) {
+                        // Verificar si el objeto está en el frustum
+                        object.visible = frustum.intersectsObject(object);
+                    }
+                });
+            }
             
             controls.update();
             renderer.render(scene, camera);
