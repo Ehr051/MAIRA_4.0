@@ -293,51 +293,6 @@
         #close-3d-button i {
             margin-right: 8px;
         }
-        
-        /* Progress bar para carga optimizada */
-        #progress-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10002;
-            background: rgba(20, 20, 30, 0.95);
-            padding: 30px;
-            border-radius: 12px;
-            min-width: 400px;
-            display: none;
-            border: 2px solid #4fd1c5;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-        }
-        
-        #progress-bar {
-            width: 100%;
-            height: 30px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-        
-        #progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4fd1c5, #38b2ac);
-            width: 0%;
-            transition: width 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        #progress-text {
-            color: #4fd1c5;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -361,14 +316,6 @@
     <button id="close-3d-button" onclick="closeFullscreen3D()">
         <i class="fas fa-times"></i> Cerrar Vista 3D
     </button>
-    
-    <!-- 📊 PROGRESS BAR OPTIMIZADO -->
-    <div id="progress-container">
-        <div id="progress-text">Cargando terreno...</div>
-        <div id="progress-bar">
-            <div id="progress-fill">0%</div>
-        </div>
-    </div>
     
     <div id="main-container">
         <!-- Sidebar -->
@@ -843,25 +790,17 @@
         }
         
         /**
-         * 🚀 PROGRESS BAR OPTIMIZADO - Feedback visual durante generación
+         * 🚀 PROGRESS BAR UNIFICADO - Usa el mismo modal que showLoadingModal
          */
         function updateProgressBar(message, progress) {
-            const container = document.getElementById('progress-container');
-            const textEl = document.getElementById('progress-text');
-            const fillEl = document.getElementById('progress-fill');
-            
-            container.style.display = 'flex';
-            textEl.textContent = message;
-            fillEl.style.width = `${progress}%`;
-            fillEl.textContent = `${Math.round(progress)}%`;
-            
-            // Log para debug
+            // Reutilizar showLoadingModal para evitar duplicación
+            showLoadingModal(message, progress);
             console.log(`📊 Progress: ${message} (${Math.round(progress)}%)`);
         }
         
         function hideProgressBar() {
-            const container = document.getElementById('progress-container');
-            container.style.display = 'none';
+            // Alias para consistencia
+            hideLoadingModal();
         }
         
         // === LOGGING ===
