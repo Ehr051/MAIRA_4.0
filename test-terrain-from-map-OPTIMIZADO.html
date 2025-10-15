@@ -1529,30 +1529,17 @@
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
             
-            // 🎯 CALCULAR ALTURA SEGÚN ZOOM DE LEAFLET
-            // Leaflet usa zoom 0-19, donde cada nivel duplica la escala
-            // Zoom más alto = más cerca, altura menor
-            let cameraHeight;
-            if (capturedZoom) {
-                // Formula: altura = dimensión_terreno * factor_zoom REDUCIDO
-                // Zoom 19 (muy cerca) → factor 0.3 (era 0.8)
-                // Zoom 15 (medio) → factor 0.8 (era 2.0)
-                // Zoom 10 (lejos) → factor 2.0 (era 5.0)
-                const zoomFactor = Math.pow(2, 19 - capturedZoom) * 0.3;  // ⬇️ Factor más bajo
-                const maxDim = Math.max(size.x, size.z);
-                cameraHeight = maxDim * zoomFactor;
-                console.log(`📐 Zoom: ${capturedZoom}, Factor: ${zoomFactor.toFixed(2)}, Altura: ${cameraHeight.toFixed(0)}m`);
-            } else {
-                // Fallback: calcular altura según FOV
-                const maxDim = Math.max(size.x, size.z);
-                const fov = camera.fov * (Math.PI / 180);
-                cameraHeight = Math.abs(maxDim / Math.sin(fov / 2)) * 1.2;
-            }
+            // 🎯 ALTURA FIJA para vista táctica consistente
+            // Sin importar tamaño del mapa, siempre la misma altura
+            const cameraHeight = 3000; // 3km de altura - Vista táctica estándar
+            
+            console.log(`📐 Altura FIJA: ${cameraHeight}m (táctica estándar)`);
+            console.log(`� Tamaño terreno: ${size.x.toFixed(0)}m × ${size.z.toFixed(0)}m`);
             
             // 🗺️ VISTA AZIMUTAL (desde arriba, perpendicular al mapa)
             camera.position.set(
                 center.x,                    // Centrado en X
-                center.y + cameraHeight,     // Altura según zoom
+                center.y + cameraHeight,     // Altura fija 3km
                 center.z                     // Centrado en Z
             );
             
@@ -1565,7 +1552,7 @@
                 controls.update();
             }
             
-            console.log(`📷 Cámara azimutal: altura=${cameraHeight.toFixed(0)}m, centro=${center.x.toFixed(0)},${center.y.toFixed(0)},${center.z.toFixed(0)}`);
+            console.log(`📷 Cámara azimutal: altura=${cameraHeight}m, centro=${center.x.toFixed(0)},${center.y.toFixed(0)},${center.z.toFixed(0)}`);
         }
         
         // === GENERAR TERRENO ===
