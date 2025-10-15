@@ -963,13 +963,42 @@ async function obtenerElevacion(lat, lon) {
       console.warn(`   Promedio vecinos: ${avgNeighbors.toFixed(2)}m (${neighbors.length} válidos)`);
       
       // Si los vecinos son razonables pero este punto no, usamos el promedio
-      if (Math.abs(elevation - avgNeighbors) > 100) {
-        console.warn(`   🔧 CORRECCIÓN APLICADA: Usando promedio de vecinos (${avgNeighbors.toFixed(2)}m) en lugar de ${elevation.toFixed(2)}m`);
+      if (Math.abs(elevation - avgNeighbors) > 5) {  // ⚙️ THRESHOLD ULTRA-REDUCIDO: 50m → 5m (suavizado máximo)
+        console.warn(`   🔧 CORRECCIÓN APLICADA: Usando promedio de vecinos (${avgNeighbors.toFixed(2)}m) en lugar de ${elevation.toFixed(2)}m (diff: ${Math.abs(elevation - avgNeighbors).toFixed(2)}m)`);
         return parseFloat(avgNeighbors.toFixed(2));
       }
     } else {
       console.warn(`   ❌ Sin vecinos válidos para corrección`);
       return null; // No hay datos confiables
+    }
+  }
+  
+  // 🔧 VALIDACIÓN ADICIONAL: Detectar anomalías menores dentro del rango válido
+  // Buscar diferencias abruptas con vecinos (>50m) que puedan ser errores
+  const neighbors = [];
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+        const neighborElev = data[ny * width + nx];
+        if (neighborElev !== undefined && !isNaN(neighborElev) && neighborElev > -500 && neighborElev < 7000) {
+          neighbors.push(neighborElev);
+        }
+      }
+    }
+  }
+  
+  if (neighbors.length >= 4) {  // Al menos 4 vecinos para confiabilidad
+    const avgNeighbors = neighbors.reduce((a, b) => a + b, 0) / neighbors.length;
+    const diff = Math.abs(elevation - avgNeighbors);
+    
+    if (diff > 50) {  // ⚙️ Diferencia >50m con vecinos = posible anomalía
+      console.warn(`⚠️ ANOMALÍA MENOR: Elevación ${elevation}m difiere ${diff.toFixed(2)}m del promedio de vecinos (${avgNeighbors.toFixed(2)}m)`);
+      console.warn(`   Ubicación: lat=${lat.toFixed(4)}, lon=${lon.toFixed(4)} | Pixel: ${x},${y}`);
+      console.warn(`   🔧 CORRECCIÓN: Suavizando a ${avgNeighbors.toFixed(2)}m`);
+      return parseFloat(avgNeighbors.toFixed(2));
     }
   }
 

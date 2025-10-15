@@ -27,7 +27,7 @@ class TerrainGenerator3D {
             realWorldSize: config.realWorldSize || 1000, // 1km por defecto
             
             // Vegetación - ✅ ULTRA OPTIMIZADO para no explotar la PC
-            vegetationDensity: config.vegetationDensity || 0.005, // ✅ 0.5% (antes 5%) = ~50-100 árboles max
+            vegetationDensity: config.vegetationDensity || 0.05, // ✅ 0.5% (antes 5%) = ~50-100 árboles max
             vegetationMinNDVI: config.vegetationMinNDVI || 0.35,  // ✅ Aumentado de 0.2 a 0.35 (filtrar césped débil)
             
             // Colores del terreno según altura
@@ -557,45 +557,8 @@ class TerrainGenerator3D {
                 const vertexIndex = (i * (resolution + 1) + j) * 3;
                 const point = gridPoints[i][j];
 
-                let elevation = point.elevation - minElevation; // ✅ RESTAR MÍNIMA
-                
-                // 🔧 SUAVIZADO MUY SUAVE: Solo en bordes extremos
-                const isBorder = i === 0 || i === resolution || j === 0 || j === resolution;
-                if (isBorder) {
-                    const elevationRange = maxElevation - minElevation;
-                    
-                    // Solo suavizar picos MUY anómalos (>95% del rango)
-                    if (elevation > elevationRange * 0.95) {
-                        let neighborSum = 0;
-                        let neighborCount = 0;
-                        
-                        for (let di = -1; di <= 1; di++) {
-                            for (let dj = -1; dj <= 1; dj++) {
-                                const ni = i + di;
-                                const nj = j + dj;
-                                if (ni >= 0 && ni <= resolution && nj >= 0 && nj <= resolution) {
-                                    if (gridPoints[ni] && gridPoints[ni][nj]) {
-                                        neighborSum += (gridPoints[ni][nj].elevation - minElevation);
-                                        neighborCount++;
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if (neighborCount > 0) {
-                            elevation = neighborSum / neighborCount;
-                            console.warn(`⚠️ Pico extremo en borde (${i},${j}) suavizado: ${point.elevation.toFixed(1)}m → ${(elevation + minElevation).toFixed(1)}m`);
-                        }
-                    }
-                    
-                    // ✅ SUAVIZADO MÍNIMO: Solo 5% de reducción en bordes
-                    const distFromCenterI = Math.abs(i - resolution / 2) / (resolution / 2);
-                    const distFromCenterJ = Math.abs(j - resolution / 2) / (resolution / 2);
-                    const maxDist = Math.max(distFromCenterI, distFromCenterJ);
-                    const smoothFactor = 1 - (maxDist * 0.05); // Reducir solo 5% en bordes
-                    
-                    elevation *= smoothFactor;
-                }
+                // ✅ SIN SUAVIZADO DE BORDES - elevationHandler ya suaviza con threshold 5m
+                let elevation = point.elevation - minElevation;
 
                 // Aplicar elevación con escala vertical
                 vertices[vertexIndex + 2] = elevation * this.config.verticalScale;
@@ -1147,32 +1110,36 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // 🌳 CONFIGURACIÓN DE VEGETACIÓN CON VARIEDAD REAL
-        // Usando trees_low.glb y arbol.glb con diferentes escalas para diversidad
+        // 🌳 CONFIGURACIÓN DE VEGETACIÓN - Solo modelos que funcionan
+        // trees_low (0.02-0.03), arbol (0.08-0.15), AnimatedOak (0.15-0.30)
         const densityConfig = {
             'vegetation': { 
-                density: 0.20,          // ✅ 20% - Vegetación visible
+                density: 0.10,          // ✅ 1% - Densidad MUY baja
                 models: [
-                    // trees_low.glb en diferentes tamaños
-                    { type: 'trees_low_small', weight: 3, scale: [0.015, 0.020] },   // 30% - Árboles pequeños
-                    { type: 'trees_low_medium', weight: 3, scale: [0.020, 0.028] },  // 30% - Árboles medianos
-                    { type: 'trees_low_large', weight: 2, scale: [0.028, 0.035] },   // 20% - Árboles grandes
+                    // trees_low.glb (único con colores correctos)
+                    { type: 'trees_low', weight: 6, scale: [0.02, 0.03] },           // 60% - trees_low ✅
                     
-                    // arbol.glb en diferentes tamaños
-                    { type: 'arbol_small', weight: 1, scale: [0.012, 0.018] },       // 10% - Arbol pequeño
-                    { type: 'arbol_large', weight: 1, scale: [0.022, 0.032] }        // 10% - Arbol grande
+                    // arbol.glb (funcional)
+                    { type: 'arbol', weight: 2, scale: [0.08, 0.12] },               // 20% - arbol
+                    
+                    // AnimatedOak.glb (funcional pero verde chillón - se corrige automáticamente)
+                    { type: 'tree_oak', weight: 2, scale: [0.15, 0.24] }             // 20% - roble
+                    
+                    // ❌ tree_tall.glb ELIMINADO (corrupto 1.2KB)
+                    // ❌ tree_medium.glb ELIMINADO (corrupto 1.1KB)
                 ],
                 priority: 2
             },
             'forest': { 
-                density: 0.30,          // ✅ 30% para bosques densos
+                density: 0.15,          // ✅ 1.5% - Densidad MUY baja
                 models: [
-                    // Bosque denso con mix de ambos modelos
-                    { type: 'trees_low_medium', weight: 4, scale: [0.025, 0.035] },  // 40% - trees_low denso
-                    { type: 'trees_low_large', weight: 2, scale: [0.030, 0.045] },   // 20% - trees_low grandes
-                    { type: 'arbol_medium', weight: 2, scale: [0.020, 0.030] },      // 20% - arbol mediano
-                    { type: 'arbol_large', weight: 1, scale: [0.030, 0.045] },       // 10% - arbol grande
-                    { type: 'trees_low_small', weight: 1, scale: [0.018, 0.025] }    // 10% - sotobosque
+                    // Solo 3 modelos funcionales
+                    { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },           // 50% - trees_low ✅
+                    { type: 'arbol', weight: 3, scale: [0.10, 0.15] },               // 30% - arbol
+                    { type: 'tree_oak', weight: 2, scale: [0.18, 0.30] }             // 20% - roble
+                    
+                    // ❌ tree_tall.glb ELIMINADO (corrupto)
+                    // ❌ tree_medium.glb ELIMINADO (corrupto)
                 ],
                 priority: 1
             },
@@ -1237,10 +1204,11 @@ class TerrainGenerator3D {
                 // Convertir píxel a coordenadas 3D
                 const pos3D = this.imageToTerrainCoords(feature.x, feature.y);
                 
-                // Agregar variación de posición (jitter)
-                const jitter = 2.0;
-                pos3D.x += (Math.random() - 0.5) * jitter;
-                pos3D.z += (Math.random() - 0.5) * jitter;
+                // ❌ NO agregar variación de posición - posicionar exactamente donde OSM indica
+                // Los árboles deben estar sobre las manchas verdes de OpenStreetMap
+                // const jitter = 2.0;
+                // pos3D.x += (Math.random() - 0.5) * jitter;
+                // pos3D.z += (Math.random() - 0.5) * jitter;
                 
                 // Crear instancia con modelo seleccionado
                 instances.push({

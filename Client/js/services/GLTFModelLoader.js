@@ -19,26 +19,16 @@ class GLTFModelLoader {
         this.basePath = 'Client/assets/models/gbl_new/';
         
         // Mapeo de tipos de vegetación a archivos GLB
-        // 🌳 SISTEMA DE DIVERSIDAD: Múltiples modelos para variedad natural
+        // 🌳 TODOS LOS MODELOS DISPONIBLES - Sin variaciones, modelos directos
         this.vegetationModels = {
-            // ÁRBOLES - VARIEDAD REAL (solo modelos válidos >1MB) ✅
+            // ÁRBOLES PRINCIPALES ✅
             'trees_low': 'trees_low.glb',          // 2.4MB - Árboles principales ✅
-            'arbol': 'arbol.glb',                  // 8.9MB - Árbol alternativo ✅
-            'tree_oak': 'AnimatedOak.glb',         // Roble grande (si existe)
+            'arbol': 'arbol.glb',                  // 8.9MB - Árbol alto genérico ✅
+            'tree_oak': 'AnimatedOak.glb',         // Roble animado MUY DIFERENTE ✅
             
-            // VARIACIONES DE trees_low (mismo modelo, diferentes escalas)
-            'trees_low_small': 'trees_low.glb',    // Versión pequeña
-            'trees_low_medium': 'trees_low.glb',   // Versión mediana
-            'trees_low_large': 'trees_low.glb',    // Versión grande
-            
-            // VARIACIONES DE arbol.glb
-            'arbol_small': 'arbol.glb',            // Versión pequeña
-            'arbol_medium': 'arbol.glb',           // Versión mediana
-            'arbol_large': 'arbol.glb',            // Versión grande
-            
-            // FALLBACKS (tree_tall y tree_medium están corruptos - 1KB)
-            'tree_tall': 'trees_low.glb',          // Fallback a trees_low
-            'tree_medium': 'arbol.glb',            // Fallback a arbol
+            // ÁRBOLES ADICIONALES (pueden estar corruptos, fallback a válidos)
+            'tree_tall': 'tree_tall.glb',          // 1.2KB - Si falla → trees_low
+            'tree_medium': 'tree_medium.glb',      // 1.1KB - Si falla → arbol
             'tree': 'trees_low.glb',               // Genérico
             
             // ARBUSTOS ✅
@@ -196,24 +186,43 @@ class GLTFModelLoader {
                                         console.log(`    📸 Texture: ${child.material.map.image.width}x${child.material.map.image.height}px`);
                                     }
                                 } else {
-                                    // ✅ NO HAY TEXTURA: Aplicar colores por defecto según nombre
+                                    // ✅ NO HAY TEXTURA: Aplicar colores NATURALES por defecto
                                     const meshNameLower = (child.name || '').toLowerCase();
+                                    const currentColor = child.material.color.getHex();
                                     
-                                    if (meshNameLower.includes('trunk') || meshNameLower.includes('tronco') || meshNameLower.includes('stem')) {
-                                        // Tronco: marrón
-                                        child.material.color.setHex(0x6B4423); // Marrón oscuro
-                                        console.log(`  🟤 Mesh "${child.name || 'unnamed'}": SIN texture → color MARRÓN (tronco)`);
-                                    } else if (meshNameLower.includes('leaf') || meshNameLower.includes('leaves') || meshNameLower.includes('foliage') || 
-                                              meshNameLower.includes('hoja') || meshNameLower.includes('copa')) {
-                                        // Follaje: verde
-                                        child.material.color.setHex(0x2D5016); // Verde oscuro
-                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": SIN texture → color VERDE (follaje)`);
+                                    // Extraer componentes RGB
+                                    const r = (currentColor >> 16) & 0xFF;
+                                    const g = (currentColor >> 8) & 0xFF;
+                                    const b = currentColor & 0xFF;
+                                    
+                                    // Detectar verde claro/chillón: Verde dominante (G > R y G > B) y muy brillante (G > 180)
+                                    const isLightGreen = g > r && g > b && g > 180;
+                                    
+                                    // Detectar verde neón específico
+                                    const isNeonGreen = (currentColor === 0x00ff00 || currentColor === 0x00ff33);
+                                    
+                                    if (meshNameLower.includes('trunk') || meshNameLower.includes('tronco') || 
+                                        meshNameLower.includes('stem') || meshNameLower.includes('bark')) {
+                                        // Tronco: SIEMPRE marrón oscuro
+                                        child.material.color.setHex(0x6B4423);
+                                        console.log(`  🟤 Mesh "${child.name || 'unnamed'}": MARRÓN (tronco) [RGB: ${r},${g},${b} → marrón]`);
+                                    } else if (isLightGreen || isNeonGreen) {
+                                        // Cualquier verde claro/chillón → verde oscuro natural
+                                        child.material.color.setHex(0x2D5016);
+                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": Verde claro/chillón [RGB: ${r},${g},${b}] → VERDE oscuro natural`);
+                                    } else if (meshNameLower.includes('leaf') || meshNameLower.includes('leaves') || 
+                                              meshNameLower.includes('foliage') || meshNameLower.includes('hoja') || 
+                                              meshNameLower.includes('copa') || meshNameLower.includes('crown')) {
+                                        // Follaje: verde oscuro natural
+                                        child.material.color.setHex(0x2D5016);
+                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": color VERDE oscuro (follaje)`);
                                     } else {
-                                        // Indefinido: verde medio por defecto (probablemente árbol)
-                                        child.material.color.setHex(0x4A7C59); // Verde medio
-                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": SIN texture → color VERDE medio (default)`);
+                                        // Indefinido - aplicar verde oscuro por defecto (follaje)
+                                        child.material.color.setHex(0x2D5016);
+                                        console.log(`  🟢 Mesh "${child.name || 'unnamed'}": color VERDE oscuro (default árbol) [RGB: ${r},${g},${b}]`);
                                     }
                                     
+                                    // Forzar actualización
                                     child.material.needsUpdate = true;
                                 }
                             }
@@ -224,7 +233,7 @@ class GLTFModelLoader {
                     console.log(`   📊 ${meshCount} meshes, ${vertexCount.toLocaleString()} vértices`);
                     console.log(`   🎨 ${materialsWithTextures}/${meshCount} meshes con texturas`);
                     if (materialsWithTextures < meshCount) {
-                        console.log(`   🎨 ${meshCount - materialsWithTextures} meshes usan colores por defecto (marrón/verde)`);
+                        console.log(`   🎨 ${meshCount - materialsWithTextures} meshes con colores naturales aplicados`);
                     }
                     
                     const model = gltf.scene;
