@@ -1763,11 +1763,12 @@
                     }
                 }
                 
-                // 🎬 CERRAR MODAL Y PROGRESS BAR AL FINALIZAR EXITOSAMENTE
+                // 🎬 ACTIVAR FULLSCREEN 3D Y CERRAR MODAL
                 showLoadingModal('¡Vista 3D completada! ✅', 100);
                 setTimeout(() => {
                     hideLoadingModal();
                     hideProgressBar(); // 🚀 Ocultar progress bar también
+                    activateFullscreen3D(); // 🚀 CRÍTICO: Activar modo fullscreen
                 }, 1000); // Mostrar "100%" por 1 segundo antes de cerrar
                 
             } catch (error) {
