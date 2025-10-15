@@ -881,6 +881,23 @@
             }).addTo(mapa);
             
             log('✅ Mapa Leaflet inicializado', 'success');
+            
+            // 🚀 Inicializar detector de zoom 3D
+            if (typeof DetectorZoom3D !== 'undefined') {
+                window.detectorZoom3D = new DetectorZoom3D(mapa, {
+                    umbralZoom: 14,  // Sugerir 3D cuando zoom >= 14
+                    intervaloPreguntas: 15000,  // Preguntar máximo cada 15 segundos
+                    onActivarVista3D: () => {
+                        // Vincular con el botón de generar
+                        log('🎯 Usuario aceptó sugerencia de Vista 3D', 'success');
+                        createFullView3D();
+                    }
+                });
+                window.detectorZoom3D.inicializar();
+                log('🚀 Detector de Zoom 3D activado (umbral: zoom ≥14)', 'success');
+            } else {
+                console.warn('⚠️ DetectorZoom3D no disponible');
+            }
         }
         
         // === CAPTURAR MAPA COMO IMAGEN ===
@@ -4529,5 +4546,7 @@
     <script src="Client/js/services/SatelliteImageAnalyzer.js"></script>
     <!-- ✅ Menú Contextual Radial -->
     <script src="Client/js/modules/shared/menuContextualUnificado.js"></script>
+    <!-- 🚀 Detector de Zoom 3D -->
+    <script src="Client/js/modules/gaming/detectorZoom3D.js"></script>
 </body>
 </html>
