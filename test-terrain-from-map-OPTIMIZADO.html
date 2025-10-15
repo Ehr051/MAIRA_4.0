@@ -26,34 +26,23 @@
             overflow: hidden;
         }
         
+        /* 🗺️ MAPA OCUPA TODA LA PANTALLA */
         #main-container {
-            display: grid;
-            grid-template-columns: 350px 1fr 1fr;
-            grid-template-rows: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
             height: 100vh;
-            transition: grid-template-columns 0.3s ease;
-        }
-        
-        /* 🖥️ MODO PANTALLA COMPLETA: Ocultar sidebar y mapa */
-        #main-container.fullscreen-3d {
-            grid-template-columns: 0 0 1fr;
-        }
-        
-        #main-container.fullscreen-3d #sidebar,
-        #main-container.fullscreen-3d #map-container {
-            display: none;
-        }
-        
-        #sidebar {
-            background: rgba(20, 20, 30, 0.95);
-            padding: 20px;
-            overflow-y: auto;
-            border-right: 2px solid #4fd1c5;
         }
         
         #map-container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #1a1a2e;
+            z-index: 1;
         }
         
         #map {
@@ -61,9 +50,50 @@
             height: 100%;
         }
         
+        /* 🎮 CANVAS 3D - OCULTO HASTA QUE SE ACTIVE */
         #canvas-container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #000;
+            z-index: 2;
+            display: none; /* Oculto por defecto */
+        }
+        
+        #canvas-container.active {
+            display: block;
+        }
+        
+        /* 🎛️ SIDEBAR FLOTANTE SOBRE EL MAPA */
+        #sidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 350px;
+            max-height: calc(100vh - 40px);
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            border: 2px solid #4fd1c5;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* 🖥️ MODO FULLSCREEN 3D: Ocultar sidebar */
+        #main-container.fullscreen-3d #sidebar {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-400px);
+        }
+        
+        #main-container.fullscreen-3d #canvas-container {
+            display: block;
+            z-index: 10;
         }
         
         h1 {
@@ -1092,7 +1122,15 @@
         
         // === INICIALIZAR THREE.JS ===
         function initThreeJS() {
-            const container = document.getElementById('canvas-container');
+            // 🎬 CREAR CANVAS CONTAINER DINÁMICAMENTE
+            let container = document.getElementById('canvas-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'canvas-container';
+                container.className = 'active'; // Activar inmediatamente
+                document.getElementById('main-container').appendChild(container);
+                log('🎨 Canvas container creado dinámicamente', 'info');
+            }
             
             // Escena
             scene = new THREE.Scene();
@@ -1101,7 +1139,7 @@
             
             camera = new THREE.PerspectiveCamera(
                 60,                          // 🎯 FOV optimizado para vista top-down
-                container.clientWidth / container.clientHeight,
+                window.innerWidth / window.innerHeight, // 🔥 Usar tamaño ventana completo
                 0.1,                         
                 50000                        
             );
@@ -1113,7 +1151,7 @@
                 antialias: true,
                 powerPreference: "high-performance"
             });
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight); // 🔥 Fullscreen desde inicio
             renderer.shadowMap.enabled = true;
             
             // 🎨 FIX: Configuración correcta de color para THREE.js r150+
@@ -1917,11 +1955,12 @@
         
         /**
          * ❌ CERRAR MODO FULLSCREEN 3D
-         * Vuelve a mostrar sidebar y mapa 2D, reduce canvas 3D
+         * Destruye el canvas 3D y libera memoria
          */
         function closeFullscreen3D() {
             const mainContainer = document.getElementById('main-container');
             const closeButton = document.getElementById('close-3d-button');
+            const canvasContainer = document.getElementById('canvas-container');
             
             // Remover clase fullscreen
             mainContainer.classList.remove('fullscreen-3d');
@@ -1929,15 +1968,45 @@
             // Ocultar botón cerrar
             closeButton.style.display = 'none';
             
-            // Redimensionar renderer si existe
-            if (renderer && camera) {
-                const canvasContainer = document.getElementById('canvas-container');
-                const width = canvasContainer.clientWidth;
-                const height = canvasContainer.clientHeight;
+            // 🧹 DESTRUIR CANVAS Y LIBERAR MEMORIA
+            if (canvasContainer) {
+                // Limpiar terreno y objetos 3D
+                if (currentTerrain) clearTerrain();
                 
-                renderer.setSize(width, height);
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
+                // Dispose renderer
+                if (renderer) {
+                    renderer.dispose();
+                    renderer.forceContextLoss();
+                    renderer.domElement = null;
+                    renderer = null;
+                }
+                
+                // Limpiar scene
+                if (scene) {
+                    scene.traverse(object => {
+                        if (object.geometry) object.geometry.dispose();
+                        if (object.material) {
+                            if (Array.isArray(object.material)) {
+                                object.material.forEach(mat => mat.dispose());
+                            } else {
+                                object.material.dispose();
+                            }
+                        }
+                    });
+                    scene.clear();
+                    scene = null;
+                }
+                
+                // Limpiar controls
+                if (controls) {
+                    controls.dispose();
+                    controls = null;
+                }
+                
+                // Remover canvas container del DOM
+                canvasContainer.remove();
+                
+                log('🧹 Canvas 3D destruido y memoria liberada', 'success');
             }
             
             log('🖥️ Modo fullscreen 3D desactivado', 'info');
