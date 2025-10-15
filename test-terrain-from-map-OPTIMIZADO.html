@@ -1569,14 +1569,16 @@
         }
         
         // === GENERAR TERRENO ===
-        async function generateTerrain() {
+        async function generateTerrain(autoActivateFullscreen = true) {
             if (!capturedBounds) {
                 log('❌ Primero captura el mapa', 'error');
                 return;
             }
             
-            // 🎬 MOSTRAR MODAL DE CARGA
-            showLoadingModal('Iniciando generación de terreno...', 0);
+            // 🎬 MOSTRAR MODAL DE CARGA (solo si autoActivateFullscreen, sino createFullView3D ya lo hace)
+            if (autoActivateFullscreen) {
+                showLoadingModal('Iniciando generación de terreno...', 0);
+            }
             
             const startTime = performance.now();
             log('🏗️ Generando terreno 3D...', 'info');
@@ -1780,13 +1782,20 @@
                     }
                 }
                 
-                // 🎬 ACTIVAR FULLSCREEN 3D Y CERRAR MODAL
-                showLoadingModal('¡Vista 3D completada! ✅', 100);
-                setTimeout(() => {
+                // 🎬 ACTIVAR FULLSCREEN 3D Y CERRAR MODAL (solo si autoActivateFullscreen=true)
+                if (autoActivateFullscreen) {
+                    showLoadingModal('¡Vista 3D completada! ✅', 100);
+                    setTimeout(() => {
+                        hideLoadingModal();
+                        hideProgressBar(); // 🚀 Ocultar progress bar también
+                        activateFullscreen3D(); // 🚀 CRÍTICO: Activar modo fullscreen
+                    }, 1000); // Mostrar "100%" por 1 segundo antes de cerrar
+                } else {
+                    // Si no auto-activamos, solo cerrar modal sin setTimeout
+                    // createFullView3D() se encargará de activar fullscreen
                     hideLoadingModal();
-                    hideProgressBar(); // 🚀 Ocultar progress bar también
-                    activateFullscreen3D(); // 🚀 CRÍTICO: Activar modo fullscreen
-                }, 1000); // Mostrar "100%" por 1 segundo antes de cerrar
+                    hideProgressBar();
+                }
                 
             } catch (error) {
                 hideLoadingModal(); // Cerrar modal en caso de error
@@ -1936,10 +1945,22 @@
                 // Paso 3: Generar terreno 3D (generateTerrain tiene sus propios checkpoints)
                 showLoadingModal('🏗️ Generando terreno 3D...', 50);
                 log('🏗️ Paso 3/3: Generando terreno 3D...', 'info');
-                await generateTerrain();
+                await generateTerrain(false); // false = no auto-activar fullscreen, lo haremos nosotros
                 
-                // 🖥️ ACTIVAR MODO FULLSCREEN 3D
-                activateFullscreen3D();
+                // ✅ Verificar que el terreno se generó correctamente
+                if (!currentTerrain || !currentTerrain.terrain) {
+                    hideLoadingModal();
+                    log('❌ Error: No se pudo generar el terreno', 'error');
+                    return;
+                }
+                
+                // 🎬 MOSTRAR COMPLETADO Y ACTIVAR FULLSCREEN
+                showLoadingModal('¡Vista 3D completada! ✅', 100);
+                setTimeout(() => {
+                    hideLoadingModal();
+                    hideProgressBar();
+                    activateFullscreen3D(); // 🖥️ ACTIVAR MODO FULLSCREEN
+                }, 1000);
                 
                 log('✅ Vista 3D creada exitosamente!', 'success');
                 log('💡 Ahora puedes colocar unidades haciendo click en el terreno', 'info');
