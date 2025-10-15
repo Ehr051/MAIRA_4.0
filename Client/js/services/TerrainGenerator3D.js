@@ -1255,36 +1255,35 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // 🌳 CONFIGURACIÓN DE VEGETACIÓN - Solo modelos que funcionan
-        // trees_low (0.02-0.03), arbol (0.08-0.15), AnimatedOak (0.15-0.30)
+        // 🌳 CONFIGURACIÓN DE VEGETACIÓN - Solo 2 modelos válidos y livianos
+        // trees_low.glb (2.4MB ✅), arbol.glb (8.9MB ✅)
+        // AnimatedOak.glb (81MB ❌ demasiado pesado), arbusto.glb (44MB ❌ muy pesado)
         const densityConfig = {
             'vegetation': { 
-                density: 0.10,          // ✅ 1% - Densidad MUY baja
+                density: 0.10,          // ✅ 10% densidad
                 models: [
-                    // trees_low.glb (único con colores correctos)
-                    { type: 'trees_low', weight: 6, scale: [0.02, 0.03] },           // 60% - trees_low ✅
+                    // trees_low.glb - PRINCIPAL (50% árboles bajos)
+                    { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },
                     
-                    // arbol.glb (funcional)
-                    { type: 'arbol', weight: 2, scale: [0.08, 0.12] },               // 20% - arbol
+                    // trees_low.glb - MEDIANOS (30% escalados más grandes)
+                    { type: 'trees_low', weight: 3, scale: [0.035, 0.045] },
                     
-                    // AnimatedOak.glb (funcional pero verde chillón - se corrige automáticamente)
-                    { type: 'tree_oak', weight: 2, scale: [0.15, 0.24] }             // 20% - roble
-                    
-                    // ❌ tree_tall.glb ELIMINADO (corrupto 1.2KB)
-                    // ❌ tree_medium.glb ELIMINADO (corrupto 1.1KB)
+                    // arbol.glb - ALTOS (20% árboles grandes)
+                    { type: 'arbol', weight: 2, scale: [0.08, 0.12] }
                 ],
                 priority: 2
             },
             'forest': { 
-                density: 0.15,          // ✅ 1.5% - Densidad MUY baja
+                density: 0.15,          // ✅ 15% densidad
                 models: [
-                    // Solo 3 modelos funcionales
-                    { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },           // 50% - trees_low ✅
-                    { type: 'arbol', weight: 3, scale: [0.10, 0.15] },               // 30% - arbol
-                    { type: 'tree_oak', weight: 2, scale: [0.18, 0.30] }             // 20% - roble
+                    // trees_low.glb - BAJO (40%)
+                    { type: 'trees_low', weight: 4, scale: [0.025, 0.035] },
                     
-                    // ❌ tree_tall.glb ELIMINADO (corrupto)
-                    // ❌ tree_medium.glb ELIMINADO (corrupto)
+                    // trees_low.glb - MEDIANO (30%)  
+                    { type: 'trees_low', weight: 3, scale: [0.04, 0.055] },
+                    
+                    // arbol.glb - ALTO (30%)
+                    { type: 'arbol', weight: 3, scale: [0.10, 0.15] }
                 ],
                 priority: 1
             },
