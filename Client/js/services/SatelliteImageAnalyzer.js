@@ -733,6 +733,13 @@ class SatelliteImageAnalyzer {
     }
     
     /**
+     * Obtener textura THREE.js de la imagen satelital
+     */
+    getTexture() {
+        return this.createTexture();
+    }
+    
+    /**
      * Crear textura THREE.js desde imagen satelital
      */
     createTexture() {

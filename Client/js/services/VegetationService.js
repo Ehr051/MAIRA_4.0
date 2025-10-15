@@ -196,7 +196,7 @@ class VegetationService extends GeospatialDataService {
             }
         }
         
-        // 3️⃣ MODO LOCAL: Usar vegetationHandler legacy
+        // 3️⃣ MODO LOCAL: Usar vegetationHandler con índices JSON
         if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
             try {
                 const result = await this.vegetationHandler.getNDVI(lat, lon, normX, normY);

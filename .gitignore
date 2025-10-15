@@ -1,6 +1,15 @@
 # MAIRA Project - Gitignore organizado
 # =====================================
 
+# 🧪 Archivos y carpetas de testing (desarrollo local)
+html+js-test/
+test-*.html
+test-*.js
+test-*.json
+test_*.sh
+*.test.js
+*.test.html
+
 # Archivos legacy/obsoletos
 legacy_files/
 *.backup

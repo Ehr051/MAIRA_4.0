@@ -1,0 +1,141 @@
+<!-- 
+🔗 EJEMPLO DE INTEGRACIÓN - MAIRA 3D Terrain
+Para integrar en la página principal de MAIRA
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Sistema Táctico</title>
+    
+    <!-- CSS existente de MAIRA -->
+    <link rel="stylesheet" href="Client/css/main.css">
+    
+    <!-- CSS del módulo 3D (nuevo) -->
+    <link rel="stylesheet" href="Client/css/maira-3d-terrain.css">
+    
+    <!-- Leaflet (ya existente) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- FontAwesome (ya existente) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Estructura principal de MAIRA -->
+    <div id="main-container">
+        <!-- Sidebar existente -->
+        <div id="sidebar">
+            <!-- Contenido existente del sidebar -->
+        </div>
+        
+        <!-- Contenedor del mapa -->
+        <div id="map-container">
+            <div id="map"></div>
+            
+            <!-- Controles del mapa (donde aparecerá el botón Vista 3D) -->
+            <div id="map-controls" class="map-controls">
+                <!-- Otros controles existentes -->
+                <button class="map-control-btn">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+                
+                <!-- El botón Vista 3D se añadirá aquí automáticamente -->
+            </div>
+        </div>
+        
+        <!-- Canvas 3D (inicialmente oculto) -->
+        <div id="canvas-container" style="display: none;">
+            <!-- El canvas de THREE.js se creará aquí -->
+        </div>
+    </div>
+    
+    <!-- Scripts existentes de MAIRA -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
+    
+    <!-- THREE.js y dependencias -->
+    <script src="Client/Libs/mythree/three.min.js"></script>
+    <script src="Client/Libs/mythree/OrbitControls.js"></script>
+    <script src="Client/Libs/mythree/GLTFLoader.js"></script>
+    
+    <!-- Servicios MAIRA existentes -->
+    <script src="Client/js/handlers/elevationHandler.js"></script>
+    <script src="Client/js/handlers/vegetacionhandler.js"></script>
+    <script src="Client/js/services/GeospatialDataService.js"></script>
+    <script src="Client/js/services/ElevationService.js"></script>
+    <script src="Client/js/services/VegetationService.js"></script>
+    <script src="Client/js/services/TerrainGenerator3D.js"></script>
+    <script src="Client/js/services/SatelliteImageAnalyzer.js"></script>
+    
+    <!-- NUEVOS: Módulos 3D para integración -->
+    <script src="Client/js/modules/MAIRA3DTerrainModule.js"></script>
+    <script src="Client/js/modules/MAIRA3DTerrainIntegrator.js"></script>
+    <script src="Client/js/init/maira3DTerrainInit.js"></script>
+    
+    <!-- Script principal de MAIRA (modificado para incluir inicialización del mapa) -->
+    <script>
+        // Inicialización del mapa Leaflet
+        window.mapa = L.map('map').setView([-34.6037, -58.3816], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(window.mapa);
+        
+        // Notificar que el sistema MAIRA está listo
+        document.dispatchEvent(new CustomEvent('mairaSystemReady'));
+        
+        // Ejemplo de cómo usar el sistema 3D
+        document.addEventListener('maira3DReady', (event) => {
+            console.log('✅ Sistema 3D listo:', event.detail);
+            
+            // Opcional: Mostrar notificación al usuario
+            // mostrarNotificacion('Vista 3D disponible en zooms cercanos');
+        });
+    </script>
+</body>
+</html>
+
+<!-- 
+📝 INSTRUCCIONES DE INTEGRACIÓN:
+
+1. ARCHIVOS A AÑADIR:
+   - Client/css/maira-3d-terrain.css
+   - Client/js/modules/MAIRA3DTerrainModule.js
+   - Client/js/modules/MAIRA3DTerrainIntegrator.js
+   - Client/js/init/maira3DTerrainInit.js
+
+2. MODIFICACIONES NECESARIAS:
+   - Añadir #map-controls en el contenedor del mapa
+   - Añadir #canvas-container para la vista 3D
+   - Incluir los scripts nuevos
+
+3. CONFIGURACIÓN:
+   - El botón aparece automáticamente al hacer zoom >= 17
+   - Se puede activar manualmente con activarVista3D()
+   - Configuración en MAIRA_3D_CONFIG
+
+4. EVENTOS DISPONIBLES:
+   - 'maira3DReady': Sistema 3D inicializado
+   - 'terrain3DGenerated': Terreno 3D creado
+   - 'terrain3DError': Error en generación
+
+5. FUNCIONES GLOBALES:
+   - activarVista3D(): Mostrar modal manualmente
+   - isVista3DAvailable(): Verificar disponibilidad
+   - getVista3DConfig(): Obtener configuración
+
+6. CSS PERSONALIZABLE:
+   - Todas las clases .maira-3d-* son modificables
+   - Colores y gradientes adaptables al tema de MAIRA
+   - Responsive incluido
+
+RESULTADO:
+- Integración no intrusiva
+- Solo 4 archivos nuevos
+- Activación automática por zoom
+- Modal simplificado con 4 controles
+- Vista 3D en pantalla completa
+- Controles mínimos en vista 3D
+-->

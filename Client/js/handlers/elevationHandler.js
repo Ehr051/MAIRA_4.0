@@ -170,42 +170,16 @@ async function cargarDatosElevacion(bounds) {
     // Construir ruta del tile dependiendo del formato
     let tilePath;
     if (tile.provincia) {
-      // Formato mini-tiles: intentar múltiples URLs
+      // Formato mini-tiles: extraer del tar.gz directamente
       console.log(`🗂️ Tile en formato mini-tiles: ${tile.filename} (provincia: ${tile.provincia})`);
+      console.log(`📦 Estrategia: Extraer del tar.gz local`);
       
-            // 🚀 ESTRATEGIA v4.0: GitHub Release (Altura + Vegetación)
-      console.log(`🎯 ESTRATEGIA DOBLE: 1) .tif directo, 2) tar.gz (como v3.0)`);
-      
-      // PASO 1: Intentar .tif directo desde Release v4.0
-      const directTifExtracted = await extractTileDirectFromRelease(tile);
-      
-      if (directTifExtracted) {
-        try {
-          console.log(`✅ Tile .tif directo cargado: ${tile.filename}`);
-          const tiff = await GeoTIFF.fromArrayBuffer(directTifExtracted);
-          const image = await tiff.getImage();
-          const rasters = await image.readRasters();
-          const metadata = await image.getFileDirectory();
-
-          return {
-            data: rasters[0],
-            width: image.getWidth(),
-            height: image.getHeight(),
-            tiepoint: metadata.ModelTiepoint,
-            scale: metadata.ModelPixelScale,
-          };
-        } catch (error) {
-          console.error(`❌ Error procesando .tif directo para ${tile.filename}:`, error);
-        }
-      }
-      
-      // PASO 2: Fallback a tar.gz (como v3.0 que funcionaba)
-      console.log(`🔄 Fallback a tar.gz para ${tile.filename}`);
+      // Extraer del tar.gz (método que ya funcionaba)
       const releaseExtracted = await extractTileFromManifestTarGz(tile);
       
       if (releaseExtracted) {
         try {
-          console.log(`📦 Procesando tile extraído de GitHub Release: ${tile.filename}`);
+          console.log(`📦 Procesando tile extraído del tar.gz: ${tile.filename}`);
           const tiff = await GeoTIFF.fromArrayBuffer(releaseExtracted);
           const image = await tiff.getImage();
           const rasters = await image.readRasters();
@@ -219,13 +193,13 @@ async function cargarDatosElevacion(bounds) {
             scale: metadata.ModelPixelScale,
           };
         } catch (error) {
-          console.error(`❌ Error procesando tile de GitHub Release para ${tile.filename}:`, error);
+          console.error(`❌ Error procesando tile extraído para ${tile.filename}:`, error);
+          return null;
         }
       }
       
-      // ❌ Si llegamos aquí, GitHub Release falló
-      console.error(`❌ No se pudo cargar el tile ${tile.filename} desde GitHub Release`);
-      console.error(`🔧 DIAGNÓSTICO: Verificar que el archivo esté en ${ELEVATION_HANDLERS_GITHUB_BASE}`);
+      // Si falló la extracción
+      console.error(`❌ No se pudo extraer el tile ${tile.filename} del tar.gz`);
       return null;
     } else {
       // Formato clásico
@@ -249,8 +223,8 @@ async function extractTileDirectFromRelease(tileInfo) {
     // 🏠 PRIORIDAD 1: Intentar cargar desde archivos locales
     const localPaths = [
       `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
-      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
       `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
       `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`
     ];
 
@@ -331,31 +305,58 @@ async function extractVegetationTileFromRelease(tileInfo) {
 }
 
 // 🚀 Función para extraer tile de GitHub Release v4.0 - URLs CONFIRMADAS
+// 🗂️ Caché de tar.gz cargados para evitar descargas repetidas
+const tarGzCache = new Map();
+
 async function extractTileFromManifestTarGz(tileInfo) {
   try {
-    console.log(`📦 Extrayendo ${tileInfo.filename} de GitHub Release v4.0`);
-    
-    // URL del tar.gz en GitHub Release v4.0 (Altimetría)
-    const tarGzUrl = ELEVATION_RELEASE_ASSETS.ALTIMETRIA_TAR_GZ;
-    
-    console.log(`📡 Descargando desde: ${tarGzUrl}`);
-    const response = await fetch(tarGzUrl);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} descargando release`);
+    if (!tileInfo.tar_file) {
+      console.error(`❌ tileInfo no tiene tar_file definido:`, tileInfo);
+      return null;
     }
+
+    console.log(`📦 Extrayendo ${tileInfo.filename} de ${tileInfo.tar_file}`);
     
-    const tarGzData = await response.arrayBuffer();
-    console.log(`✅ Release descargado: ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
+    // Determinar la provincia desde el nombre del tile (ej: centro_norte_tile_1123)
+    const provincia = tileInfo.id.split('_tile_')[0];
+    const tarFilename = tileInfo.tar_file;
+    
+    // Construir ruta local del tar.gz
+    const tarGzPath = `${ELEVATION_LOCAL_BASE}/${provincia}/${tarFilename}`;
+    
+    console.log(`📡 Cargando tar.gz local: ${tarGzPath}`);
+    
+    // 🚀 Verificar caché primero para evitar cargar el mismo tar.gz múltiples veces
+    const cacheKey = tarGzPath;
+    let tarGzData;
+    
+    if (tarGzCache.has(cacheKey)) {
+      console.log(`⚡ Usando tar.gz cacheado: ${tarFilename}`);
+      tarGzData = tarGzCache.get(cacheKey);
+    } else {
+      // Cargar desde archivo local
+      const response = await fetch(tarGzPath);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} cargando ${tarGzPath}`);
+      }
+      
+      tarGzData = await response.arrayBuffer();
+      console.log(`✅ Tar.gz cargado: ${(tarGzData.byteLength / 1024).toFixed(1)}KB`);
+      
+      // Guardar en caché
+      tarGzCache.set(cacheKey, tarGzData);
+      console.log(`💾 Tar.gz cacheado para futuras extracciones`);
+    }
     
     // Extraer archivo específico del tar.gz
     const extractedTif = await extractFileFromTarGz(tarGzData, tileInfo.filename);
     
     if (extractedTif) {
-      console.log(`✅ Tile extraído: ${tileInfo.filename}`);
+      console.log(`✅ Tile extraído: ${tileInfo.filename} (${(extractedTif.byteLength / 1024).toFixed(1)}KB)`);
       return extractedTif;
     } else {
-      throw new Error(`Tile ${tileInfo.filename} no encontrado en release`);
+      throw new Error(`Tile ${tileInfo.filename} no encontrado en ${tarFilename}`);
     }
     
   } catch (error) {
@@ -372,13 +373,45 @@ async function extractFileFromTarGz(tarGzData, targetFilename) {
     // Cargar pako.js si no está disponible
     if (typeof pako === 'undefined') {
       console.log('📦 Cargando pako.js para descompresión...');
-      await loadScript('/node_modules/pako/dist/pako.min.js');
+      // Intentar múltiples rutas para pako
+      const pakoPathsToTry = [
+        'node_modules/pako/dist/pako.min.js',
+        '/node_modules/pako/dist/pako.min.js',
+        '../node_modules/pako/dist/pako.min.js',
+        'Client/Libs/pako/dist/pako.min.js'
+      ];
+      
+      let pakoLoaded = false;
+      for (const pakoPath of pakoPathsToTry) {
+        try {
+          await loadScript(pakoPath);
+          if (typeof pako !== 'undefined') {
+            console.log(`✅ pako.js cargado desde: ${pakoPath}`);
+            pakoLoaded = true;
+            break;
+          }
+        } catch (e) {
+          console.log(`⚠️ No se pudo cargar pako desde ${pakoPath}`);
+        }
+      }
+      
+      if (!pakoLoaded) {
+        throw new Error('❌ pako.js no se pudo cargar desde ninguna ruta');
+      }
     }
     
+    // Verificar que pako se cargó
+    if (typeof pako === 'undefined') {
+      throw new Error('❌ pako.js no está disponible');
+    }
+    
+    console.log('✅ pako.js disponible, versión:', pako.version || 'desconocida');
+    
     // Descomprimir gzip usando pako
-    console.log('🔧 Descomprimiendo gzip...');
+    console.log('🔧 Descomprimiendo gzip con pako...');
     const tarData = pako.ungzip(new Uint8Array(tarGzData));
     console.log(`✅ Descomprimido: ${(tarData.length / 1024 / 1024).toFixed(1)}MB`);
+    console.log(`📊 Primeros 10 bytes del TAR descomprimido:`, Array.from(tarData.slice(0, 10)));
     
     // Parsear tar para encontrar el archivo específico
     const extractedFile = await extractFromTar(tarData, targetFilename);
@@ -486,8 +519,8 @@ async function cargarTileEspecifica(tileFilename, provincia) {
     // 🏠 Intentar cargar desde archivos locales primero
     const localPaths = [
       `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
-      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
       `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
       `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`
     ];
 
@@ -1154,6 +1187,8 @@ window.elevationHandler = {
   calcularPerfilElevacion,
   obtenerElevacion,
   obtenerEstadoSistema,
+  // 🎯 Alias para compatibilidad con diferentes nombres de API
+  getElevation: obtenerElevacion, // Alias para TerrainGenerator3D
 };
 
 // Función para extraer dinámicamente un tile desde GitHub Releases o local
@@ -1524,6 +1559,11 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Elevation Handler cargado, esperando MAIRA...');
     initializeMAIRAElevation();
 });
+
+// 🌍 Exportar funciones de extracción tar.gz como globales para uso en vegetacionhandler
+window.extractFileFromTarGz = extractFileFromTarGz;
+window.extractFromTar = extractFromTar;
+window.loadScript = loadScript;
 
 // ✅ AUTO-INICIALIZACIÓN - DESACTIVADA PARA EVITAR CONFLICTOS
 // El elevationHandler se inicializará manualmente desde MAIRA

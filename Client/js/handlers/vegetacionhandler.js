@@ -6,6 +6,7 @@
 class VegetacionHandler {
     constructor() {
         this.cache = new Map();
+        this.batchIndexCache = new Map(); // 🚀 Caché PERMANENTE para índices de batch
         this.vegetationIndex = null;
         this.config = {
             maxCacheSize: 500,
@@ -37,11 +38,11 @@ class VegetacionHandler {
         try {
             // 🌍 Seleccionar URLs según entorno
             const indexUrls = this.isLocal ? [
-                // 🏠 LOCAL: Solo rutas locales
+                // 🏠 LOCAL: Priorizar rutas compatibles con Live Server
                 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+                './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-                '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
-                './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
+                '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
             ] : [
                 // ☁️ RENDER: Solo GitHub proxy
                 '/api/proxy/github/Vegetacion_Mini_Tiles/vegetation_master_index.json'
@@ -126,39 +127,58 @@ class VegetacionHandler {
         }
     }
 
-    getTileForCoordinates(lat, lon) {
-        // Si tenemos índice, usarlo
-        if (this.vegetationIndex && this.vegetationIndex.batches) {
-            for (const batch of this.vegetationIndex.batches) {
-                if (batch.tiles) {
-                    for (const tile of batch.tiles) {
-                        if (lat >= tile.bounds.south && lat <= tile.bounds.north &&
-                            lon >= tile.bounds.west && lon <= tile.bounds.east) {
-                            return {
-                                ...tile,
-                                batch: batch.name
-                            };
-                        }
-                    }
+    async getTileForCoordinates(lat, lon) {
+        // 🎯 ESTRATEGIA: Cargar índice del batch y buscar tile por bounds
+        
+        // Determinar qué batch usar (1-16)
+        const batchNumber = this.getBatchForCoordinates(lat, lon);
+        const batchName = `vegetation_ndvi_batch_${batchNumber.toString().padStart(2, '0')}`;
+        
+        // 🚀 Usar caché PERMANENTE para índices (no expiran)
+        let batchIndex = this.batchIndexCache.get(batchName);
+        
+        if (!batchIndex) {
+            try {
+                const indexUrl = this.isLocal 
+                    ? `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${batchName}_index.json`
+                    : `/api/proxy/github/Vegetacion_Mini_Tiles/${batchName}/${batchName}_index.json`;
+                
+                console.log(`🔍 Cargando índice de batch: ${indexUrl}`);
+                const response = await fetch(indexUrl);
+                
+                if (response.ok) {
+                    batchIndex = await response.json();
+                    this.batchIndexCache.set(batchName, batchIndex); // ⚡ Caché permanente
+                    console.log(`✅ Índice cargado: ${batchName} con ${Object.keys(batchIndex.tiles || {}).length} tiles`);
+                } else {
+                    console.warn(`⚠️ No se pudo cargar índice de ${batchName}`);
+                    return null;
+                }
+            } catch (error) {
+                console.warn(`⚠️ Error cargando índice de ${batchName}:`, error.message);
+                return null;
+            }
+        } else {
+            // 🚀 Índice ya en caché - no logear para evitar spam
+        }
+        
+        // Buscar tile que contenga las coordenadas (sin logear para evitar spam)
+        if (batchIndex && batchIndex.tiles) {
+            for (const [tileName, tileInfo] of Object.entries(batchIndex.tiles)) {
+                const bounds = tileInfo.bounds;
+                if (lat >= bounds.south && lat <= bounds.north &&
+                    lon >= bounds.west && lon <= bounds.east) {
+                    return {
+                        filename: tileInfo.filename,
+                        batch: batchName,
+                        bounds: bounds
+                    };
                 }
             }
         }
-
-        // Sistema de fallback: generar nombre de tile basado en coordenadas
-        const batchNumber = this.getBatchForCoordinates(lat, lon);
-        const tileX = Math.floor((lon + 180) / this.config.resolution);
-        const tileY = Math.floor((lat + 90) / this.config.resolution);
         
-        return {
-            filename: `vegetation_ndvi_${tileX}_${tileY}.tif`,
-            batch: `vegetation_ndvi_batch_${batchNumber.toString().padStart(2, '0')}`,
-            bounds: {
-                south: lat - this.config.resolution,
-                north: lat + this.config.resolution,
-                west: lon - this.config.resolution,
-                east: lon + this.config.resolution
-            }
-        };
+        console.warn(`⚠️ No se encontró tile para lat=${lat.toFixed(4)}, lon=${lon.toFixed(4)} en ${batchName}`);
+        return null;
     }
 
     getBatchForCoordinates(lat, lon) {
@@ -180,45 +200,80 @@ class VegetacionHandler {
             }
         }
 
-        console.log(`🎯 Cargando ${tileInfo.filename} desde directorio estático Render`);
+        console.log(`🎯 Cargando ${tileInfo.filename} del batch ${tileInfo.batch}`);
 
-        // URLs de fallback a intentar en orden - SIN GITHUB CALLBACKS
-        const urls = [
-            // 🚀 PRIORIDAD: Directorio Render estático
-            `/opt/render/project/src/static/tiles/data_argentina/vegetation/${tileInfo.batch}/${tileInfo.filename}`,
-            `/static/tiles/data_argentina/vegetation/${tileInfo.batch}/${tileInfo.filename}`,
-
-            // Fallbacks locales con batch
-            `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
-            `../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
-            `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`,
-            `./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${tileInfo.batch}/${tileInfo.filename}`
-        ];
-
-        for (const url of urls) {
-            try {
-                console.log(`🌿 Intentando cargar tile de vegetación desde: ${url}`);
+        // 🚀 ESTRATEGIA: Extraer del tar.gz local del batch
+        try {
+            const tileData = await this.extractTileFromBatchTarGz(tileInfo);
+            
+            if (tileData) {
+                // Cache del tile
+                this.cache.set(cacheKey, {
+                    data: tileData,
+                    timestamp: Date.now()
+                });
                 
-                const response = await fetch(url);
-                if (response.ok) {
-                    const tileData = await response.arrayBuffer();
-                    
-                    // Cache del tile
-                    this.cache.set(cacheKey, {
-                        data: tileData,
-                        timestamp: Date.now()
-                    });
-                    
-                    console.log(`✅ Tile de vegetación cargado exitosamente desde: ${url}`);
-                    return tileData;
-                }
-            } catch (error) {
-                console.warn(`⚠️ Error cargando vegetación desde ${url}:`, error);
-                continue;
+                console.log(`✅ Tile de vegetación extraído: ${tileInfo.filename}`);
+                return tileData;
             }
+        } catch (error) {
+            console.error(`❌ Error extrayendo tile de tar.gz:`, error);
         }
 
         throw new Error(`No se pudo cargar el tile de vegetación: ${tileInfo.filename}`);
+    }
+
+    async extractTileFromBatchTarGz(tileInfo) {
+        try {
+            const batchName = tileInfo.batch;
+            const tarGzFilename = `${batchName}.tar.gz`;
+            
+            // Ruta al tar.gz local
+            const tarGzPath = `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${tarGzFilename}`;
+            
+            console.log(`📦 Extrayendo ${tileInfo.filename} de ${tarGzFilename}`);
+            
+            // 🚀 Verificar caché de tar.gz para evitar cargar el mismo archivo múltiples veces
+            const tarCacheKey = `tarGz_${batchName}`;
+            let tarGzData;
+            
+            if (this.cache.has(tarCacheKey)) {
+                console.log(`⚡ Usando tar.gz cacheado: ${tarGzFilename}`);
+                tarGzData = this.cache.get(tarCacheKey).data;
+            } else {
+                // Cargar tar.gz desde archivo local
+                console.log(`📡 Cargando tar.gz local: ${tarGzPath}`);
+                const response = await fetch(tarGzPath);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} cargando ${tarGzPath}`);
+                }
+                
+                tarGzData = await response.arrayBuffer();
+                console.log(`✅ Tar.gz cargado: ${(tarGzData.byteLength / 1024 / 1024).toFixed(1)}MB`);
+                
+                // Guardar en caché (importante para evitar recargas)
+                this.cache.set(tarCacheKey, {
+                    data: tarGzData,
+                    timestamp: Date.now()
+                });
+                console.log(`💾 Tar.gz ${batchName} cacheado para futuras extracciones`);
+            }
+            
+            // Extraer archivo específico del tar.gz usando la función global
+            const extractedTif = await extractFileFromTarGz(tarGzData, tileInfo.filename);
+            
+            if (extractedTif) {
+                console.log(`✅ Tile extraído de tar.gz: ${tileInfo.filename} (${(extractedTif.byteLength / 1024).toFixed(1)}KB)`);
+                return extractedTif;
+            } else {
+                throw new Error(`Tile ${tileInfo.filename} no encontrado en ${tarGzFilename}`);
+            }
+            
+        } catch (error) {
+            console.error(`❌ Error extrayendo ${tileInfo.filename} de tar.gz:`, error);
+            return null;
+        }
     }
 
     extractNDVIFromTile(tileData, lat, lon, tileInfo) {

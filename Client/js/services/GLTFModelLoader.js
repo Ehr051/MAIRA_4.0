@@ -221,10 +221,34 @@ class GLTFModelLoader {
     cloneModel(model) {
         const clone = model.clone();
         
-        // Clonar materiales para evitar conflictos
+        // ✅ Clonar materiales pero MANTENER texturas (no clonarlas)
         clone.traverse((child) => {
-            if (child.isMesh) {
-                child.material = child.material.clone();
+            if (child.isMesh && child.material) {
+                // Clonar material pero compartir texturas (más eficiente y evita grises)
+                const materialClone = child.material.clone();
+                
+                // ✅ CRÍTICO: Asegurar que las texturas se mantienen
+                if (child.material.map) {
+                    materialClone.map = child.material.map; // Compartir textura (no clonar)
+                    materialClone.map.needsUpdate = false; // Ya está cargada
+                }
+                if (child.material.normalMap) {
+                    materialClone.normalMap = child.material.normalMap;
+                }
+                if (child.material.roughnessMap) {
+                    materialClone.roughnessMap = child.material.roughnessMap;
+                }
+                if (child.material.metalnessMap) {
+                    materialClone.metalnessMap = child.material.metalnessMap;
+                }
+                if (child.material.aoMap) {
+                    materialClone.aoMap = child.material.aoMap;
+                }
+                
+                // Forzar actualización del material
+                materialClone.needsUpdate = true;
+                
+                child.material = materialClone;
             }
         });
         

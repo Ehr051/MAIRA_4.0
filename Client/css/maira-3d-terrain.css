@@ -1,0 +1,349 @@
+/**
+ * 🎨 Estilos para MAIRA 3D Terrain Module
+ * Integración limpia con la interfaz principal de MAIRA
+ */
+
+/* ===== BOTÓN VISTA 3D ===== */
+.maira-3d-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.maira-3d-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.maira-3d-button:active {
+    transform: translateY(0);
+}
+
+.maira-3d-button i {
+    font-size: 16px;
+}
+
+/* ===== MODAL PRINCIPAL ===== */
+.maira-3d-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+}
+
+.maira-3d-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.maira-3d-modal .modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.maira-3d-modal .modal-content {
+    position: relative;
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== HEADER DEL MODAL ===== */
+.maira-3d-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.maira-3d-modal .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.maira-3d-modal .modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.maira-3d-modal .modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== BODY DEL MODAL ===== */
+.maira-3d-modal .modal-body {
+    padding: 24px;
+    color: #e2e8f0;
+}
+
+.maira-3d-modal .control-group {
+    margin-bottom: 20px;
+}
+
+.maira-3d-modal .control-group:last-child {
+    margin-bottom: 0;
+}
+
+.maira-3d-modal .control-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4fd1c5;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.maira-3d-modal .control-group input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #4a5568;
+    outline: none;
+    margin-bottom: 8px;
+    -webkit-appearance: none;
+}
+
+.maira-3d-modal .control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4fd1c5 0%, #667eea 100%);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(79, 209, 197, 0.3);
+}
+
+.maira-3d-modal .control-group input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4fd1c5 0%, #667eea 100%);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(79, 209, 197, 0.3);
+}
+
+.maira-3d-modal .value-display {
+    display: inline-block;
+    background: rgba(79, 209, 197, 0.1);
+    color: #4fd1c5;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* ===== FOOTER DEL MODAL ===== */
+.maira-3d-modal .modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    background: rgba(26, 32, 44, 0.8);
+    border-top: 1px solid rgba(79, 209, 197, 0.2);
+}
+
+.maira-3d-modal .modal-footer button {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.maira-3d-modal .btn-cancel {
+    background: #4a5568;
+    color: #e2e8f0;
+}
+
+.maira-3d-modal .btn-cancel:hover {
+    background: #5a6578;
+}
+
+.maira-3d-modal .btn-generate {
+    background: linear-gradient(135deg, #4fd1c5 0%, #667eea 100%);
+    color: white;
+}
+
+.maira-3d-modal .btn-generate:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 209, 197, 0.4);
+}
+
+/* ===== MODAL DE CARGA ===== */
+.maira-3d-loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+}
+
+.maira-3d-loading.active {
+    display: flex;
+}
+
+.maira-3d-loading .loading-content {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    color: white;
+    min-width: 300px;
+}
+
+.maira-3d-loading .loading-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: loadingSpin 1s linear infinite;
+}
+
+@keyframes loadingSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.maira-3d-loading .loading-text {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #4fd1c5;
+}
+
+.maira-3d-loading .loading-progress {
+    width: 100%;
+    height: 4px;
+    background: #4a5568;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.maira-3d-loading .loading-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4fd1c5 0%, #667eea 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+/* ===== CONTROLES 3D MÍNIMOS ===== */
+.maira-3d-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(26, 32, 44, 0.9);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(79, 209, 197, 0.2);
+}
+
+.maira-3d-controls button {
+    background: rgba(79, 209, 197, 0.1);
+    border: 1px solid rgba(79, 209, 197, 0.3);
+    color: #4fd1c5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.maira-3d-controls button:hover {
+    background: rgba(79, 209, 197, 0.2);
+    border-color: rgba(79, 209, 197, 0.5);
+}
+
+.maira-3d-controls button.active {
+    background: #4fd1c5;
+    color: #1a202c;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .maira-3d-modal .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .maira-3d-modal .modal-body {
+        padding: 20px;
+    }
+    
+    .maira-3d-modal .modal-footer {
+        flex-direction: column;
+    }
+    
+    .maira-3d-button {
+        padding: 10px 14px;
+        font-size: 12px;
+    }
+    
+    .maira-3d-controls {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        flex-wrap: wrap;
+    }
+}
