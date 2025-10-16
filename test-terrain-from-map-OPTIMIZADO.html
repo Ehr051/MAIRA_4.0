@@ -684,6 +684,12 @@
         let mouse = null;               // Se inicializa en initThreeJS()
         let gltfLoader = null;          // Se inicializa en initThreeJS()
         
+        // ⌨️ Variables para controles de teclado (GLOBALES)
+        const keyState = {};
+        const keyboardSpeed = 10;       // Velocidad de movimiento
+        const rotationSpeed = 0.02;     // Velocidad de rotación
+        const zoomSpeed = 5;            // Velocidad de zoom
+        
         // Configuración de modelos de unidades
         const unitModels = {
             // 🇦🇷 ARGENTINA
@@ -1160,11 +1166,7 @@
             controls.dampingFactor = 0.05;
             controls.maxPolarAngle = Math.PI / 2;
             
-            // ⌨️ CONTROLES DE TECLADO para OrbitControls
-            const keyState = {};
-            const keyboardSpeed = 10; // Velocidad de movimiento
-            const rotationSpeed = 0.02; // Velocidad de rotación
-            const zoomSpeed = 5; // Velocidad de zoom
+            // ⌨️ CONTROLES DE TECLADO para OrbitControls (usando variables globales)
             
             document.addEventListener('keydown', (e) => {
                 keyState[e.key.toLowerCase()] = true;
@@ -1178,98 +1180,6 @@
             document.addEventListener('keyup', (e) => {
                 keyState[e.key.toLowerCase()] = false;
             });
-            
-            // Función para actualizar cámara con teclado
-            function updateKeyboardControls() {
-                if (!controls || !camera) return;
-                
-                const direction = new THREE.Vector3();
-                const right = new THREE.Vector3();
-                
-                // Obtener direcciones relativas a la cámara
-                camera.getWorldDirection(direction);
-                direction.y = 0; // Mantener movimiento horizontal
-                direction.normalize();
-                right.crossVectors(camera.up, direction).normalize();
-                
-                // W/S - Adelante/Atrás (zoom in/out)
-                if (keyState['w']) {
-                    controls.target.add(direction.multiplyScalar(keyboardSpeed));
-                    camera.position.add(direction.multiplyScalar(keyboardSpeed));
-                }
-                if (keyState['s']) {
-                    controls.target.sub(direction.multiplyScalar(keyboardSpeed));
-                    camera.position.sub(direction.multiplyScalar(keyboardSpeed));
-                }
-                
-                // A/D - Izquierda/Derecha (pan)
-                if (keyState['a']) {
-                    controls.target.add(right.multiplyScalar(keyboardSpeed));
-                    camera.position.add(right.multiplyScalar(keyboardSpeed));
-                }
-                if (keyState['d']) {
-                    controls.target.sub(right.multiplyScalar(keyboardSpeed));
-                    camera.position.sub(right.multiplyScalar(keyboardSpeed));
-                }
-                
-                // Q/E - Rotar izquierda/derecha
-                if (keyState['q']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.theta -= rotationSpeed;
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                if (keyState['e']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.theta += rotationSpeed;
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                
-                // Flechas - Rotar cámara
-                if (keyState['arrowleft']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.theta -= rotationSpeed;
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                if (keyState['arrowright']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.theta += rotationSpeed;
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                if (keyState['arrowup']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.phi = Math.max(0.1, spherical.phi - rotationSpeed);
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                if (keyState['arrowdown']) {
-                    const spherical = new THREE.Spherical();
-                    spherical.setFromVector3(camera.position.clone().sub(controls.target));
-                    spherical.phi = Math.min(Math.PI / 2, spherical.phi + rotationSpeed);
-                    camera.position.setFromSpherical(spherical).add(controls.target);
-                    camera.lookAt(controls.target);
-                }
-                
-                // +/- - Zoom in/out
-                if (keyState['+'] || keyState['=']) {
-                    const zoomDirection = controls.target.clone().sub(camera.position).normalize();
-                    camera.position.add(zoomDirection.multiplyScalar(zoomSpeed));
-                }
-                if (keyState['-'] || keyState['_']) {
-                    const zoomDirection = controls.target.clone().sub(camera.position).normalize();
-                    camera.position.sub(zoomDirection.multiplyScalar(zoomSpeed));
-                }
-                
-                controls.update();
-            }
             
             // 🎖️ Inicializar sistema de unidades militares
             raycaster = new THREE.Raycaster();
@@ -1456,6 +1366,72 @@
             }
         }
         
+        // ⌨️ FUNCIÓN DE CONTROLES DE TECLADO (SCOPE GLOBAL)
+        function updateKeyboardControls() {
+            if (!controls || !camera) return;
+            
+            const direction = new THREE.Vector3();
+            const right = new THREE.Vector3();
+            
+            // Obtener direcciones relativas a la cámara
+            camera.getWorldDirection(direction);
+            direction.y = 0; // Mantener movimiento horizontal
+            direction.normalize();
+            right.crossVectors(camera.up, direction).normalize();
+            
+            // W/S - Adelante/Atrás (movimiento)
+            if (keyState['w']) {
+                const moveVector = direction.clone().multiplyScalar(keyboardSpeed);
+                controls.target.add(moveVector);
+                camera.position.add(moveVector);
+            }
+            if (keyState['s']) {
+                const moveVector = direction.clone().multiplyScalar(keyboardSpeed);
+                controls.target.sub(moveVector);
+                camera.position.sub(moveVector);
+            }
+            
+            // A/D - Izquierda/Derecha (pan lateral)
+            if (keyState['a']) {
+                const moveVector = right.clone().multiplyScalar(keyboardSpeed);
+                controls.target.add(moveVector);
+                camera.position.add(moveVector);
+            }
+            if (keyState['d']) {
+                const moveVector = right.clone().multiplyScalar(keyboardSpeed);
+                controls.target.sub(moveVector);
+                camera.position.sub(moveVector);
+            }
+            
+            // Q/E - Rotar izquierda/derecha
+            if (keyState['q']) {
+                const spherical = new THREE.Spherical();
+                spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                spherical.theta -= rotationSpeed;
+                camera.position.setFromSpherical(spherical).add(controls.target);
+                camera.lookAt(controls.target);
+            }
+            if (keyState['e']) {
+                const spherical = new THREE.Spherical();
+                spherical.setFromVector3(camera.position.clone().sub(controls.target));
+                spherical.theta += rotationSpeed;
+                camera.position.setFromSpherical(spherical).add(controls.target);
+                camera.lookAt(controls.target);
+            }
+            
+            // +/- - Zoom in/out
+            if (keyState['+'] || keyState['=']) {
+                const zoomDirection = controls.target.clone().sub(camera.position).normalize();
+                camera.position.add(zoomDirection.multiplyScalar(zoomSpeed));
+            }
+            if (keyState['-'] || keyState['_']) {
+                const zoomDirection = controls.target.clone().sub(camera.position).normalize();
+                camera.position.sub(zoomDirection.multiplyScalar(zoomSpeed));
+            }
+            
+            controls.update();
+        }
+        
         let lastTime = performance.now();
         let frustum = null;
         let frustumMatrix = null;
@@ -1514,13 +1490,6 @@
             
             controls.update();
             renderer.render(scene, camera);
-        }
-        
-        // === FUNCIÓN PARA CONTROLES DE TECLADO ===
-        function updateKeyboardControls() {
-            // Por ahora función vacía - se puede expandir para manejar teclas
-            // Evita el error "updateKeyboardControls is not defined"
-            return;
         }
         
         // === POSICIONAR CÁMARA SEGÚN TERRENO ===

@@ -763,6 +763,11 @@ class TerrainGenerator3D {
         const startTime = performance.now();
         console.log(`🔄 Enriqueciendo ${points.length} puntos con muestreo inteligente (1/${samplingRate})...`);
         
+        // 🚀 OPTIMIZACIÓN: Caché de elevaciones (reduce llamadas redundantes a TIF)
+        const elevationCache = new Map();
+        const vegetationCache = new Map();
+        const cacheKey = (lat, lon) => `${lat.toFixed(5)}_${lon.toFixed(5)}`; // Precisión 5 decimales (~1m)
+        
         // Calcular resolución del grid (asumiendo cuadrado)
         const gridResolution = Math.sqrt(points.length);
         
@@ -799,8 +804,13 @@ class TerrainGenerator3D {
                 let elevation = 0;
                 let ndvi = 0;
 
-                // 🗻 Obtener elevación REAL de TIF
-                if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
+                // � CACHÉ: Verificar si ya tenemos este punto
+                const key = cacheKey(point.lat, point.lon);
+                
+                // �🗻 Obtener elevación REAL de TIF (con caché)
+                if (elevationCache.has(key)) {
+                    elevation = elevationCache.get(key);
+                } else if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
                     try {
                         elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
                         // 🛡️ Validación robusta de NaN/null/undefined/Infinity
@@ -813,27 +823,36 @@ class TerrainGenerator3D {
                                 console.error(`🚨 ELEVACIÓN EXTREMA DETECTADA: ${elevation.toFixed(1)}m en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]`);
                             }
                         }
+                        // Guardar en caché
+                        elevationCache.set(key, elevation);
                     } catch (error) {
                         console.warn(`❌ Error obteniendo elevación en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]:`, error.message);
                         elevation = this.generateProceduralHeight(point.lat, point.lon);
+                        elevationCache.set(key, elevation);
                     }
                 } else {
                     elevation = this.generateProceduralHeight(point.lat, point.lon);
+                    elevationCache.set(key, elevation);
                 }
 
-                // 🌿 Obtener NDVI REAL de TIF (con índices JSON)
-                if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
+                // 🌿 Obtener NDVI REAL de TIF (con caché)
+                if (vegetationCache.has(key)) {
+                    ndvi = vegetationCache.get(key);
+                } else if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
                     try {
                         ndvi = await this.vegetationHandler.getNDVI(point.lat, point.lon, point.normX, point.normY);
                         // 🛡️ Validación robusta de NaN/null/undefined/Infinity
                         if (isNaN(ndvi) || ndvi === null || ndvi === undefined || !isFinite(ndvi)) {
                             ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
                         }
+                        vegetationCache.set(key, ndvi);
                     } catch (error) {
                         ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                        vegetationCache.set(key, ndvi);
                     }
                 } else {
                     ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                    vegetationCache.set(key, ndvi);
                 }
 
                 return { index: point.originalIndex, elevation, ndvi };
@@ -921,7 +940,12 @@ class TerrainGenerator3D {
         console.log(`✅ ${enrichedPoints.length} puntos enriquecidos en ${totalTime}s (muestreo: ${samplingTime}s, interpolación: ${interpolationTime}s)`);
         console.log(`📊 Desglose: ${sampledPoints.length} muestreados, ${enrichedPoints.length - sampledPoints.length} interpolados`);
         
-        // 🛡️ Reportar NaN detectados y corregidos
+        // � Reportar eficiencia del caché
+        const cacheHits = sampledPoints.length - elevationCache.size; // Hits = puntos que ya estaban en caché
+        const cacheEfficiency = elevationCache.size > 0 ? ((cacheHits / sampledPoints.length) * 100).toFixed(1) : 0;
+        console.log(`⚡ Caché de elevaciones: ${elevationCache.size} únicos, ${cacheHits} hits (${cacheEfficiency}% eficiencia)`);
+        
+        // �🛡️ Reportar NaN detectados y corregidos
         if (nanCount > 0) {
             console.warn(`⚠️ NaN detectados y corregidos: ${nanCount} puntos (${(nanCount/enrichedPoints.length*100).toFixed(2)}%)`);
             if (nanLocations.length > 0) {
