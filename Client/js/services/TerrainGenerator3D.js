@@ -428,12 +428,26 @@ class TerrainGenerator3D {
                 resolution = 22; // 22×22 = 484 puntos - Transición (reducido de 25)
                 console.log('⚡ Resolución MEDIA-BAJA (zoom 13-14): 22×22 = 484 puntos (7x velocidad)');
             } else if (mapZoom >= 15 && mapZoom < 17) {
-                resolution = 30; // 30×30 = 900 puntos - Vista táctica 6km (REDUCIDO de 35 para FPS)
-                console.log('⚡ Resolución TÁCTICA (zoom 15-16, 6km): 30×30 = 900 puntos (4x velocidad, 40+ FPS) ⚔️');
+                resolution = 25; // 25×25 = 625 puntos - Vista táctica 6km (REDUCIDO para estabilidad)
+                console.log('⚡ Resolución TÁCTICA (zoom 15-16, 6km): 25×25 = 625 puntos (prioridad: estabilidad + FPS) ⚔️');
+            } else if (mapZoom >= 17 && mapZoom < 19) {
+                resolution = 28; // 28×28 = 784 puntos - Alta calidad (REDUCIDO para evitar sobremuestreo y lag)
+                console.log('⚡ Resolución ALTA (zoom 17-18): 28×28 = 784 puntos (equilibrio: detalle vs rendimiento)');
             } else {
-                resolution = 35; // 35×35 = 1225 puntos - Alta calidad (REDUCIDO de 45 para estabilidad)
-                console.log('⚡ Resolución ALTA (zoom 17+): 35×35 = 1225 puntos (reducido para evitar sobremuestreo)');
+                // 🚨 Zoom demasiado alto: reducir aún más para evitar colapso
+                resolution = 20; // 20×20 = 400 puntos - Forzar baja resolución
+                console.warn('⚠️ Resolución FORZADA BAJA (zoom 19+): 20×20 = 400 puntos (prevenir colapso por sobremuestreo extremo)');
+                console.warn('💡 Sugerencia: Zoom 19+ puede tener calidad reducida. Para mejor detalle, mantenga zoom 15-18');
             }
+        }
+        
+        // 🔍 Verificar si la resolución es viable para el área
+        const areaKm2 = (scaledWidth / 1000) * (scaledHeight / 1000);
+        const pointsPerKm2 = ((resolution + 1) * (resolution + 1)) / areaKm2;
+        console.log(`📊 Densidad: ${pointsPerKm2.toFixed(0)} puntos/km² (área: ${areaKm2.toFixed(2)} km²)`);
+        
+        if (pointsPerKm2 > 1000) {
+            console.warn(`⚠️ DENSIDAD MUY ALTA: ${pointsPerKm2.toFixed(0)} puntos/km² puede causar lag. Considere reducir zoom o área.`);
         }
         
         const includeVegetation = options.includeVegetation !== false;
@@ -588,12 +602,43 @@ class TerrainGenerator3D {
         
         console.log(`📊 Rango de elevación: ${minElevation.toFixed(1)}m a ${maxElevation.toFixed(1)}m`);
         
-        // 🐛 DEBUG: Verificar elevaciones en los 4 bordes
-        console.log('🔍 DEBUG - Elevaciones en bordes:');
-        console.log(`  Norte (i=${resolution}): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(j => `j=${j}:${gridPoints[resolution][j].elevation.toFixed(1)}m`).join(', ')}`);
-        console.log(`  Sur (i=0): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(j => `j=${j}:${gridPoints[0][j].elevation.toFixed(1)}m`).join(', ')}`);
-        console.log(`  Este (j=${resolution}): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(i => `i=${i}:${gridPoints[i][resolution].elevation.toFixed(1)}m`).join(', ')}`);
-        console.log(`  Oeste (j=0): ${[0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution].map(i => `i=${i}:${gridPoints[i][0].elevation.toFixed(1)}m`).join(', ')}`);
+        // 🐛 DEBUG: Verificar elevaciones en los 4 bordes CON MÁS DETALLE
+        console.log('🔍 DEBUG DETALLADO - Elevaciones en bordes:');
+        const checkPoints = [0, Math.floor(resolution/4), Math.floor(resolution/2), Math.floor(3*resolution/4), resolution];
+        
+        // Borde Norte
+        const norteValues = checkPoints.map(j => gridPoints[resolution][j].elevation);
+        console.log(`  🧭 Norte (i=${resolution}): ${checkPoints.map((j, idx) => `j=${j}:${norteValues[idx].toFixed(1)}m`).join(', ')}`);
+        if (Math.max(...norteValues) - Math.min(...norteValues) > 100) {
+            console.error(`  🚨 SALTO EXTREMO EN BORDE NORTE: ${(Math.max(...norteValues) - Math.min(...norteValues)).toFixed(1)}m de diferencia`);
+        }
+        
+        // Borde Sur
+        const surValues = checkPoints.map(j => gridPoints[0][j].elevation);
+        console.log(`  🧭 Sur (i=0): ${checkPoints.map((j, idx) => `j=${j}:${surValues[idx].toFixed(1)}m`).join(', ')}`);
+        if (Math.max(...surValues) - Math.min(...surValues) > 100) {
+            console.error(`  🚨 SALTO EXTREMO EN BORDE SUR: ${(Math.max(...surValues) - Math.min(...surValues)).toFixed(1)}m de diferencia`);
+        }
+        
+        // Borde Este
+        const esteValues = checkPoints.map(i => gridPoints[i][resolution].elevation);
+        console.log(`  🧭 Este (j=${resolution}): ${checkPoints.map((i, idx) => `i=${i}:${esteValues[idx].toFixed(1)}m`).join(', ')}`);
+        if (Math.max(...esteValues) - Math.min(...esteValues) > 100) {
+            console.error(`  🚨 SALTO EXTREMO EN BORDE ESTE: ${(Math.max(...esteValues) - Math.min(...esteValues)).toFixed(1)}m de diferencia`);
+        }
+        
+        // Borde Oeste
+        const oesteValues = checkPoints.map(i => gridPoints[i][0].elevation);
+        console.log(`  🧭 Oeste (j=0): ${checkPoints.map((i, idx) => `i=${i}:${oesteValues[idx].toFixed(1)}m`).join(', ')}`);
+        if (Math.max(...oesteValues) - Math.min(...oesteValues) > 100) {
+            console.error(`  🚨 SALTO EXTREMO EN BORDE OESTE: ${(Math.max(...oesteValues) - Math.min(...oesteValues)).toFixed(1)}m de diferencia`);
+        }
+        
+        // 🔍 Verificar centro del terreno
+        const centerI = Math.floor(resolution / 2);
+        const centerJ = Math.floor(resolution / 2);
+        const centerElevation = gridPoints[centerI][centerJ].elevation;
+        console.log(`  🎯 Centro [${centerI},${centerJ}]: ${centerElevation.toFixed(1)}m`);
         
         // Guardar para uso posterior (vegetación, modelos)
         this.terrainMinElevation = minElevation;
@@ -760,9 +805,16 @@ class TerrainGenerator3D {
                         elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
                         // 🛡️ Validación robusta de NaN/null/undefined/Infinity
                         if (isNaN(elevation) || elevation === null || elevation === undefined || !isFinite(elevation)) {
+                            console.warn(`⚠️ Elevación inválida en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]: ${elevation} → usando procedimental`);
                             elevation = this.generateProceduralHeight(point.lat, point.lon);
+                        } else {
+                            // 🔍 LOG: Detectar valores extremos sospechosos
+                            if (Math.abs(elevation) > 5000) {
+                                console.error(`🚨 ELEVACIÓN EXTREMA DETECTADA: ${elevation.toFixed(1)}m en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]`);
+                            }
                         }
                     } catch (error) {
+                        console.warn(`❌ Error obteniendo elevación en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]:`, error.message);
                         elevation = this.generateProceduralHeight(point.lat, point.lon);
                     }
                 } else {
@@ -877,6 +929,64 @@ class TerrainGenerator3D {
                 nanLocations.forEach(loc => {
                     console.warn(`   - [${loc.index}] lat=${loc.lat.toFixed(6)}, lon=${loc.lon.toFixed(6)}`);
                 });
+            }
+        }
+        
+        // 🔥 NUEVO: ANÁLISIS ESTADÍSTICO Y CLAMP DE OUTLIERS
+        const elevations = enrichedPoints.map(p => p.elevation).filter(e => isFinite(e));
+        if (elevations.length > 0) {
+            const mean = elevations.reduce((a, b) => a + b) / elevations.length;
+            const variance = elevations.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / elevations.length;
+            const stdDev = Math.sqrt(variance);
+            const min = Math.min(...elevations);
+            const max = Math.max(...elevations);
+            
+            console.log(`📊 ESTADÍSTICAS DE ELEVACIÓN:`);
+            console.log(`   📈 Media: ${mean.toFixed(2)}m | Desv. Estándar: ${stdDev.toFixed(2)}m`);
+            console.log(`   📉 Mín: ${min.toFixed(2)}m | Máx: ${max.toFixed(2)}m | Rango: ${(max - min).toFixed(2)}m`);
+            
+            // 🚨 Detectar outliers extremos (±3 desviaciones estándar)
+            const lowerBound = mean - (3 * stdDev);
+            const upperBound = mean + (3 * stdDev);
+            let outlierCount = 0;
+            const outlierLocations = [];
+            
+            enrichedPoints.forEach((point, index) => {
+                if (point.elevation < lowerBound || point.elevation > upperBound) {
+                    outlierCount++;
+                    if (outlierLocations.length < 5) {
+                        outlierLocations.push({
+                            lat: point.lat,
+                            lon: point.lon,
+                            elevation: point.elevation,
+                            expected: `${lowerBound.toFixed(1)}m a ${upperBound.toFixed(1)}m`
+                        });
+                    }
+                    
+                    // 🔧 CLAMP: Limitar a ±3σ
+                    const oldElevation = point.elevation;
+                    if (point.elevation < lowerBound) {
+                        point.elevation = lowerBound;
+                    } else if (point.elevation > upperBound) {
+                        point.elevation = upperBound;
+                    }
+                    
+                    // Recalcular coordenadas Y
+                    point.y = point.elevation * this.config.verticalScale;
+                }
+            });
+            
+            if (outlierCount > 0) {
+                console.warn(`🚨 OUTLIERS DETECTADOS Y CLAMPEADOS: ${outlierCount} puntos (${(outlierCount/enrichedPoints.length*100).toFixed(2)}%)`);
+                console.warn(`   🔧 Rango válido: ${lowerBound.toFixed(1)}m a ${upperBound.toFixed(1)}m (Media ±3σ)`);
+                if (outlierLocations.length > 0) {
+                    console.warn(`   📍 Primeros ${outlierLocations.length} outliers:`);
+                    outlierLocations.forEach(loc => {
+                        console.warn(`      - [${loc.lat.toFixed(6)}, ${loc.lon.toFixed(6)}] ${loc.elevation.toFixed(1)}m (esperado: ${loc.expected})`);
+                    });
+                }
+            } else {
+                console.log(`✅ No se detectaron outliers extremos (±3σ)`);
             }
         }
         

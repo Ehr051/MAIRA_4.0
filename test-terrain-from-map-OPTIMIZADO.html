@@ -1717,11 +1717,18 @@
                     mapZoom: capturedZoom  // 🎯 PASAR ZOOM DEL MAPA
                 });
                 
-                // ✅ FIX: Validar que terrain se generó correctamente
+                // ✅ FIX: Validar que terrain Y scene se generaron correctamente
                 if (!result || !result.terrain) {
                     console.error('❌ ERROR CRÍTICO: Terreno no generado', result);
                     throw new Error('Terreno no se pudo generar correctamente (terrain es null)');
                 }
+                
+                if (!scene) {
+                    console.error('❌ ERROR CRÍTICO: Scene no inicializado');
+                    throw new Error('Scene de THREE.js no está inicializado');
+                }
+                
+                console.log('✅ Validación OK - terrain:', result.terrain, 'scene:', scene);
                 
                 // Agregar terreno
                 scene.add(result.terrain);
