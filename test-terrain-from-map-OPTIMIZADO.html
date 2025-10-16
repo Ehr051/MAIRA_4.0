@@ -1717,6 +1717,12 @@
                     mapZoom: capturedZoom  // 🎯 PASAR ZOOM DEL MAPA
                 });
                 
+                // ✅ FIX: Validar que terrain se generó correctamente
+                if (!result || !result.terrain) {
+                    console.error('❌ ERROR CRÍTICO: Terreno no generado', result);
+                    throw new Error('Terreno no se pudo generar correctamente (terrain es null)');
+                }
+                
                 // Agregar terreno
                 scene.add(result.terrain);
                 log('✅ Terreno agregado a la escena', 'success');

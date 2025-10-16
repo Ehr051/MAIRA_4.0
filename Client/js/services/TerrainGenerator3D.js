@@ -431,8 +431,8 @@ class TerrainGenerator3D {
                 resolution = 30; // 30×30 = 900 puntos - Vista táctica 6km (REDUCIDO de 35 para FPS)
                 console.log('⚡ Resolución TÁCTICA (zoom 15-16, 6km): 30×30 = 900 puntos (4x velocidad, 40+ FPS) ⚔️');
             } else {
-                resolution = 45; // 45×45 = 2025 puntos - Alta calidad (reducido de 50)
-                console.log('⚡ Resolución ALTA (zoom 17+): 45×45 = 2025 puntos (calidad+rendimiento)');
+                resolution = 35; // 35×35 = 1225 puntos - Alta calidad (REDUCIDO de 45 para estabilidad)
+                console.log('⚡ Resolución ALTA (zoom 17+): 35×35 = 1225 puntos (reducido para evitar sobremuestreo)');
             }
         }
         
