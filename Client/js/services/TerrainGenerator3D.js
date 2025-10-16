@@ -1255,12 +1255,15 @@ class TerrainGenerator3D {
         
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
-        // 🌳 CONFIGURACIÓN DE VEGETACIÓN - Solo 2 modelos válidos y livianos
-        // trees_low.glb (2.4MB ✅), arbol.glb (8.9MB ✅)
-        // AnimatedOak.glb (81MB ❌ demasiado pesado), arbusto.glb (44MB ❌ muy pesado)
+        // 🌳 CONFIGURACIÓN DE VEGETACIÓN ADAPTATIVA
+        // Para vistas aéreas (3km altura): DENSIDAD ALTA para ver arboledas
+        // Para vistas cercanas: DENSIDAD BAJA (menos árboles, más visibles)
+        //
+        // FILOSOFÍA: Desde lejos necesitas MÁS árboles para ver bosque completo
+        //           Desde cerca necesitas MENOS árboles (ya son grandes visualmente)
         const densityConfig = {
             'vegetation': { 
-                density: 0.10,          // ✅ 10% densidad
+                density: 0.35,          // ✅ 35% densidad (aumentado de 10% para vista aérea)
                 models: [
                     // trees_low.glb - PRINCIPAL (50% árboles bajos)
                     { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },
@@ -1274,7 +1277,7 @@ class TerrainGenerator3D {
                 priority: 2
             },
             'forest': { 
-                density: 0.15,          // ✅ 15% densidad
+                density: 0.50,          // ✅ 50% densidad (aumentado de 15% para vista aérea)
                 models: [
                     // trees_low.glb - BAJO (40%)
                     { type: 'trees_low', weight: 4, scale: [0.025, 0.035] },

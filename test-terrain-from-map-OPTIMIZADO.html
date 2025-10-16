@@ -365,9 +365,12 @@
                 <h2>📸 Configuración del Mapa</h2>
                 
                 <div class="control-group" style="margin-top: 15px;">
-                    <label>LOD Análisis</label>
-                    <input type="range" id="lod" min="2" max="20" value="8" step="1">
-                    <div class="value-display">1/<span id="lod-value">8</span> píxeles</div>
+                    <label>LOD Análisis (samplingRate)</label>
+                    <input type="range" id="lod" min="5" max="15" value="8" step="1">
+                    <div class="value-display">1/<span id="lod-value">8</span> píxeles (↓=lento/detalle, ↑=rápido)</div>
+                    <small style="color: #888; display: block; margin-top: 5px;">
+                        ⚠️ Valores <5 muy lentos. Recomendado: 5-10 para balance.
+                    </small>
                 </div>
             </div>
             
@@ -1684,10 +1687,22 @@
                     const features = satelliteAnalyzer.getFeatures();
                     if (!features || features.length === 0) {
                         console.log('🔄 Analizando imagen satelital antes de generar terreno...');
-                        const samplingRate = parseInt(document.getElementById('lod').value) || 8;
+                        
+                        // 🎯 samplingRate: muestrea cada N píxeles de la imagen
+                        // Valor BAJO (2-4) = LOD ALTO = análisis detallado pero MUY LENTO
+                        // Valor MEDIO (5-8) = LOD MEDIO = balance velocidad/detalle ⭐
+                        // Valor ALTO (10-20) = LOD BAJO = rápido pero menos preciso
+                        let samplingRate = parseInt(document.getElementById('lod').value) || 8;
+                        
+                        // ⚠️ LÍMITE: samplingRate <5 es demasiado lento para imágenes grandes
+                        if (samplingRate < 5) {
+                            console.warn(`⚠️ samplingRate ${samplingRate} muy bajo, ajustando a 5 (mínimo recomendado)`);
+                            samplingRate = 5;
+                        }
+                        
                         // 🔥 FORZAR MÉTODO SÍNCRONO para evitar Workers problemáticos
                         satelliteAnalyzer.analyzeImageSync({ samplingRate });
-                        console.log('✅ Análisis completado, generando terreno...');
+                        console.log(`✅ Análisis completado con samplingRate=${samplingRate}, generando terreno...`);
                     } else {
                         console.log(`✅ Usando ${features.length} features ya detectadas`);
                     }
